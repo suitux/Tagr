@@ -41,13 +41,3 @@ export async function GET() {
     )
   }
 }
-
-// export async function GET() {
-//   return NextResponse.json(
-//     {
-//       success: false,
-//       error: 'Use POST method to start a scan'
-//     },
-//     { status: 405 }
-//   )
-// }
