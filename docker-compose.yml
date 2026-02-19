@@ -9,9 +9,16 @@ services:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:/app/data/metadater.db
+      - DATABASE_URL=file:/data/metadater.db
+      # Comma-separated list of music folders inside the container
+      - MUSIC_FOLDERS=/music/folder1,/music/folder2
     volumes:
-      - sqlite_data:/app/data
+      - sqlite_data:/data
+      # Mount your local music folders to the container
+      # Example: /path/to/your/music:/music/folder1
+      # Uncomment and modify the lines below:
+      # - /Users/youruser/Music:/music/folder1:ro
+      # - /Volumes/ExternalDisk/Music:/music/folder2:ro
 
 volumes:
   sqlite_data:

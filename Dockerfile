@@ -35,7 +35,10 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Create data directory for SQLite
-RUN mkdir -p /app/data && chown -R nextjs:nodejs /app/data
+RUN mkdir -p /data && chown -R nextjs:nodejs /data
+
+# Create music directory for mounting music folders
+RUN mkdir -p /music && chown -R nextjs:nodejs /music
 
 COPY --from=builder /app/public ./public
 
