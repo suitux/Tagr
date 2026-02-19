@@ -1,0 +1,88 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Song {
+  id         Int      @id @default(autoincrement())
+  filePath   String   @unique @map("file_path")
+  fileName   String   @map("file_name")
+  folderPath String   @map("folder_path")
+  extension  String
+  fileSize   Int      @map("file_size")
+  createdAt  DateTime? @map("created_at")
+  modifiedAt DateTime? @map("modified_at")
+  scannedAt  DateTime  @default(now()) @map("scanned_at")
+
+  // Metadata común (para búsquedas rápidas)
+  title       String?
+  artist      String?
+  album       String?
+  albumArtist String?  @map("album_artist")
+  year        Int?
+  trackNumber Int?     @map("track_number")
+  trackTotal  Int?     @map("track_total")
+  discNumber  Int?     @map("disc_number")
+  discTotal   Int?     @map("disc_total")
+  genre       String?
+  duration    Float?
+  composer    String?
+  comment     String?
+  lyrics      String?
+
+  // Información de audio
+  bitrate       Int?
+  sampleRate    Int?     @map("sample_rate")
+  channels      Int?
+  bitsPerSample Int?     @map("bits_per_sample")
+  codec         String?
+  lossless      Boolean  @default(false)
+
+  // Relaciones
+  metadata SongMetadata[]
+  pictures SongPicture[]
+
+  @@index([folderPath])
+  @@index([artist])
+  @@index([album])
+  @@index([title])
+  @@index([genre])
+  @@index([year])
+  @@map("songs")
+}
+
+model SongMetadata {
+  id     Int    @id @default(autoincrement())
+  songId Int    @map("song_id")
+  key    String
+  value  String?
+
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([songId, key])
+  @@index([songId])
+  @@index([key])
+  @@map("song_metadata")
+}
+
+model SongPicture {
+  id          Int     @id @default(autoincrement())
+  songId      Int     @map("song_id")
+  type        String?
+  format      String?
+  description String?
+  data        Bytes?
+
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([songId])
+  @@map("song_pictures")
+}
