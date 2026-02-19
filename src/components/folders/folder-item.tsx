@@ -34,9 +34,21 @@ export function FolderItem({ folder, isSelected, onFolderSelect, selectedFolderI
   const subfolderCount = folder.totalSubfolders
   const hasSubfolders = subfolderCount > 0
 
+  const handleExpand = () => {
+    setIsExpanded(!isExpanded)
+  }
+
   const handleExpandClick = (e: React.MouseEvent) => {
     e.stopPropagation()
-    setIsExpanded(!isExpanded)
+    handleExpand()
+  }
+
+  const handleFolderSelect = (folder: string) => {
+    onFolderSelect?.(folder)
+
+    if (!isExpanded) {
+      handleExpand()
+    }
   }
 
   return (
@@ -45,7 +57,7 @@ export function FolderItem({ folder, isSelected, onFolderSelect, selectedFolderI
         <TooltipTrigger asChild>
           <Button
             variant={isSelected ? 'secondary' : 'ghost'}
-            onClick={() => onFolderSelect?.(folder.folder)}
+            onClick={() => handleFolderSelect(folder.folder)}
             className={cn(
               'w-full justify-start gap-2 h-auto px-3 py-2.5 cursor-pointer',
               isSelected && 'bg-accent shadow-sm',
