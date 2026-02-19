@@ -1,6 +1,6 @@
+import bcrypt from 'bcryptjs'
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
-import bcrypt from 'bcryptjs'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -8,7 +8,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       name: 'Credentials',
       credentials: {
         username: { label: 'Username', type: 'text' },
-        password: { label: 'Password', type: 'password' },
+        password: { label: 'Password', type: 'password' }
       },
       async authorize(credentials) {
         const authUser = process.env.AUTH_USER
@@ -31,6 +31,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
 
         const isValidPassword = await bcrypt.compare(password, authPasswordHash)
 
+        console.log('auth attempt:', { username, password, isValidPassword, authPasswordHash })
+
         if (!isValidPassword) {
           return null
         }
@@ -38,16 +40,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return {
           id: '1',
           name: authUser,
-          email: `${authUser}@local`,
+          email: `${authUser}@local`
         }
-      },
-    }),
+      }
+    })
   ],
   pages: {
-    signIn: '/login',
+    signIn: '/login'
   },
   session: {
-    strategy: 'jwt',
-  },
+    strategy: 'jwt'
+  }
 })
-

@@ -9,8 +9,10 @@ if (!password) {
 }
 
 bcrypt.hash(password, 12).then(hash => {
+  const hashWithoutSpecials = hash.replace(/\$/g, '\\$')
+
   console.log('\nGenerated hash for AUTH_PASSWORD:')
-  console.log(hash)
+  console.log(hashWithoutSpecials)
   console.log('\nAdd this to your .env file:')
-  console.log(`AUTH_PASSWORD="${hash}"`)
+  console.log(`AUTH_PASSWORD="${hashWithoutSpecials}"`)
 })
