@@ -144,7 +144,7 @@ function FileItem({ file, isSelected, onClick }: FileItemProps) {
           variant={isSelected ? 'secondary' : 'ghost'}
           onClick={onClick}
           className={cn(
-            'w-full h-auto py-3 px-4 grid grid-cols-[1fr_100px_120px] gap-4 items-center',
+            'w-full h-auto py-3 px-4 grid grid-cols-[1fr_100px_120px] gap-4 items-center cursor-pointer',
             isSelected && 'bg-accent shadow-sm'
           )}>
           <div className='flex items-center gap-3 min-w-0'>

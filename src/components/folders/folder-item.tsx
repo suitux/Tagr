@@ -26,7 +26,7 @@ export function FolderItem({ folder, isSelected, onClick }: FolderItemProps) {
           variant={isSelected ? 'secondary' : 'ghost'}
           onClick={onClick}
           className={cn(
-            'w-full justify-start gap-3 h-auto px-3 py-2.5',
+            'w-full justify-start gap-3 h-auto px-3 py-2.5 cursor-pointer',
             isSelected && 'bg-accent shadow-sm',
             hasError && 'opacity-70'
           )}>
