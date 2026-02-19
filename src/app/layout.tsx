@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { QueryProvider } from '@/components/providers/query-provider'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import './globals.css'
 
 const geistSans = Geist({
@@ -28,7 +29,9 @@ export default function RootLayout({
     <html lang='en' className='dark'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <QueryProvider>
-          <NextIntlClientProvider>{children}</NextIntlClientProvider>
+          <NextIntlClientProvider>
+            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+          </NextIntlClientProvider>
         </QueryProvider>
       </body>
     </html>
