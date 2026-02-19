@@ -1,6 +1,7 @@
 import fs from 'fs/promises'
 import * as musicMetadata from 'music-metadata'
 import path from 'path'
+import { MusicFile } from '@/features/music-files/domain'
 import { isMusicFile } from '@/lib/config'
 import { prisma } from './client'
 
@@ -325,7 +326,7 @@ export async function getSongByPath(filePath: string) {
   })
 }
 
-export async function getSongsByFolder(folderPath: string) {
+export async function getSongsByFolder(folderPath: string): Promise<MusicFile[]> {
   return prisma.song.findMany({
     where: { folderPath },
     orderBy: [{ trackNumber: 'asc' }, { fileName: 'asc' }]

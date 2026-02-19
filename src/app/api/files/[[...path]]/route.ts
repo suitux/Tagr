@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { Song } from '@/features/songs/domain'
 import { getSongsByFolder } from '@/lib/db/scanner'
 
 interface RouteParams {
@@ -7,7 +8,21 @@ interface RouteParams {
   }>
 }
 
-export async function GET(request: Request, { params }: RouteParams) {
+interface FilesSuccessResponse {
+  success: true
+  folderPath: string
+  totalFiles: number
+  files: Song[]
+}
+
+interface FilesErrorResponse {
+  success: false
+  error: string
+}
+
+type FilesResponse = FilesSuccessResponse | FilesErrorResponse
+
+export async function GET(request: Request, { params }: RouteParams): Promise<NextResponse<FilesResponse>> {
   const { path } = await params
 
   if (!path || path.length === 0) {
@@ -20,7 +35,6 @@ export async function GET(request: Request, { params }: RouteParams) {
     )
   }
 
-  // Reconstruir la ruta completa desde los segmentos
   const folderPath = '/' + path.map(segment => decodeURIComponent(segment)).join('/')
 
   try {
@@ -43,4 +57,3 @@ export async function GET(request: Request, { params }: RouteParams) {
     )
   }
 }
-
