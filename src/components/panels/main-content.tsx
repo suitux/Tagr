@@ -1,6 +1,7 @@
 'use client'
 
 import { MusicIcon, PlayCircleIcon, ClockIcon, FileAudioIcon, FolderOpenIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,6 +18,9 @@ interface MainContentProps {
 }
 
 export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: MainContentProps) {
+  const tFolders = useTranslations('folders')
+  const tFiles = useTranslations('files')
+  const tCommon = useTranslations('common')
   const { data } = useFolders()
 
   const selectedFolder = data?.folders.find(f => f.folder === selectedFolderId)
@@ -29,8 +33,8 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
             <div className='mx-auto w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-4'>
               <FolderOpenIcon className='w-10 h-10 text-muted-foreground/50' />
             </div>
-            <CardTitle>Selecciona una carpeta</CardTitle>
-            <CardDescription>Elige una carpeta del panel izquierdo para ver sus archivos de música</CardDescription>
+            <CardTitle>{tFolders('selectFolder')}</CardTitle>
+            <CardDescription>{tFolders('selectFolderDescription')}</CardDescription>
           </CardHeader>
         </Card>
       </div>
@@ -50,7 +54,7 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
           </div>
           <Badge variant='secondary' className='gap-1.5'>
             <MusicIcon className='w-3.5 h-3.5' />
-            {selectedFolder.files.length} archivos
+            {tFolders('files', { count: selectedFolder.files.length })}
           </Badge>
         </div>
       </div>
@@ -66,7 +70,7 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
                 <div className='mx-auto w-16 h-16 rounded-xl bg-muted flex items-center justify-center mb-4'>
                   <FileAudioIcon className='w-8 h-8 text-muted-foreground' />
                 </div>
-                <p className='text-sm text-muted-foreground'>No hay archivos de música en esta carpeta</p>
+                <p className='text-sm text-muted-foreground'>{tFiles('empty')}</p>
               </CardContent>
             </Card>
           </div>
@@ -74,9 +78,9 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
           <div className='p-4'>
             {/* Table Header */}
             <div className='grid grid-cols-[1fr_100px_120px] gap-4 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider'>
-              <span>Nombre</span>
-              <span className='text-right'>Tamaño</span>
-              <span className='text-right'>Modificado</span>
+              <span>{tCommon('name')}</span>
+              <span className='text-right'>{tCommon('size')}</span>
+              <span className='text-right'>{tCommon('modified')}</span>
             </div>
 
             <Separator className='mb-2' />
@@ -114,7 +118,7 @@ function FileItem({ file, isSelected, onClick }: FileItemProps) {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString)
-    return date.toLocaleDateString('es-ES', {
+    return date.toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'

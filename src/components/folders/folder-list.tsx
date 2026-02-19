@@ -2,6 +2,7 @@
 
 import { FolderIcon, AlertTriangleIcon, SearchIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -17,6 +18,7 @@ interface FolderListProps {
 }
 
 export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps) {
+  const t = useTranslations('folders')
   const { data, isLoading, error } = useFolders()
   const [searchQuery, setSearchQuery] = useState('')
 
@@ -50,8 +52,8 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
               <div className='mx-auto w-12 h-12 rounded-full bg-destructive/10 flex items-center justify-center mb-2'>
                 <AlertTriangleIcon className='w-6 h-6 text-destructive' />
               </div>
-              <CardTitle className='text-base'>Error al cargar</CardTitle>
-              <CardDescription>No se pudieron cargar las carpetas</CardDescription>
+              <CardTitle className='text-base'>{t('errorLoading')}</CardTitle>
+              <CardDescription>{t('errorLoadingDescription')}</CardDescription>
             </CardHeader>
           </Card>
         </div>
@@ -69,7 +71,7 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
           <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground' />
           <Input
             type='text'
-            placeholder='Buscar carpetas...'
+            placeholder={t('searchPlaceholder')}
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             className='pl-9 h-9'
@@ -80,8 +82,8 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
       {/* Summary */}
       {data?.summary && (
         <div className='px-3 pb-3 flex gap-2'>
-          <Badge variant='secondary'>{data.summary.totalFolders} carpetas</Badge>
-          <Badge variant='outline'>{data.summary.totalFiles} archivos</Badge>
+          <Badge variant='secondary'>{t('totalFolders', { count: data.summary.totalFolders })}</Badge>
+          <Badge variant='outline'>{t('files', { count: data.summary.totalFiles })}</Badge>
         </div>
       )}
 
@@ -97,7 +99,7 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
                   <FolderIcon className='w-6 h-6 text-muted-foreground' />
                 </div>
                 <p className='text-sm text-muted-foreground'>
-                  {searchQuery ? 'No se encontraron carpetas' : 'No hay carpetas configuradas'}
+                  {searchQuery ? t('notFound') : t('empty')}
                 </p>
               </CardContent>
             </Card>
@@ -120,6 +122,8 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
 }
 
 function FolderListHeader() {
+  const t = useTranslations('folders')
+
   return (
     <div className='px-4 py-5'>
       <div className='flex items-center gap-3'>
@@ -127,8 +131,8 @@ function FolderListHeader() {
           <FolderIcon className='w-5 h-5 text-primary-foreground' />
         </div>
         <div>
-          <h2 className='text-base font-semibold text-foreground'>Carpetas</h2>
-          <p className='text-xs text-muted-foreground'>Biblioteca de música</p>
+          <h2 className='text-base font-semibold text-foreground'>{t('title')}</h2>
+          <p className='text-xs text-muted-foreground'>{t('subtitle')}</p>
         </div>
       </div>
     </div>

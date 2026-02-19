@@ -1,14 +1,11 @@
 'use client'
 
-import { cn } from '@/lib/utils'
-import type { FolderContent } from '@/features/folders/hooks/use-folders'
 import { FolderIcon, FolderOpenIcon, AlertCircleIcon, MusicIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { FolderContent } from '@/features/folders/hooks/use-folders'
+import { cn } from '@/lib/utils'
 
 interface FolderItemProps {
   folder: FolderContent
@@ -17,6 +14,7 @@ interface FolderItemProps {
 }
 
 export function FolderItem({ folder, isSelected, onClick }: FolderItemProps) {
+  const t = useTranslations('folders')
   const folderName = folder.folder.split('/').pop() || folder.folder
   const hasError = !!folder.error
   const fileCount = folder.files.length
@@ -31,49 +29,38 @@ export function FolderItem({ folder, isSelected, onClick }: FolderItemProps) {
             'w-full justify-start gap-3 h-auto px-3 py-2.5',
             isSelected && 'bg-accent shadow-sm',
             hasError && 'opacity-70'
-          )}
-        >
+          )}>
           <div
             className={cn(
               'flex items-center justify-center w-9 h-9 rounded-lg transition-colors',
-              isSelected
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground'
-            )}
-          >
+              isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+            )}>
             {hasError ? (
-              <AlertCircleIcon className="w-5 h-5 text-destructive" />
+              <AlertCircleIcon className='w-5 h-5 text-destructive' />
             ) : isSelected ? (
-              <FolderOpenIcon className="w-5 h-5" />
+              <FolderOpenIcon className='w-5 h-5' />
             ) : (
-              <FolderIcon className="w-5 h-5" />
+              <FolderIcon className='w-5 h-5' />
             )}
           </div>
 
-          <div className="flex-1 min-w-0 text-left">
-            <p
-              className={cn(
-                'text-sm font-medium truncate',
-                isSelected ? 'text-foreground' : 'text-foreground/80'
-              )}
-            >
+          <div className='flex-1 min-w-0 text-left'>
+            <p className={cn('text-sm font-medium truncate', isSelected ? 'text-foreground' : 'text-foreground/80')}>
               {folderName}
             </p>
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <MusicIcon className="w-3 h-3 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground">
-                {fileCount} {fileCount === 1 ? 'archivo' : 'archivos'}
+            <div className='flex items-center gap-1.5 mt-0.5'>
+              <MusicIcon className='w-3 h-3 text-muted-foreground' />
+              <span className='text-xs text-muted-foreground'>
+                {fileCount} {t('file', { count: fileCount })}
               </span>
             </div>
           </div>
 
-          {isSelected && (
-            <div className="w-1.5 h-8 bg-primary rounded-full" />
-          )}
+          {isSelected && <div className='w-1.5 h-8 bg-primary rounded-full' />}
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="right" className="max-w-xs">
-        <p className="text-xs break-all">{folder.folder}</p>
+      <TooltipContent side='right' className='max-w-xs'>
+        <p className='text-xs break-all'>{folder.folder}</p>
       </TooltipContent>
     </Tooltip>
   )

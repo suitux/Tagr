@@ -9,11 +9,44 @@
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
-    "edit": "Edit"
+    "edit": "Edit",
+    "search": "Search",
+    "name": "Name",
+    "size": "Size",
+    "modified": "Modified",
+    "format": "Format",
+    "location": "Location"
   },
   "folders": {
-    "title": "Music Folders",
-    "empty": "No folders found",
-    "totalFiles": "{count, plural, =0 {No files} one {# file} other {# files}}"
+    "title": "Folders",
+    "subtitle": "Music library",
+    "empty": "No folders configured",
+    "notFound": "No folders found",
+    "searchPlaceholder": "Search folders...",
+    "totalFolders": "{count} folders",
+    "totalFiles": "{count, plural, =0 {No files} one {# file} other {# files}}",
+    "selectFolder": "Select a folder",
+    "selectFolderDescription": "Choose a folder from the left panel to view its music files",
+    "loadingFolders": "Loading folders...",
+    "errorLoading": "Error loading",
+    "errorLoadingDescription": "Could not load folders",
+    "file": "{count, plural, one {file} other {files}}",
+    "files": "{count} files"
+  },
+  "files": {
+    "title": "Files",
+    "empty": "No music files in this folder",
+    "details": "File details",
+    "selectFile": "Select a file to view its details",
+    "fileInfo": "File information"
+  },
+  "formats": {
+    "mp3": "MPEG Audio Layer 3",
+    "flac": "Free Lossless Audio Codec",
+    "wav": "Waveform Audio",
+    "m4a": "MPEG-4 Audio",
+    "ogg": "Ogg Vorbis",
+    "aac": "Advanced Audio Coding",
+    "unknown": "Audio File"
   }
 }
