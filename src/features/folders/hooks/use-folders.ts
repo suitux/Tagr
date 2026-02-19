@@ -1,4 +1,4 @@
-import type { FolderContent, MusicFile, Subfolder } from '@/app/api/folders/[[...name]]/route'
+import { FolderContent } from '@/features/folders/domain'
 import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 
@@ -25,5 +25,3 @@ export function useFolders() {
     queryFn: fetchFolders
   })
 }
-
-export type { FolderContent, MusicFile, Subfolder }

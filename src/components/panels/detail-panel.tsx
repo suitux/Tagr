@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import type { MusicFile } from '@/features/folders/hooks/use-folders'
+import { MusicFile } from '@/features/music-files/domain'
 import { cn } from '@/lib/utils'
 
 interface DetailPanelProps {

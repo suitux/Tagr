@@ -51,5 +51,12 @@
     "ogg": "Ogg Vorbis",
     "aac": "Advanced Audio Coding",
     "unknown": "Audio File"
+  },
+  "api": {
+    "folders": {
+      "noFoldersConfigured": "No music folders configured. Set the MUSIC_FOLDERS environment variable.",
+      "pathNotDirectory": "The path is not a directory",
+      "unknownError": "Unknown error reading the folder"
+    }
   }
 }

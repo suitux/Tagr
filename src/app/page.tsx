@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import type { MusicFile } from '@/app/api/folders/route'
 import { FolderList } from '@/components/folders/folder-list'
 import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
 import { DetailPanel } from '@/components/panels/detail-panel'
+import { MusicFile } from '@/features/music-files/domain'
 
 export default function Home() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)

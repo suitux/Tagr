@@ -4,7 +4,7 @@ import { FolderIcon, FolderOpenIcon, AlertCircleIcon, MusicIcon, FoldersIcon } f
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import type { FolderContent } from '@/features/folders/hooks/use-folders'
+import { FolderContent } from '@/features/folders/domain'
 import { cn } from '@/lib/utils'
 
 interface FolderItemProps {

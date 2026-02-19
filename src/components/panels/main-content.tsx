@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useFolders, type MusicFile } from '@/features/folders/hooks/use-folders'
+import { useFolders } from '@/features/folders/hooks/use-folders'
+import { MusicFile } from '@/features/music-files/domain'
 import { cn } from '@/lib/utils'
 
 interface MainContentProps {
