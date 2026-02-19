@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { NextResponse } from 'next/server'
-import { getMusicFolders, isMusicExtension } from '@/lib/config'
+import { getMusicFolders, isMusicFile } from '@/lib/config'
 
 export interface MusicFile {
   name: string
@@ -24,17 +24,6 @@ export interface FolderContent {
   error?: string
 }
 
-/**
- * Verifica si un archivo es un archivo de música basándose en su extensión
- */
-function isMusicFile(filename: string): boolean {
-  const ext = path.extname(filename).toLowerCase()
-  return isMusicExtension(ext)
-}
-
-/**
- * Lee las subcarpetas de primer nivel y cuenta los archivos de música de una carpeta
- */
 async function readMusicFolder(folderPath: string): Promise<FolderContent> {
   try {
     const stats = await fs.stat(folderPath)
@@ -80,10 +69,6 @@ async function readMusicFolder(folderPath: string): Promise<FolderContent> {
   }
 }
 
-/**
- * GET /api/folders
- * Devuelve el listado de carpetas configuradas y sus archivos de música
- */
 export async function GET() {
   const folders = getMusicFolders()
 
