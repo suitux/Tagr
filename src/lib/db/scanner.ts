@@ -8,6 +8,7 @@ export interface ScanResult {
   totalScanned: number
   totalAdded: number
   totalUpdated: number
+  totalDeleted: number
   totalErrors: number
   errors: Array<{ path: string; error: string }>
 }
@@ -170,6 +171,7 @@ export async function scanFolder(
     totalScanned: 0,
     totalAdded: 0,
     totalUpdated: 0,
+    totalDeleted: 0,
     totalErrors: 0,
     errors: []
   }
@@ -255,6 +257,34 @@ export async function scanFolder(
     }
   }
 
+  // Eliminar canciones que ya no existen en el sistema de archivos
+  const existingPaths = new Set(files)
+  const songsInDb = await prisma.song.findMany({
+    where: {
+      folderPath: {
+        startsWith: folderPath
+      }
+    },
+    select: { id: true, filePath: true }
+  })
+
+  for (const song of songsInDb) {
+    if (!existingPaths.has(song.filePath)) {
+      try {
+        await prisma.song.delete({
+          where: { id: song.id }
+        })
+        result.totalDeleted++
+      } catch (error) {
+        result.totalErrors++
+        result.errors.push({
+          path: song.filePath,
+          error: `Failed to delete: ${error instanceof Error ? error.message : 'Unknown error'}`
+        })
+      }
+    }
+  }
+
   return result
 }
 
@@ -266,6 +296,7 @@ export async function scanAllFolders(
     totalScanned: 0,
     totalAdded: 0,
     totalUpdated: 0,
+    totalDeleted: 0,
     totalErrors: 0,
     errors: []
   }
@@ -276,6 +307,7 @@ export async function scanAllFolders(
     result.totalScanned += folderResult.totalScanned
     result.totalAdded += folderResult.totalAdded
     result.totalUpdated += folderResult.totalUpdated
+    result.totalDeleted += folderResult.totalDeleted
     result.totalErrors += folderResult.totalErrors
     result.errors.push(...folderResult.errors)
   }
