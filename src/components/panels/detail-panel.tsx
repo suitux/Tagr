@@ -1,5 +1,6 @@
 'use client'
 
+import { format } from 'date-fns'
 import {
   CalendarIcon,
   ClockIcon,
@@ -20,13 +21,14 @@ import {
   UserIcon,
   WavesIcon
 } from 'lucide-react'
-import { format } from 'date-fns'
 import { useTranslations } from 'next-intl'
+import Image from 'next/image'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Song } from '@/features/songs/domain'
+import { useSongPicture } from '@/features/songs/hooks/use-song-picture'
 import { cn } from '@/lib/utils'
 
 interface DetailPanelProps {
@@ -37,6 +39,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
   const tFiles = useTranslations('files')
   const tCommon = useTranslations('common')
   const tFormats = useTranslations('formats')
+  const { pictureUrl, hasPicture } = useSongPicture(song?.id)
 
   if (!song) {
     return (
@@ -148,13 +151,25 @@ export function DetailPanel({ song }: DetailPanelProps) {
               <div className='relative bg-gradient-to-br from-muted/50 to-muted'>
                 <div className='absolute inset-0 bg-grid-pattern opacity-5' />
                 <div className='relative flex flex-col items-center py-10 px-4'>
-                  <div
-                    className={cn(
-                      'w-24 h-24 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-2xl mb-4',
-                      extColor
-                    )}>
-                    <FileAudioIcon className='w-12 h-12 text-white' />
-                  </div>
+                  {hasPicture && pictureUrl ? (
+                    <div className='w-32 h-32 rounded-2xl overflow-hidden shadow-2xl mb-4 relative'>
+                      <Image
+                        src={pictureUrl}
+                        alt={song.title || song.fileName}
+                        fill
+                        className='object-cover'
+                        unoptimized
+                      />
+                    </div>
+                  ) : (
+                    <div
+                      className={cn(
+                        'w-24 h-24 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-2xl mb-4',
+                        extColor
+                      )}>
+                      <FileAudioIcon className='w-12 h-12 text-white' />
+                    </div>
+                  )}
                   <div className='flex items-center gap-2'>
                     <Badge variant='secondary'>{song.extension.toUpperCase()}</Badge>
                     {song.lossless && <Badge variant='outline'>Lossless</Badge>}

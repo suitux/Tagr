@@ -28,7 +28,7 @@ async function fetchSongsByFolder(folderPath: string): Promise<SongsResponse> {
 
 export function useSongsByFolder(folderPath: string | undefined) {
   return useQuery({
-    queryKey: ['songs', folderPath],
+    queryKey: ['songs', 'folder', folderPath],
     queryFn: () => fetchSongsByFolder(folderPath!),
     enabled: !!folderPath
   })
