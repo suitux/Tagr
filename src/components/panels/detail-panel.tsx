@@ -152,7 +152,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
                 <div className='absolute inset-0 bg-grid-pattern opacity-5' />
                 <div className='relative flex flex-col items-center py-10 px-4'>
                   {hasPicture && pictureUrl ? (
-                    <div className='w-32 h-32 rounded-2xl overflow-hidden shadow-2xl mb-4 relative'>
+                    <div className='w-64 h-64 rounded-2xl overflow-hidden shadow-2xl mb-4 relative'>
                       <Image
                         src={pictureUrl}
                         alt={song.title || song.fileName}
