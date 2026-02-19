@@ -20,6 +20,7 @@ import {
   UserIcon,
   WavesIcon
 } from 'lucide-react'
+import { format } from 'date-fns'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -61,13 +62,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
 
   const formatDate = (date: Date | null) => {
     if (!date) return null
-    return new Date(date).toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
+    return format(new Date(date), 'dd MMMM yyyy, HH:mm')
   }
 
   const formatDuration = (seconds: number | null) => {
@@ -124,7 +119,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
   const displayTitle = song.title || song.fileName
 
   return (
-    <div className='flex flex-col h-full'>
+    <div className='flex flex-col h-full overflow-hidden'>
       {/* Header */}
       <div className='flex-shrink-0 p-5'>
         <div className='flex items-center gap-3'>
@@ -145,7 +140,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
       <Separator />
 
       {/* Content */}
-      <ScrollArea className='flex-1'>
+      <ScrollArea className='flex-1 min-h-0'>
         <div className='p-4 space-y-6'>
           {/* Preview Card */}
           <Card className='overflow-hidden'>
