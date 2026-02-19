@@ -1,0 +1,12 @@
+{
+  "plugins": ["prettier-plugin-tailwindcss", "@trivago/prettier-plugin-sort-imports"],
+  "bracketSpacing": true,
+  "jsxBracketSameLine": true,
+  "singleQuote": true,
+  "jsxSingleQuote": true,
+  "trailingComma": "none",
+  "semi": false,
+  "printWidth": 120,
+  "arrowParens": "avoid",
+  "importOrder": ["tinymce/tinymce", "^tinymce/tinymce/*","^react", "^next", "^@radix", "^classnames", "^[@/]", "^[./]"]
+}
