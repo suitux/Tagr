@@ -4,25 +4,29 @@ import { useState } from 'react'
 import { FolderList } from '@/components/folders/folder-list'
 import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
 import { DetailPanel } from '@/components/panels/detail-panel'
-import { MusicFile } from '@/features/music-files/domain'
+import { MainContent } from '@/components/panels/main-content'
+import { Song } from '@/features/songs/domain'
 
 export default function Home() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
-  const [selectedFile, setSelectedFile] = useState<MusicFile | null>(null)
+  const [selectedSong, setSelectedSong] = useState<Song | null>(null)
 
   const handleFolderSelect = (folderId: string | null) => {
     setSelectedFolderId(folderId)
-    setSelectedFile(null)
+    setSelectedSong(null)
   }
 
-  // const handleFileSelect = (file: MusicFile | null) => {
-  //   setSelectedFile(file)
-  // }
+  const handleFileSelect = (song: Song | null) => {
+    setSelectedSong(song)
+  }
 
   return (
     <ThreeColumnLayout
       sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
-      detail={selectedFile ? <DetailPanel file={selectedFile} /> : undefined}
+      main={
+        <MainContent selectedFolderId={selectedFolderId} selectedFile={selectedSong} onFileSelect={handleFileSelect} />
+      }
+      detail={selectedSong ? <DetailPanel song={selectedSong} /> : undefined}
     />
   )
 }

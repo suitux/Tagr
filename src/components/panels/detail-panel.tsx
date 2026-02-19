@@ -6,19 +6,19 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { MusicFile } from '@/features/music-files/domain'
+import { Song } from '@/features/songs/domain'
 import { cn } from '@/lib/utils'
 
 interface DetailPanelProps {
-  file?: MusicFile | null
+  song?: Song | null
 }
 
-export function DetailPanel({ file }: DetailPanelProps) {
+export function DetailPanel({ song }: DetailPanelProps) {
   const tFiles = useTranslations('files')
   const tCommon = useTranslations('common')
   const tFormats = useTranslations('formats')
 
-  if (!file) {
+  if (!song) {
     return (
       <div className='flex flex-col h-full items-center justify-center text-center p-6'>
         <Card>
@@ -75,8 +75,8 @@ export function DetailPanel({ file }: DetailPanelProps) {
     return colors[ext] || 'from-gray-500 to-gray-600'
   }
 
-  const extKey = getExtensionKey(file.extension)
-  const extColor = getExtensionColor(file.extension)
+  const extKey = getExtensionKey(song.extension)
+  const extColor = getExtensionColor(song.extension)
   const extName = tFormats(extKey)
 
   return (
@@ -92,7 +92,7 @@ export function DetailPanel({ file }: DetailPanelProps) {
             <MusicIcon className='w-6 h-6 text-white' />
           </div>
           <div className='flex-1 min-w-0'>
-            <h2 className='text-sm font-semibold text-foreground truncate'>{file.name}</h2>
+            <h2 className='text-sm font-semibold text-foreground truncate'>{song.name}</h2>
             <p className='text-xs text-muted-foreground mt-0.5'>{extName}</p>
           </div>
         </div>
@@ -116,7 +116,7 @@ export function DetailPanel({ file }: DetailPanelProps) {
                     )}>
                     <FileAudioIcon className='w-12 h-12 text-white' />
                   </div>
-                  <Badge variant='secondary'>{file.extension.replace('.', '').toUpperCase()}</Badge>
+                  <Badge variant='secondary'>{song.extension.replace('.', '').toUpperCase()}</Badge>
                 </div>
               </div>
             </CardContent>
@@ -135,19 +135,19 @@ export function DetailPanel({ file }: DetailPanelProps) {
                 <DetailRow
                   icon={<HardDriveIcon className='w-4 h-4' />}
                   label={tCommon('size')}
-                  value={formatFileSize(file.size)}
+                  value={formatFileSize(song.size)}
                 />
 
                 <DetailRow
                   icon={<CalendarIcon className='w-4 h-4' />}
                   label={tCommon('modified')}
-                  value={formatDate(file.modifiedAt)}
+                  value={formatDate(song.modifiedAt)}
                 />
 
                 <DetailRow
                   icon={<MapPinIcon className='w-4 h-4' />}
                   label={tCommon('location')}
-                  value={file.path}
+                  value={song.path}
                   isPath
                 />
               </CardContent>

@@ -1,32 +1,29 @@
 'use client'
 
-import { MusicIcon, PlayCircleIcon, ClockIcon, FileAudioIcon, FolderOpenIcon } from 'lucide-react'
+import { ClockIcon, FileAudioIcon, FolderOpenIcon, Loader2Icon, MusicIcon, PlayCircleIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useFolders } from '@/features/folders/hooks/use-folders'
-import { MusicFile } from '@/features/music-files/domain'
+import type { Song } from '@/features/songs/domain'
+import { useSongsByFolder } from '@/features/songs/hooks/use-songs-by-folder'
 import { cn } from '@/lib/utils'
 
 interface MainContentProps {
   selectedFolderId?: string | null
-  onFileSelect?: (file: MusicFile | null) => void
-  selectedFile?: MusicFile | null
+  onFileSelect?: (file: Song | null) => void
+  selectedFile?: Song | null
 }
 
 export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: MainContentProps) {
   const tFolders = useTranslations('folders')
   const tFiles = useTranslations('files')
   const tCommon = useTranslations('common')
-  const { data } = useFolders()
+  const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined)
 
-  const selectedFolder = data?.folders.find(f => f.folder === selectedFolderId)
-
-  if (!selectedFolderId || !selectedFolder) {
+  if (!selectedFolderId) {
     return (
       <div className='flex flex-col h-full items-center justify-center text-center p-8'>
         <Card className='max-w-sm w-full'>
@@ -42,7 +39,17 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
     )
   }
 
-  const folderName = selectedFolder.folder.split('/').pop() || selectedFolder.folder
+  if (isLoading) {
+    return (
+      <div className='flex flex-col h-full items-center justify-center'>
+        <Loader2Icon className='w-8 h-8 animate-spin text-muted-foreground' />
+        <p className='text-sm text-muted-foreground mt-2'>{tFolders('loadingFolders')}</p>
+      </div>
+    )
+  }
+
+  const songs = data?.success ? data.files : []
+  const folderName = selectedFolderId.split('/').pop() || selectedFolderId
 
   return (
     <div className='flex flex-col h-full'>
@@ -51,11 +58,11 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
         <div className='flex items-center justify-between'>
           <div>
             <h1 className='text-2xl font-bold text-foreground'>{folderName}</h1>
-            <p className='text-sm text-muted-foreground mt-1 truncate max-w-lg'>{selectedFolder.folder}</p>
+            <p className='text-sm text-muted-foreground mt-1 truncate max-w-lg'>{selectedFolderId}</p>
           </div>
           <Badge variant='secondary' className='gap-1.5'>
             <MusicIcon className='w-3.5 h-3.5' />
-            {tFolders('files', { count: selectedFolder.files.length })}
+            {tFolders('files', { count: songs.length })}
           </Badge>
         </div>
       </div>
@@ -64,7 +71,7 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
 
       {/* File List */}
       <ScrollArea className='flex-1'>
-        {selectedFolder.files.length === 0 ? (
+        {songs.length === 0 ? (
           <div className='flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8'>
             <Card className='max-w-sm'>
               <CardContent className='pt-6'>
@@ -88,12 +95,12 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
 
             {/* File Items */}
             <div className='space-y-1'>
-              {selectedFolder.files.map(file => (
+              {songs.map(song => (
                 <FileItem
-                  key={file.path}
-                  file={file}
-                  isSelected={selectedFile?.path === file.path}
-                  onClick={() => onFileSelect?.(file)}
+                  key={song.filePath}
+                  song={song}
+                  isSelected={selectedFile?.filePath === song.filePath}
+                  onClick={() => onFileSelect?.(song)}
                 />
               ))}
             </div>
@@ -105,21 +112,21 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
 }
 
 interface FileItemProps {
-  file: MusicFile
+  song: Song
   isSelected?: boolean
   onClick?: () => void
 }
 
-function FileItem({ file, isSelected, onClick }: FileItemProps) {
+function FileItem({ song, isSelected, onClick }: FileItemProps) {
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
     return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
   }
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', {
+  const formatDate = (date: Date | null) => {
+    if (!date) return '-'
+    return new Date(date).toLocaleDateString('en-US', {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
@@ -128,52 +135,50 @@ function FileItem({ file, isSelected, onClick }: FileItemProps) {
 
   const getExtensionVariant = (ext: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     const variants: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
-      '.mp3': 'default',
-      '.flac': 'secondary',
-      '.wav': 'outline',
-      '.m4a': 'default',
-      '.ogg': 'destructive',
-      '.aac': 'secondary'
+      mp3: 'default',
+      flac: 'secondary',
+      wav: 'outline',
+      m4a: 'default',
+      ogg: 'destructive',
+      aac: 'secondary'
     }
-    return variants[ext] || 'outline'
+    return variants[ext.toLowerCase()] || 'outline'
   }
 
+  const displayName = song.title || song.fileName
+
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant={isSelected ? 'secondary' : 'ghost'}
-          onClick={onClick}
-          className={cn(
-            'w-full h-auto py-3 px-4 grid grid-cols-[1fr_100px_120px] gap-4 items-center cursor-pointer',
-            isSelected && 'bg-accent shadow-sm'
-          )}>
-          <div className='flex items-center gap-3 min-w-0'>
-            <div className='relative flex-shrink-0'>
-              <div className='w-10 h-10 rounded-lg bg-muted flex items-center justify-center'>
-                <MusicIcon className='w-5 h-5 text-muted-foreground' />
-              </div>
-              {isSelected && <PlayCircleIcon className='absolute -bottom-1 -right-1 w-5 h-5 text-primary' />}
-            </div>
-            <div className='min-w-0 flex-1 text-left'>
-              <p className='text-sm font-medium text-foreground truncate'>{file.name}</p>
-              <Badge variant={getExtensionVariant(file.extension)} className='mt-0.5 text-[10px] h-4'>
-                {file.extension.replace('.', '').toUpperCase()}
-              </Badge>
-            </div>
+    <Button
+      variant={isSelected ? 'secondary' : 'ghost'}
+      onClick={onClick}
+      className={cn(
+        'w-full h-auto py-3 px-4 grid grid-cols-[1fr_100px_120px] gap-4 items-center cursor-pointer',
+        isSelected && 'bg-accent shadow-sm'
+      )}>
+      <div className='flex items-center gap-3 min-w-0'>
+        <div className='relative flex-shrink-0'>
+          <div className='w-10 h-10 rounded-lg bg-muted flex items-center justify-center'>
+            <MusicIcon className='w-5 h-5 text-muted-foreground' />
           </div>
-
-          <span className='text-sm text-muted-foreground text-right'>{formatFileSize(file.size)}</span>
-
-          <div className='flex items-center justify-end gap-1.5 text-sm text-muted-foreground'>
-            <ClockIcon className='w-3.5 h-3.5' />
-            <span>{formatDate(file.modifiedAt)}</span>
+          {isSelected && <PlayCircleIcon className='absolute -bottom-1 -right-1 w-5 h-5 text-primary' />}
+        </div>
+        <div className='min-w-0 flex-1 text-left'>
+          <p className='text-sm font-medium text-foreground truncate'>{displayName}</p>
+          <div className='flex items-center gap-2 mt-0.5'>
+            <Badge variant={getExtensionVariant(song.extension)} className='text-[10px] h-4'>
+              {song.extension.toUpperCase()}
+            </Badge>
+            {song.artist && <span className='text-xs text-muted-foreground truncate'>{song.artist}</span>}
           </div>
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className='text-xs'>{file.path}</p>
-      </TooltipContent>
-    </Tooltip>
+        </div>
+      </div>
+
+      <span className='text-sm text-muted-foreground text-right'>{formatFileSize(song.fileSize)}</span>
+
+      <div className='flex items-center justify-end gap-1.5 text-sm text-muted-foreground'>
+        <ClockIcon className='w-3.5 h-3.5' />
+        <span>{formatDate(song.modifiedAt)}</span>
+      </div>
+    </Button>
   )
 }
