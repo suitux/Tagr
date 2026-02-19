@@ -1,4 +1,5 @@
 import type { FolderContent, MusicFile } from '@/app/api/folders/route'
+import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 
 export interface FoldersResponse {
@@ -13,12 +14,8 @@ export interface FoldersResponse {
 }
 
 async function fetchFolders(): Promise<FoldersResponse> {
-  const response = await fetch('/api/folders')
-  if (!response.ok) {
-    const errorData = await response.json()
-    throw new Error(errorData.error || 'Error al obtener las carpetas')
-  }
-  return response.json()
+  const { data } = await api.get<FoldersResponse>('/folders')
+  return data
 }
 
 export function useFolders() {
