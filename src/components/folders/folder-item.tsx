@@ -1,6 +1,6 @@
 'use client'
 
-import { FolderIcon, FolderOpenIcon, AlertCircleIcon, MusicIcon } from 'lucide-react'
+import { FolderIcon, FolderOpenIcon, AlertCircleIcon, MusicIcon, FoldersIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -17,7 +17,8 @@ export function FolderItem({ folder, isSelected, onClick }: FolderItemProps) {
   const t = useTranslations('folders')
   const folderName = folder.folder.split('/').pop() || folder.folder
   const hasError = !!folder.error
-  const fileCount = folder.files.length
+  const fileCount = folder.totalFiles
+  const subfolderCount = folder.totalSubfolders
 
   return (
     <Tooltip>
@@ -48,11 +49,21 @@ export function FolderItem({ folder, isSelected, onClick }: FolderItemProps) {
             <p className={cn('text-sm font-medium truncate', isSelected ? 'text-foreground' : 'text-foreground/80')}>
               {folderName}
             </p>
-            <div className='flex items-center gap-1.5 mt-0.5'>
-              <MusicIcon className='w-3 h-3 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground'>
-                {fileCount} {t('file', { count: fileCount })}
-              </span>
+            <div className='flex items-center gap-3 mt-0.5'>
+              <div className='flex items-center gap-1.5'>
+                <MusicIcon className='w-3 h-3 text-muted-foreground' />
+                <span className='text-xs text-muted-foreground'>
+                  {fileCount} {t('file', { count: fileCount })}
+                </span>
+              </div>
+              {subfolderCount > 0 && (
+                <div className='flex items-center gap-1.5'>
+                  <FoldersIcon className='w-3 h-3 text-muted-foreground' />
+                  <span className='text-xs text-muted-foreground'>
+                    {subfolderCount} {t('subfolder', { count: subfolderCount })}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -1,4 +1,4 @@
-import type { FolderContent, MusicFile } from '@/app/api/folders/route'
+import type { FolderContent, MusicFile, Subfolder } from '@/app/api/folders/route'
 import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 
@@ -8,6 +8,7 @@ export interface FoldersResponse {
   summary?: {
     totalFolders: number
     totalFiles: number
+    totalSubfolders: number
     foldersWithErrors: number
   }
   folders: FolderContent[]
@@ -25,4 +26,4 @@ export function useFolders() {
   })
 }
 
-export type { FolderContent, MusicFile }
+export type { FolderContent, MusicFile, Subfolder }

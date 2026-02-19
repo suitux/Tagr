@@ -5,7 +5,6 @@ import type { MusicFile } from '@/app/api/folders/route'
 import { FolderList } from '@/components/folders/folder-list'
 import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
 import { DetailPanel } from '@/components/panels/detail-panel'
-import { MainContent } from '@/components/panels/main-content'
 
 export default function Home() {
   const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null)
@@ -16,16 +15,13 @@ export default function Home() {
     setSelectedFile(null)
   }
 
-  const handleFileSelect = (file: MusicFile | null) => {
-    setSelectedFile(file)
-  }
+  // const handleFileSelect = (file: MusicFile | null) => {
+  //   setSelectedFile(file)
+  // }
 
   return (
     <ThreeColumnLayout
       sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
-      main={
-        <MainContent selectedFolderId={selectedFolderId} selectedFile={selectedFile} onFileSelect={handleFileSelect} />
-      }
       detail={selectedFile ? <DetailPanel file={selectedFile} /> : undefined}
     />
   )

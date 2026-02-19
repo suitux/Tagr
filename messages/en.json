@@ -25,13 +25,16 @@
     "searchPlaceholder": "Search folders...",
     "totalFolders": "{count} folders",
     "totalFiles": "{count, plural, =0 {No files} one {# file} other {# files}}",
+    "totalSubfolders": "{count, plural, =0 {No subfolders} one {# subfolder} other {# subfolders}}",
     "selectFolder": "Select a folder",
     "selectFolderDescription": "Choose a folder from the left panel to view its music files",
     "loadingFolders": "Loading folders...",
     "errorLoading": "Error loading",
     "errorLoadingDescription": "Could not load folders",
     "file": "{count, plural, one {file} other {files}}",
-    "files": "{count} files"
+    "files": "{count} files",
+    "subfolder": "{count, plural, one {subfolder} other {subfolders}}",
+    "subfolders": "{count} subfolders"
   },
   "files": {
     "title": "Files",

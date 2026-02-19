@@ -11,9 +11,16 @@ export interface MusicFile {
   modifiedAt: string
 }
 
+export interface Subfolder {
+  name: string
+  path: string
+}
+
 export interface FolderContent {
   folder: string
-  files: MusicFile[]
+  totalFiles: number
+  totalSubfolders: number
+  subfolders: Subfolder[]
   error?: string
 }
 
@@ -26,7 +33,7 @@ function isMusicFile(filename: string): boolean {
 }
 
 /**
- * Lee los archivos de música de una carpeta
+ * Lee las subcarpetas de primer nivel y cuenta los archivos de música de una carpeta
  */
 async function readMusicFolder(folderPath: string): Promise<FolderContent> {
   try {
@@ -34,37 +41,40 @@ async function readMusicFolder(folderPath: string): Promise<FolderContent> {
     if (!stats.isDirectory()) {
       return {
         folder: folderPath,
-        files: [],
+        totalFiles: 0,
+        totalSubfolders: 0,
+        subfolders: [],
         error: 'La ruta no es un directorio'
       }
     }
 
     const entries = await fs.readdir(folderPath, { withFileTypes: true })
-    const musicFiles: MusicFile[] = []
+    const subfolders: Subfolder[] = []
+    let totalFiles = 0
 
     for (const entry of entries) {
-      if (entry.isFile() && isMusicFile(entry.name)) {
-        const filePath = path.join(folderPath, entry.name)
-        const fileStats = await fs.stat(filePath)
-
-        musicFiles.push({
+      if (entry.isDirectory()) {
+        subfolders.push({
           name: entry.name,
-          path: filePath,
-          extension: path.extname(entry.name).toLowerCase(),
-          size: fileStats.size,
-          modifiedAt: fileStats.mtime.toISOString()
+          path: path.join(folderPath, entry.name)
         })
+      } else if (entry.isFile() && isMusicFile(entry.name)) {
+        totalFiles++
       }
     }
 
     return {
       folder: folderPath,
-      files: musicFiles.sort((a, b) => a.name.localeCompare(b.name))
+      totalFiles,
+      totalSubfolders: subfolders.length,
+      subfolders: subfolders.sort((a, b) => a.name.localeCompare(b.name))
     }
   } catch (error) {
     return {
       folder: folderPath,
-      files: [],
+      totalFiles: 0,
+      totalSubfolders: 0,
+      subfolders: [],
       error: error instanceof Error ? error.message : 'Error desconocido al leer la carpeta'
     }
   }
@@ -90,7 +100,8 @@ export async function GET() {
 
   const results = await Promise.all(folders.map(readMusicFolder))
 
-  const totalFiles = results.reduce((sum, result) => sum + result.files.length, 0)
+  const totalFiles = results.reduce((sum, result) => sum + result.totalFiles, 0)
+  const totalSubfolders = results.reduce((sum, result) => sum + result.totalSubfolders, 0)
   const foldersWithErrors = results.filter(r => r.error).length
 
   return NextResponse.json({
@@ -98,6 +109,7 @@ export async function GET() {
     summary: {
       totalFolders: folders.length,
       totalFiles,
+      totalSubfolders,
       foldersWithErrors
     },
     folders: results

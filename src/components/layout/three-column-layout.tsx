@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils'
 
 interface ThreeColumnLayoutProps {
   sidebar: React.ReactNode
-  main: React.ReactNode
+  main?: React.ReactNode
   detail?: React.ReactNode
   className?: string
 }
