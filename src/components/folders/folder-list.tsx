@@ -98,9 +98,7 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
                 <div className='w-12 h-12 rounded-full bg-muted flex items-center justify-center mb-3'>
                   <FolderIcon className='w-6 h-6 text-muted-foreground' />
                 </div>
-                <p className='text-sm text-muted-foreground'>
-                  {searchQuery ? t('notFound') : t('empty')}
-                </p>
+                <p className='text-sm text-muted-foreground'>{searchQuery ? t('notFound') : t('empty')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -110,7 +108,8 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
                   key={folder.folder}
                   folder={folder}
                   isSelected={selectedFolderId === folder.folder}
-                  onClick={() => onFolderSelect?.(folder.folder)}
+                  onFolderSelect={onFolderSelect}
+                  selectedFolderId={selectedFolderId}
                 />
               ))}
             </div>
