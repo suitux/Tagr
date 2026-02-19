@@ -10,6 +10,7 @@
     "generate-hash": "npx tsx ./scripts/hash-password.ts"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.21",
     "bcryptjs": "3.0.3",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
