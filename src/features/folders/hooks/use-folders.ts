@@ -1,4 +1,4 @@
-import type { FolderContent, MusicFile, Subfolder } from '@/app/api/folders/route'
+import type { FolderContent, MusicFile, Subfolder } from '@/app/api/folders/[[...name]]/route'
 import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 
