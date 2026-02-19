@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import * as musicMetadata from 'music-metadata'
 import path from 'path'
-import { MusicFile } from '@/features/music-files/domain'
+import { MusicFile } from '@/features/music-songs/domain'
 import { isMusicFile } from '@/lib/config'
 import { prisma } from './client'
 

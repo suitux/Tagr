@@ -22,7 +22,7 @@ async function fetchSongsByFolder(folderPath: string): Promise<SongsResponse> {
     .split('/')
     .map(segment => encodeURIComponent(segment))
     .join('/')
-  const { data } = await api.get<SongsResponse>(`/files/${encodedPath}`)
+  const { data } = await api.get<SongsResponse>(`/songs/${encodedPath}`)
   return data
 }
 

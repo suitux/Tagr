@@ -29,7 +29,7 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
     return NextResponse.json(
       {
         success: false,
-        error: 'Folder path is required. Use /api/folders/files/path/to/folder'
+        error: 'Folder path is required. Use /api/folders/songs/path/to/folder'
       },
       { status: 400 }
     )
