@@ -1,0 +1,19 @@
+{
+  "nav": {
+    "home": "Home",
+    "settings": "Settings"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit"
+  },
+  "folders": {
+    "title": "Music Folders",
+    "empty": "No folders found",
+    "totalFiles": "{count, plural, =0 {No files} one {# file} other {# files}}"
+  }
+}
