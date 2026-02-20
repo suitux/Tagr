@@ -1,20 +1,20 @@
 import { File } from 'node-taglib-sharp'
 
 export interface SongMetadataUpdate {
-  title?: string | null
-  artist?: string | null
-  album?: string | null
-  albumArtist?: string | null
-  year?: number | null
-  trackNumber?: number | null
-  trackTotal?: number | null
-  discNumber?: number | null
-  discTotal?: number | null
-  genre?: string | null
-  composer?: string | null
-  comment?: string | null
-  lyrics?: string | null
-  [key: string]: string | number | null | undefined
+  title?: string
+  artist?: string
+  album?: string
+  albumArtist?: string
+  year?: number
+  trackNumber?: number
+  trackTotal?: number
+  discNumber?: number
+  discTotal?: number
+  genre?: string
+  composer?: string
+  comment?: string
+  lyrics?: string
+  [key: string]: string | number | undefined
 }
 
 export async function writeMetadataToFile(filePath: string, metadata: SongMetadataUpdate): Promise<void> {
@@ -24,7 +24,7 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     const tag = file.tag
 
     if (metadata.title !== undefined) {
-      tag.title = metadata.title ?? undefined
+      tag.title = metadata.title
     }
 
     if (metadata.artist !== undefined) {
@@ -32,7 +32,7 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     }
 
     if (metadata.album !== undefined) {
-      tag.album = metadata.album ?? undefined
+      tag.album = metadata.album
     }
 
     if (metadata.albumArtist !== undefined) {
@@ -40,23 +40,23 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     }
 
     if (metadata.year !== undefined) {
-      tag.year = metadata.year ?? 0
+      tag.year = metadata.year
     }
 
     if (metadata.trackNumber !== undefined) {
-      tag.track = metadata.trackNumber ?? 0
+      tag.track = metadata.trackNumber
     }
 
     if (metadata.trackTotal !== undefined) {
-      tag.trackCount = metadata.trackTotal ?? 0
+      tag.trackCount = metadata.trackTotal
     }
 
     if (metadata.discNumber !== undefined) {
-      tag.disc = metadata.discNumber ?? 0
+      tag.disc = metadata.discNumber
     }
 
     if (metadata.discTotal !== undefined) {
-      tag.discCount = metadata.discTotal ?? 0
+      tag.discCount = metadata.discTotal
     }
 
     if (metadata.genre !== undefined) {
@@ -68,11 +68,11 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     }
 
     if (metadata.comment !== undefined) {
-      tag.comment = metadata.comment ?? undefined
+      tag.comment = metadata.comment
     }
 
     if (metadata.lyrics !== undefined) {
-      tag.lyrics = metadata.lyrics ?? undefined
+      tag.lyrics = metadata.lyrics
     }
 
     file.save()
