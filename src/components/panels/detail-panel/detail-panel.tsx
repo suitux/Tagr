@@ -66,10 +66,10 @@ export function DetailPanel({ songId }: DetailPanelProps) {
           />
 
           <DetailPanelMusicInfoSection song={song} />
+          <DetailPanelNotesSection song={song} />
           <DetailPanelTrackInfoSection song={song} />
           <DetailPanelAudioPropertiesSection song={song} extName={extName} />
           <DetailPanelFileDetailsSection song={song} />
-          <DetailPanelNotesSection song={song} />
         </div>
       </ScrollArea>
     </div>
