@@ -3,7 +3,7 @@
 import { DataTable } from '@/components/ui/data-table'
 import { useHome } from '@/contexts/home-context'
 import type { Song } from '@/features/songs/domain'
-import { useSongColumns } from './columns'
+import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
 
 export function MainContentFileList() {
