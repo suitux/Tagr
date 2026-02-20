@@ -126,13 +126,26 @@ export function DetailPanel({ song }: DetailPanelProps) {
       {/* Header */}
       <div className='flex-shrink-0 p-5'>
         <div className='flex items-center gap-3'>
-          <div
-            className={cn(
-              'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg',
-              extColor
-            )}>
-            <MusicIcon className='w-6 h-6 text-white' />
-          </div>
+          {hasPicture && pictureUrl ? (
+            <div className='w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg relative'>
+              <Image
+                src={pictureUrl}
+                alt={song.title || song.fileName}
+                fill
+                className='object-cover rounded-xl'
+                unoptimized
+              />
+            </div>
+          ) : (
+            <div
+              className={cn(
+                'w-12 h-12 rounded-xl bg-gradient-to-br flex items-center justify-center shadow-lg',
+                extColor
+              )}>
+              <MusicIcon className='w-6 h-6 text-white' />
+            </div>
+          )}
+
           <div className='flex-1 min-w-0'>
             <h2 className='text-sm font-semibold text-foreground truncate'>{displayTitle}</h2>
             <p className='text-xs text-muted-foreground mt-0.5'>{song.artist || extName}</p>
@@ -146,11 +159,11 @@ export function DetailPanel({ song }: DetailPanelProps) {
       <ScrollArea className='flex-1 min-h-0'>
         <div className='p-4 space-y-6'>
           {/* Preview Card */}
-          <Card className='overflow-hidden'>
+          <Card className={'p-0'}>
             <CardContent className='p-0'>
               <div className='relative bg-gradient-to-br from-muted/50 to-muted'>
                 <div className='absolute inset-0 bg-grid-pattern opacity-5' />
-                <div className='relative flex flex-col items-center py-10 px-4'>
+                <div className='relative flex flex-col items-center py-6 px-4'>
                   {hasPicture && pictureUrl ? (
                     <div className='w-64 h-64 rounded-2xl overflow-hidden shadow-2xl mb-4 relative'>
                       <Image
@@ -164,10 +177,10 @@ export function DetailPanel({ song }: DetailPanelProps) {
                   ) : (
                     <div
                       className={cn(
-                        'w-24 h-24 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-2xl mb-4',
+                        'w-64 h-64 rounded-2xl bg-gradient-to-br flex items-center justify-center shadow-2xl mb-4',
                         extColor
                       )}>
-                      <FileAudioIcon className='w-12 h-12 text-white' />
+                      <MusicIcon className='w-32 h-32 text-white' />
                     </div>
                   )}
                   <div className='flex items-center gap-2'>
