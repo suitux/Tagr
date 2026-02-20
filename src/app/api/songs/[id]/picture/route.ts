@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/infrastructure/dbClient'
+import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface RouteParams {
   params: Promise<{

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getMusicFolders } from '@/features/songs/song-file-helpers'
-import { analyzeDatabase, optimizeSQLite } from '@/lib/db/optimize'
+import { analyzeDatabase, optimizeSQLite } from '@/infrastructure/prisma/optimize'
 import { scanAllFolders } from '@/lib/db/scanner'
 
 export async function GET() {

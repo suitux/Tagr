@@ -3,7 +3,7 @@ import * as musicMetadata from 'music-metadata'
 import path from 'path'
 import { Song, SongSortField, SongSortDirection } from '@/features/songs/domain'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
-import { prisma } from '../../infrastructure/dbClient'
+import { prisma } from '../../infrastructure/prisma/dbClient'
 
 export interface ScanResult {
   totalScanned: number
