@@ -16,7 +16,7 @@ export default function Home() {
     setSelectedSong(null)
   }
 
-  const handleFileSelect = (song: Song | null) => {
+  const handleSongSelect = (song: Song | null) => {
     setSelectedSong(song)
   }
 
@@ -24,9 +24,9 @@ export default function Home() {
     <ThreeColumnLayout
       sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
       main={
-        <MainContent selectedFolderId={selectedFolderId} selectedFile={selectedSong} onFileSelect={handleFileSelect} />
+        <MainContent selectedFolderId={selectedFolderId} selectedSong={selectedSong} onSongSelect={handleSongSelect} />
       }
-      detail={selectedSong ? <DetailPanel song={selectedSong} /> : undefined}
+      detail={selectedSong ? <DetailPanel songId={selectedSong.id} /> : undefined}
     />
   )
 }

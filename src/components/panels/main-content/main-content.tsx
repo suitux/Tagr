@@ -10,11 +10,11 @@ import { MainContentLoadingState } from './components/main-content-loading-state
 
 interface MainContentProps {
   selectedFolderId?: string | null
-  onFileSelect?: (file: Song | null) => void
-  selectedFile?: Song | null
+  onSongSelect?: (file: Song | null) => void
+  selectedSong?: Song | null
 }
 
-export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: MainContentProps) {
+export function MainContent({ selectedFolderId, onSongSelect, selectedSong }: MainContentProps) {
   const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined)
 
   if (!selectedFolderId) {
@@ -35,7 +35,7 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
       {songs.length === 0 ? (
         <MainContentEmptyFilesState />
       ) : (
-        <MainContentFileList songs={songs} selectedFile={selectedFile} onFileSelect={onFileSelect} />
+        <MainContentFileList songs={songs} selectedFile={selectedSong} onFileSelect={onSongSelect} />
       )}
     </div>
   )

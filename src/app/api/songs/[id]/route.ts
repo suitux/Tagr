@@ -21,6 +21,51 @@ interface UpdateSongErrorResponse {
 
 type UpdateSongResponse = UpdateSongSuccessResponse | UpdateSongErrorResponse
 
+interface GetSongSuccessResponse {
+  success: true
+  song: Song
+}
+
+interface GetSongErrorResponse {
+  success: false
+  error: string
+}
+
+type GetSongResponse = GetSongSuccessResponse | GetSongErrorResponse
+
+export async function GET(request: Request, { params }: RouteParams): Promise<NextResponse<GetSongResponse>> {
+  const { id } = await params
+  const songId = parseInt(id, 10)
+
+  if (isNaN(songId)) {
+    return NextResponse.json({ success: false, error: 'Invalid song ID' }, { status: 400 })
+  }
+
+  try {
+    const song = await prisma.song.findUnique({
+      where: { id: songId }
+    })
+
+    if (!song) {
+      return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
+    }
+
+    return NextResponse.json({
+      success: true,
+      song
+    })
+  } catch (error) {
+    console.error('Error fetching song:', error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error fetching song'
+      },
+      { status: 500 }
+    )
+  }
+}
+
 export async function PATCH(request: Request, { params }: RouteParams): Promise<NextResponse<UpdateSongResponse>> {
   const { id } = await params
   const songId = parseInt(id, 10)

@@ -4,6 +4,7 @@ import { useTranslations } from 'next-intl'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Song } from '@/features/songs/domain'
+import { useSong } from '@/features/songs/hooks/use-song'
 import { useSongPicture } from '@/features/songs/hooks/use-song-picture'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
 import { DetailPanelEmptyState } from './components/detail-panel-empty-state'
@@ -16,11 +17,12 @@ import { DetailPanelTrackInfoSection } from './components/detail-panel-track-inf
 import { getExtensionColor, getExtensionKey } from './utils'
 
 interface DetailPanelProps {
-  song?: Song | null
+  songId?: number
 }
 
-export function DetailPanel({ song }: DetailPanelProps) {
+export function DetailPanel({ songId }: DetailPanelProps) {
   const tFormats = useTranslations('formats')
+  const { data: song, isLoading } = useSong(songId)
   const { pictureUrl, hasPicture } = useSongPicture(song?.id)
 
   if (!song) {
