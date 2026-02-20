@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { FolderList } from '@/components/folders/folder-list'
+import { FolderList } from '@/components/folders/folder-list/folder-list'
 import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
 import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
 import { MainContent } from '@/components/panels/main-content/main-content'

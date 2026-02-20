@@ -16,7 +16,7 @@ import { FolderContent, Subfolder } from '@/features/folders/domain'
 import { useFolders } from '@/features/folders/hooks/use-folders'
 import { cn } from '@/lib/utils'
 
-interface FolderItemProps {
+interface FolderListItemProps {
   folder: FolderContent
   isSelected?: boolean
   onFolderSelect?: (folderId: string | null) => void
@@ -24,7 +24,13 @@ interface FolderItemProps {
   depth?: number
 }
 
-export function FolderItem({ folder, isSelected, onFolderSelect, selectedFolderId, depth = 0 }: FolderItemProps) {
+export function FolderListItem({
+  folder,
+  isSelected,
+  onFolderSelect,
+  selectedFolderId,
+  depth = 0
+}: FolderListItemProps) {
   const t = useTranslations('folders')
   const [isExpanded, setIsExpanded] = useState(false)
   const folderName = folder.folder.split('/').pop() || folder.folder
@@ -124,7 +130,7 @@ export function FolderItem({ folder, isSelected, onFolderSelect, selectedFolderI
             style={{ marginLeft: `${20 + depth * 16}px` }}
           />
           {folder.subfolders.map(subfolder => (
-            <SubfolderItem
+            <FolderListSubfolderItem
               key={subfolder.path}
               subfolder={subfolder}
               depth={depth + 1}
@@ -138,14 +144,14 @@ export function FolderItem({ folder, isSelected, onFolderSelect, selectedFolderI
   )
 }
 
-interface SubfolderItemProps {
+interface FolderListSubfolderItemProps {
   subfolder: Subfolder
   depth: number
   selectedFolderId?: string | null
   onFolderSelect?: (folderId: string | null) => void
 }
 
-function SubfolderItem({ subfolder, depth, selectedFolderId, onFolderSelect }: SubfolderItemProps) {
+function FolderListSubfolderItem({ subfolder, depth, selectedFolderId, onFolderSelect }: FolderListSubfolderItemProps) {
   const { data, isLoading } = useFolders(subfolder.path)
 
   if (isLoading) {
@@ -165,7 +171,7 @@ function SubfolderItem({ subfolder, depth, selectedFolderId, onFolderSelect }: S
   }
 
   return (
-    <FolderItem
+    <FolderListItem
       folder={folderContent}
       depth={depth}
       isSelected={selectedFolderId === folderContent.folder}
