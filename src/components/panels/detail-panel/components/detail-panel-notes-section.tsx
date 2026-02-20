@@ -12,24 +12,19 @@ interface DetailPanelNotesSectionProps {
 
 export function DetailPanelNotesSection({ song }: DetailPanelNotesSectionProps) {
   const t = useTranslations('notes')
-  const hasContent = song.comment || song.lyrics
-
-  if (!hasContent) return null
 
   return (
     <div className='space-y-3'>
       <h3 className='text-xs font-semibold text-muted-foreground uppercase tracking-wider'>{t('title')}</h3>
       <Card className={'p-0'}>
         <CardContent className='p-0 divide-y divide-border'>
-          {song.comment && (
-            <DetailPanelRow
-              icon={<PenLineIcon className='w-4 h-4' />}
-              label={t('comment')}
-              value={song.comment}
-              songId={song.id}
-              fieldName='comment'
-            />
-          )}
+          <DetailPanelRow
+            icon={<PenLineIcon className='w-4 h-4' />}
+            label={t('comment')}
+            value={song.comment}
+            songId={song.id}
+            fieldName='comment'
+          />
           {song.lyrics && (
             <div className='p-3'>
               <p className='text-xs text-muted-foreground mb-2'>{t('lyrics')}</p>
