@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server'
 import { NextResponse } from 'next/server'
 import { readMusicFolder } from '@/app/api/folders/[[...name]]/helpers'
-import { getMusicFolders } from '@/lib/config'
+import { getMusicFolders } from '@/features/songs/song-file-helpers'
 
 interface RouteParams {
   params: Promise<{

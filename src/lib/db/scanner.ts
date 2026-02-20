@@ -2,7 +2,7 @@ import fs from 'fs/promises'
 import * as musicMetadata from 'music-metadata'
 import path from 'path'
 import { Song, SongSortField, SongSortDirection } from '@/features/songs/domain'
-import { isMusicFile } from '@/lib/config'
+import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from './client'
 
 export interface ScanResult {
@@ -350,10 +350,7 @@ export async function getSongsByFolder(
   })
 }
 
-export async function countSongsByFolder(
-  folderPath: string,
-  search?: string
-): Promise<number> {
+export async function countSongsByFolder(folderPath: string, search?: string): Promise<number> {
   return prisma.song.count({
     where: {
       folderPath,

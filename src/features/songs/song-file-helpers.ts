@@ -1,7 +1,5 @@
 import path from 'path'
-
-export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'] as const
-export type MusicExtension = (typeof MUSIC_EXTENSIONS)[number]
+import { MUSIC_EXTENSIONS, MusicExtension } from '@/features/songs/domain'
 
 export function getMusicFolders(): string[] {
   const foldersEnv = process.env.MUSIC_FOLDERS || ''

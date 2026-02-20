@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getMusicFolders } from '@/lib/config'
+import { getMusicFolders } from '@/features/songs/song-file-helpers'
 import { analyzeDatabase, optimizeSQLite } from '@/lib/db/optimize'
 import { scanAllFolders } from '@/lib/db/scanner'
 

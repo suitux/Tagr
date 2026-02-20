@@ -1,8 +1,8 @@
 import fs from 'fs/promises'
 import path from 'path'
 import { FolderContent, Subfolder } from '@/features/folders/domain'
+import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { TFunction } from '@/i18n/types'
-import { isMusicFile } from '@/lib/config'
 
 export async function readMusicFolder(folderPath: string, t: TFunction): Promise<FolderContent> {
   try {
