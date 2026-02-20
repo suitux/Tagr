@@ -12,19 +12,23 @@ export function FolderListHeader() {
   const { mutateAsync: scan, isPending } = useScan()
 
   const handleRescan = async () => {
+    const toastId = toast.loading(t('scanning'))
+
     try {
       const data = await scan()
 
       if (data.result) {
         const { totalScanned, totalAdded, totalUpdated, totalDeleted, totalErrors } = data.result
         toast.success(t('scanCompleted'), {
+          id: toastId,
           description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`
         })
       } else {
-        toast.success(t('scanCompleted'))
+        toast.success(t('scanCompleted'), { id: toastId })
       }
     } catch (error) {
       toast.error(t('scanFailed'), {
+        id: toastId,
         description: error instanceof Error ? error.message : t('unknownError')
       })
     }

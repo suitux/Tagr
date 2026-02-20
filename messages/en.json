@@ -36,6 +36,7 @@
     "subfolder": "{count, plural, one {subfolder} other {subfolders}}",
     "subfolders": "{count} subfolders",
     "rescan": "Rescan library",
+    "scanning": "Scanning library...",
     "scanCompleted": "Scan completed",
     "scanFailed": "Scan failed",
     "filesScanned": "files scanned",
