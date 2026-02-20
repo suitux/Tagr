@@ -34,7 +34,16 @@
     "file": "{count, plural, one {file} other {files}}",
     "files": "{count} files",
     "subfolder": "{count, plural, one {subfolder} other {subfolders}}",
-    "subfolders": "{count} subfolders"
+    "subfolders": "{count} subfolders",
+    "rescan": "Rescan library",
+    "scanCompleted": "Scan completed",
+    "scanFailed": "Scan failed",
+    "filesScanned": "files scanned",
+    "added": "added",
+    "updated": "updated",
+    "deleted": "deleted",
+    "errors": "errors",
+    "unknownError": "Unknown error occurred"
   },
   "files": {
     "title": "Files",

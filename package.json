@@ -26,12 +26,14 @@
     "next": "16.1.6",
     "next-auth": "5.0.0-beta.30",
     "next-intl": "4.8.3",
+    "next-themes": "^0.4.6",
     "node-taglib-sharp": "6.0.1",
     "nuqs": "2.8.8",
     "radix-ui": "1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-resizable-panels": "4.6.4",
+    "sonner": "^2.0.7",
     "tailwind-merge": "3.5.0"
   },
   "devDependencies": {
