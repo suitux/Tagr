@@ -1,18 +1,18 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { AudioPropertiesSection } from '@/components/panels/detail-panel/components/audio-properties-section'
-import { DetailHeader } from '@/components/panels/detail-panel/components/detail-header'
-import { EmptyState } from '@/components/panels/detail-panel/components/empty-state'
-import { FileDetailsSection } from '@/components/panels/detail-panel/components/file-details-section'
-import { MusicInfoSection } from '@/components/panels/detail-panel/components/music-info-section'
-import { NotesSection } from '@/components/panels/detail-panel/components/notes-section'
-import { PreviewCard } from '@/components/panels/detail-panel/components/preview-card'
-import { TrackInfoSection } from '@/components/panels/detail-panel/components/track-info-section'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Song } from '@/features/songs/domain'
 import { useSongPicture } from '@/features/songs/hooks/use-song-picture'
+import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
+import { DetailPanelEmptyState } from './components/detail-panel-empty-state'
+import { DetailPanelFileDetailsSection } from './components/detail-panel-file-details-section'
+import { DetailPanelHeader } from './components/detail-panel-header'
+import { DetailPanelMusicInfoSection } from './components/detail-panel-music-info-section'
+import { DetailPanelNotesSection } from './components/detail-panel-notes-section'
+import { DetailPanelPreviewCard } from './components/detail-panel-preview-card'
+import { DetailPanelTrackInfoSection } from './components/detail-panel-track-info-section'
 import { getExtensionColor, getExtensionKey } from './utils'
 
 interface DetailPanelProps {
@@ -24,7 +24,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
   const { pictureUrl, hasPicture } = useSongPicture(song?.id)
 
   if (!song) {
-    return <EmptyState />
+    return <DetailPanelEmptyState />
   }
 
   const extKey = getExtensionKey(song.extension)
@@ -34,7 +34,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
 
   return (
     <div className='flex flex-col h-full overflow-hidden'>
-      <DetailHeader
+      <DetailPanelHeader
         title={displayTitle}
         subtitle={song.artist || extName}
         pictureUrl={pictureUrl}
@@ -46,7 +46,7 @@ export function DetailPanel({ song }: DetailPanelProps) {
 
       <ScrollArea className='flex-1 min-h-0'>
         <div className='p-4 space-y-6'>
-          <PreviewCard
+          <DetailPanelPreviewCard
             title={displayTitle}
             extension={song.extension}
             lossless={song.lossless}
@@ -55,11 +55,11 @@ export function DetailPanel({ song }: DetailPanelProps) {
             extColor={extColor}
           />
 
-          <MusicInfoSection song={song} />
-          <TrackInfoSection song={song} />
-          <AudioPropertiesSection song={song} extName={extName} />
-          <FileDetailsSection song={song} />
-          <NotesSection song={song} />
+          <DetailPanelMusicInfoSection song={song} />
+          <DetailPanelTrackInfoSection song={song} />
+          <DetailPanelAudioPropertiesSection song={song} extName={extName} />
+          <DetailPanelFileDetailsSection song={song} />
+          <DetailPanelNotesSection song={song} />
         </div>
       </ScrollArea>
     </div>

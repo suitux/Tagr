@@ -2,11 +2,11 @@
 
 import type { Song } from '@/features/songs/domain'
 import { useSongsByFolder } from '@/features/songs/hooks/use-songs-by-folder'
-import { ContentHeader } from './components/content-header'
-import { EmptyFilesState } from './components/empty-files-state'
-import { EmptyFolderState } from './components/empty-folder-state'
-import { FileList } from './components/file-list'
-import { LoadingState } from './components/loading-state'
+import { MainContentEmptyFilesState } from './components/main-content-empty-files-state'
+import { MainContentEmptyFolderState } from './components/main-content-empty-folder-state'
+import { MainContentFileList } from './components/main-content-file-list'
+import { MainContentHeader } from './components/main-content-header'
+import { MainContentLoadingState } from './components/main-content-loading-state'
 
 interface MainContentProps {
   selectedFolderId?: string | null
@@ -18,11 +18,11 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
   const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined)
 
   if (!selectedFolderId) {
-    return <EmptyFolderState />
+    return <MainContentEmptyFolderState />
   }
 
   if (isLoading) {
-    return <LoadingState />
+    return <MainContentLoadingState />
   }
 
   const songs = data?.success ? data.files : []
@@ -30,12 +30,12 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
 
   return (
     <div className='flex flex-col h-full'>
-      <ContentHeader folderName={folderName} folderPath={selectedFolderId} filesCount={songs.length} />
+      <MainContentHeader folderName={folderName} folderPath={selectedFolderId} filesCount={songs.length} />
 
       {songs.length === 0 ? (
-        <EmptyFilesState />
+        <MainContentEmptyFilesState />
       ) : (
-        <FileList songs={songs} selectedFile={selectedFile} onFileSelect={onFileSelect} />
+        <MainContentFileList songs={songs} selectedFile={selectedFile} onFileSelect={onFileSelect} />
       )}
     </div>
   )
