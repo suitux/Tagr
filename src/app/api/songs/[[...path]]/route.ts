@@ -36,9 +36,10 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   }
 
   const folderPath = '/' + path.map(segment => decodeURIComponent(segment)).join('/')
+  const search = new URL(request.url).searchParams.get('search') ?? undefined
 
   try {
-    const songs = await getSongsByFolder(folderPath)
+    const songs = await getSongsByFolder(folderPath, search)
 
     return NextResponse.json({
       success: true,

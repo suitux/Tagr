@@ -16,22 +16,32 @@ interface SongsErrorResponse {
 
 type SongsResponse = SongsSuccessResponse | SongsErrorResponse
 
-async function fetchSongsByFolder(folderPath: string): Promise<SongsResponse> {
+async function fetchSongsByFolder(folderPath: string, search?: string): Promise<SongsResponse> {
   const pathWithoutLeadingSlash = folderPath.startsWith('/') ? folderPath.slice(1) : folderPath
+
   const encodedPath = pathWithoutLeadingSlash
     .split('/')
     .map(segment => encodeURIComponent(segment))
     .join('/')
-  const { data } = await api.get<SongsResponse>(`/songs/${encodedPath}`)
+
+  const { data } = await api.get<SongsResponse>(`/songs/${encodedPath}`, {
+    params: search ? { search } : undefined
+  })
+
   return data
 }
 
-export const getUseSongsByFolderQueryKey = (folderPath: string | undefined) => ['songs', 'folder', folderPath]
+export const getUseSongsByFolderQueryKey = (folderPath: string | undefined, search?: string) => [
+  'songs',
+  'folder',
+  folderPath,
+  search
+]
 
-export function useSongsByFolder(folderPath: string | undefined) {
+export function useSongsByFolder(folderPath: string | undefined, search?: string) {
   return useQuery({
-    queryKey: getUseSongsByFolderQueryKey(folderPath),
-    queryFn: () => fetchSongsByFolder(folderPath!),
+    queryKey: getUseSongsByFolderQueryKey(folderPath, search),
+    queryFn: () => fetchSongsByFolder(folderPath!, search),
     enabled: !!folderPath
   })
 }

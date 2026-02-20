@@ -328,9 +328,19 @@ export async function getSongByPath(filePath: string) {
   })
 }
 
-export async function getSongsByFolder(folderPath: string): Promise<Song[]> {
+export async function getSongsByFolder(folderPath: string, search?: string): Promise<Song[]> {
   return prisma.song.findMany({
-    where: { folderPath },
+    where: {
+      folderPath,
+      ...(search && {
+        OR: [
+          { title: { contains: search } },
+          { artist: { contains: search } },
+          { album: { contains: search } },
+          { fileName: { contains: search } }
+        ]
+      })
+    },
     orderBy: [{ trackNumber: 'asc' }, { fileName: 'asc' }]
   })
 }
