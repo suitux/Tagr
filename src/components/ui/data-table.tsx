@@ -1,7 +1,7 @@
 'use client'
 
-import { useCallback } from 'react'
-import { type TableComponents, TableVirtuoso } from 'react-virtuoso'
+import { useCallback, useEffect, useRef } from 'react'
+import { type TableComponents, type TableVirtuosoHandle, TableVirtuoso } from 'react-virtuoso'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import {
@@ -41,13 +41,17 @@ export function DataTable<TData, TValue>({
   onSortingChange,
   onScrollEnd
 }: DataTableProps<TData, TValue>) {
+  const virtuosoRef = useRef<TableVirtuosoHandle>(null)
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true,
-    onSortingChange,
+    onSortingChange: params => {
+      onSortingChange?.(params)
+      virtuosoRef.current?.scrollToIndex({ index: 0 })
+    },
     getRowId,
     state: { sorting: sorting ?? [] }
   })
@@ -93,6 +97,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <TableVirtuoso
+      ref={virtuosoRef}
       totalCount={rows.length}
       overscan={200}
       endReached={onScrollEnd}
