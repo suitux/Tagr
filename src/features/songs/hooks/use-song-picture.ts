@@ -1,13 +1,14 @@
+import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 
 function getSongPictureUrl(songId: number): string {
   return `/api/songs/${songId}/picture`
 }
 
-async function getPicture(songId: number): Promise<boolean> {
+async function getSongPicture(songId: number): Promise<boolean> {
   try {
-    const response = await fetch(getSongPictureUrl(songId), { method: 'HEAD' })
-    return response.ok
+    await api.head(`/songs/${songId}/picture`)
+    return true
   } catch {
     return false
   }
@@ -15,8 +16,8 @@ async function getPicture(songId: number): Promise<boolean> {
 
 export function useSongPicture(songId: number | undefined) {
   const { data: picture, isLoading } = useQuery({
-    queryKey: ['songs', songId],
-    queryFn: () => getPicture(songId!),
+    queryKey: ['songs', songId, 'has-picture'],
+    queryFn: () => getSongPicture(songId!),
     enabled: !!songId
   })
 
