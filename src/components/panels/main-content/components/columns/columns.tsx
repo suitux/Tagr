@@ -10,6 +10,8 @@ import { SortableHeader } from './components/sortable-header'
 
 export function useSongColumns(): ColumnDef<Song>[] {
   const tCommon = useTranslations('common')
+  const tMusicInfo = useTranslations('musicInfo')
+  const tNotes = useTranslations('notes')
 
   return [
     {
@@ -18,6 +20,46 @@ export function useSongColumns(): ColumnDef<Song>[] {
         <SortableHeader column={column} label={tCommon('name')} className='w-auto justify-start -ml-4' />
       ),
       cell: ({ row }) => <NameCell song={row.original} />
+    },
+    {
+      accessorKey: 'artist',
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('artist')} />,
+      cell: ({ row }) => (
+        <span className='text-sm text-muted-foreground'>{row.original.artist ?? ''}</span>
+      ),
+      size: 160
+    },
+    {
+      accessorKey: 'year',
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('year')} />,
+      cell: ({ row }) => (
+        <span className='text-sm text-muted-foreground text-right block'>{row.original.year ?? ''}</span>
+      ),
+      size: 80
+    },
+    {
+      accessorKey: 'genre',
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('genre')} />,
+      cell: ({ row }) => (
+        <span className='text-sm text-muted-foreground'>{row.original.genre ?? ''}</span>
+      ),
+      size: 120
+    },
+    {
+      accessorKey: 'bpm',
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('bpm')} />,
+      cell: ({ row }) => (
+        <span className='text-sm text-muted-foreground text-right block'>{row.original.bpm ?? ''}</span>
+      ),
+      size: 80
+    },
+    {
+      accessorKey: 'comment',
+      header: ({ column }) => <SortableHeader column={column} label={tNotes('comment')} />,
+      cell: ({ row }) => (
+        <span className='text-sm text-muted-foreground truncate block max-w-[200px]'>{row.original.comment ?? ''}</span>
+      ),
+      size: 200
     },
     {
       accessorKey: 'fileSize',
