@@ -43,6 +43,11 @@
     "selectFile": "Select a file to view its details",
     "fileInfo": "File information"
   },
+  "notes": {
+    "title": "Notes",
+    "comment": "Comment",
+    "lyrics": "Lyrics"
+  },
   "formats": {
     "mp3": "MPEG Audio Layer 3",
     "flac": "Free Lossless Audio Codec",
