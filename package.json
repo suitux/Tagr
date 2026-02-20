@@ -27,6 +27,7 @@
     "next-auth": "5.0.0-beta.30",
     "next-intl": "4.8.3",
     "node-taglib-sharp": "6.0.1",
+    "nuqs": "2.8.8",
     "radix-ui": "1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",

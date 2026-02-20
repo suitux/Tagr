@@ -1,3 +1,4 @@
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -28,11 +29,13 @@ export default function RootLayout({
   return (
     <html lang='en' className='dark'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} cz-shortcut-listen='true'>
-        <QueryProvider>
-          <NextIntlClientProvider>
-            <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
-          </NextIntlClientProvider>
-        </QueryProvider>
+        <NuqsAdapter>
+          <QueryProvider>
+            <NextIntlClientProvider>
+              <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+            </NextIntlClientProvider>
+          </QueryProvider>
+        </NuqsAdapter>
       </body>
     </html>
   )

@@ -9,7 +9,7 @@ import {
   Loader2Icon,
   MusicIcon
 } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useLayoutEffect } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { FolderContent, Subfolder } from '@/features/folders/domain'
@@ -32,7 +32,8 @@ export function FolderListItem({
   depth = 0
 }: FolderListItemProps) {
   const t = useTranslations('folders')
-  const [isExpanded, setIsExpanded] = useState(false)
+  const shouldAutoExpand = selectedFolderId ? selectedFolderId.startsWith(folder.folder + '/') : false
+  const [isExpanded, setIsExpanded] = useState(shouldAutoExpand)
   const folderName = folder.folder.split('/').pop() || folder.folder
   const hasError = !!folder.error
   const fileCount = folder.totalFiles
