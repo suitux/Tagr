@@ -1,21 +1,5 @@
 import { File } from 'node-taglib-sharp'
-
-export interface SongMetadataUpdate {
-  title?: string
-  artist?: string
-  album?: string
-  albumArtist?: string
-  year?: number
-  trackNumber?: number
-  trackTotal?: number
-  discNumber?: number
-  discTotal?: number
-  genre?: string
-  composer?: string
-  comment?: string
-  lyrics?: string
-  bpm?: number
-}
+import { SongMetadataUpdate } from '@/features/metadata/domain'
 
 export async function writeMetadataToFile(filePath: string, metadata: SongMetadataUpdate): Promise<void> {
   const file = File.createFromPath(filePath)

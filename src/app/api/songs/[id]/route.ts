@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { SongMetadataUpdate, writeMetadataToFile } from '@/features/metadata/metadata-writer'
+import { SongMetadataUpdate } from '@/features/metadata/domain'
+import { writeMetadataToFile } from '@/features/metadata/metadata-writer'
 import { Song } from '@/features/songs/domain'
 import { prisma } from '@/infrastructure/dbClient'
 import { rescanSongFile } from '@/lib/db/scanner'
