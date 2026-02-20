@@ -2,25 +2,17 @@
 
 import { MusicIcon, SearchIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { useEffect } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { useHome } from '@/contexts/home-context'
 
-interface MainContentHeaderProps {
-  folderName: string
-  folderPath: string
-  filesCount: number
-  onSearchChange: (value: string) => void
-}
-
-export function MainContentHeader({ folderName, folderPath, filesCount, onSearchChange }: MainContentHeaderProps) {
+export function MainContentHeader() {
   const tFolders = useTranslations('folders')
   const tFiles = useTranslations('files')
 
-  useEffect(() => {
-    onSearchChange('')
-  }, [folderPath, onSearchChange])
+  const { selectedFolderId, setSearch, songs } = useHome()
+  const folderName = selectedFolderId?.split('/').pop() || selectedFolderId
 
   return (
     <>
@@ -28,19 +20,19 @@ export function MainContentHeader({ folderName, folderPath, filesCount, onSearch
         <div className='flex items-center justify-between'>
           <div>
             <h1 className='text-2xl font-bold text-foreground'>{folderName}</h1>
-            <p className='text-sm text-muted-foreground mt-1 truncate max-w-lg'>{folderPath}</p>
+            <p className='text-sm text-muted-foreground mt-1 truncate max-w-lg'>{selectedFolderId}</p>
           </div>
           <Badge variant='secondary' className='gap-1.5'>
             <MusicIcon className='w-3.5 h-3.5' />
-            {tFolders('files', { count: filesCount })}
+            {tFolders('files', { count: songs.length })}
           </Badge>
         </div>
         <div className='relative mt-4'>
           <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none' />
           <Input
-            key={folderPath}
+            key={selectedFolderId}
             debounceMs={300}
-            onChange={e => onSearchChange(e.target.value)}
+            onChange={e => setSearch(e.target.value)}
             placeholder={tFiles('searchPlaceholder')}
             className='pl-9'
           />

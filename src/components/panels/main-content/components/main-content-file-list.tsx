@@ -1,19 +1,19 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { MainContentEmptyFilesState } from '@/components/panels/main-content/components/main-content-empty-files-state'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import type { Song } from '@/features/songs/domain'
+import { useHome } from '@/contexts/home-context'
 import { MainContentFileItem } from './main-content-file-item'
 
-interface MainContentFileListProps {
-  songs: Song[]
-  selectedSongId?: number | null
-  onSongSelect?: (songId: number | null) => void
-}
-
-export function MainContentFileList({ songs, selectedSongId, onSongSelect }: MainContentFileListProps) {
+export function MainContentFileList() {
   const tCommon = useTranslations('common')
+  const { selectedSongId, songs, setSelectedSongId, isLoadingSongs } = useHome()
+
+  if (songs.length === 0 && !isLoadingSongs) {
+    return <MainContentEmptyFilesState />
+  }
 
   return (
     <div className='pt-4 px-4 flex flex-col overflow-auto'>
@@ -33,7 +33,7 @@ export function MainContentFileList({ songs, selectedSongId, onSongSelect }: Mai
             key={song.filePath}
             song={song}
             isSelected={selectedSongId === song.id}
-            onClick={() => onSongSelect?.(song.id)}
+            onClick={() => setSelectedSongId?.(song.id)}
           />
         ))}
       </ScrollArea>

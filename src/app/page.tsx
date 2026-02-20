@@ -1,6 +1,7 @@
 'use client'
 
 import { parseAsInteger, useQueryState } from 'nuqs'
+import { HomeProvider } from '@/contexts/home-context'
 import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
 import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
 import { FolderList } from '@/components/panels/folder-list/folder-list'
@@ -20,16 +21,17 @@ export default function Home() {
   }
 
   return (
-    <ThreeColumnLayout
-      sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
-      main={
-        <MainContent
-          selectedFolderId={selectedFolderId}
-          selectedSongId={selectedSong}
-          onSongSelect={handleSongSelect}
-        />
-      }
-      detail={selectedSong ? <DetailPanel songId={selectedSong} /> : undefined}
-    />
+    <HomeProvider
+      selectedFolderId={selectedFolderId}
+      selectedSongId={selectedSong}
+      onFolderSelect={handleFolderSelect}
+      onSongSelect={handleSongSelect}
+    >
+      <ThreeColumnLayout
+        sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
+        main={<MainContent />}
+        detail={selectedSong ? <DetailPanel songId={selectedSong} /> : undefined}
+      />
+    </HomeProvider>
   )
 }
