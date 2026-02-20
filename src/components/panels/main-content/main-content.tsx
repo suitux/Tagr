@@ -1,6 +1,5 @@
 'use client'
 
-import type { Song } from '@/features/songs/domain'
 import { useSongsByFolder } from '@/features/songs/hooks/use-songs-by-folder'
 import { MainContentEmptyFilesState } from './components/main-content-empty-files-state'
 import { MainContentEmptyFolderState } from './components/main-content-empty-folder-state'
@@ -10,11 +9,11 @@ import { MainContentLoadingState } from './components/main-content-loading-state
 
 interface MainContentProps {
   selectedFolderId?: string | null
-  onSongSelect?: (file: Song | null) => void
-  selectedSong?: Song | null
+  onSongSelect?: (songId: number | null) => void
+  selectedSongId?: number | null
 }
 
-export function MainContent({ selectedFolderId, onSongSelect, selectedSong }: MainContentProps) {
+export function MainContent({ selectedFolderId, onSongSelect, selectedSongId }: MainContentProps) {
   const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined)
 
   if (!selectedFolderId) {
@@ -35,7 +34,7 @@ export function MainContent({ selectedFolderId, onSongSelect, selectedSong }: Ma
       {songs.length === 0 ? (
         <MainContentEmptyFilesState />
       ) : (
-        <MainContentFileList songs={songs} selectedFile={selectedSong} onFileSelect={onSongSelect} />
+        <MainContentFileList songs={songs} selectedSongId={selectedSongId} onSongSelect={onSongSelect} />
       )}
     </div>
   )

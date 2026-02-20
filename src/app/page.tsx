@@ -1,33 +1,36 @@
 'use client'
 
-import { useState } from 'react'
 import { useQueryState } from 'nuqs'
+import { useState } from 'react'
 import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
 import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
 import { FolderList } from '@/components/panels/folder-list/folder-list'
 import { MainContent } from '@/components/panels/main-content/main-content'
-import { Song } from '@/features/songs/domain'
 
 export default function Home() {
   const [selectedFolderId, setSelectedFolderId] = useQueryState('folder')
-  const [selectedSong, setSelectedSong] = useState<Song | null>(null)
+  const [selectedSong, setSelectedSong] = useState<number | null>(null)
 
   const handleFolderSelect = (folderId: string | null) => {
     setSelectedFolderId(folderId)
     setSelectedSong(null)
   }
 
-  const handleSongSelect = (song: Song | null) => {
-    setSelectedSong(song)
+  const handleSongSelect = (songId: number | null) => {
+    setSelectedSong(songId)
   }
 
   return (
     <ThreeColumnLayout
       sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
       main={
-        <MainContent selectedFolderId={selectedFolderId} selectedSong={selectedSong} onSongSelect={handleSongSelect} />
+        <MainContent
+          selectedFolderId={selectedFolderId}
+          selectedSongId={selectedSong}
+          onSongSelect={handleSongSelect}
+        />
       }
-      detail={selectedSong ? <DetailPanel songId={selectedSong.id} /> : undefined}
+      detail={selectedSong ? <DetailPanel songId={selectedSong} /> : undefined}
     />
   )
 }

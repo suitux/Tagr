@@ -8,11 +8,11 @@ import { MainContentFileItem } from './main-content-file-item'
 
 interface MainContentFileListProps {
   songs: Song[]
-  selectedFile?: Song | null
-  onFileSelect?: (file: Song | null) => void
+  selectedSongId?: number | null
+  onSongSelect?: (songId: number | null) => void
 }
 
-export function MainContentFileList({ songs, selectedFile, onFileSelect }: MainContentFileListProps) {
+export function MainContentFileList({ songs, selectedSongId, onSongSelect }: MainContentFileListProps) {
   const tCommon = useTranslations('common')
 
   return (
@@ -32,8 +32,8 @@ export function MainContentFileList({ songs, selectedFile, onFileSelect }: MainC
           <MainContentFileItem
             key={song.filePath}
             song={song}
-            isSelected={selectedFile?.filePath === song.filePath}
-            onClick={() => onFileSelect?.(song)}
+            isSelected={selectedSongId === song.id}
+            onClick={() => onSongSelect?.(song.id)}
           />
         ))}
       </ScrollArea>
