@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode, useEffect } from 'react'
-import type { Song } from '@/features/songs/domain'
-import { useSongsByFolder, type SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
+import { createContext, useContext, useState, type ReactNode } from 'react'
+import type { Song, SongSortDirection, SongSortField } from '@/features/songs/domain'
+import { useSongsByFolder, type SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 
 interface HomeContextValue {
   selectedFolderId: string | null
@@ -10,9 +10,12 @@ interface HomeContextValue {
   songs: Song[]
   isLoadingSongs: boolean
   search: string
+  sorting: SongsSortParams
   setSearch: (value: string) => void
   setSelectedFolderId: (folderId: string | null) => void
   setSelectedSongId: (songId: number | null) => void
+  setSorting: (sortField: SongSortField, sort: SongSortDirection) => void
+  clearSorting: () => void
 }
 
 const HomeContext = createContext<HomeContextValue | null>(null)
@@ -33,9 +36,18 @@ export function HomeProvider({
   onSongSelect
 }: HomeProviderProps) {
   const [search, setSearch] = useState('')
+  const [sorting, setSortingState] = useState<SongsSortParams>({})
 
-  const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined, search || undefined)
+  const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined, search || undefined, sorting)
   const songs = data?.success ? data.files : []
+
+  const setSorting = (sortField: SongSortField, sort: SongSortDirection) => {
+    setSortingState({ sortField, sort })
+  }
+
+  const clearSorting = () => {
+    setSortingState({})
+  }
 
   return (
     <HomeContext.Provider
@@ -45,9 +57,12 @@ export function HomeProvider({
         songs,
         isLoadingSongs: isLoading,
         search,
+        sorting,
         setSearch,
         setSelectedFolderId: onFolderSelect,
-        setSelectedSongId: onSongSelect
+        setSelectedSongId: onSongSelect,
+        setSorting,
+        clearSorting
       }}>
       {children}
     </HomeContext.Provider>

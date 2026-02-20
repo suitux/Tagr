@@ -1,14 +1,13 @@
 'use client'
 
-import { useState } from 'react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import {
   type ColumnDef,
+  type OnChangeFn,
+  type SortingState,
   flexRender,
   getCoreRowModel,
-  getSortedRowModel,
-  type SortingState,
   useReactTable
 } from '@tanstack/react-table'
 
@@ -18,6 +17,8 @@ interface DataTableProps<TData, TValue> {
   onRowClick?: (row: TData) => void
   selectedRowId?: string | null
   getRowId?: (row: TData) => string
+  sorting?: SortingState
+  onSortingChange?: OnChangeFn<SortingState>
 }
 
 export function DataTable<TData, TValue>({
@@ -25,18 +26,18 @@ export function DataTable<TData, TValue>({
   data,
   onRowClick,
   selectedRowId,
-  getRowId
+  getRowId,
+  sorting,
+  onSortingChange
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
-
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    onSortingChange: setSorting,
+    manualSorting: true,
+    onSortingChange,
     getRowId,
-    state: { sorting }
+    state: { sorting: sorting ?? [] }
   })
 
   return (

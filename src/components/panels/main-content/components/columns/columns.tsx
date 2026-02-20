@@ -17,12 +17,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
       header: ({ column }) => (
         <SortableHeader column={column} label={tCommon('name')} className='w-auto justify-start -ml-4' />
       ),
-      cell: ({ row }) => <NameCell song={row.original} />,
-      sortingFn: (rowA, rowB) => {
-        const a = (rowA.original.title || rowA.original.fileName).toLowerCase()
-        const b = (rowB.original.title || rowB.original.fileName).toLowerCase()
-        return a.localeCompare(b)
-      }
+      cell: ({ row }) => <NameCell song={row.original} />
     },
     {
       accessorKey: 'fileSize',

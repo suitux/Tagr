@@ -1,7 +1,7 @@
 import fs from 'fs/promises'
 import * as musicMetadata from 'music-metadata'
 import path from 'path'
-import { Song } from '@/features/songs/domain'
+import { Song, SongSortField, SongSortDirection } from '@/features/songs/domain'
 import { isMusicFile } from '@/lib/config'
 import { prisma } from './client'
 
@@ -318,17 +318,16 @@ export async function scanAllFolders(
   return result
 }
 
-export async function getSongByPath(filePath: string) {
-  return prisma.song.findUnique({
-    where: { filePath },
-    include: {
-      metadata: true,
-      pictures: true
-    }
-  })
-}
+export async function getSongsByFolder(
+  folderPath: string,
+  search?: string,
+  sortField?: SongSortField,
+  sort?: SongSortDirection
+): Promise<Song[]> {
+  const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
 
-export async function getSongsByFolder(folderPath: string, search?: string): Promise<Song[]> {
+  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+
   return prisma.song.findMany({
     where: {
       folderPath,
@@ -341,55 +340,8 @@ export async function getSongsByFolder(folderPath: string, search?: string): Pro
         ]
       })
     },
-    orderBy: [{ trackNumber: 'asc' }, { fileName: 'asc' }]
+    orderBy
   })
-}
-
-export async function searchSongs(query: string) {
-  return prisma.song.findMany({
-    where: {
-      OR: [
-        { title: { contains: query } },
-        { artist: { contains: query } },
-        { album: { contains: query } },
-        { fileName: { contains: query } }
-      ]
-    },
-    orderBy: { title: 'asc' }
-  })
-}
-
-export async function getAllArtists() {
-  const songs = await prisma.song.findMany({
-    where: { artist: { not: null } },
-    select: { artist: true },
-    distinct: ['artist'],
-    orderBy: { artist: 'asc' }
-  })
-  return songs.map((s: { artist: string | null }) => s.artist).filter(Boolean) as string[]
-}
-
-export async function getAllAlbums() {
-  return prisma.song.findMany({
-    where: { album: { not: null } },
-    select: { album: true, albumArtist: true, artist: true, year: true },
-    distinct: ['album'],
-    orderBy: { album: 'asc' }
-  })
-}
-
-export async function getStats() {
-  const [totalSongs, totalArtists, totalAlbums] = await Promise.all([
-    prisma.song.count(),
-    prisma.song.findMany({ where: { artist: { not: null } }, select: { artist: true }, distinct: ['artist'] }),
-    prisma.song.findMany({ where: { album: { not: null } }, select: { album: true }, distinct: ['album'] })
-  ])
-
-  return {
-    totalSongs,
-    totalArtists: totalArtists.length,
-    totalAlbums: totalAlbums.length
-  }
 }
 
 /**

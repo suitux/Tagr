@@ -1,4 +1,4 @@
-import { File, TagTypes } from 'node-taglib-sharp'
+import { File } from 'node-taglib-sharp'
 
 export interface SongMetadataUpdate {
   title?: string

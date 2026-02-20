@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { Song } from '@/features/songs/domain'
+import { Song, SongSortField, SongSortDirection } from '@/features/songs/domain'
 import { getSongsByFolder } from '@/lib/db/scanner'
 
 interface RouteParams {
@@ -36,10 +36,13 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   }
 
   const folderPath = '/' + path.map(segment => decodeURIComponent(segment)).join('/')
-  const search = new URL(request.url).searchParams.get('search') ?? undefined
+  const url = new URL(request.url)
+  const search = url.searchParams.get('search') ?? undefined
+  const sortFieldParam = (url.searchParams.get('sortField') as SongSortField) ?? undefined
+  const sortParam = (url.searchParams.get('sort') as SongSortDirection) ?? undefined
 
   try {
-    const songs = await getSongsByFolder(folderPath, search)
+    const songs = await getSongsByFolder(folderPath, search, sortFieldParam, sortParam)
 
     return NextResponse.json({
       success: true,

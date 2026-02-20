@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
-import { useQuery, keepPreviousData } from '@tanstack/react-query'
-import type { Song } from '../domain'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import type { Song, SongSortDirection, SongSortField } from '../domain'
 
 export interface SongsSuccessResponse {
   success: true
@@ -16,7 +16,16 @@ interface SongsErrorResponse {
 
 type SongsResponse = SongsSuccessResponse | SongsErrorResponse
 
-async function fetchSongsByFolder(folderPath: string, search?: string): Promise<SongsResponse> {
+export interface SongsSortParams {
+  sortField?: SongSortField
+  sort?: SongSortDirection
+}
+
+async function fetchSongsByFolder(
+  folderPath: string,
+  search?: string,
+  sorting?: SongsSortParams
+): Promise<SongsResponse> {
   const pathWithoutLeadingSlash = folderPath.startsWith('/') ? folderPath.slice(1) : folderPath
 
   const encodedPath = pathWithoutLeadingSlash
@@ -24,24 +33,28 @@ async function fetchSongsByFolder(folderPath: string, search?: string): Promise<
     .map(segment => encodeURIComponent(segment))
     .join('/')
 
+  const params = {
+    search,
+    ...sorting
+  }
+
   const { data } = await api.get<SongsResponse>(`/songs/${encodedPath}`, {
-    params: search ? { search } : undefined
+    params: Object.keys(params).length > 0 ? params : undefined
   })
 
   return data
 }
 
-export const getUseSongsByFolderQueryKey = (folderPath: string | undefined, search?: string) => [
-  'songs',
-  'folder',
-  folderPath,
-  search
-]
+export const getUseSongsByFolderQueryKey = (
+  folderPath: string | undefined,
+  search?: string,
+  sorting?: SongsSortParams
+) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort]
 
-export function useSongsByFolder(folderPath: string | undefined, search?: string) {
+export function useSongsByFolder(folderPath: string | undefined, search?: string, sorting?: SongsSortParams) {
   return useQuery({
-    queryKey: getUseSongsByFolderQueryKey(folderPath, search),
-    queryFn: () => fetchSongsByFolder(folderPath!, search),
+    queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting),
+    queryFn: () => fetchSongsByFolder(folderPath!, search, sorting),
     enabled: !!folderPath,
     placeholderData: keepPreviousData
   })
