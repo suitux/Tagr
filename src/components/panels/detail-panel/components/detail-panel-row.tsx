@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils'
 interface DetailPanelRowProps {
   icon: React.ReactNode
   label: string
-  value?: string | number
+  value?: string | number | null
   type?: HTMLInputTypeAttribute
   isPath?: boolean
   songId?: number
@@ -73,7 +73,7 @@ export function DetailPanelRow({
         {isEditing ? (
           <div className='flex items-center gap-2 mt-0.5'>
             <Input
-              value={editValue}
+              value={editValue ?? ''}
               onChange={e => setEditValue(e.target.value)}
               onKeyDown={handleKeyDown}
               className='h-7 text-sm'
