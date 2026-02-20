@@ -38,8 +38,8 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   const folderPath = '/' + path.map(segment => decodeURIComponent(segment)).join('/')
   const url = new URL(request.url)
   const search = url.searchParams.get('search') ?? undefined
-  const sortFieldParam = (url.searchParams.get('sortField') as SongSortField) ?? undefined
-  const sortParam = (url.searchParams.get('sort') as SongSortDirection) ?? undefined
+  const sortFieldParam = (url.searchParams.get('sortField') as SongSortField) ?? 'title'
+  const sortParam = (url.searchParams.get('sort') as SongSortDirection) ?? 'asc'
   const limit = url.searchParams.has('limit') ? Number(url.searchParams.get('limit')) : PAGE_SIZE
   const offset = url.searchParams.has('offset') ? Number(url.searchParams.get('offset')) : 0
 
