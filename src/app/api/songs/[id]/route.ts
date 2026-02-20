@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
-import { writeMetadataToFile } from '@/features/metadata/metadata-writer'
+import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
+import { writeMetadataToFile } from '@/features/metadata/metadata-write.service'
 import { Song } from '@/features/songs/domain'
 import { prisma } from '@/infrastructure/prisma/dbClient'
-import { rescanSongFile } from '@/lib/db/scanner'
 
 interface RouteParams {
   params: Promise<{
@@ -101,7 +101,7 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
     await writeMetadataToFile(song.filePath, body as SongMetadataUpdate)
 
     // Re-scan the file to update all metadata in the database (Song, SongMetadata, SongPicture)
-    const updatedSong = await rescanSongFile(songId)
+    const updatedSong = await rescanSongFileAndSaveIntoDb(songId)
 
     return NextResponse.json({
       success: true,

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
+import { getSongsByFolder, countSongsByFolder, PAGE_SIZE } from '@/features/metadata/metadata-scan.service'
 import { Song, SongSortField, SongSortDirection } from '@/features/songs/domain'
-import { getSongsByFolder, countSongsByFolder, PAGE_SIZE } from '@/lib/db/scanner'
 
 interface RouteParams {
   params: Promise<{

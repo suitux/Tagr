@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
+import { scanAllFoldersAndUpdateDatabase } from '@/features/metadata/metadata-scan.service'
 import { getMusicFolders } from '@/features/songs/song-file-helpers'
 import { analyzeDatabase, optimizeSQLite } from '@/infrastructure/prisma/optimize'
-import { scanAllFolders } from '@/lib/db/scanner'
 
 export async function GET() {
   const folders = getMusicFolders()
@@ -21,7 +21,7 @@ export async function GET() {
     await optimizeSQLite()
 
     // Ejecutar el scan
-    const result = await scanAllFolders(folders)
+    const result = await scanAllFoldersAndUpdateDatabase(folders)
 
     // Analizar la base de datos después del scan para optimizar queries
     await analyzeDatabase()

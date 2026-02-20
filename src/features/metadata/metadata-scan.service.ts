@@ -166,7 +166,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
   }
 }
 
-export async function scanFolder(
+export async function scanFolderAndUpdateDatabase(
   folderPath: string,
   onProgress?: (progress: ScanProgress) => void
 ): Promise<ScanResult> {
@@ -291,7 +291,7 @@ export async function scanFolder(
   return result
 }
 
-export async function scanAllFolders(
+export async function scanAllFoldersAndUpdateDatabase(
   folders: string[],
   onProgress?: (progress: ScanProgress & { folder: string }) => void
 ): Promise<ScanResult> {
@@ -305,7 +305,7 @@ export async function scanAllFolders(
   }
 
   for (const folder of folders) {
-    const folderResult = await scanFolder(folder, progress => onProgress?.({ ...progress, folder }))
+    const folderResult = await scanFolderAndUpdateDatabase(folder, progress => onProgress?.({ ...progress, folder }))
 
     result.totalScanned += folderResult.totalScanned
     result.totalAdded += folderResult.totalAdded
@@ -371,7 +371,7 @@ export async function countSongsByFolder(folderPath: string, search?: string): P
  * @param songId The ID of the song to rescan
  * @returns The updated song with metadata and pictures
  */
-export async function rescanSongFile(songId: number) {
+export async function rescanSongFileAndSaveIntoDb(songId: number) {
   // Get the song from database
   const existingSong = await prisma.song.findUnique({
     where: { id: songId }
