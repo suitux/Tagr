@@ -25,7 +25,7 @@ export function DetailPanelFileDetailsSection({ song }: DetailPanelFileDetailsSe
       {song.createdAt && (
         <DetailPanelRow
           icon={<CalendarIcon className='w-4 h-4' />}
-          label='Created'
+          label={tFiles('created')}
           value={formatDate(song.createdAt)!}
         />
       )}

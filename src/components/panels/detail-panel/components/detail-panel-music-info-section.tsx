@@ -1,4 +1,7 @@
+'use client'
+
 import { ActivityIcon, CalendarIcon, DiscIcon, MusicIcon, PenLineIcon, TagIcon, UserIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
 import { DetailPanelRow } from './detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
@@ -8,15 +11,16 @@ interface DetailPanelMusicInfoSectionProps {
 }
 
 export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectionProps) {
+  const t = useTranslations('musicInfo')
   const hasContent = song.title || song.artist || song.album || song.albumArtist || song.year || song.genre
 
   if (!hasContent) return null
 
   return (
-    <DetailPanelSection title='Music Info'>
+    <DetailPanelSection title={t('title')}>
       <DetailPanelRow
         icon={<MusicIcon className='w-4 h-4' />}
-        label='Title'
+        label={t('songTitle')}
         value={song.title}
         songId={song.id}
         fieldName='title'
@@ -24,7 +28,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
       <DetailPanelRow
         icon={<UserIcon className='w-4 h-4' />}
-        label='Artist'
+        label={t('artist')}
         value={song.artist}
         songId={song.id}
         fieldName='artist'
@@ -32,7 +36,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
       <DetailPanelRow
         icon={<DiscIcon className='w-4 h-4' />}
-        label='Album'
+        label={t('album')}
         value={song.album}
         songId={song.id}
         fieldName='album'
@@ -40,7 +44,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
       <DetailPanelRow
         icon={<UserIcon className='w-4 h-4' />}
-        label='Album Artist'
+        label={t('albumArtist')}
         value={song.albumArtist}
         songId={song.id}
         fieldName='albumArtist'
@@ -48,7 +52,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
       <DetailPanelRow
         icon={<CalendarIcon className='w-4 h-4' />}
-        label='Year'
+        label={t('year')}
         value={song.year?.toString()}
         songId={song.id}
         fieldName='year'
@@ -57,7 +61,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
       <DetailPanelRow
         icon={<TagIcon className='w-4 h-4' />}
-        label='Genre'
+        label={t('genre')}
         value={song.genre}
         songId={song.id}
         fieldName='genre'
@@ -65,7 +69,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
       <DetailPanelRow
         icon={<PenLineIcon className='w-4 h-4' />}
-        label='Composer'
+        label={t('composer')}
         value={song.composer}
         songId={song.id}
         fieldName='composer'
@@ -73,7 +77,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
       <DetailPanelRow
         icon={<ActivityIcon className='w-4 h-4' />}
-        label='Bpm'
+        label={t('bpm')}
         value={song.bpm}
         songId={song.id}
         fieldName='bpm'

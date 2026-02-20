@@ -52,7 +52,34 @@
     "details": "File details",
     "selectFile": "Select a file to view its details",
     "fileInfo": "File information",
-    "searchPlaceholder": "Search songs..."
+    "searchPlaceholder": "Search songs...",
+    "created": "Created"
+  },
+  "musicInfo": {
+    "title": "Music Info",
+    "songTitle": "Title",
+    "artist": "Artist",
+    "album": "Album",
+    "albumArtist": "Album Artist",
+    "year": "Year",
+    "genre": "Genre",
+    "composer": "Composer",
+    "bpm": "BPM"
+  },
+  "trackInfo": {
+    "title": "Track Info",
+    "duration": "Duration",
+    "track": "Track",
+    "disc": "Disc",
+    "of": "of"
+  },
+  "audioProperties": {
+    "title": "Audio Properties",
+    "codec": "Codec",
+    "bitrate": "Bitrate",
+    "sampleRate": "Sample Rate",
+    "channels": "Channels",
+    "bitDepth": "Bit Depth"
   },
   "notes": {
     "title": "Notes",
