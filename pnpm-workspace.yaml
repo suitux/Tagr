@@ -5,3 +5,5 @@ onlyBuiltDependencies:
   - '@prisma/engines'
   - better-sqlite3
   - prisma
+patchedDependencies:
+  node-taglib-sharp@6.0.1: patches/node-taglib-sharp@6.0.1.patch

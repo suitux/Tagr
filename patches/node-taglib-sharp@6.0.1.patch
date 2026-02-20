@@ -1,0 +1,79 @@
+diff --git a/dist/xiph/xiphComment.js b/dist/xiph/xiphComment.js
+index dfbc11368c60b77b5eef60cbe4b7293aac8f238f..28930f295141992e93badffae9b7d71f97a686a6 100644
+--- a/dist/xiph/xiphComment.js
++++ b/dist/xiph/xiphComment.js
+@@ -458,10 +458,7 @@ class XiphComment extends tag_1.Tag {
+      *     behavior can be controlled Stored in the {@link XiphSettings.useTempoToStoreBpm}.
+      */
+     get beatsPerMinute() {
+-        let text = this.getFieldFirstValue("TEMPO");
+-        if (!text) {
+-            text = this.getFieldFirstValue("BPM");
+-        }
++        text = this.getFieldFirstValue("BPM");
+         const parsedNumber = Number.parseInt(text, 10);
+         return Number.isNaN(parsedNumber) ? 0 : parsedNumber;
+     }
+@@ -473,15 +470,8 @@ class XiphComment extends tag_1.Tag {
+      *     The other field is removed when stored.
+      */
+     set beatsPerMinute(value) {
+-        // @TODO: Allow existing field to be used Stored in the config
+-        if (xiphSettings_1.default.useTempoToStoreBpm) {
+-            this.setFieldAsUint("TEMPO", value);
+-            this.removeField("BPM");
+-        }
+-        else {
+-            this.setFieldAsUint("BPM", value);
+-            this.removeField("TEMPO");
+-        }
++        this.setFieldAsUint("BPM", value);
++
+     }
+     /**
+      * @inheritDoc
+diff --git a/src/xiph/xiphComment.ts b/src/xiph/xiphComment.ts
+index c489318f71e286fd79434c721af0645a2e62ceb7..f86d27770075a21567bb9169369583352491768d 100644
+--- a/src/xiph/xiphComment.ts
++++ b/src/xiph/xiphComment.ts
+@@ -506,10 +506,7 @@ export default class XiphComment extends Tag {
+      *     behavior can be controlled Stored in the {@link XiphSettings.useTempoToStoreBpm}.
+      */
+     public get beatsPerMinute(): number {
+-        let text = this.getFieldFirstValue("TEMPO");
+-        if (!text) {
+-            text = this.getFieldFirstValue("BPM");
+-        }
++        text = this.getFieldFirstValue("BPM");
+ 
+         const parsedNumber = Number.parseInt(text, 10);
+         return Number.isNaN(parsedNumber) ? 0 : parsedNumber;
+@@ -522,14 +519,7 @@ export default class XiphComment extends Tag {
+      *     The other field is removed when stored.
+      */
+     public set beatsPerMinute(value: number) {
+-        // @TODO: Allow existing field to be used Stored in the config
+-        if (XiphSettings.useTempoToStoreBpm) {
+-            this.setFieldAsUint("TEMPO", value);
+-            this.removeField("BPM");
+-        } else {
+-            this.setFieldAsUint("BPM", value);
+-            this.removeField("TEMPO");
+-        }
++        this.setFieldAsUint("BPM", value);
+     }
+ 
+     /**
+diff --git a/src/xiph/xiphSettings.ts b/src/xiph/xiphSettings.ts
+index 0f788c75f9fe2a8f3819ceed591e29626ca8dea3..17d35350d05062cbe249996a8cbac76cd29e31c2 100644
+--- a/src/xiph/xiphSettings.ts
++++ b/src/xiph/xiphSettings.ts
+@@ -3,7 +3,7 @@
+  * order for changes to take effect.
+  */
+ export default class XiphSettings {
+-    private static _useTempoToStoreBpm: boolean = true;
++    private static _useTempoToStoreBpm: boolean = false;
+ 
+     // noinspection JSUnusedLocalSymbols
+     /**
