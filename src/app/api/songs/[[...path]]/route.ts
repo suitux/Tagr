@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { Song, SongSortField, SongSortDirection } from '@/features/songs/domain'
-import { getSongsByFolder } from '@/lib/db/scanner'
+import { getSongsByFolder, countSongsByFolder, PAGE_SIZE } from '@/lib/db/scanner'
 
 interface RouteParams {
   params: Promise<{
@@ -40,14 +40,19 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   const search = url.searchParams.get('search') ?? undefined
   const sortFieldParam = (url.searchParams.get('sortField') as SongSortField) ?? undefined
   const sortParam = (url.searchParams.get('sort') as SongSortDirection) ?? undefined
+  const limit = url.searchParams.has('limit') ? Number(url.searchParams.get('limit')) : PAGE_SIZE
+  const offset = url.searchParams.has('offset') ? Number(url.searchParams.get('offset')) : 0
 
   try {
-    const songs = await getSongsByFolder(folderPath, search, sortFieldParam, sortParam)
+    const [songs, totalFiles] = await Promise.all([
+      getSongsByFolder(folderPath, search, sortFieldParam, sortParam, offset, limit),
+      countSongsByFolder(folderPath, search)
+    ])
 
     return NextResponse.json({
       success: true,
       folderPath,
-      totalFiles: songs.length,
+      totalFiles,
       files: songs
     })
   } catch (error) {

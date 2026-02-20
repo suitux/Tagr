@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
 import type { Song, SongSortDirection, SongSortField } from '@/features/songs/domain'
 import { useSongsByFolder, type SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 
@@ -11,6 +11,9 @@ interface HomeContextValue {
   isLoadingSongs: boolean
   search: string
   sorting: SongsSortParams
+  fetchNextPage: () => void
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
   setSearch: (value: string) => void
   setSelectedFolderId: (folderId: string | null) => void
   setSelectedSongId: (songId: number | null) => void
@@ -38,8 +41,16 @@ export function HomeProvider({
   const [search, setSearch] = useState('')
   const [sorting, setSortingState] = useState<SongsSortParams>({})
 
-  const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined, search || undefined, sorting)
-  const songs = data?.success ? data.files : []
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder(
+    selectedFolderId ?? undefined,
+    search || undefined,
+    sorting
+  )
+
+  const songs = useMemo(() => {
+    if (!data) return []
+    return data.pages.flatMap(page => (page.success ? page.files : []))
+  }, [data])
 
   const setSorting = (sortField: SongSortField, sort: SongSortDirection) => {
     setSortingState({ sortField, sort })
@@ -58,6 +69,9 @@ export function HomeProvider({
         isLoadingSongs: isLoading,
         search,
         sorting,
+        fetchNextPage,
+        hasNextPage,
+        isFetchingNextPage,
         setSearch,
         setSelectedFolderId: onFolderSelect,
         setSelectedSongId: onSongSelect,

@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useMemo } from 'react'
+import { LoaderCircle } from 'lucide-react'
 import { DataTable } from '@/components/ui/data-table'
 import { useHome } from '@/contexts/home-context'
 import type { Song, SongSortField } from '@/features/songs/domain'
@@ -9,7 +10,18 @@ import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
 
 export function MainContentFileList() {
-  const { selectedSongId, songs, setSelectedSongId, isLoadingSongs, sorting, setSorting, clearSorting } = useHome()
+  const {
+    selectedSongId,
+    songs,
+    setSelectedSongId,
+    isLoadingSongs,
+    sorting,
+    setSorting,
+    clearSorting,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useHome()
   const columns = useSongColumns()
 
   const tableSorting: SortingState = useMemo(
@@ -30,12 +42,18 @@ export function MainContentFileList() {
     [tableSorting, setSorting, clearSorting]
   )
 
+  const handleScrollEnd = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+
   if (songs.length === 0 && !isLoadingSongs) {
     return <MainContentEmptyFilesState />
   }
 
   return (
-    <div className='pt-4 px-4 flex flex-col overflow-auto'>
+    <div className='pt-4 px-4 flex flex-col overflow-hidden flex-1'>
       <DataTable
         columns={columns}
         data={songs}
@@ -44,7 +62,13 @@ export function MainContentFileList() {
         onRowClick={(song: Song) => setSelectedSongId?.(song.id)}
         sorting={tableSorting}
         onSortingChange={onSortingChange}
+        onScrollEnd={handleScrollEnd}
       />
+      {isFetchingNextPage && (
+        <div className='flex items-center justify-center py-3'>
+          <LoaderCircle className='h-5 w-5 animate-spin text-muted-foreground' />
+        </div>
+      )}
     </div>
   )
 }

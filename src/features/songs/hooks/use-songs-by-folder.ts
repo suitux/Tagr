@@ -1,6 +1,8 @@
 import { api } from '@/lib/axios'
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
 import type { Song, SongSortDirection, SongSortField } from '../domain'
+
+const PAGE_SIZE = 50
 
 export interface SongsSuccessResponse {
   success: true
@@ -24,7 +26,9 @@ export interface SongsSortParams {
 async function fetchSongsByFolder(
   folderPath: string,
   search?: string,
-  sorting?: SongsSortParams
+  sorting?: SongsSortParams,
+  limit?: number,
+  offset?: number
 ): Promise<SongsResponse> {
   const pathWithoutLeadingSlash = folderPath.startsWith('/') ? folderPath.slice(1) : folderPath
 
@@ -33,13 +37,15 @@ async function fetchSongsByFolder(
     .map(segment => encodeURIComponent(segment))
     .join('/')
 
-  const params = {
+  const params: Record<string, string | number | undefined> = {
     search,
-    ...sorting
+    ...sorting,
+    limit,
+    offset
   }
 
   const { data } = await api.get<SongsResponse>(`/songs/${encodedPath}`, {
-    params: Object.keys(params).length > 0 ? params : undefined
+    params
   })
 
   return data
@@ -52,9 +58,15 @@ export const getUseSongsByFolderQueryKey = (
 ) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort]
 
 export function useSongsByFolder(folderPath: string | undefined, search?: string, sorting?: SongsSortParams) {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting),
-    queryFn: () => fetchSongsByFolder(folderPath!, search, sorting),
+    queryFn: ({ pageParam = 0 }) => fetchSongsByFolder(folderPath!, search, sorting, PAGE_SIZE, pageParam),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _allPages, lastPageParam) => {
+      if (!lastPage.success) return undefined
+      const nextOffset = lastPageParam + lastPage.files.length
+      return nextOffset < lastPage.totalFiles ? nextOffset : undefined
+    },
     enabled: !!folderPath,
     placeholderData: keepPreviousData
   })

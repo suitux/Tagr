@@ -1,9 +1,14 @@
 'use client'
 
 import { Song } from '@/features/songs/domain'
-import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
+import {
+  getUseSongsByFolderQueryKey,
+  SongsSuccessResponse
+} from '@/features/songs/hooks/use-songs-by-folder'
 import { api } from '@/lib/axios'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
+
+type SongsResponse = SongsSuccessResponse | { success: false; error: string }
 
 interface UpdateSongResponse {
   success: true
@@ -38,14 +43,20 @@ export function useUpdateSong() {
   return useMutation({
     mutationFn: updateSong,
     onSuccess: updatedSong => {
-      queryClient.setQueriesData<SongsSuccessResponse>(
+      queryClient.setQueriesData<InfiniteData<SongsResponse>>(
         { queryKey: getUseSongsByFolderQueryKey(updatedSong.folderPath) },
         oldData => {
-          if (!oldData?.success) return oldData
+          if (!oldData) return oldData
 
           return {
             ...oldData,
-            files: oldData.files.map(song => (song.id === updatedSong.id ? updatedSong : song))
+            pages: oldData.pages.map(page => {
+              if (!page.success) return page
+              return {
+                ...page,
+                files: page.files.map(song => (song.id === updatedSong.id ? updatedSong : song))
+              }
+            })
           }
         }
       )

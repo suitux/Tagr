@@ -318,11 +318,15 @@ export async function scanAllFolders(
   return result
 }
 
+export const PAGE_SIZE = 50
+
 export async function getSongsByFolder(
   folderPath: string,
   search?: string,
   sortField?: SongSortField,
-  sort?: SongSortDirection
+  sort?: SongSortDirection,
+  skip?: number,
+  take?: number
 ): Promise<Song[]> {
   const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
 
@@ -340,7 +344,28 @@ export async function getSongsByFolder(
         ]
       })
     },
-    orderBy
+    orderBy,
+    skip,
+    take
+  })
+}
+
+export async function countSongsByFolder(
+  folderPath: string,
+  search?: string
+): Promise<number> {
+  return prisma.song.count({
+    where: {
+      folderPath,
+      ...(search && {
+        OR: [
+          { title: { contains: search } },
+          { artist: { contains: search } },
+          { album: { contains: search } },
+          { fileName: { contains: search } }
+        ]
+      })
+    }
   })
 }
 
