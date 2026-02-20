@@ -4,7 +4,7 @@ import path from 'path'
 import { MetadataInput, PictureInput, ScanProgress, ScanResult, SongCreateInput } from '@/features/metadata/domain'
 import { Song, SongSortDirection, SongSortField } from '@/features/songs/domain'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
-import { prisma } from '../../infrastructure/prisma/dbClient'
+import { prisma } from '@/infrastructure/prisma/dbClient'
 
 async function getAllMusicFiles(folderPath: string): Promise<string[]> {
   const files: string[] = []
