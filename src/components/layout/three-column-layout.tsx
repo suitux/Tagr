@@ -1,6 +1,6 @@
 'use client'
 
-import { Separator } from '@/components/ui/separator'
+import { Group, Panel, Separator } from 'react-resizable-panels'
 import { cn } from '@/lib/utils'
 
 interface ThreeColumnLayoutProps {
@@ -12,19 +12,30 @@ interface ThreeColumnLayoutProps {
 
 export function ThreeColumnLayout({ sidebar, main, detail, className }: ThreeColumnLayoutProps) {
   return (
-    <div className={cn('flex h-screen w-full overflow-hidden bg-background', className)}>
-      <aside className='min-w-72 flex-shrink-0 bg-card/50 backdrop-blur-sm'>{sidebar}</aside>
+    <div className={cn('h-screen w-full overflow-hidden bg-background', className)}>
+      <Group orientation='horizontal' className='h-full'>
+        {/* Sidebar */}
+        <Panel id='sidebar' defaultSize={1} minSize={350} maxSize={600} className='bg-card/50 backdrop-blur-sm'>
+          {sidebar}
+        </Panel>
 
-      <Separator orientation='vertical' />
+        <Separator className='w-1 bg-border hover:bg-primary/50 transition-colors cursor-col-resize' />
 
-      <main className='flex-1 overflow-hidden bg-background'>{main}</main>
+        {/* Main content */}
+        <Panel id='main' defaultSize={detail ? 55 : 80} minSize={30} className='bg-background overflow-hidden'>
+          {main}
+        </Panel>
 
-      {detail && (
-        <>
-          <Separator orientation='vertical' />
-          <aside className='w-80 flex-shrink-0 bg-card/50 backdrop-blur-sm'>{detail}</aside>
-        </>
-      )}
+        {/* Detail panel */}
+        {detail && (
+          <>
+            <Separator className='w-1 bg-border hover:bg-primary/50 transition-colors cursor-col-resize' />
+            <Panel id='detail' defaultSize={1} minSize={350} maxSize={600} className='bg-card/50 backdrop-blur-sm'>
+              {detail}
+            </Panel>
+          </>
+        )}
+      </Group>
     </div>
   )
 }
