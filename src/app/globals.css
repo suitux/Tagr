@@ -124,3 +124,8 @@
         @apply bg-background text-foreground;
     }
 }
+
+
+.tsqd-open-btn-container {
+    bottom: 64px !important;
+}
