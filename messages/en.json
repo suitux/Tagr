@@ -51,7 +51,8 @@
     "empty": "No music files in this folder",
     "details": "File details",
     "selectFile": "Select a file to view its details",
-    "fileInfo": "File information"
+    "fileInfo": "File information",
+    "searchPlaceholder": "Search songs..."
   },
   "notes": {
     "title": "Notes",

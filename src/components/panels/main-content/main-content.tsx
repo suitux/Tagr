@@ -1,11 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { useSongsByFolder } from '@/features/songs/hooks/use-songs-by-folder'
 import { MainContentEmptyFilesState } from './components/main-content-empty-files-state'
 import { MainContentEmptyFolderState } from './components/main-content-empty-folder-state'
 import { MainContentFileList } from './components/main-content-file-list'
 import { MainContentHeader } from './components/main-content-header'
-import { MainContentLoadingState } from './components/main-content-loading-state'
 
 interface MainContentProps {
   selectedFolderId?: string | null
@@ -14,14 +14,12 @@ interface MainContentProps {
 }
 
 export function MainContent({ selectedFolderId, onSongSelect, selectedSongId }: MainContentProps) {
-  const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined)
+  const [search, setSearch] = useState('')
+
+  const { data, isLoading } = useSongsByFolder(selectedFolderId ?? undefined, search || undefined)
 
   if (!selectedFolderId) {
     return <MainContentEmptyFolderState />
-  }
-
-  if (isLoading) {
-    return <MainContentLoadingState />
   }
 
   const songs = data?.success ? data.files : []
@@ -29,9 +27,14 @@ export function MainContent({ selectedFolderId, onSongSelect, selectedSongId }: 
 
   return (
     <div className='flex flex-col h-full'>
-      <MainContentHeader folderName={folderName} folderPath={selectedFolderId} filesCount={songs.length} />
+      <MainContentHeader
+        folderName={folderName}
+        folderPath={selectedFolderId}
+        filesCount={songs.length}
+        onSearchChange={setSearch}
+      />
 
-      {songs.length === 0 ? (
+      {songs.length === 0 && !isLoading ? (
         <MainContentEmptyFilesState />
       ) : (
         <MainContentFileList songs={songs} selectedSongId={selectedSongId} onSongSelect={onSongSelect} />

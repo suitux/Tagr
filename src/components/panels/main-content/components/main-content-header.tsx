@@ -1,18 +1,26 @@
 'use client'
 
-import { MusicIcon } from 'lucide-react'
+import { MusicIcon, SearchIcon } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 
 interface MainContentHeaderProps {
   folderName: string
   folderPath: string
   filesCount: number
+  onSearchChange: (value: string) => void
 }
 
-export function MainContentHeader({ folderName, folderPath, filesCount }: MainContentHeaderProps) {
+export function MainContentHeader({ folderName, folderPath, filesCount, onSearchChange }: MainContentHeaderProps) {
   const tFolders = useTranslations('folders')
+  const tFiles = useTranslations('files')
+
+  const handleChange = (value: string) => {
+    onSearchChange(value)
+  }
 
   return (
     <>
@@ -26,6 +34,14 @@ export function MainContentHeader({ folderName, folderPath, filesCount }: MainCo
             <MusicIcon className='w-3.5 h-3.5' />
             {tFolders('files', { count: filesCount })}
           </Badge>
+        </div>
+        <div className='relative mt-4'>
+          <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none' />
+          <Input
+            onChange={e => handleChange(e.target.value)}
+            placeholder={tFiles('searchPlaceholder')}
+            className='pl-9'
+          />
         </div>
       </div>
       <Separator />

@@ -1,5 +1,5 @@
 import { api } from '@/lib/axios'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 import type { Song } from '../domain'
 
 export interface SongsSuccessResponse {
@@ -42,6 +42,7 @@ export function useSongsByFolder(folderPath: string | undefined, search?: string
   return useQuery({
     queryKey: getUseSongsByFolderQueryKey(folderPath, search),
     queryFn: () => fetchSongsByFolder(folderPath!, search),
-    enabled: !!folderPath
+    enabled: !!folderPath,
+    placeholderData: keepPreviousData
   })
 }
