@@ -51,7 +51,7 @@ Browser (React Query) → /api/* route handlers → Prisma → SQLite (./data/me
   - `songs/[id]/` — Single song (GET) and metadata update (PATCH)
   - `folders/[[...name]]/` — Folder tree navigation
 - `src/features/` — Domain layer: types (`domain.ts`) + React Query hooks per feature (songs, folders, scan)
-- `src/lib/db/` — Database utilities: `client.ts` (Prisma singleton), `scanner.ts` (file traversal + metadata extraction), `metadata-writer.ts` (writes tags back to files), `optimize.ts` (SQLite PRAGMAs: WAL, 256MB cache)
+- `src/infrastructure/` — Database utilities: `dbClient.ts` (Prisma singleton), `scanner.ts` (file traversal + metadata extraction), `metadata-writer.ts` (writes tags back to files), `optimize.ts` (SQLite PRAGMAs: WAL, 256MB cache)
 - `src/components/panels/` — The three UI panels: `folder-list/`, `main-content/`, `detail-panel/`
 - `src/lib/song-file-helpers.ts` — Reads MUSIC_FOLDERS env var
 - `src/auth.ts` — NextAuth credentials provider config

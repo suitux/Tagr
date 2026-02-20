@@ -1,4 +1,4 @@
-import { prisma } from './client'
+import { prisma } from '../../infrastructure/dbClient'
 
 /**
  * Ejecuta optimizaciones de SQLite usando PRAGMA statements.

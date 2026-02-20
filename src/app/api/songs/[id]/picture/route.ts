@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/lib/db/client'
+import { prisma } from '@/infrastructure/dbClient'
 
 interface RouteParams {
   params: Promise<{
@@ -12,10 +12,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   const songId = parseInt(id, 10)
 
   if (isNaN(songId)) {
-    return NextResponse.json(
-      { success: false, error: 'Invalid song ID' },
-      { status: 400 }
-    )
+    return NextResponse.json({ success: false, error: 'Invalid song ID' }, { status: 400 })
   }
 
   try {
@@ -29,10 +26,7 @@ export async function GET(request: Request, { params }: RouteParams) {
     })
 
     if (!picture || !picture.data) {
-      return NextResponse.json(
-        { success: false, error: 'No picture found for this song' },
-        { status: 404 }
-      )
+      return NextResponse.json({ success: false, error: 'No picture found for this song' }, { status: 404 })
     }
 
     // Determinar el content type basado en el formato
@@ -52,4 +46,3 @@ export async function GET(request: Request, { params }: RouteParams) {
     )
   }
 }
-
