@@ -1,9 +1,9 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import { Song } from '@/features/songs/domain'
 import { useSong } from '@/features/songs/hooks/use-song'
 import { useSongPicture } from '@/features/songs/hooks/use-song-picture'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
@@ -24,6 +24,14 @@ export function DetailPanel({ songId }: DetailPanelProps) {
   const tFormats = useTranslations('formats')
   const { data: song, isLoading } = useSong(songId)
   const { pictureUrl, hasPicture } = useSongPicture(song?.id)
+
+  if (!songId) {
+    return <DetailPanelEmptyState />
+  }
+
+  if (isLoading) {
+    return <DetailPanelLoadingState />
+  }
 
   if (!song) {
     return <DetailPanelEmptyState />
