@@ -2,7 +2,7 @@ import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 import type { Song } from '../domain'
 
-interface SongsSuccessResponse {
+export interface SongsSuccessResponse {
   success: true
   folderPath: string
   totalFiles: number
@@ -26,9 +26,11 @@ async function fetchSongsByFolder(folderPath: string): Promise<SongsResponse> {
   return data
 }
 
+export const getUseSongsByFolderQueryKey = (folderPath: string | undefined) => ['songs', 'folder', folderPath]
+
 export function useSongsByFolder(folderPath: string | undefined) {
   return useQuery({
-    queryKey: ['songs', 'folder', folderPath],
+    queryKey: getUseSongsByFolderQueryKey(folderPath),
     queryFn: () => fetchSongsByFolder(folderPath!),
     enabled: !!folderPath
   })

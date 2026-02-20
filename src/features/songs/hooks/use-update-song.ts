@@ -1,6 +1,7 @@
 'use client'
 
 import { Song } from '@/features/songs/domain'
+import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
 import { api } from '@/lib/axios'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -37,7 +38,19 @@ export function useUpdateSong() {
   return useMutation({
     mutationFn: updateSong,
     onSuccess: updatedSong => {
-      queryClient.invalidateQueries({ queryKey: ['songs'] })
+      queryClient.setQueriesData<SongsSuccessResponse>(
+        { queryKey: getUseSongsByFolderQueryKey(updatedSong.folderPath) },
+        oldData => {
+          if (!oldData?.success) return oldData
+
+          return {
+            ...oldData,
+            files: oldData.files.map(song => (song.id === updatedSong.id ? updatedSong : song))
+          }
+        }
+      )
+
+      // Update individual song cache
       queryClient.setQueryData(['song', updatedSong.id], updatedSong)
     }
   })
