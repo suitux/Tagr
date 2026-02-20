@@ -3,8 +3,8 @@
 import { useState } from 'react'
 import { FolderList } from '@/components/folders/folder-list'
 import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
-import { DetailPanel } from '@/components/panels/detail-panel'
-import { MainContent } from '@/components/panels/main-content'
+import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
+import { MainContent } from '@/components/panels/main-content/main-content'
 import { Song } from '@/features/songs/domain'
 
 export default function Home() {
