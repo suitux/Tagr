@@ -379,3 +379,55 @@ export async function getStats() {
     totalAlbums: totalAlbums.length
   }
 }
+
+/**
+ * Re-scan a single song file and update its metadata in the database
+ * @param songId The ID of the song to rescan
+ * @returns The updated song with metadata and pictures
+ */
+export async function rescanSongFile(songId: number) {
+  // Get the song from database
+  const existingSong = await prisma.song.findUnique({
+    where: { id: songId }
+  })
+
+  if (!existingSong) {
+    throw new Error('Song not found')
+  }
+
+  // Extract fresh metadata from the file
+  const songData = await extractMetadata(existingSong.filePath)
+
+  if (!songData) {
+    throw new Error('Failed to extract metadata from file')
+  }
+
+  const { metadata, pictures, ...songFields } = songData
+
+  // Delete existing metadata and pictures
+  await prisma.songMetadata.deleteMany({ where: { songId } })
+  await prisma.songPicture.deleteMany({ where: { songId } })
+
+  // Update song with fresh data
+  return prisma.song.update({
+    where: { id: songId },
+    data: {
+      ...songFields,
+      scannedAt: new Date(),
+      ...(metadata && {
+        metadata: {
+          create: metadata
+        }
+      }),
+      ...(pictures && {
+        pictures: {
+          create: pictures
+        }
+      })
+    },
+    include: {
+      metadata: true,
+      pictures: true
+    }
+  })
+}

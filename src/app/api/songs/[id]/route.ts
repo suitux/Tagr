@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { Song } from '@/features/songs/domain'
 import { prisma } from '@/lib/db/client'
 import { SongMetadataUpdate, writeMetadataToFile } from '@/lib/db/metadata-writer'
+import { rescanSongFile } from '@/lib/db/scanner'
 
 interface RouteParams {
   params: Promise<{
@@ -87,7 +88,6 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
   }
 
   try {
-    // Get the song from database
     const song = await prisma.song.findUnique({
       where: { id: songId }
     })
@@ -99,37 +99,8 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
     // Write metadata to the file
     await writeMetadataToFile(song.filePath, body as SongMetadataUpdate)
 
-    // Separate database fields from file-only fields
-    const dbFields = [
-      'title',
-      'artist',
-      'album',
-      'albumArtist',
-      'year',
-      'trackNumber',
-      'trackTotal',
-      'discNumber',
-      'discTotal',
-      'genre',
-      'composer',
-      'comment',
-      'lyrics'
-    ]
-
-    const dbUpdate: Record<string, unknown> = {}
-    for (const [key, value] of Object.entries(body)) {
-      if (dbFields.includes(key)) {
-        dbUpdate[key] = value
-      }
-    }
-
-    const updatedSong = await prisma.song.update({
-      where: { id: songId },
-      data: {
-        ...dbUpdate,
-        scannedAt: new Date()
-      }
-    })
+    // Re-scan the file to update all metadata in the database (Song, SongMetadata, SongPicture)
+    const updatedSong = await rescanSongFile(songId)
 
     return NextResponse.json({
       success: true,
