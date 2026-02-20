@@ -1,10 +1,7 @@
 'use client'
 
 import { Song } from '@/features/songs/domain'
-import {
-  getUseSongsByFolderQueryKey,
-  SongsSuccessResponse
-} from '@/features/songs/hooks/use-songs-by-folder'
+import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
 import { api } from '@/lib/axios'
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -43,8 +40,12 @@ export function useUpdateSong() {
   return useMutation({
     mutationFn: updateSong,
     onSuccess: updatedSong => {
-      queryClient.setQueriesData<InfiniteData<SongsResponse>>(
-        { queryKey: getUseSongsByFolderQueryKey(updatedSong.folderPath) },
+      queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
+        {
+          predicate: ({ queryKey }) => {
+            return queryKey[0] === 'songs' && queryKey[1] === 'folder'
+          }
+        },
         oldData => {
           if (!oldData) return oldData
 
