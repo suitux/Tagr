@@ -78,7 +78,6 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
       }
     }
 
-    // Update the database with the fields that exist in the schema
     const updatedSong = await prisma.song.update({
       where: { id: songId },
       data: {

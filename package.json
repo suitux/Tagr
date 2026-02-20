@@ -26,11 +26,11 @@
     "next": "16.1.6",
     "next-auth": "5.0.0-beta.30",
     "next-intl": "4.8.3",
+    "node-taglib-sharp": "6.0.1",
     "radix-ui": "1.4.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-resizable-panels": "4.6.4",
-    "taglib-wasm": "0.9.0",
     "tailwind-merge": "3.5.0"
   },
   "devDependencies": {

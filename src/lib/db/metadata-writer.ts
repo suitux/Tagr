@@ -1,4 +1,4 @@
-import { updateTags } from 'taglib-wasm'
+import { File } from 'node-taglib-sharp'
 
 export interface SongMetadataUpdate {
   title?: string | null
@@ -17,30 +17,66 @@ export interface SongMetadataUpdate {
   [key: string]: string | number | null | undefined
 }
 
-// Mapping from our field names to taglib-wasm field names
-const fieldMapping: Record<string, string> = {
-  albumArtist: 'albumartist',
-  trackNumber: 'track',
-  discNumber: 'disc'
-}
-
 export async function writeMetadataToFile(filePath: string, metadata: SongMetadataUpdate): Promise<void> {
-  const tags: Record<string, string | number | undefined> = {}
+  const file = File.createFromPath(filePath)
 
-  for (const [key, value] of Object.entries(metadata)) {
-    if (value === undefined) continue
+  try {
+    const tag = file.tag
 
-    // Map field name if needed
-    const taglibKey = fieldMapping[key] ?? key
-
-    // Convert null to empty string/0, otherwise use the value
-    if (typeof value === 'number' || value === null) {
-      tags[taglibKey] = value ?? 0
-    } else {
-      tags[taglibKey] = value ?? ''
+    if (metadata.title !== undefined) {
+      tag.title = metadata.title ?? undefined
     }
-  }
 
-  // Write the tags to the file
-  await updateTags(filePath, tags)
+    if (metadata.artist !== undefined) {
+      tag.performers = metadata.artist ? [metadata.artist] : []
+    }
+
+    if (metadata.album !== undefined) {
+      tag.album = metadata.album ?? undefined
+    }
+
+    if (metadata.albumArtist !== undefined) {
+      tag.albumArtists = metadata.albumArtist ? [metadata.albumArtist] : []
+    }
+
+    if (metadata.year !== undefined) {
+      tag.year = metadata.year ?? 0
+    }
+
+    if (metadata.trackNumber !== undefined) {
+      tag.track = metadata.trackNumber ?? 0
+    }
+
+    if (metadata.trackTotal !== undefined) {
+      tag.trackCount = metadata.trackTotal ?? 0
+    }
+
+    if (metadata.discNumber !== undefined) {
+      tag.disc = metadata.discNumber ?? 0
+    }
+
+    if (metadata.discTotal !== undefined) {
+      tag.discCount = metadata.discTotal ?? 0
+    }
+
+    if (metadata.genre !== undefined) {
+      tag.genres = metadata.genre ? [metadata.genre] : []
+    }
+
+    if (metadata.composer !== undefined) {
+      tag.composers = metadata.composer ? [metadata.composer] : []
+    }
+
+    if (metadata.comment !== undefined) {
+      tag.comment = metadata.comment ?? undefined
+    }
+
+    if (metadata.lyrics !== undefined) {
+      tag.lyrics = metadata.lyrics ?? undefined
+    }
+
+    file.save()
+  } finally {
+    file.dispose()
+  }
 }
