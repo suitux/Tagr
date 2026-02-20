@@ -60,6 +60,7 @@ interface SongCreateInput {
   bitsPerSample: number | null
   codec: string | null
   lossless: boolean
+  bpm: number | null
   metadata?: MetadataInput[]
   pictures?: PictureInput[]
 }
@@ -145,6 +146,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       composer: common.composer?.[0] || null,
       comment: common.comment?.[0]?.text || null,
       lyrics: common.lyrics?.[0]?.text || null,
+      bpm: common.bpm || null,
 
       // Información de audio
       bitrate: format.bitrate ? Math.round(format.bitrate) : null,

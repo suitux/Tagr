@@ -9,8 +9,9 @@
     "start": "next start",
     "lint": "eslint",
     "generate-hash": "npx tsx ./scripts/hash-password.ts",
-    "generate-prisma-client": "prisma generate",
     "prisma-studio": "prisma studio",
+    "prisma-recreate-db": "prisma db push --force-reset",
+    "prisma-generate-client": "prisma generate",
     "postinstall": "prisma generate"
   },
   "dependencies": {

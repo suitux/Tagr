@@ -45,6 +45,7 @@ model Song {
   bitsPerSample Int?     @map("bits_per_sample")
   codec         String?
   lossless      Boolean  @default(false)
+  bpm           Int?
 
   // Relaciones
   metadata SongMetadata[]
