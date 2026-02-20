@@ -1,8 +1,8 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { Song } from '@/features/songs/domain'
 import { api } from '@/lib/axios'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface UpdateSongResponse {
   success: true
@@ -36,13 +36,9 @@ export function useUpdateSong() {
 
   return useMutation({
     mutationFn: updateSong,
-    onSuccess: (updatedSong) => {
-      // Invalidate songs by folder to refresh the list
+    onSuccess: updatedSong => {
       queryClient.invalidateQueries({ queryKey: ['songs'] })
-
-      // Update the song in cache if it exists
       queryClient.setQueryData(['song', updatedSong.id], updatedSong)
     }
   })
 }
-
