@@ -70,43 +70,41 @@ export function MainContent({ selectedFolderId, onFileSelect, selectedFile }: Ma
       <Separator />
 
       {/* File List */}
-      <ScrollArea className='flex-1'>
-        {songs.length === 0 ? (
-          <div className='flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8'>
-            <Card className='max-w-sm'>
-              <CardContent className='pt-6'>
-                <div className='mx-auto w-16 h-16 rounded-xl bg-muted flex items-center justify-center mb-4'>
-                  <FileAudioIcon className='w-8 h-8 text-muted-foreground' />
-                </div>
-                <p className='text-sm text-muted-foreground'>{tFiles('empty')}</p>
-              </CardContent>
-            </Card>
+      {songs.length === 0 ? (
+        <div className='flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8'>
+          <Card className='max-w-sm'>
+            <CardContent className='pt-6'>
+              <div className='mx-auto w-16 h-16 rounded-xl bg-muted flex items-center justify-center mb-4'>
+                <FileAudioIcon className='w-8 h-8 text-muted-foreground' />
+              </div>
+              <p className='text-sm text-muted-foreground'>{tFiles('empty')}</p>
+            </CardContent>
+          </Card>
+        </div>
+      ) : (
+        <div className='pt-4 px-4 flex flex-col overflow-auto'>
+          {/* Table Header */}
+          <div className='grid grid-cols-[1fr_100px_120px] gap-4 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider'>
+            <span>{tCommon('name')}</span>
+            <span className='text-right'>{tCommon('size')}</span>
+            <span className='text-right'>{tCommon('modified')}</span>
           </div>
-        ) : (
-          <div className='p-4'>
-            {/* Table Header */}
-            <div className='grid grid-cols-[1fr_100px_120px] gap-4 px-4 py-2 text-xs font-medium text-muted-foreground uppercase tracking-wider'>
-              <span>{tCommon('name')}</span>
-              <span className='text-right'>{tCommon('size')}</span>
-              <span className='text-right'>{tCommon('modified')}</span>
-            </div>
 
-            <Separator className='mb-2' />
+          <Separator className='mb-2' />
 
-            {/* File Items */}
-            <div className='space-y-1'>
-              {songs.map(song => (
-                <FileItem
-                  key={song.filePath}
-                  song={song}
-                  isSelected={selectedFile?.filePath === song.filePath}
-                  onClick={() => onFileSelect?.(song)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-      </ScrollArea>
+          {/* File Items */}
+          <ScrollArea className='flex-1 overflow-auto'>
+            {songs.map(song => (
+              <FileItem
+                key={song.filePath}
+                song={song}
+                isSelected={selectedFile?.filePath === song.filePath}
+                onClick={() => onFileSelect?.(song)}
+              />
+            ))}
+          </ScrollArea>
+        </div>
+      )}
     </div>
   )
 }
