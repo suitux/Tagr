@@ -38,6 +38,7 @@
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-resizable-panels": "4.6.4",
+    "react-virtuoso": "^4.18.1",
     "sonner": "^2.0.7",
     "tailwind-merge": "3.5.0"
   },

@@ -1,12 +1,13 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
-import { ScrollArea } from '@/components/ui/scroll-area'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
+import { useCallback } from 'react'
+import { type TableComponents, TableVirtuoso } from 'react-virtuoso'
+import { TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import {
   type ColumnDef,
   type OnChangeFn,
+  type Row,
   type SortingState,
   flexRender,
   getCoreRowModel,
@@ -24,6 +25,12 @@ interface DataTableProps<TData, TValue> {
   onScrollEnd?: () => void
 }
 
+interface VirtuosoContext<TData> {
+  rows: Row<TData>[]
+  selectedRowId?: string | null
+  onRowClick?: (row: TData) => void
+}
+
 export function DataTable<TData, TValue>({
   columns,
   data,
@@ -34,8 +41,6 @@ export function DataTable<TData, TValue>({
   onSortingChange,
   onScrollEnd
 }: DataTableProps<TData, TValue>) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
@@ -47,41 +52,61 @@ export function DataTable<TData, TValue>({
     state: { sorting: sorting ?? [] }
   })
 
-  const handleScroll = useCallback(() => {
-    const el = scrollRef.current
-    if (!el || !onScrollEnd) return
-    const threshold = 200
-    if (el.scrollHeight - el.scrollTop - el.clientHeight < threshold) {
-      onScrollEnd()
+  const { rows } = table.getRowModel()
+
+  const fixedHeaderContent = useCallback(
+    () =>
+      table.getHeaderGroups().map(headerGroup => (
+        <tr key={headerGroup.id} className='border-b'>
+          {headerGroup.headers.map(header => (
+            <th
+              key={header.id}
+              className='text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap bg-background'
+              style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
+              {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+            </th>
+          ))}
+        </tr>
+      )),
+    [table]
+  )
+
+  const components: TableComponents<unknown, VirtuosoContext<TData>> = {
+    Table: ({ style, ...props }) => (
+      <table {...props} className='w-full caption-bottom text-sm' style={{ ...style, tableLayout: 'fixed' }} />
+    ),
+    TableBody: ({ style, ...props }) => <tbody {...props} style={style} className='[&_tr:last-child]:border-0' />,
+    TableRow: ({ context, item, ...props }) => {
+      const index = item as number
+      const row = context?.rows[index]
+      if (!row) return <tr {...props} />
+      return (
+        <TableRow
+          {...props}
+          data-state={row.id === context?.selectedRowId ? 'selected' : undefined}
+          className={cn('cursor-pointer', row.id === context?.selectedRowId && 'bg-accent')}
+          onClick={() => context?.onRowClick?.(row.original)}
+        />
+      )
     }
-  }, [onScrollEnd])
+  }
 
   return (
-    <Table rootProps={{ ref: scrollRef, onScroll: handleScroll }}>
-      <TableHeader className='sticky top-0 z-10 bg-background'>
-        {table.getHeaderGroups().map(headerGroup => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map(header => (
-              <TableHead key={header.id} style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
-                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-              </TableHead>
-            ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody>
-        {table.getRowModel().rows.map(row => (
-          <TableRow
-            key={row.id}
-            data-state={row.id === selectedRowId ? 'selected' : undefined}
-            className={cn('cursor-pointer', row.id === selectedRowId && 'bg-accent')}
-            onClick={() => onRowClick?.(row.original)}>
-            {row.getVisibleCells().map(cell => (
-              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-            ))}
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <TableVirtuoso
+      totalCount={rows.length}
+      overscan={200}
+      endReached={onScrollEnd}
+      increaseViewportBy={200}
+      fixedHeaderContent={fixedHeaderContent}
+      context={{ rows, selectedRowId, onRowClick }}
+      itemContent={(index, _data, context) => {
+        const row = context.rows[index]
+        if (!row) return null
+        return row
+          .getVisibleCells()
+          .map(cell => <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>)
+      }}
+      components={components}
+    />
   )
 }
