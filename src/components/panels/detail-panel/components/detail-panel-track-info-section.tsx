@@ -27,6 +27,8 @@ export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectio
           icon={<HashIcon className='w-4 h-4' />}
           label='Track'
           value={song.trackTotal ? `${song.trackNumber} of ${song.trackTotal}` : song.trackNumber.toString()}
+          songId={song.id}
+          fieldName='trackNumber'
         />
       )}
       {song.discNumber && (
@@ -34,6 +36,8 @@ export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectio
           icon={<Music2Icon className='w-4 h-4' />}
           label='Disc'
           value={song.discTotal ? `${song.discNumber} of ${song.discTotal}` : song.discNumber.toString()}
+          songId={song.id}
+          fieldName='discNumber'
         />
       )}
     </DetailPanelSection>

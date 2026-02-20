@@ -22,7 +22,13 @@ export function DetailPanelNotesSection({ song }: DetailPanelNotesSectionProps) 
       <Card className={'p-0'}>
         <CardContent className='p-0 divide-y divide-border'>
           {song.comment && (
-            <DetailPanelRow icon={<PenLineIcon className='w-4 h-4' />} label={t('comment')} value={song.comment} />
+            <DetailPanelRow
+              icon={<PenLineIcon className='w-4 h-4' />}
+              label={t('comment')}
+              value={song.comment}
+              songId={song.id}
+              fieldName='comment'
+            />
           )}
           {song.lyrics && (
             <div className='p-3'>

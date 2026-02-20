@@ -14,18 +14,68 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
 
   return (
     <DetailPanelSection title='Music Info'>
-      {song.title && <DetailPanelRow icon={<MusicIcon className='w-4 h-4' />} label='Title' value={song.title} />}
-      {song.artist && <DetailPanelRow icon={<UserIcon className='w-4 h-4' />} label='Artist' value={song.artist} />}
-      {song.album && <DetailPanelRow icon={<DiscIcon className='w-4 h-4' />} label='Album' value={song.album} />}
+      {song.title && (
+        <DetailPanelRow
+          icon={<MusicIcon className='w-4 h-4' />}
+          label='Title'
+          value={song.title}
+          songId={song.id}
+          fieldName='title'
+        />
+      )}
+      {song.artist && (
+        <DetailPanelRow
+          icon={<UserIcon className='w-4 h-4' />}
+          label='Artist'
+          value={song.artist}
+          songId={song.id}
+          fieldName='artist'
+        />
+      )}
+      {song.album && (
+        <DetailPanelRow
+          icon={<DiscIcon className='w-4 h-4' />}
+          label='Album'
+          value={song.album}
+          songId={song.id}
+          fieldName='album'
+        />
+      )}
       {song.albumArtist && song.albumArtist !== song.artist && (
-        <DetailPanelRow icon={<UserIcon className='w-4 h-4' />} label='Album Artist' value={song.albumArtist} />
+        <DetailPanelRow
+          icon={<UserIcon className='w-4 h-4' />}
+          label='Album Artist'
+          value={song.albumArtist}
+          songId={song.id}
+          fieldName='albumArtist'
+        />
       )}
       {song.year && (
-        <DetailPanelRow icon={<CalendarIcon className='w-4 h-4' />} label='Year' value={song.year.toString()} />
+        <DetailPanelRow
+          icon={<CalendarIcon className='w-4 h-4' />}
+          label='Year'
+          value={song.year.toString()}
+          songId={song.id}
+          fieldName='year'
+        />
       )}
-      {song.genre && <DetailPanelRow icon={<TagIcon className='w-4 h-4' />} label='Genre' value={song.genre} />}
+      {song.genre && (
+        <DetailPanelRow
+          icon={<TagIcon className='w-4 h-4' />}
+          label='Genre'
+          value={song.genre}
+          songId={song.id}
+          fieldName='genre'
+        />
+      )}
       {song.composer && (
-        <DetailPanelRow icon={<PenLineIcon className='w-4 h-4' />} label='Composer' value={song.composer} />
+        <DetailPanelRow
+          icon={<PenLineIcon className='w-4 h-4' />}
+          label='Composer'
+          value={song.composer}
+          songId={song.id}
+          fieldName='composer'
+        />
       )}
     </DetailPanelSection>
   )
