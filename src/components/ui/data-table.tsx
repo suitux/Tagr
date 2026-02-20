@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useRef } from 'react'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import {
@@ -55,33 +56,31 @@ export function DataTable<TData, TValue>({
   }, [onScrollEnd])
 
   return (
-    <div ref={scrollRef} onScroll={handleScroll} className='overflow-auto flex-1'>
-      <Table>
-        <TableHeader className='sticky top-0 z-10 bg-background'>
-          {table.getHeaderGroups().map(headerGroup => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map(header => (
-                <TableHead key={header.id} style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
-                  {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map(row => (
-            <TableRow
-              key={row.id}
-              data-state={row.id === selectedRowId ? 'selected' : undefined}
-              className={cn('cursor-pointer', row.id === selectedRowId && 'bg-accent')}
-              onClick={() => onRowClick?.(row.original)}>
-              {row.getVisibleCells().map(cell => (
-                <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+    <Table rootProps={{ ref: scrollRef, onScroll: handleScroll }}>
+      <TableHeader className='sticky top-0 z-10 bg-background'>
+        {table.getHeaderGroups().map(headerGroup => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map(header => (
+              <TableHead key={header.id} style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
+                {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody>
+        {table.getRowModel().rows.map(row => (
+          <TableRow
+            key={row.id}
+            data-state={row.id === selectedRowId ? 'selected' : undefined}
+            className={cn('cursor-pointer', row.id === selectedRowId && 'bg-accent')}
+            onClick={() => onRowClick?.(row.original)}>
+            {row.getVisibleCells().map(cell => (
+              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+            ))}
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
   )
 }
