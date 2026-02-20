@@ -4,11 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "debug": "next dev --inspect",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
     "generate-hash": "npx tsx ./scripts/hash-password.ts",
-    "prisma-studio": "prisma studio"
+    "generate-prisma-client": "prisma generate",
+    "prisma-studio": "prisma studio",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@libsql/client": "0.17.0",
