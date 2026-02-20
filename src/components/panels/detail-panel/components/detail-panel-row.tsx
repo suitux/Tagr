@@ -1,7 +1,7 @@
 'use client'
 
 import { CheckIcon, PencilIcon, XIcon } from 'lucide-react'
-import { useState } from 'react'
+import { HTMLInputTypeAttribute, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
@@ -10,13 +10,22 @@ import { cn } from '@/lib/utils'
 interface DetailPanelRowProps {
   icon: React.ReactNode
   label: string
-  value: string
+  value?: string | number
+  type?: HTMLInputTypeAttribute
   isPath?: boolean
   songId?: number
   fieldName?: string
 }
 
-export function DetailPanelRow({ icon, label, value, isPath, songId, fieldName }: DetailPanelRowProps) {
+export function DetailPanelRow({
+  icon,
+  label,
+  value = '',
+  isPath,
+  songId,
+  fieldName,
+  type = 'text'
+}: DetailPanelRowProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [editValue, setEditValue] = useState(value)
   const { mutate: updateSong, isPending } = useUpdateSong()
@@ -37,7 +46,7 @@ export function DetailPanelRow({ icon, label, value, isPath, songId, fieldName }
     if (!songId || !fieldName) return
 
     updateSong(
-      { id: songId, metadata: { [fieldName]: editValue || null } },
+      { id: songId, metadata: { [fieldName]: type === 'number' ? Number(editValue) : editValue || null } },
       {
         onSuccess: () => {
           setIsEditing(false)
@@ -70,6 +79,7 @@ export function DetailPanelRow({ icon, label, value, isPath, songId, fieldName }
               className='h-7 text-sm'
               autoFocus
               disabled={isPending}
+              type={type}
             />
             <Button
               variant='ghost'

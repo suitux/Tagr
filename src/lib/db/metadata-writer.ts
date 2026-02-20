@@ -1,4 +1,4 @@
-import { File } from 'node-taglib-sharp'
+import { File, TagTypes } from 'node-taglib-sharp'
 
 export interface SongMetadataUpdate {
   title?: string
@@ -14,7 +14,7 @@ export interface SongMetadataUpdate {
   composer?: string
   comment?: string
   lyrics?: string
-  [key: string]: string | number | undefined
+  bpm?: number
 }
 
 export async function writeMetadataToFile(filePath: string, metadata: SongMetadataUpdate): Promise<void> {
@@ -73,6 +73,10 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
 
     if (metadata.lyrics !== undefined) {
       tag.lyrics = metadata.lyrics
+    }
+
+    if (metadata.bpm !== undefined) {
+      tag.beatsPerMinute = metadata.bpm
     }
 
     file.save()

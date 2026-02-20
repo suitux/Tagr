@@ -1,4 +1,4 @@
-import { CalendarIcon, DiscIcon, MusicIcon, PenLineIcon, TagIcon, UserIcon } from 'lucide-react'
+import { ActivityIcon, CalendarIcon, DiscIcon, MusicIcon, PenLineIcon, TagIcon, UserIcon } from 'lucide-react'
 import { Song } from '@/features/songs/domain'
 import { DetailPanelRow } from './detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
@@ -77,6 +77,15 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
           fieldName='composer'
         />
       )}
+
+      <DetailPanelRow
+        icon={<ActivityIcon className='w-4 h-4' />}
+        label='Bpm'
+        value={song.bpm}
+        songId={song.id}
+        fieldName='bpm'
+        type={'number'}
+      />
     </DetailPanelSection>
   )
 }
