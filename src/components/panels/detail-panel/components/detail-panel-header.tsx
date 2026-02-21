@@ -1,5 +1,5 @@
 import { MusicIcon } from 'lucide-react'
-import Image from 'next/image'
+import { Image } from '@/components/ui/image'
 import { cn } from '@/lib/utils'
 
 interface DetailPanelHeaderProps {
