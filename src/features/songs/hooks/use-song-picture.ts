@@ -1,7 +1,7 @@
 import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'
 
-function getSongPictureUrl(songId: number): string {
+export function getSongPictureUrl(songId: number): string {
   return `/api/songs/${songId}/picture`
 }
 
