@@ -3,19 +3,8 @@
 import * as React from 'react'
 import { cn } from '@/lib/utils'
 
-interface TableProps extends React.ComponentProps<'table'> {
-  rootProps?: React.ComponentProps<'div'>
-}
-
-function Table({ className, rootProps, ...props }: TableProps) {
-  return (
-    <div
-      data-slot='table-container'
-      {...rootProps}
-      className={cn('relative w-full overflow-x-auto', rootProps?.className)}>
-      <table data-slot='table' className={cn('w-full caption-bottom text-sm', className)} {...props} />
-    </div>
-  )
+function Table({ className, ...props }: React.ComponentProps<'table'>) {
+  return <table data-slot='table' className={cn('w-full caption-bottom text-sm', className)} {...props} />
 }
 
 function TableHeader({ className, ...props }: React.ComponentProps<'thead'>) {
@@ -63,7 +52,10 @@ function TableCell({ className, ...props }: React.ComponentProps<'td'>) {
   return (
     <td
       data-slot='table-cell'
-      className={cn('p-2 align-middle whitespace-nowrap overflow-hidden text-ellipsis [&:has([role=checkbox])]:pr-0', className)}
+      className={cn(
+        'p-2 align-middle whitespace-nowrap overflow-hidden text-ellipsis [&:has([role=checkbox])]:pr-0',
+        className
+      )}
       {...props}
     />
   )

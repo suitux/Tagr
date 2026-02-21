@@ -2,7 +2,7 @@
 
 import { useCallback, useRef } from 'react'
 import { type TableComponents, type TableVirtuosoHandle, TableVirtuoso } from 'react-virtuoso'
-import { TableCell, TableRow } from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import {
   type ColumnDef,
@@ -61,25 +61,25 @@ export function DataTable<TData, TValue>({
   const fixedHeaderContent = useCallback(
     () =>
       table.getHeaderGroups().map(headerGroup => (
-        <tr key={headerGroup.id} className='border-b'>
+        <TableRow key={headerGroup.id}>
           {headerGroup.headers.map(header => (
-            <th
+            <TableHead
               key={header.id}
-              className='text-foreground h-10 px-2 text-left align-middle font-medium whitespace-nowrap bg-background'
+              className='bg-background'
               style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
               {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
-            </th>
+            </TableHead>
           ))}
-        </tr>
+        </TableRow>
       )),
     [table]
   )
 
   const components: TableComponents<unknown, VirtuosoContext<TData>> = {
     Table: ({ style, ...props }) => (
-      <table {...props} className='w-full caption-bottom text-sm' style={{ ...style, tableLayout: 'fixed' }} />
+      <Table {...props} className='w-full caption-bottom text-sm' style={{ ...style, tableLayout: 'fixed' }} />
     ),
-    TableBody: ({ style, ...props }) => <tbody {...props} style={style} className='[&_tr:last-child]:border-0' />,
+    TableBody: ({ style, ...props }) => <TableBody {...props} style={style} className='[&_tr:last-child]:border-0' />,
     TableRow: ({ context, ...props }) => {
       const index = props['data-item-index']
       const row = context?.rows[index]
