@@ -24,9 +24,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       accessorKey: 'artist',
       header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('artist')} />,
-      cell: ({ row }) => (
-        <span className='text-sm text-muted-foreground'>{row.original.artist ?? ''}</span>
-      ),
+      cell: ({ row }) => <span className='text-sm text-muted-foreground'>{row.original.artist ?? ''}</span>,
       size: 160
     },
     {
@@ -40,16 +38,14 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       accessorKey: 'genre',
       header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('genre')} />,
-      cell: ({ row }) => (
-        <span className='text-sm text-muted-foreground'>{row.original.genre ?? ''}</span>
-      ),
+      cell: ({ row }) => <span className='text-sm text-muted-foreground'>{row.original.genre ?? ''}</span>,
       size: 120
     },
     {
       accessorKey: 'bpm',
       header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('bpm')} />,
       cell: ({ row }) => (
-        <span className='text-sm text-muted-foreground text-right block'>{row.original.bpm ?? ''}</span>
+        <span className='text-sm text-muted-foreground text-center block'>{row.original.bpm ?? ''}</span>
       ),
       size: 80
     },
@@ -57,7 +53,9 @@ export function useSongColumns(): ColumnDef<Song>[] {
       accessorKey: 'comment',
       header: ({ column }) => <SortableHeader column={column} label={tNotes('comment')} />,
       cell: ({ row }) => (
-        <span className='text-sm text-muted-foreground truncate block max-w-[200px]'>{row.original.comment ?? ''}</span>
+        <span className='text-sm text-muted-foreground truncate block max-w-[200px] text-right'>
+          {row.original.comment ?? ''}
+        </span>
       ),
       size: 200
     },

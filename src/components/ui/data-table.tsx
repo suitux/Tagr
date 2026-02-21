@@ -89,7 +89,10 @@ export function DataTable<TData, TValue>({
           {...props}
           data-state={row.id === context?.selectedRowId ? 'selected' : undefined}
           className={cn('cursor-pointer', row.id === context?.selectedRowId && 'bg-accent')}
-          onClick={() => context?.onRowClick?.(row.original)}
+          onClick={() => {
+            console.log('row click')
+            return context?.onRowClick?.(row.original)
+          }}
         />
       )
     }
