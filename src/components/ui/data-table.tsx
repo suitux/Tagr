@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useRef } from 'react'
 import { type TableComponents, type TableVirtuosoHandle, TableVirtuoso } from 'react-virtuoso'
 import { TableCell, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -80,19 +80,16 @@ export function DataTable<TData, TValue>({
       <table {...props} className='w-full caption-bottom text-sm' style={{ ...style, tableLayout: 'fixed' }} />
     ),
     TableBody: ({ style, ...props }) => <tbody {...props} style={style} className='[&_tr:last-child]:border-0' />,
-    TableRow: ({ context, item, ...props }) => {
-      const index = item as number
+    TableRow: ({ context, ...props }) => {
+      const index = props['data-item-index']
       const row = context?.rows[index]
-      if (!row) return <tr {...props} />
+
       return (
         <TableRow
           {...props}
           data-state={row.id === context?.selectedRowId ? 'selected' : undefined}
           className={cn('cursor-pointer', row.id === context?.selectedRowId && 'bg-accent')}
-          onClick={() => {
-            console.log('row click')
-            return context?.onRowClick?.(row.original)
-          }}
+          onClick={() => context?.onRowClick?.(row.original)}
         />
       )
     }
