@@ -35,7 +35,7 @@ export function MainContentFileList() {
     defaultData: DEFAULT_VISIBLE_COLUMNS
   })
 
-  const { mutate: updateConfig } = useUpdateConfig(genericJsonObjectParser)
+  const { mutate: updateConfig } = useUpdateConfig({ parser: genericJsonObjectParser })
 
   const setColumnVisibility = (value: VisibilityState) => {
     updateConfig({ key: 'columnVisibility', value: JSON.stringify(value) })

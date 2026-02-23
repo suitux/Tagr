@@ -26,7 +26,11 @@ async function upsertConfig({ key, value }: { key: ConfigKey; value: string }): 
   return response.data.value
 }
 
-export function useUpdateConfig(parser: (value: string | null) => unknown) {
+interface UseUpdateConfigProps {
+  parser: (value: string | null) => unknown
+}
+
+export function useUpdateConfig({ parser }: UseUpdateConfigProps) {
   const queryClient = useQueryClient()
 
   return useMutation({
