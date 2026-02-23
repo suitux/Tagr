@@ -11,7 +11,7 @@ export function MainContentHeader() {
   const tFolders = useTranslations('folders')
   const tFiles = useTranslations('files')
 
-  const { selectedFolderId, setSearch, songs } = useHome()
+  const { selectedFolderId, setSearch, totalSongs } = useHome()
   const folderName = selectedFolderId?.split('/').pop() || selectedFolderId
 
   return (
@@ -24,7 +24,7 @@ export function MainContentHeader() {
           </div>
           <Badge variant='secondary' className='gap-1.5'>
             <MusicIcon className='w-3.5 h-3.5' />
-            {tFolders('files', { count: songs.length })}
+            {tFolders('files', { count: totalSongs || '?' })}
           </Badge>
         </div>
         <div className='relative mt-4'>

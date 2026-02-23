@@ -8,6 +8,7 @@ interface HomeContextValue {
   selectedFolderId: string | null
   selectedSongId: number | null
   songs: Song[]
+  totalSongs: number | null
   isLoadingSongs: boolean
   search: string
   sorting: SongsSortParams
@@ -66,6 +67,7 @@ export function HomeProvider({
         selectedFolderId,
         selectedSongId,
         songs,
+        totalSongs: (data?.pages[0].success === true && data?.pages[0].totalFiles) || null,
         isLoadingSongs: isLoading,
         search,
         sorting,
