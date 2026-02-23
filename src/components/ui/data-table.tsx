@@ -9,6 +9,7 @@ import {
   type OnChangeFn,
   type Row,
   type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   useReactTable
@@ -22,6 +23,8 @@ interface DataTableProps<TData, TValue> {
   getRowId?: (row: TData) => string
   sorting?: SortingState
   onSortingChange?: OnChangeFn<SortingState>
+  columnVisibility?: VisibilityState
+  onColumnVisibilityChange?: OnChangeFn<VisibilityState>
   onScrollEnd?: () => void
 }
 
@@ -39,6 +42,8 @@ export function DataTable<TData, TValue>({
   getRowId,
   sorting,
   onSortingChange,
+  columnVisibility,
+  onColumnVisibilityChange,
   onScrollEnd
 }: DataTableProps<TData, TValue>) {
   const virtuosoRef = useRef<TableVirtuosoHandle>(null)
@@ -53,7 +58,11 @@ export function DataTable<TData, TValue>({
       virtuosoRef.current?.scrollToIndex({ index: 0 })
     },
     getRowId,
-    state: { sorting: sorting ?? [] }
+    onColumnVisibilityChange,
+    state: {
+      sorting: sorting ?? [],
+      columnVisibility: columnVisibility ?? {}
+    }
   })
 
   const { rows } = table.getRowModel()

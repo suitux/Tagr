@@ -2,7 +2,17 @@ import type { Song as PrismaSong } from '@/generated/prisma/client'
 
 export type Song = PrismaSong
 
-export type SongSortField = 'title' | 'fileSize' | 'modifiedAt' | 'artist' | 'year' | 'genre' | 'bpm' | 'comment'
+export type SongSortField =
+  | 'title' | 'artist' | 'sortArtist' | 'album' | 'sortAlbum'
+  | 'trackNumber' | 'trackTotal' | 'discNumber' | 'discTotal'
+  | 'year' | 'bpm' | 'genre' | 'albumArtist' | 'sortAlbumArtist'
+  | 'composer' | 'conductor' | 'comment' | 'grouping' | 'publisher'
+  | 'description' | 'catalogNumber' | 'discSubtitle' | 'lyricist'
+  | 'barcode' | 'work' | 'movementName' | 'movement'
+  | 'originalReleaseDate' | 'copyright' | 'rating' | 'compilation'
+  | 'duration' | 'bitrate' | 'sampleRate' | 'channels' | 'bitsPerSample'
+  | 'encoder' | 'fileName' | 'fileSize' | 'extension'
+  | 'createdAt' | 'modifiedAt' | 'dateAdded' | 'lastPlayed' | 'playCount'
 export type SongSortDirection = 'asc' | 'desc'
 
 export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'] as const

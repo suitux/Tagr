@@ -15,7 +15,8 @@
     "size": "Size",
     "modified": "Modified",
     "format": "Format",
-    "location": "Location"
+    "location": "Location",
+    "created": "Created"
   },
   "folders": {
     "title": "Folders",
@@ -59,18 +60,37 @@
     "title": "Music Info",
     "songTitle": "Title",
     "artist": "Artist",
+    "sortArtist": "Sort Artist",
     "album": "Album",
+    "sortAlbum": "Sort Album",
     "albumArtist": "Album Artist",
+    "sortAlbumArtist": "Sort Album Artist",
     "year": "Year",
     "genre": "Genre",
     "composer": "Composer",
-    "bpm": "BPM"
+    "conductor": "Conductor",
+    "bpm": "BPM",
+    "grouping": "Grouping",
+    "publisher": "Publisher",
+    "catalogNumber": "Catalog Number",
+    "discSubtitle": "Disc Subtitle",
+    "lyricist": "Lyricist",
+    "barcode": "Barcode",
+    "work": "Work",
+    "movementName": "Movement Name",
+    "movement": "Movement",
+    "originalReleaseDate": "Original Release Date",
+    "copyright": "Copyright",
+    "rating": "Rating",
+    "compilation": "Compilation"
   },
   "trackInfo": {
     "title": "Track Info",
     "duration": "Duration",
     "track": "Track",
+    "totalTracks": "Total Tracks",
     "disc": "Disc",
+    "totalDiscs": "Total Discs",
     "of": "of"
   },
   "audioProperties": {
@@ -79,12 +99,28 @@
     "bitrate": "Bitrate",
     "sampleRate": "Sample Rate",
     "channels": "Channels",
-    "bitDepth": "Bit Depth"
+    "bitDepth": "Bit Depth",
+    "encoder": "Encoder"
   },
   "notes": {
     "title": "Notes",
     "comment": "Comment",
+    "description": "Description",
     "lyrics": "Lyrics"
+  },
+  "playback": {
+    "volume": "Volume",
+    "startTime": "Start Time",
+    "stopTime": "Stop Time",
+    "gapless": "Gapless"
+  },
+  "stats": {
+    "dateAdded": "Date Added",
+    "lastPlayed": "Last Played",
+    "playCount": "Play Count"
+  },
+  "columns": {
+    "toggleColumns": "Columns"
   },
   "formats": {
     "mp3": "MPEG Audio Layer 3",
