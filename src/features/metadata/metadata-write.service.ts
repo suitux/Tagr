@@ -7,7 +7,10 @@ import {
   Id3v2UserTextInformationFrame,
   XiphComment,
   Mpeg4AppleTag,
-  ApeTag
+  ApeTag,
+  ByteVector,
+  Picture,
+  PictureType
 } from 'node-taglib-sharp'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 
@@ -101,6 +104,20 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
     for (const field of fieldsToWrite) {
       ape.setStringValue(field.key, field.value ?? '')
     }
+  }
+}
+
+export async function writePictureToFile(filePath: string, imageBuffer: Buffer, mimeType: string): Promise<void> {
+  const file = File.createFromPath(filePath)
+
+  try {
+    const picture = Picture.fromData(ByteVector.fromByteArray(imageBuffer))
+    picture.mimeType = mimeType
+    picture.type = PictureType.FrontCover
+    file.tag.pictures = [picture]
+    file.save()
+  } finally {
+    file.dispose()
   }
 }
 
