@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "skills": {
+    "SQLite Database Expert": {
+      "source": "martinholovsky/claude-skills-generator",
+      "sourceType": "github",
+      "computedHash": "0e75baa1c3159dba4c6db79330634327039c9813410256b73357dcbb0ed9d0ea"
+    }
+  }
+}
