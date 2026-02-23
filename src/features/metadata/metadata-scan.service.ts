@@ -313,6 +313,7 @@ export async function getSongsByFolder(
         OR: [
           { title: { contains: search } },
           { artist: { contains: search } },
+          { publisher: { contains: search } },
           { album: { contains: search } },
           { fileName: { contains: search } },
           { comment: { contains: search } }

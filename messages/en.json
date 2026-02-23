@@ -54,7 +54,7 @@
     "details": "File details",
     "selectFile": "Select a file to view its details",
     "fileInfo": "File information",
-    "searchPlaceholder": "Search songs by title artist album comment or file name...",
+    "searchPlaceholder": "Search songs by title artist album publisher comment or file name...",
     "created": "Created"
   },
   "musicInfo": {
