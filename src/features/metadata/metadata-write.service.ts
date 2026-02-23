@@ -104,8 +104,6 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
   }
 }
 
-// --- Main write function ---
-
 export async function writeMetadataToFile(filePath: string, metadata: SongMetadataUpdate): Promise<void> {
   const file = File.createFromPath(filePath)
 
@@ -126,7 +124,8 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     if (metadata.bpm !== undefined) tag.beatsPerMinute = metadata.bpm
     if (metadata.genre !== undefined) tag.genres = metadata.genre ? [metadata.genre] : []
     if (metadata.albumArtist !== undefined) tag.albumArtists = metadata.albumArtist ? [metadata.albumArtist] : []
-    if (metadata.sortAlbumArtist !== undefined) tag.albumArtistsSort = metadata.sortAlbumArtist ? [metadata.sortAlbumArtist] : []
+    if (metadata.sortAlbumArtist !== undefined)
+      tag.albumArtistsSort = metadata.sortAlbumArtist ? [metadata.sortAlbumArtist] : []
     if (metadata.composer !== undefined) tag.composers = metadata.composer ? [metadata.composer] : []
     if (metadata.conductor !== undefined) tag.conductor = metadata.conductor
     if (metadata.comment !== undefined) tag.comment = metadata.comment
