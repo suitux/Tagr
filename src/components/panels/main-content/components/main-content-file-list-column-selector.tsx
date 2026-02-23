@@ -56,7 +56,12 @@ export function ColumnSelector<TData>({
             <InputGroupAddon>
               <SearchIcon className='w-3.5 h-3.5' />
             </InputGroupAddon>
-            <InputGroupInput value={search} onChange={e => setSearch(e.target.value)} placeholder={tCommon('search')} />
+            <InputGroupInput
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              onKeyDown={e => e.stopPropagation()}
+              placeholder={tCommon('search')}
+            />
           </InputGroup>
         </div>
         <DropdownMenuSeparator />
