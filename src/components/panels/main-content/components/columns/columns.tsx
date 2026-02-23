@@ -34,7 +34,6 @@ export function useSongColumns(): ColumnDef<Song>[] {
   const tTrackInfo = useTranslations('trackInfo')
   const tAudio = useTranslations('audioProperties')
   const tNotes = useTranslations('notes')
-  const tPlayback = useTranslations('playback')
   const tStats = useTranslations('stats')
 
   return [
