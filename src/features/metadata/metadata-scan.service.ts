@@ -314,7 +314,8 @@ export async function getSongsByFolder(
           { title: { contains: search } },
           { artist: { contains: search } },
           { album: { contains: search } },
-          { fileName: { contains: search } }
+          { fileName: { contains: search } },
+          { comment: { contains: search } }
         ]
       })
     },
