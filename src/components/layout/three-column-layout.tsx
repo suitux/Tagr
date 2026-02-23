@@ -1,6 +1,6 @@
 'use client'
 
-import { Group, Panel, Separator } from 'react-resizable-panels'
+import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from '@/components/ui/resizable'
 import { cn } from '@/lib/utils'
 
 interface ThreeColumnLayoutProps {
@@ -13,29 +13,39 @@ interface ThreeColumnLayoutProps {
 export function ThreeColumnLayout({ sidebar, main, detail, className }: ThreeColumnLayoutProps) {
   return (
     <div className={cn('h-screen w-full overflow-hidden bg-background', className)}>
-      <Group orientation='horizontal' className='h-full'>
+      <ResizablePanelGroup orientation='horizontal' className='h-full'>
         {/* Sidebar */}
-        <Panel id='sidebar' defaultSize={1} minSize={350} maxSize={600} className='bg-card/50 backdrop-blur-sm'>
+        <ResizablePanel
+          id='sidebar'
+          defaultSize={1}
+          minSize={350}
+          maxSize={600}
+          className='bg-card/50 backdrop-blur-sm'>
           {sidebar}
-        </Panel>
+        </ResizablePanel>
 
-        <Separator className='w-1 bg-border hover:bg-primary/50 transition-colors cursor-col-resize' />
+        <ResizableHandle className='w-1 bg-border hover:bg-primary/50 transition-colors cursor-col-resize' />
 
         {/* Main content */}
-        <Panel id='main' defaultSize={detail ? 55 : 80} minSize={30} className='bg-background overflow-hidden'>
+        <ResizablePanel id='main' className='bg-background overflow-hidden'>
           {main}
-        </Panel>
+        </ResizablePanel>
 
         {/* Detail panel */}
         {detail && (
           <>
-            <Separator className='w-1 bg-border hover:bg-primary/50 transition-colors cursor-col-resize' />
-            <Panel id='detail' defaultSize={1} minSize={350} maxSize={600} className='bg-card/50 backdrop-blur-sm'>
+            <ResizableHandle className='w-1 bg-border hover:bg-primary/50 transition-colors cursor-col-resize' />
+            <ResizablePanel
+              id='detail'
+              defaultSize={1}
+              minSize={350}
+              maxSize={600}
+              className='bg-card/50 backdrop-blur-sm'>
               {detail}
-            </Panel>
+            </ResizablePanel>
           </>
         )}
-      </Group>
+      </ResizablePanelGroup>
     </div>
   )
 }
