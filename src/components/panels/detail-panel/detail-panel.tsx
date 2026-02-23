@@ -3,13 +3,11 @@
 import { useTranslations } from 'next-intl'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Separator } from '@/components/ui/separator'
 import { useSong } from '@/features/songs/hooks/use-song'
 import { useSongPicture } from '@/features/songs/hooks/use-song-picture'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
 import { DetailPanelEmptyState } from './components/detail-panel-empty-state'
 import { DetailPanelFileDetailsSection } from './components/detail-panel-file-details-section'
-import { DetailPanelHeader } from './components/detail-panel-header'
 import { DetailPanelMusicInfoSection } from './components/detail-panel-music-info-section'
 import { DetailPanelNotesSection } from './components/detail-panel-notes-section'
 import { DetailPanelPreviewCard } from './components/detail-panel-preview-card'
@@ -44,16 +42,6 @@ export function DetailPanel({ songId }: DetailPanelProps) {
 
   return (
     <div className='flex flex-col h-full overflow-hidden'>
-      <DetailPanelHeader
-        title={displayTitle}
-        subtitle={song.artist || extName}
-        pictureUrl={pictureUrl}
-        hasPicture={hasPicture}
-        extColor={extColor}
-      />
-
-      <Separator />
-
       <ScrollArea className='flex-1 min-h-0'>
         <div className='p-4 space-y-6'>
           <DetailPanelPreviewCard
