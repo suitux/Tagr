@@ -1,5 +1,6 @@
 'use client'
 
+import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { Song } from '@/features/songs/domain'
 import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
 import { api } from '@/lib/axios'
@@ -21,7 +22,7 @@ type UpdateSongResult = UpdateSongResponse | UpdateSongError
 
 interface UpdateSongParams {
   id: number
-  metadata: Record<string, string | number | null>
+  metadata: Partial<SongMetadataUpdate>
 }
 
 async function updateSong({ id, metadata }: UpdateSongParams): Promise<Song> {
