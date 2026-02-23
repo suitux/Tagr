@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Project Is
 
-Metadater is a self-hosted music metadata editor web app. It scans local music folders, stores metadata in SQLite, and provides a three-panel UI (folder tree / song list / metadata editor) for browsing and editing audio file tags.
+Tagr is a self-hosted music metadata editor web app. It scans local music folders, stores metadata in SQLite, and provides a three-panel UI (folder tree / song list / metadata editor) for browsing and editing audio file tags.
 
 ## Commands
 
@@ -24,7 +24,7 @@ No test runner is configured.
 
 Required in `.env`:
 ```
-DATABASE_URL=file:./data/metadater.db
+DATABASE_URL=file:./data/tagr.db
 AUTH_SECRET="..."
 AUTH_USER="admin"
 AUTH_PASSWORD="$2b$12$..."   # bcrypt hash - generate with pnpm generate-hash
@@ -38,7 +38,7 @@ MUSIC_FOLDERS="/path/to/music"
 ### Request Flow
 
 ```
-Browser (React Query) → /api/* route handlers → Prisma → SQLite (./data/metadater.db)
+Browser (React Query) → /api/* route handlers → Prisma → SQLite (./data/tagr.db)
                                                ↓
                                      node-taglib-sharp → audio files on disk
 ```

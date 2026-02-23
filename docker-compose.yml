@@ -3,13 +3,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: metadater-app
+    container_name: tagr-app
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=file:/data/metadater.db
+      - DATABASE_URL=file:/data/tagr.db
       # Comma-separated list of music folders inside the container
       - MUSIC_FOLDERS=/music/folder1,/music/folder2
     volumes:
