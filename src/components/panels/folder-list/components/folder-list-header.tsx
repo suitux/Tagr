@@ -1,7 +1,6 @@
 'use client'
 
 import { FolderIcon, Loader2Icon, MoreVerticalIcon, RefreshCwIcon } from 'lucide-react'
-import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
@@ -9,30 +8,7 @@ import { useScan } from '@/features/scan/hooks/use-scan'
 
 export function FolderListHeader() {
   const t = useTranslations('folders')
-  const { mutateAsync: scan, isPending } = useScan()
-
-  const handleRescan = async () => {
-    const toastId = toast.loading(t('scanning'))
-
-    try {
-      const data = await scan()
-
-      if (data.result) {
-        const { totalScanned, totalAdded, totalUpdated, totalDeleted, totalErrors } = data.result
-        toast.success(t('scanCompleted'), {
-          id: toastId,
-          description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`
-        })
-      } else {
-        toast.success(t('scanCompleted'), { id: toastId })
-      }
-    } catch (error) {
-      toast.error(t('scanFailed'), {
-        id: toastId,
-        description: error instanceof Error ? error.message : t('unknownError')
-      })
-    }
-  }
+  const { mutate: scan, isPending } = useScan()
 
   return (
     <div className='px-4 py-5'>
@@ -51,7 +27,7 @@ export function FolderListHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuItem onClick={handleRescan} disabled={isPending}>
+            <DropdownMenuItem onClick={() => scan()} disabled={isPending}>
               {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
               {t('rescan')}
             </DropdownMenuItem>
