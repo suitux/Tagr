@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { type TableComponents, type TableVirtuosoHandle, TableVirtuoso } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -12,7 +12,8 @@ import {
   type VisibilityState,
   flexRender,
   getCoreRowModel,
-  useReactTable
+  useReactTable,
+  ColumnResizeMode
 } from '@tanstack/react-table'
 
 interface DataTableProps<TData, TValue> {
@@ -47,12 +48,15 @@ export function DataTable<TData, TValue>({
   onScrollEnd
 }: DataTableProps<TData, TValue>) {
   const virtuosoRef = useRef<TableVirtuosoHandle>(null)
+  const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
+
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     manualSorting: true,
+    columnResizeMode,
     onSortingChange: params => {
       onSortingChange?.(params)
       virtuosoRef.current?.scrollToIndex({ index: 0 })
@@ -72,11 +76,17 @@ export function DataTable<TData, TValue>({
       table.getHeaderGroups().map(headerGroup => (
         <TableRow key={headerGroup.id}>
           {headerGroup.headers.map(header => (
-            <TableHead
-              key={header.id}
-              className='bg-background'
-              style={{ width: header.getSize() !== 150 ? header.getSize() : undefined }}>
+            <TableHead className='relative' key={header.id} style={{ width: header.getSize() }}>
               {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
+              <div
+                className={`absolute top-0 right-0 h-full w-1 cursor-col-resize touch-none select-none bg-border opacity-10 hover:opacity-100 ${
+                  header.column.getIsResizing() ? 'bg-primary opacity-100' : ''
+                }`}
+                role='button'
+                tabIndex={0}
+                onMouseDown={header.getResizeHandler()}
+                onTouchStart={header.getResizeHandler()}
+              />
             </TableHead>
           ))}
         </TableRow>
