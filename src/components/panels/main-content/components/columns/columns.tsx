@@ -41,9 +41,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'title',
       accessorKey: 'title',
-      header: ({ column }) => (
-        <SortableHeader column={column} label={tCommon('name')} className='w-auto justify-start -ml-4' />
-      ),
+      header: ({ column }) => <SortableHeader column={column} label={tCommon('name')} />,
       cell: ({ row }) => <NameCell song={row.original} />,
       enableHiding: false
     },
@@ -79,42 +77,42 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'trackNumber',
       accessorKey: 'trackNumber',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('track')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('track')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.trackNumber),
       size: 80
     },
     {
       id: 'trackTotal',
       accessorKey: 'trackTotal',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('totalTracks')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('totalTracks')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.trackTotal),
       size: 100
     },
     {
       id: 'discNumber',
       accessorKey: 'discNumber',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('disc')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('disc')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.discNumber),
       size: 80
     },
     {
       id: 'discTotal',
       accessorKey: 'discTotal',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('totalDiscs')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('totalDiscs')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.discTotal),
       size: 100
     },
     {
       id: 'year',
       accessorKey: 'year',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('year')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('year')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.year),
       size: 80
     },
     {
       id: 'bpm',
       accessorKey: 'bpm',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('bpm')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('bpm')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.bpm),
       size: 80
     },
@@ -226,7 +224,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'movement',
       accessorKey: 'movement',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('movement')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('movement')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.movement),
       size: 100
     },
@@ -247,7 +245,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'rating',
       accessorKey: 'rating',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('rating')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('rating')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.rating),
       size: 80
     },
@@ -276,7 +274,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'playCount',
       accessorKey: 'playCount',
-      header: ({ column }) => <SortableHeader column={column} label={tStats('playCount')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tStats('playCount')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.playCount),
       size: 100
     },
@@ -284,7 +282,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'modifiedAt',
       accessorKey: 'modifiedAt',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('modified')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tCommon('modified')} justify={'end'} />,
       cell: ({ row }) => dateCell(row.original.modifiedAt),
       size: 160
     },
@@ -298,7 +296,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'fileSize',
       accessorKey: 'fileSize',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('size')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tCommon('size')} justify={'end'} />,
       cell: ({ row }) => (
         <span className='text-sm text-muted-foreground text-right block'>{formatFileSize(row.original.fileSize)}</span>
       ),
@@ -335,7 +333,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'channels',
       accessorKey: 'channels',
-      header: ({ column }) => <SortableHeader column={column} label={tAudio('channels')} />,
+      header: ({ column }) => <SortableHeader column={column} label={tAudio('channels')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.channels),
       size: 80
     },
