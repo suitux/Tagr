@@ -4,6 +4,7 @@ import { CheckIcon, PencilIcon, XIcon } from 'lucide-react'
 import { HTMLInputTypeAttribute, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
 import { cn } from '@/lib/utils'
 
@@ -14,7 +15,7 @@ interface DetailPanelRowProps {
   type?: HTMLInputTypeAttribute
   isPath?: boolean
   songId?: number
-  fieldName?: string
+  fieldName?: keyof SongMetadataUpdate
 }
 
 export function DetailPanelRow({
