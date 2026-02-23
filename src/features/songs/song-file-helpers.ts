@@ -13,3 +13,7 @@ export function isMusicFile(filename: string): boolean {
   const ext = path.extname(filename).toLowerCase()
   return MUSIC_EXTENSIONS.includes(ext.toLowerCase() as MusicExtension)
 }
+
+export function getSongPictureUrl(songId: number): string {
+  return `/api/songs/${songId}/picture`
+}

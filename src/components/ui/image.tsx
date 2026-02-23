@@ -1,10 +1,19 @@
-import NextImage from 'next/image'
-import { cn } from '@/lib/utils'
+import { useState } from 'react'
+import NextImage, { ImageProps } from 'next/image'
 
-type ImageProps = React.ComponentProps<typeof NextImage>
+interface ImageWithFallbackProps extends Omit<ImageProps, 'src'> {
+  fallbackComponent?: React.ReactNode
+  src?: string
+}
 
-function Image({ className, ...props }: ImageProps) {
-  return <NextImage data-slot='image' className={cn(className)} {...props} />
+const Image = ({ fallbackComponent, alt, src = '', ...props }: ImageWithFallbackProps) => {
+  const [error, setError] = useState<boolean>(false)
+
+  if (error) {
+    return fallbackComponent
+  }
+
+  return <NextImage alt={alt} src={src} onError={() => setError(true)} {...props} />
 }
 
 export { Image }

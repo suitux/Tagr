@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { useSong } from '@/features/songs/hooks/use-song'
-import { useSongPicture } from '@/features/songs/hooks/use-song-picture'
+import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
 import { DetailPanelEmptyState } from './components/detail-panel-empty-state'
 import { DetailPanelFileDetailsSection } from './components/detail-panel-file-details-section'
@@ -21,7 +21,6 @@ interface DetailPanelProps {
 export function DetailPanel({ songId }: DetailPanelProps) {
   const tFormats = useTranslations('formats')
   const { data: song, isLoading } = useSong(songId)
-  const { pictureUrl, hasPicture } = useSongPicture(song?.id)
 
   if (!songId) {
     return <DetailPanelEmptyState />
@@ -35,6 +34,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
     return <DetailPanelEmptyState />
   }
 
+  const pictureUrl = getSongPictureUrl(song?.id)
   const extKey = getExtensionKey(song.extension)
   const extColor = getExtensionColor(song.extension)
   const extName = tFormats(extKey)
@@ -49,7 +49,6 @@ export function DetailPanel({ songId }: DetailPanelProps) {
             extension={song.extension}
             lossless={song.lossless}
             pictureUrl={pictureUrl}
-            hasPicture={hasPicture}
             extColor={extColor}
           />
 

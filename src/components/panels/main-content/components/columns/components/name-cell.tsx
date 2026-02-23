@@ -2,7 +2,7 @@ import { MusicIcon } from 'lucide-react'
 import { getExtensionVariant } from '@/components/panels/main-content/utils'
 import { Badge } from '@/components/ui/badge'
 import type { Song } from '@/features/songs/domain'
-import { getSongPictureUrl } from '@/features/songs/hooks/use-song-picture'
+import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 
 function NameCell({ song }: { song: Song }) {
   const displayName = song.title || song.fileName
