@@ -15,7 +15,7 @@
     "size": "Size",
     "modified": "Modified",
     "format": "Format",
-    "location": "Location",
+    "file-path": "File Path",
     "created": "Created"
   },
   "folders": {

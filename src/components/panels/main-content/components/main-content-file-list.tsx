@@ -1,14 +1,18 @@
 'use client'
 
-import { useCallback, useMemo, useState } from 'react'
 import { LoaderCircle } from 'lucide-react'
+import { useCallback, useMemo } from 'react'
 import { DataTable } from '@/components/ui/data-table'
 import { useHome } from '@/contexts/home-context'
+import { ColumnVisibilityState } from '@/features/config/domain'
+import { useConfig } from '@/features/config/hooks/use-config'
+import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
+import { genericJsonObjectParser } from '@/features/config/parsers'
 import type { Song, SongSortField } from '@/features/songs/domain'
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns, DEFAULT_VISIBLE_COLUMNS } from './columns/columns'
-import { ColumnSelector } from './main-content-file-list-column-selector'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
+import ColumnSelector from './main-content-file-list-column-selector'
 
 export function MainContentFileList() {
   const {
@@ -25,16 +29,17 @@ export function MainContentFileList() {
   } = useHome()
   const columns = useSongColumns()
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>(() => {
-    const visibility: VisibilityState = {}
-    for (const col of columns) {
-      const id = col.id ?? (col as { accessorKey?: string }).accessorKey
-      if (id) {
-        visibility[id] = DEFAULT_VISIBLE_COLUMNS[id] ?? false
-      }
-    }
-    return visibility
+  const { data: columnVisibility } = useConfig({
+    key: 'columnVisibility',
+    parser: v => genericJsonObjectParser<ColumnVisibilityState>(v),
+    defaultData: DEFAULT_VISIBLE_COLUMNS
   })
+
+  const { mutate: updateConfig } = useUpdateConfig(genericJsonObjectParser)
+
+  const setColumnVisibility = (value: VisibilityState) => {
+    updateConfig({ key: 'columnVisibility', value: JSON.stringify(value) })
+  }
 
   const tableSorting: SortingState = useMemo(
     () => (sorting.sortField ? [{ id: sorting.sortField, desc: sorting.sort === 'desc' }] : []),
@@ -69,7 +74,7 @@ export function MainContentFileList() {
       <div className='flex justify-end mb-2'>
         <ColumnSelector
           columns={columns}
-          columnVisibility={columnVisibility}
+          columnVisibility={columnVisibility!}
           onColumnVisibilityChange={setColumnVisibility}
         />
       </div>
@@ -82,7 +87,9 @@ export function MainContentFileList() {
         sorting={tableSorting}
         onSortingChange={onSortingChange}
         columnVisibility={columnVisibility}
-        onColumnVisibilityChange={setColumnVisibility}
+        onColumnVisibilityChange={value => {
+          setColumnVisibility(value as VisibilityState)
+        }}
         onScrollEnd={handleScrollEnd}
       />
       {isFetchingNextPage && (

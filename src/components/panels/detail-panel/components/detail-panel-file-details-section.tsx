@@ -38,7 +38,7 @@ export function DetailPanelFileDetailsSection({ song }: DetailPanelFileDetailsSe
       )}
       <DetailPanelRow
         icon={<MapPinIcon className='w-4 h-4' />}
-        label={tCommon('location')}
+        label={tCommon('file-path')}
         value={song.filePath}
         isPath
       />

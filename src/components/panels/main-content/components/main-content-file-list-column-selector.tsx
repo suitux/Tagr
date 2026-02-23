@@ -13,19 +13,17 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
-import type { ColumnDef, VisibilityState } from '@tanstack/react-table'
+import { ColumnVisibilityState } from '@/features/config/domain'
+import { SongSortField } from '@/features/songs/domain'
+import type { ColumnDef } from '@tanstack/react-table'
 
 interface ColumnSelectorProps<TData> {
   columns: ColumnDef<TData, unknown>[]
-  columnVisibility: VisibilityState
-  onColumnVisibilityChange: (visibility: VisibilityState) => void
+  columnVisibility: ColumnVisibilityState
+  onColumnVisibilityChange: (visibility: ColumnVisibilityState) => void
 }
 
-export function ColumnSelector<TData>({
-  columns,
-  columnVisibility,
-  onColumnVisibilityChange
-}: ColumnSelectorProps<TData>) {
+function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityChange }: ColumnSelectorProps<TData>) {
   const tColumns = useTranslations('columns')
   const tCommon = useTranslations('common')
   const [search, setSearch] = useState('')
@@ -35,6 +33,7 @@ export function ColumnSelector<TData>({
   const filteredColumns = useMemo(() => {
     if (!search) return hideableColumns
     const query = search.toLowerCase()
+
     return hideableColumns.filter(col => {
       const id = col.id ?? (col as { accessorKey?: string }).accessorKey ?? ''
       return id.toLowerCase().includes(query)
@@ -67,12 +66,12 @@ export function ColumnSelector<TData>({
         <DropdownMenuSeparator />
         <div className='max-h-64 overflow-y-auto'>
           {filteredColumns.map(col => {
-            const id = col.id ?? (col as { accessorKey?: string }).accessorKey ?? ''
+            const id = col.id as SongSortField
             return (
               <DropdownMenuCheckboxItem
                 key={id}
-                checked={columnVisibility[id]}
-                onCheckedChange={value => onColumnVisibilityChange({ ...columnVisibility, [id]: !!value })}
+                checked={columnVisibility?.[id]}
+                onCheckedChange={value => onColumnVisibilityChange({ ...columnVisibility, [id]: value })}
                 onSelect={e => e.preventDefault()}>
                 {id}
               </DropdownMenuCheckboxItem>
@@ -83,3 +82,5 @@ export function ColumnSelector<TData>({
     </DropdownMenu>
   )
 }
+
+export default ColumnSelector

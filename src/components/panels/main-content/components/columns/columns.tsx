@@ -3,6 +3,7 @@
 import { ClockIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import NameCell from '@/components/panels/main-content/components/columns/components/name-cell'
+import { ColumnVisibilityState } from '@/features/config/domain'
 import type { Song } from '@/features/songs/domain'
 import type { ColumnDef } from '@tanstack/react-table'
 import { formatDate, formatDuration, formatFileSize } from '../../utils'
@@ -252,47 +253,11 @@ export function useSongColumns(): ColumnDef<Song>[] {
       size: 80
     },
     {
-      id: 'lyrics',
-      accessorKey: 'lyrics',
-      header: ({ column }) => <SortableHeader column={column} label={tNotes('lyrics')} />,
-      cell: ({ row }) => textCell(row.original.lyrics ? row.original.lyrics.slice(0, 60) + '...' : ''),
-      size: 200
-    },
-    {
       id: 'compilation',
       accessorKey: 'compilation',
       header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('compilation')} />,
       cell: ({ row }) => booleanCell(row.original.compilation),
       size: 100
-    },
-    // --- Playback ---
-    {
-      id: 'volume',
-      accessorKey: 'volume',
-      header: ({ column }) => <SortableHeader column={column} label={tPlayback('volume')} />,
-      cell: ({ row }) => numericCell(row.original.volume),
-      size: 80
-    },
-    {
-      id: 'startTime',
-      accessorKey: 'startTime',
-      header: ({ column }) => <SortableHeader column={column} label={tPlayback('startTime')} />,
-      cell: ({ row }) => textCell(row.original.startTime != null ? formatDuration(row.original.startTime) : ''),
-      size: 100
-    },
-    {
-      id: 'stopTime',
-      accessorKey: 'stopTime',
-      header: ({ column }) => <SortableHeader column={column} label={tPlayback('stopTime')} />,
-      cell: ({ row }) => textCell(row.original.stopTime != null ? formatDuration(row.original.stopTime) : ''),
-      size: 100
-    },
-    {
-      id: 'gapless',
-      accessorKey: 'gapless',
-      header: ({ column }) => <SortableHeader column={column} label={tPlayback('gapless')} />,
-      cell: ({ row }) => booleanCell(row.original.gapless),
-      size: 80
     },
     // --- Stats ---
     {
@@ -395,20 +360,11 @@ export function useSongColumns(): ColumnDef<Song>[] {
       header: ({ column }) => <SortableHeader column={column} label={tCommon('name') + ' (file)'} />,
       cell: ({ row }) => textCell(row.original.fileName),
       size: 200
-    },
-    {
-      id: 'filePath',
-      accessorKey: 'filePath',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('location')} />,
-      cell: ({ row }) => textCell(row.original.filePath),
-      size: 300,
-      enableSorting: false
     }
   ]
 }
 
-// Default visible columns
-export const DEFAULT_VISIBLE_COLUMNS: Record<string, boolean> = {
+export const DEFAULT_VISIBLE_COLUMNS: ColumnVisibilityState = {
   title: true,
   artist: true,
   album: true,
@@ -417,5 +373,41 @@ export const DEFAULT_VISIBLE_COLUMNS: Record<string, boolean> = {
   bpm: true,
   duration: true,
   fileSize: true,
-  modifiedAt: true
-}
+  modifiedAt: true,
+  sortArtist: false,
+  sortAlbum: false,
+  trackNumber: false,
+  trackTotal: false,
+  discNumber: false,
+  discTotal: false,
+  albumArtist: false,
+  sortAlbumArtist: false,
+  composer: false,
+  conductor: false,
+  comment: false,
+  grouping: false,
+  publisher: false,
+  description: false,
+  catalogNumber: false,
+  discSubtitle: false,
+  lyricist: false,
+  barcode: false,
+  work: false,
+  movementName: false,
+  movement: false,
+  originalReleaseDate: false,
+  copyright: false,
+  rating: false,
+  compilation: false,
+  bitrate: false,
+  sampleRate: false,
+  channels: false,
+  bitsPerSample: false,
+  encoder: false,
+  fileName: false,
+  extension: false,
+  createdAt: false,
+  dateAdded: false,
+  lastPlayed: false,
+  playCount: false
+} as ColumnVisibilityState

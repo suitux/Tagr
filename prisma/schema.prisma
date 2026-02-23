@@ -110,3 +110,10 @@ model SongPicture {
   @@index([songId])
   @@map("song_pictures")
 }
+
+model UserConfig {
+  key   String @id
+  value String
+
+  @@map("user_config")
+}
