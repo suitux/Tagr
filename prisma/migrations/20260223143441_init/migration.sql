@@ -11,24 +11,51 @@ CREATE TABLE "songs" (
     "scanned_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "title" TEXT,
     "artist" TEXT,
+    "sort_artist" TEXT,
     "album" TEXT,
-    "album_artist" TEXT,
-    "year" INTEGER,
+    "sort_album" TEXT,
     "track_number" INTEGER,
     "track_total" INTEGER,
     "disc_number" INTEGER,
     "disc_total" INTEGER,
+    "year" INTEGER,
+    "bpm" INTEGER,
     "genre" TEXT,
-    "duration" REAL,
+    "album_artist" TEXT,
+    "sort_album_artist" TEXT,
     "composer" TEXT,
+    "conductor" TEXT,
     "comment" TEXT,
+    "grouping" TEXT,
+    "publisher" TEXT,
+    "description" TEXT,
+    "catalog_number" TEXT,
+    "disc_subtitle" TEXT,
+    "lyricist" TEXT,
+    "barcode" TEXT,
+    "work" TEXT,
+    "movement_name" TEXT,
+    "movement" INTEGER,
+    "original_release_date" TEXT,
+    "copyright" TEXT,
+    "rating" INTEGER,
     "lyrics" TEXT,
+    "compilation" BOOLEAN DEFAULT false,
+    "volume" REAL,
+    "start_time" REAL,
+    "stop_time" REAL,
+    "gapless" BOOLEAN DEFAULT false,
+    "date_added" DATETIME,
+    "last_played" DATETIME,
+    "play_count" INTEGER DEFAULT 0,
+    "duration" REAL,
     "bitrate" INTEGER,
     "sample_rate" INTEGER,
     "channels" INTEGER,
     "bits_per_sample" INTEGER,
     "codec" TEXT,
-    "lossless" BOOLEAN NOT NULL DEFAULT false
+    "lossless" BOOLEAN NOT NULL DEFAULT false,
+    "encoder" TEXT
 );
 
 -- CreateTable
@@ -56,27 +83,6 @@ CREATE UNIQUE INDEX "songs_file_path_key" ON "songs"("file_path");
 
 -- CreateIndex
 CREATE INDEX "songs_folder_path_idx" ON "songs"("folder_path");
-
--- CreateIndex
-CREATE INDEX "songs_artist_idx" ON "songs"("artist");
-
--- CreateIndex
-CREATE INDEX "songs_album_idx" ON "songs"("album");
-
--- CreateIndex
-CREATE INDEX "songs_title_idx" ON "songs"("title");
-
--- CreateIndex
-CREATE INDEX "songs_genre_idx" ON "songs"("genre");
-
--- CreateIndex
-CREATE INDEX "songs_year_idx" ON "songs"("year");
-
--- CreateIndex
-CREATE INDEX "song_metadata_song_id_idx" ON "song_metadata"("song_id");
-
--- CreateIndex
-CREATE INDEX "song_metadata_key_idx" ON "song_metadata"("key");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "song_metadata_song_id_key_key" ON "song_metadata"("song_id", "key");

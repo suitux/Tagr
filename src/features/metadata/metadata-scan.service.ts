@@ -1,7 +1,14 @@
 import fs from 'fs/promises'
 import * as musicMetadata from 'music-metadata'
 import path from 'path'
-import { MetadataInput, PictureInput, ScanProgress, ScanResult, SongCreateInput } from '@/features/metadata/domain'
+import {
+  MAPPED_NATIVE_TAGS,
+  MetadataInput,
+  PictureInput,
+  ScanProgress,
+  ScanResult,
+  SongCreateInput
+} from '@/features/metadata/domain'
 import { Song, SongSortDirection, SongSortField } from '@/features/songs/domain'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
@@ -37,15 +44,13 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
     const metadata = await musicMetadata.parseFile(filePath)
     const { common, format } = metadata
 
-    // Metadata adicional (todo lo que no está en los campos comunes)
+    // Metadata adicional (solo tags que no están mapeados a columnas de Song)
     const additionalMetadata: MetadataInput[] = []
 
-    // Extraer tags nativos
     if (metadata.native) {
       for (const [formatType, tags] of Object.entries(metadata.native)) {
         for (const tag of tags) {
-          // Solo guardar valores string
-          if (typeof tag.value === 'string') {
+          if (typeof tag.value === 'string' && !MAPPED_NATIVE_TAGS.has(tag.id.toUpperCase())) {
             additionalMetadata.push({
               key: `${formatType}:${tag.id}`,
               value: tag.value
@@ -72,30 +77,58 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       createdAt: stats.birthtime,
       modifiedAt: stats.mtime,
 
-      // Metadata común
+      // Metadata principal
       title: common.title || null,
       artist: common.artist || null,
+      sortArtist: common.artistsort || null,
       album: common.album || null,
-      albumArtist: common.albumartist || null,
-      year: common.year || null,
+      sortAlbum: common.albumsort || null,
       trackNumber: common.track?.no || null,
       trackTotal: common.track?.of || null,
       discNumber: common.disk?.no || null,
       discTotal: common.disk?.of || null,
-      genre: common.genre?.[0] || null,
-      duration: format.duration || null,
-      composer: common.composer?.[0] || null,
-      comment: common.comment?.[0]?.text || null,
-      lyrics: common.lyrics?.[0]?.text || null,
+      year: common.year || null,
       bpm: common.bpm || null,
+      genre: common.genre?.[0] || null,
+      albumArtist: common.albumartist || null,
+      sortAlbumArtist: common.albumartistsort || null,
+      composer: common.composer?.[0] || null,
+      conductor: common.conductor?.[0] || null,
+      comment: common.comment?.[0]?.text || null,
+      grouping: common.grouping || null,
+      publisher: common.label?.[0] || null,
+      description: common.description?.[0] || null,
+      catalogNumber: common.catalognumber?.[0] || null,
+      discSubtitle: common.discsubtitle?.[0] || null,
+      lyricist: common.lyricist?.[0] || null,
+      barcode: common.barcode || null,
+      work: common.work || null,
+      movementName: common.movement || null,
+      movement: common.movementIndex?.no || null,
+      originalReleaseDate: common.originaldate || common.originalyear?.toString() || null,
+      copyright: common.copyright || null,
+      rating: common.rating?.[0]?.rating ? Math.round(common.rating[0].rating * 100) : null,
+      lyrics: common.lyrics?.[0]?.text || null,
+      compilation: common.compilation || false,
 
-      // Información de audio
+      // Playback
+      volume: null,
+      startTime: null,
+      stopTime: null,
+      gapless: common.gapless || false,
+
+      // Stats
+      dateAdded: new Date(),
+
+      // Audio info
+      duration: format.duration || null,
       bitrate: format.bitrate ? Math.round(format.bitrate) : null,
       sampleRate: format.sampleRate || null,
       channels: format.numberOfChannels || null,
       bitsPerSample: format.bitsPerSample || null,
       codec: format.codec || null,
       lossless: format.lossless || false,
+      encoder: common.encodedby || null,
 
       // Relaciones
       metadata: additionalMetadata.length > 0 ? additionalMetadata : undefined,
