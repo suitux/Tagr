@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { Loader2 } from 'lucide-react'
 import WaveSurfer from 'wavesurfer.js'
+import { useEffect, useRef, useState } from 'react'
 
 interface WaveformProps {
   url: string
@@ -15,6 +16,7 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
   const wsRef = useRef<WaveSurfer | null>(null)
   const durationRef = useRef(duration)
   const onSeekRef = useRef(onSeek)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     durationRef.current = duration
@@ -32,6 +34,8 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
     const primaryColor = styles.getPropertyValue('--primary').trim()
     const mutedFg = styles.getPropertyValue('--muted-foreground').trim()
 
+    setLoading(true)
+
     const ws = WaveSurfer.create({
       container: containerRef.current,
       height: 24,
@@ -47,6 +51,8 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
 
     // Mute wavesurfer's internal audio — we only use it for the waveform visual
     ws.setVolume(0)
+
+    ws.on('ready', () => setLoading(false))
 
     // Forward click-to-seek to the real player
     ws.on('click', (relativeX: number) => {
@@ -69,5 +75,14 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
     ws.seekTo(progress)
   }, [currentTime, duration])
 
-  return <div ref={containerRef} className='flex-1 cursor-pointer' />
+  return (
+    <div className='relative flex-1'>
+      {loading && (
+        <div className='absolute inset-0 flex items-center justify-center'>
+          <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
+        </div>
+      )}
+      <div ref={containerRef} className='cursor-pointer' />
+    </div>
+  )
 }
