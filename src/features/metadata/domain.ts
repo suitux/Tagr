@@ -18,14 +18,10 @@ export interface SongMetadataUpdate {
   comment?: string
   grouping?: string
   publisher?: string
-  description?: string
   catalogNumber?: string
-  discSubtitle?: string
   lyricist?: string
   barcode?: string
   work?: string
-  movementName?: string
-  movement?: number
   originalReleaseDate?: string
   copyright?: string
   rating?: number
@@ -92,14 +88,10 @@ export interface SongCreateInput {
   comment: string | null
   grouping: string | null
   publisher: string | null
-  description: string | null
   catalogNumber: string | null
-  discSubtitle: string | null
   lyricist: string | null
   barcode: string | null
   work: string | null
-  movementName: string | null
-  movement: number | null
   originalReleaseDate: string | null
   copyright: string | null
   rating: number | null
@@ -148,11 +140,8 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'TIT1',
     'GRP1',
     'TPUB',
-    'TDES',
     'TSST',
     'TEXT',
-    'MVNM',
-    'MVIN',
     'TDOR',
     'TORY',
     'TCOP',
@@ -208,7 +197,6 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'LABEL',
     'CATALOGNUMBER',
     'CATALOGID',
-    'DISCSUBTITLE',
     'LYRICIST',
     'BARCODE',
     'WORK',
@@ -237,10 +225,7 @@ export const MAPPED_NATIVE_TAGS = new Set(
     '©CMT',
     '©COM',
     '©GRP',
-    'DESC',
     '©WRK',
-    '©MVN',
-    '©MVI',
     'CPRT',
     '©CPY',
     'RATE',
@@ -254,7 +239,6 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'DISC',
     'ALBUM ARTIST',
     'CATALOGNUMBER',
-    'DISCSUBTITLE',
     'ORIGINALDATE',
     'ORIGINALYEAR',
     'ENCODEDBY',
@@ -271,7 +255,6 @@ export const MAPPED_NATIVE_TAGS = new Set(
     '----:COM.APPLE.ITUNES:NOTES',
     '----:COM.APPLE.ITUNES:LABEL',
     '----:COM.APPLE.ITUNES:CATALOGNUMBER',
-    '----:COM.APPLE.ITUNES:DISCSUBTITLE',
     '----:COM.APPLE.ITUNES:LYRICIST',
     '----:COM.APPLE.ITUNES:BARCODE',
     '----:COM.APPLE.ITUNES:ORIGINALDATE',

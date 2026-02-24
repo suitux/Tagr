@@ -45,13 +45,6 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
     { key: 'ORIGINALDATE', value: metadata.originalReleaseDate }
   ]
 
-  // Movement name / movement index
-  if (metadata.movementName !== undefined) {
-    nativeFields.push({ key: 'MOVEMENTNAME', value: metadata.movementName })
-  }
-  if (metadata.movement !== undefined) {
-    nativeFields.push({ key: 'MOVEMENT', value: metadata.movement?.toString() })
-  }
   if (metadata.rating !== undefined) {
     nativeFields.push({ key: 'RATING', value: metadata.rating?.toString() })
   }
@@ -148,8 +141,6 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     if (metadata.comment !== undefined) tag.comment = metadata.comment
     if (metadata.grouping !== undefined) tag.grouping = metadata.grouping
     if (metadata.publisher !== undefined) tag.publisher = metadata.publisher
-    if (metadata.description !== undefined) tag.description = metadata.description
-    if (metadata.discSubtitle !== undefined) tag.subtitle = metadata.discSubtitle
     if (metadata.copyright !== undefined) tag.copyright = metadata.copyright
     if (metadata.lyrics !== undefined) tag.lyrics = metadata.lyrics
     if (metadata.compilation !== undefined) tag.isCompilation = metadata.compilation

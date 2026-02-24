@@ -22,14 +22,10 @@ export type SongSortField =
   | 'comment'
   | 'grouping'
   | 'publisher'
-  | 'description'
   | 'catalogNumber'
-  | 'discSubtitle'
   | 'lyricist'
   | 'barcode'
   | 'work'
-  | 'movementName'
-  | 'movement'
   | 'originalReleaseDate'
   | 'copyright'
   | 'rating'
@@ -54,7 +50,7 @@ export type SongColumnFilters = Partial<Record<SongSortField, string>>
 
 export const NUMERIC_SONG_FIELDS: Set<SongSortField> = new Set([
   'trackNumber', 'trackTotal', 'discNumber', 'discTotal', 'year', 'bpm',
-  'movement', 'rating', 'playCount', 'duration', 'bitrate', 'sampleRate',
+  'rating', 'playCount', 'duration', 'bitrate', 'sampleRate',
   'channels', 'bitsPerSample', 'fileSize'
 ])
 

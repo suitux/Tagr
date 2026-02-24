@@ -9,7 +9,6 @@ import {
   DiscIcon,
   FolderIcon,
   LibraryIcon,
-  ListMusicIcon,
   MusicIcon,
   PenLineIcon,
   StarIcon,
@@ -141,13 +140,6 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
         fieldName='catalogNumber'
       />
       <DetailPanelRow
-        icon={<DiscIcon className='w-4 h-4' />}
-        label={t('discSubtitle')}
-        value={song.discSubtitle}
-        songId={song.id}
-        fieldName='discSubtitle'
-      />
-      <DetailPanelRow
         icon={<PenLineIcon className='w-4 h-4' />}
         label={t('lyricist')}
         value={song.lyricist}
@@ -167,21 +159,6 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
         value={song.work}
         songId={song.id}
         fieldName='work'
-      />
-      <DetailPanelRow
-        icon={<ListMusicIcon className='w-4 h-4' />}
-        label={t('movementName')}
-        value={song.movementName}
-        songId={song.id}
-        fieldName='movementName'
-      />
-      <DetailPanelRow
-        icon={<ListMusicIcon className='w-4 h-4' />}
-        label={t('movement')}
-        value={song.movement}
-        songId={song.id}
-        fieldName='movement'
-        type='number'
       />
       <DetailPanelRow
         icon={<CalendarIcon className='w-4 h-4' />}

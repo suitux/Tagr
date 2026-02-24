@@ -168,25 +168,11 @@ export function useSongColumns(): ColumnDef<Song>[] {
       size: 160
     },
     {
-      id: 'description',
-      accessorKey: 'description',
-      header: ({ column }) => <SortableHeader column={column} label={t('description')} />,
-      cell: ({ row }) => textCell(row.original.description),
-      size: 200
-    },
-    {
       id: 'catalogNumber',
       accessorKey: 'catalogNumber',
       header: ({ column }) => <SortableHeader column={column} label={t('catalogNumber')} />,
       cell: ({ row }) => textCell(row.original.catalogNumber),
       size: 140
-    },
-    {
-      id: 'discSubtitle',
-      accessorKey: 'discSubtitle',
-      header: ({ column }) => <SortableHeader column={column} label={t('discSubtitle')} />,
-      cell: ({ row }) => textCell(row.original.discSubtitle),
-      size: 160
     },
     {
       id: 'lyricist',
@@ -208,20 +194,6 @@ export function useSongColumns(): ColumnDef<Song>[] {
       header: ({ column }) => <SortableHeader column={column} label={t('work')} />,
       cell: ({ row }) => textCell(row.original.work),
       size: 160
-    },
-    {
-      id: 'movementName',
-      accessorKey: 'movementName',
-      header: ({ column }) => <SortableHeader column={column} label={t('movementName')} />,
-      cell: ({ row }) => textCell(row.original.movementName),
-      size: 160
-    },
-    {
-      id: 'movement',
-      accessorKey: 'movement',
-      header: ({ column }) => <SortableHeader column={column} label={t('movement')} justify={'end'} />,
-      cell: ({ row }) => numericCell(row.original.movement),
-      size: 100
     },
     {
       id: 'originalReleaseDate',
@@ -379,14 +351,10 @@ export const DEFAULT_VISIBLE_COLUMNS: ColumnVisibilityState = {
   comment: false,
   grouping: false,
   publisher: false,
-  description: false,
   catalogNumber: false,
-  discSubtitle: false,
   lyricist: false,
   barcode: false,
   work: false,
-  movementName: false,
-  movement: false,
   originalReleaseDate: false,
   copyright: false,
   rating: false,

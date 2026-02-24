@@ -42,14 +42,10 @@ model Song {
   comment          String?
   grouping         String?
   publisher        String?
-  description      String?
   catalogNumber    String?  @map("catalog_number")
-  discSubtitle     String?  @map("disc_subtitle")
   lyricist         String?
   barcode          String?
   work             String?
-  movementName     String?  @map("movement_name")
-  movement         Int?
   originalReleaseDate String? @map("original_release_date")
   copyright        String?
   rating           Int?
