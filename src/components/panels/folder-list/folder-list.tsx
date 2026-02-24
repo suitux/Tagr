@@ -10,7 +10,6 @@ import { FolderListHeader } from './components/folder-list-header'
 import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
-import { FolderListSummary } from './components/folder-list-summary'
 import { SidebarPlayer } from './components/sidebar-player'
 
 interface FolderListProps {
@@ -41,10 +40,6 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
       <FolderListHeader />
 
       <FolderListSearch value={searchQuery} onChange={setSearchQuery} />
-
-      {data?.summary && (
-        <FolderListSummary totalFolders={data.summary.totalFolders} totalFiles={data.summary.totalFiles} />
-      )}
 
       <Separator />
 

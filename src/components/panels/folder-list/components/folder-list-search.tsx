@@ -2,7 +2,7 @@
 
 import { SearchIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { Input } from '@/components/ui/input'
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 
 interface FolderListSearchProps {
   value: string
@@ -14,16 +14,19 @@ export function FolderListSearch({ value, onChange }: FolderListSearchProps) {
 
   return (
     <div className='px-3 pb-3'>
-      <div className='relative'>
-        <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground' />
-        <Input
+      <InputGroup>
+        <InputGroupAddon align='inline-start'>
+          <InputGroupText>
+            <SearchIcon />
+          </InputGroupText>
+        </InputGroupAddon>
+        <InputGroupInput
           type='text'
           placeholder={t('searchPlaceholder')}
           value={value}
           onChange={e => onChange(e.target.value)}
-          className='pl-9 h-9'
         />
-      </div>
+      </InputGroup>
     </div>
   )
 }

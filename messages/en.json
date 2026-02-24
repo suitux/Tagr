@@ -19,8 +19,8 @@
     "created": "Created"
   },
   "folders": {
-    "title": "Folders",
-    "subtitle": "Music library",
+    "title": "Tagr",
+    "subtitle": "Music library management",
     "empty": "No folders configured",
     "notFound": "No folders found",
     "searchPlaceholder": "Search folders...",
