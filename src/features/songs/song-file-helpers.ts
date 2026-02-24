@@ -17,3 +17,7 @@ export function isMusicFile(filename: string): boolean {
 export function getSongPictureUrl(songId: number): string {
   return `/api/songs/${songId}/picture`
 }
+
+export function getSongAudioUrl(songId: number): string {
+  return `/api/songs/${songId}/audio`
+}

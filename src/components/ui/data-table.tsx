@@ -109,7 +109,7 @@ export function DataTable<TData, TValue>({
         <TableRow
           {...props}
           data-state={row.id === context?.selectedRowId ? 'selected' : undefined}
-          className={cn('cursor-pointer', row.id === context?.selectedRowId && 'bg-accent')}
+          className={cn('cursor-pointer group', row.id === context?.selectedRowId && 'bg-accent')}
           onClick={() => context?.onRowClick?.(row.original)}
         />
       )

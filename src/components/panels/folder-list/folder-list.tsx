@@ -11,6 +11,7 @@ import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
 import { FolderListSummary } from './components/folder-list-summary'
+import { SidebarPlayer } from './components/sidebar-player'
 
 interface FolderListProps {
   onFolderSelect?: (folderId: string | null) => void
@@ -66,6 +67,9 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
           )}
         </div>
       </ScrollArea>
+
+      <Separator />
+      <SidebarPlayer />
     </div>
   )
 }
