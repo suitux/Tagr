@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
+import { memo, useLayoutEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useHome } from '@/contexts/home-context'
@@ -14,9 +15,48 @@ interface SortableHeaderProps<TData> {
   enableColumnFilter?: boolean
 }
 
-export function SortableHeader<TData>({ column, label, className, justify = 'start', enableColumnFilter = true }: SortableHeaderProps<TData>) {
-  const sorted = column.getIsSorted()
+// Track which filter field was focused before a potential remount
+let focusedFilterField: SongSortField | null = null
+
+function ColumnFilterInput({ field }: { field: SongSortField }) {
   const { columnFilters, setColumnFilter } = useHome()
+  const inputRef = useRef<HTMLInputElement>(null)
+
+  useLayoutEffect(() => {
+    if (focusedFilterField === field) {
+      inputRef.current?.focus()
+    }
+  })
+
+  return (
+    <Input
+      ref={inputRef}
+      className='h-6 text-xs px-1.5'
+      placeholder='Filter...'
+      debounceMs={300}
+      value={columnFilters[field] ?? ''}
+      onChange={e => setColumnFilter(field, e.target.value)}
+      onClick={e => e.stopPropagation()}
+      onFocus={() => {
+        focusedFilterField = field
+      }}
+      onBlur={() => {
+        requestAnimationFrame(() => {
+          if (focusedFilterField === field) focusedFilterField = null
+        })
+      }}
+    />
+  )
+}
+
+export function SortableHeader<TData>({
+  column,
+  label,
+  className,
+  justify = 'start',
+  enableColumnFilter = true
+}: SortableHeaderProps<TData>) {
+  const sorted = column.getIsSorted()
   const field = column.id as SongSortField
   const showFilter = enableColumnFilter && !DATE_SONG_FIELDS.has(field)
 
@@ -39,16 +79,7 @@ export function SortableHeader<TData>({ column, label, className, justify = 'sta
           <ArrowUpDown className='ml-2 h-4 w-4 text-muted-foreground/50' />
         )}
       </Button>
-      {showFilter && (
-        <Input
-          className='h-6 text-xs px-1.5'
-          placeholder='Filter...'
-          debounceMs={300}
-          value={columnFilters[field] ?? ''}
-          onChange={e => setColumnFilter(field, e.target.value)}
-          onClick={e => e.stopPropagation()}
-        />
-      )}
+      {showFilter && <ColumnFilterInput field={field} />}
     </div>
   )
 }

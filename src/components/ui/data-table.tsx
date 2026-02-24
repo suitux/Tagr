@@ -1,6 +1,6 @@
 'use client'
 
-import { type ComponentType, useCallback, useRef, useState } from 'react'
+import { type ComponentType, useCallback, useMemo, useRef, useState } from 'react'
 import { type TableComponents, type TableVirtuosoHandle, TableVirtuoso } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -116,7 +116,7 @@ export function DataTable<TData, TValue>({
     }
   }
 
-  const showEmptyState = rows.length === 0 && EmptyStateComponent
+  const showEmptyState = rows.length === 0 && !!EmptyStateComponent
 
   return (
     <div className='flex flex-col h-full'>
