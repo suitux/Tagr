@@ -14,6 +14,7 @@ import { DetailPanelFileDetailsSection } from './components/detail-panel-file-de
 import { DetailPanelMusicInfoSection } from './components/detail-panel-music-info-section'
 import { DetailPanelNotesSection } from './components/detail-panel-notes-section'
 import { DetailPanelPreviewCard } from './components/detail-panel-preview-card'
+import { DetailPanelStatsSection } from './components/detail-panel-stats-section'
 import { DetailPanelTrackInfoSection } from './components/detail-panel-track-info-section'
 import { getExtensionColor, getExtensionKey } from './utils'
 
@@ -66,6 +67,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
           <DetailPanelNotesSection song={song} />
           <DetailPanelTrackInfoSection song={song} />
           <DetailPanelAudioPropertiesSection song={song} extName={extName} />
+          <DetailPanelStatsSection song={song} />
           <DetailPanelFileDetailsSection song={song} />
         </div>
       </ScrollArea>

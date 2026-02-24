@@ -1,6 +1,6 @@
+import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Card, CardContent } from '@/components/ui/card'
 
 function SkeletonRow() {
   return (
@@ -53,7 +53,7 @@ const DetailPanelLoadingState = () => {
           </Card>
 
           {/* Music Info — 8 rows */}
-          <SkeletonSection title='MUSIC INFO' rows={8} />
+          <SkeletonSection title='Song INFO' rows={8} />
 
           {/* Notes — 1 row */}
           <SkeletonSection title='NOTES' rows={1} />

@@ -1,6 +1,6 @@
 'use client'
 
-import { PenLineIcon } from 'lucide-react'
+import { FileTextIcon, PenLineIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import { Song } from '@/features/songs/domain'
@@ -24,6 +24,13 @@ export function DetailPanelNotesSection({ song }: DetailPanelNotesSectionProps) 
             value={song.comment}
             songId={song.id}
             fieldName='comment'
+          />
+          <DetailPanelRow
+            icon={<FileTextIcon className='w-4 h-4' />}
+            label={t('description')}
+            value={song.description}
+            songId={song.id}
+            fieldName='description'
           />
           {song.lyrics && (
             <div className='p-3'>

@@ -13,37 +13,44 @@ interface DetailPanelTrackInfoSectionProps {
 
 export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectionProps) {
   const t = useTranslations('trackInfo')
-  const hasContent = song.trackNumber || song.discNumber || song.duration
-
-  if (!hasContent) return null
 
   return (
     <DetailPanelSection title={t('title')}>
       {song.duration && (
-        <DetailPanelRow
-          icon={<ClockIcon className='w-4 h-4' />}
-          label={t('duration')}
-          value={formatDuration(song.duration)!}
-        />
+        <DetailPanelRow icon={<ClockIcon className='w-4 h-4' />} label={t('duration')} value={formatDuration(song.duration)!} />
       )}
-      {song.trackNumber && (
-        <DetailPanelRow
-          icon={<HashIcon className='w-4 h-4' />}
-          label={t('track')}
-          value={song.trackTotal ? `${song.trackNumber} ${t('of')} ${song.trackTotal}` : song.trackNumber.toString()}
-          songId={song.id}
-          fieldName='trackNumber'
-        />
-      )}
-      {song.discNumber && (
-        <DetailPanelRow
-          icon={<Music2Icon className='w-4 h-4' />}
-          label={t('disc')}
-          value={song.discTotal ? `${song.discNumber} ${t('of')} ${song.discTotal}` : song.discNumber.toString()}
-          songId={song.id}
-          fieldName='discNumber'
-        />
-      )}
+      <DetailPanelRow
+        icon={<HashIcon className='w-4 h-4' />}
+        label={t('track')}
+        value={song.trackNumber}
+        songId={song.id}
+        fieldName='trackNumber'
+        type='number'
+      />
+      <DetailPanelRow
+        icon={<HashIcon className='w-4 h-4' />}
+        label={t('totalTracks')}
+        value={song.trackTotal}
+        songId={song.id}
+        fieldName='trackTotal'
+        type='number'
+      />
+      <DetailPanelRow
+        icon={<Music2Icon className='w-4 h-4' />}
+        label={t('disc')}
+        value={song.discNumber}
+        songId={song.id}
+        fieldName='discNumber'
+        type='number'
+      />
+      <DetailPanelRow
+        icon={<Music2Icon className='w-4 h-4' />}
+        label={t('totalDiscs')}
+        value={song.discTotal}
+        songId={song.id}
+        fieldName='discTotal'
+        type='number'
+      />
     </DetailPanelSection>
   )
 }
