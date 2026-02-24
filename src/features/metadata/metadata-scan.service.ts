@@ -9,7 +9,15 @@ import {
   ScanResult,
   SongCreateInput
 } from '@/features/metadata/domain'
-import { Song, SongSortDirection, SongSortField } from '@/features/songs/domain'
+import {
+  BOOLEAN_SONG_FIELDS,
+  DATE_SONG_FIELDS,
+  NUMERIC_SONG_FIELDS,
+  Song,
+  SongColumnFilters,
+  SongSortDirection,
+  SongSortField
+} from '@/features/songs/domain'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
@@ -294,17 +302,44 @@ export async function scanAllFoldersAndUpdateDatabase(
 
 export const PAGE_SIZE = 50
 
+function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, unknown>[] {
+  if (!filters) return []
+  const conditions: Record<string, unknown>[] = []
+
+  for (const [field, value] of Object.entries(filters)) {
+    if (!value) continue
+    const songField = field as SongSortField
+
+    if (DATE_SONG_FIELDS.has(songField)) {
+      continue // skip date fields
+    } else if (BOOLEAN_SONG_FIELDS.has(songField)) {
+      conditions.push({ [field]: { equals: value === 'true' || value === '1' } })
+    } else if (NUMERIC_SONG_FIELDS.has(songField)) {
+      const num = Number(value)
+      if (!Number.isNaN(num)) {
+        conditions.push({ [field]: { equals: num } })
+      }
+    } else {
+      conditions.push({ [field]: { contains: value } })
+    }
+  }
+
+  return conditions
+}
+
 export async function getSongsByFolder(
   folderPath: string,
   search?: string,
   sortField?: SongSortField,
   sort?: SongSortDirection,
   skip?: number,
-  take?: number
+  take?: number,
+  filters?: SongColumnFilters
 ): Promise<Song[]> {
   const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
 
   const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+  const columnFilterConditions = buildColumnFiltersWhere(filters)
 
   return prisma.song.findMany({
     where: {
@@ -318,6 +353,9 @@ export async function getSongsByFolder(
           { fileName: { contains: search } },
           { comment: { contains: search } }
         ]
+      }),
+      ...(columnFilterConditions.length > 0 && {
+        AND: columnFilterConditions
       })
     },
     orderBy,
@@ -326,7 +364,13 @@ export async function getSongsByFolder(
   })
 }
 
-export async function countSongsByFolder(folderPath: string, search?: string): Promise<number> {
+export async function countSongsByFolder(
+  folderPath: string,
+  search?: string,
+  filters?: SongColumnFilters
+): Promise<number> {
+  const columnFilterConditions = buildColumnFiltersWhere(filters)
+
   return prisma.song.count({
     where: {
       folderPath,
@@ -334,9 +378,14 @@ export async function countSongsByFolder(folderPath: string, search?: string): P
         OR: [
           { title: { contains: search } },
           { artist: { contains: search } },
+          { publisher: { contains: search } },
           { album: { contains: search } },
-          { fileName: { contains: search } }
+          { fileName: { contains: search } },
+          { comment: { contains: search } }
         ]
+      }),
+      ...(columnFilterConditions.length > 0 && {
+        AND: columnFilterConditions
       })
     }
   })

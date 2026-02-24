@@ -1,7 +1,7 @@
 'use client'
 
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
-import type { Song, SongSortDirection, SongSortField } from '@/features/songs/domain'
+import type { Song, SongColumnFilters, SongSortDirection, SongSortField } from '@/features/songs/domain'
 import { useSongsByFolder, type SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 
 interface HomeContextValue {
@@ -12,6 +12,7 @@ interface HomeContextValue {
   isLoadingSongs: boolean
   search: string
   sorting: SongsSortParams
+  columnFilters: SongColumnFilters
   fetchNextPage: () => void
   hasNextPage: boolean
   isFetchingNextPage: boolean
@@ -20,6 +21,8 @@ interface HomeContextValue {
   setSelectedSongId: (songId: number | null) => void
   setSorting: (sortField: SongSortField, sort: SongSortDirection) => void
   clearSorting: () => void
+  setColumnFilter: (field: SongSortField, value: string) => void
+  clearColumnFilters: () => void
 }
 
 const HomeContext = createContext<HomeContextValue | null>(null)
@@ -41,11 +44,18 @@ export function HomeProvider({
 }: HomeProviderProps) {
   const [search, setSearch] = useState('')
   const [sorting, setSortingState] = useState<SongsSortParams>({})
+  const [columnFilters, setColumnFilters] = useState<SongColumnFilters>({})
+
+  const activeFilters = useMemo(() => {
+    const entries = Object.entries(columnFilters).filter(([, v]) => v)
+    return entries.length > 0 ? Object.fromEntries(entries) as SongColumnFilters : undefined
+  }, [columnFilters])
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder(
     selectedFolderId ?? undefined,
     search || undefined,
-    sorting
+    sorting,
+    activeFilters
   )
 
   const songs = useMemo(() => {
@@ -61,6 +71,14 @@ export function HomeProvider({
     setSortingState({})
   }
 
+  const setColumnFilter = (field: SongSortField, value: string) => {
+    setColumnFilters(prev => ({ ...prev, [field]: value }))
+  }
+
+  const clearColumnFilters = () => {
+    setColumnFilters({})
+  }
+
   return (
     <HomeContext.Provider
       value={{
@@ -71,6 +89,7 @@ export function HomeProvider({
         isLoadingSongs: isLoading,
         search,
         sorting,
+        columnFilters,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
@@ -78,7 +97,9 @@ export function HomeProvider({
         setSelectedFolderId: onFolderSelect,
         setSelectedSongId: onSongSelect,
         setSorting,
-        clearSorting
+        clearSorting,
+        setColumnFilter,
+        clearColumnFilters
       }}>
       {children}
     </HomeContext.Provider>

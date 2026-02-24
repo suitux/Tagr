@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
-import type { Song, SongSortDirection, SongSortField } from '../domain'
+import type { Song, SongColumnFilters, SongSortDirection, SongSortField } from '../domain'
 
 const PAGE_SIZE = 50
 
@@ -27,6 +27,7 @@ async function fetchSongsByFolder(
   folderPath: string,
   search?: string,
   sorting?: SongsSortParams,
+  filters?: SongColumnFilters,
   limit?: number,
   offset?: number
 ): Promise<SongsResponse> {
@@ -44,6 +45,12 @@ async function fetchSongsByFolder(
     offset
   }
 
+  if (filters) {
+    for (const [field, value] of Object.entries(filters)) {
+      if (value) params[`filter.${field}`] = value
+    }
+  }
+
   const { data } = await api.get<SongsResponse>(`/songs/${encodedPath}`, {
     params
   })
@@ -54,13 +61,14 @@ async function fetchSongsByFolder(
 export const getUseSongsByFolderQueryKey = (
   folderPath: string | undefined,
   search?: string,
-  sorting?: SongsSortParams
-) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort]
+  sorting?: SongsSortParams,
+  filters?: SongColumnFilters
+) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort, filters]
 
-export function useSongsByFolder(folderPath: string | undefined, search?: string, sorting?: SongsSortParams) {
+export function useSongsByFolder(folderPath: string | undefined, search?: string, sorting?: SongsSortParams, filters?: SongColumnFilters) {
   return useInfiniteQuery({
-    queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting),
-    queryFn: ({ pageParam = 0 }) => fetchSongsByFolder(folderPath!, search, sorting, PAGE_SIZE, pageParam),
+    queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting, filters),
+    queryFn: ({ pageParam = 0 }) => fetchSongsByFolder(folderPath!, search, sorting, filters, PAGE_SIZE, pageParam),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       if (!lastPage.success) return undefined
