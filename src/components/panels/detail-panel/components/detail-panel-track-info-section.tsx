@@ -4,7 +4,7 @@ import { ClockIcon, HashIcon, Music2Icon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
 import { formatDuration } from '../utils'
-import { DetailPanelRow } from './detail-panel-row'
+import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
 interface DetailPanelTrackInfoSectionProps {
@@ -17,7 +17,11 @@ export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectio
   return (
     <DetailPanelSection title={t('title')}>
       {song.duration && (
-        <DetailPanelRow icon={<ClockIcon className='w-4 h-4' />} label={t('duration')} value={formatDuration(song.duration)!} />
+        <DetailPanelRow
+          icon={<ClockIcon className='w-4 h-4' />}
+          label={t('duration')}
+          value={formatDuration(song.duration)!}
+        />
       )}
       <DetailPanelRow
         icon={<HashIcon className='w-4 h-4' />}

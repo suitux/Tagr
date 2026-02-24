@@ -4,7 +4,7 @@ import { CalendarIcon, HashIcon, PlayIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
 import { formatDate } from '../utils'
-import { DetailPanelRow } from './detail-panel-row'
+import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
 interface DetailPanelStatsSectionProps {

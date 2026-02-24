@@ -4,7 +4,7 @@ import { FileTextIcon, PenLineIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import { Song } from '@/features/songs/domain'
-import { DetailPanelRow } from './detail-panel-row'
+import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 
 interface DetailPanelNotesSectionProps {
   song: Song

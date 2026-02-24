@@ -4,7 +4,7 @@ import { FileTypeIcon, HashIcon, MicIcon, RadioIcon, ScanLineIcon, SettingsIcon,
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
 import { formatBitrate, formatChannels, formatSampleRate } from '../utils'
-import { DetailPanelRow } from './detail-panel-row'
+import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
 interface DetailPanelAudioPropertiesSectionProps {
@@ -21,16 +21,32 @@ export function DetailPanelAudioPropertiesSection({ song, extName }: DetailPanel
       <DetailPanelRow icon={<FileTypeIcon className='w-4 h-4' />} label={tCommon('format')} value={extName} />
       {song.codec && <DetailPanelRow icon={<RadioIcon className='w-4 h-4' />} label={t('codec')} value={song.codec} />}
       {song.bitrate && (
-        <DetailPanelRow icon={<WavesIcon className='w-4 h-4' />} label={t('bitrate')} value={formatBitrate(song.bitrate)!} />
+        <DetailPanelRow
+          icon={<WavesIcon className='w-4 h-4' />}
+          label={t('bitrate')}
+          value={formatBitrate(song.bitrate)!}
+        />
       )}
       {song.sampleRate && (
-        <DetailPanelRow icon={<ScanLineIcon className='w-4 h-4' />} label={t('sampleRate')} value={formatSampleRate(song.sampleRate)!} />
+        <DetailPanelRow
+          icon={<ScanLineIcon className='w-4 h-4' />}
+          label={t('sampleRate')}
+          value={formatSampleRate(song.sampleRate)!}
+        />
       )}
       {song.channels && (
-        <DetailPanelRow icon={<MicIcon className='w-4 h-4' />} label={t('channels')} value={formatChannels(song.channels)!} />
+        <DetailPanelRow
+          icon={<MicIcon className='w-4 h-4' />}
+          label={t('channels')}
+          value={formatChannels(song.channels)!}
+        />
       )}
       {song.bitsPerSample && (
-        <DetailPanelRow icon={<HashIcon className='w-4 h-4' />} label={t('bitDepth')} value={`${song.bitsPerSample}-bit`} />
+        <DetailPanelRow
+          icon={<HashIcon className='w-4 h-4' />}
+          label={t('bitDepth')}
+          value={`${song.bitsPerSample}-bit`}
+        />
       )}
       {song.encoder && (
         <DetailPanelRow icon={<SettingsIcon className='w-4 h-4' />} label={t('encoder')} value={song.encoder} />

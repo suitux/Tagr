@@ -4,7 +4,7 @@ import { CalendarIcon, FileIcon, HardDriveIcon, MapPinIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
 import { formatDate, formatFileSize } from '../utils'
-import { DetailPanelRow } from './detail-panel-row'
+import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
 interface DetailPanelFileDetailsSectionProps {
@@ -17,15 +17,36 @@ export function DetailPanelFileDetailsSection({ song }: DetailPanelFileDetailsSe
 
   return (
     <DetailPanelSection title={tFiles('fileInfo')}>
-      <DetailPanelRow icon={<FileIcon className='w-4 h-4' />} label={tCommon('name') + ' (file)'} value={song.fileName} />
-      <DetailPanelRow icon={<HardDriveIcon className='w-4 h-4' />} label={tCommon('size')} value={formatFileSize(song.fileSize)} />
+      <DetailPanelRow
+        icon={<FileIcon className='w-4 h-4' />}
+        label={tCommon('name') + ' (file)'}
+        value={song.fileName}
+      />
+      <DetailPanelRow
+        icon={<HardDriveIcon className='w-4 h-4' />}
+        label={tCommon('size')}
+        value={formatFileSize(song.fileSize)}
+      />
       {song.createdAt && (
-        <DetailPanelRow icon={<CalendarIcon className='w-4 h-4' />} label={tFiles('created')} value={formatDate(song.createdAt)!} />
+        <DetailPanelRow
+          icon={<CalendarIcon className='w-4 h-4' />}
+          label={tFiles('created')}
+          value={formatDate(song.createdAt)!}
+        />
       )}
       {song.modifiedAt && (
-        <DetailPanelRow icon={<CalendarIcon className='w-4 h-4' />} label={tCommon('modified')} value={formatDate(song.modifiedAt)!} />
+        <DetailPanelRow
+          icon={<CalendarIcon className='w-4 h-4' />}
+          label={tCommon('modified')}
+          value={formatDate(song.modifiedAt)!}
+        />
       )}
-      <DetailPanelRow icon={<MapPinIcon className='w-4 h-4' />} label={tCommon('file-path')} value={song.filePath} isPath />
+      <DetailPanelRow
+        icon={<MapPinIcon className='w-4 h-4' />}
+        label={tCommon('file-path')}
+        value={song.filePath}
+        isPath
+      />
     </DetailPanelSection>
   )
 }
