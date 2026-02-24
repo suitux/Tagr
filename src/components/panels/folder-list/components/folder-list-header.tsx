@@ -14,7 +14,7 @@ export function FolderListHeader() {
   return (
     <div className='px-4 py-5'>
       <div className='flex items-center gap-3'>
-        <NextImage src='/icons/tagr-logo.png' alt='Tagr' width={40} height={40} className='rounded-xl' unoptimized />
+        <NextImage src='/icons/tagr-logo.webp' alt='Tagr' width={40} height={40} className='rounded-xl' unoptimized />
         <div className='flex-1'>
           <h2 className='text-base font-semibold text-foreground'>{t('title')}</h2>
           <p className='text-xs text-muted-foreground'>{t('subtitle')}</p>
