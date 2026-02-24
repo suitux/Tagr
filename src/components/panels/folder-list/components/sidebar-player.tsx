@@ -1,10 +1,9 @@
 'use client'
 
 import { MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import WaveSurfer from 'wavesurfer.js'
-import { useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
+import { Waveform } from '@/components/waveform'
 import { usePlayer } from '@/contexts/player-context'
 import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
 
@@ -28,59 +27,6 @@ export function SidebarPlayer() {
     duration,
     seek
   } = usePlayer()
-
-  const waveformRef = useRef<HTMLDivElement>(null)
-  const wsRef = useRef<WaveSurfer | null>(null)
-  const durationRef = useRef(duration)
-
-  useEffect(() => {
-    durationRef.current = duration
-  }, [duration])
-
-  // Create/destroy wavesurfer when song changes
-  useEffect(() => {
-    if (!waveformRef.current || !currentSong) return
-
-    const styles = getComputedStyle(waveformRef.current)
-    const primaryColor = styles.getPropertyValue('--primary').trim()
-    const mutedFg = styles.getPropertyValue('--muted-foreground').trim()
-
-    const ws = WaveSurfer.create({
-      container: waveformRef.current,
-      height: 24,
-      barWidth: 2,
-      barGap: 1,
-      barRadius: 2,
-      cursorWidth: 0,
-      waveColor: mutedFg,
-      progressColor: primaryColor,
-      interact: true,
-      url: getSongAudioUrl(currentSong.id)
-    })
-
-    // Mute wavesurfer's internal audio — we only use it for the waveform visual
-    ws.setVolume(0)
-
-    // Forward click-to-seek to the real player
-    ws.on('click', (relativeX: number) => {
-      seek(relativeX * durationRef.current)
-    })
-
-    wsRef.current = ws
-
-    return () => {
-      ws.destroy()
-      wsRef.current = null
-    }
-  }, [currentSong, seek])
-
-  // Sync visual progress from the real audio
-  useEffect(() => {
-    const ws = wsRef.current
-    if (!ws || duration <= 0) return
-    const progress = Math.min(1, Math.max(0, currentTime / duration))
-    ws.seekTo(progress)
-  }, [currentTime, duration])
 
   if (!currentSong) return null
 
@@ -119,7 +65,12 @@ export function SidebarPlayer() {
 
       <div className='flex items-center gap-2'>
         <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>{formatTime(currentTime)}</span>
-        <div ref={waveformRef} className='flex-1 cursor-pointer' />
+        <Waveform
+          url={getSongAudioUrl(currentSong.id)}
+          currentTime={currentTime}
+          duration={duration}
+          onSeek={seek}
+        />
         <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTime(duration)}</span>
       </div>
     </div>
