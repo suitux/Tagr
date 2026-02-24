@@ -9,10 +9,13 @@ interface PlayerContextValue {
   queue: Song[]
   queueIndex: number
   isPlaying: boolean
+  currentTime: number
+  duration: number
   play: (song: Song, queue: Song[]) => void
   togglePlayPause: () => void
   playNext: () => void
   playPrevious: () => void
+  seek: (time: number) => void
 }
 
 const PlayerContext = createContext<PlayerContextValue | null>(null)
@@ -23,6 +26,8 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [queue, setQueue] = useState<Song[]>([])
   const [queueIndex, setQueueIndex] = useState(0)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
 
   const play = useCallback((song: Song, newQueue: Song[]) => {
     const index = newQueue.findIndex(s => s.id === song.id)
@@ -80,6 +85,12 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     }
   }, [queue, queueIndex])
 
+  const seek = useCallback((time: number) => {
+    const audio = audioRef.current
+    if (!audio) return
+    audio.currentTime = time
+  }, [])
+
   useEffect(() => {
     const audio = audioRef.current
     if (!audio) return
@@ -87,15 +98,21 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     const handlePlay = () => setIsPlaying(true)
     const handlePause = () => setIsPlaying(false)
     const handleEnded = () => playNext()
+    const handleTimeUpdate = () => setCurrentTime(audio.currentTime)
+    const handleDurationChange = () => setDuration(audio.duration || 0)
 
     audio.addEventListener('play', handlePlay)
     audio.addEventListener('pause', handlePause)
     audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('timeupdate', handleTimeUpdate)
+    audio.addEventListener('durationchange', handleDurationChange)
 
     return () => {
       audio.removeEventListener('play', handlePlay)
       audio.removeEventListener('pause', handlePause)
       audio.removeEventListener('ended', handleEnded)
+      audio.removeEventListener('timeupdate', handleTimeUpdate)
+      audio.removeEventListener('durationchange', handleDurationChange)
     }
   }, [playNext])
 
@@ -106,10 +123,13 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
         queue,
         queueIndex,
         isPlaying,
+        currentTime,
+        duration,
         play,
         togglePlayPause,
         playNext,
-        playPrevious
+        playPrevious,
+        seek
       }}>
       <audio ref={audioRef} preload='auto' />
       {children}
