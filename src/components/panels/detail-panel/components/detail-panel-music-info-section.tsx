@@ -28,13 +28,14 @@ interface DetailPanelMusicInfoSectionProps {
 }
 
 export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectionProps) {
-  const t = useTranslations('musicInfo')
+  const tSection = useTranslations('musicInfo')
+  const t = useTranslations('fields')
 
   return (
-    <DetailPanelSection title={t('title')}>
+    <DetailPanelSection title={tSection('title')}>
       <DetailPanelRow
         icon={<MusicIcon className='w-4 h-4' />}
-        label={t('songTitle')}
+        label={t('title')}
         value={song.title}
         songId={song.id}
         fieldName='title'

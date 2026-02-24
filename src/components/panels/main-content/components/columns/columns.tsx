@@ -29,19 +29,14 @@ const dateCell = (value: Date | null | undefined) => (
 )
 
 export function useSongColumns(): ColumnDef<Song>[] {
-  const tCommon = useTranslations('common')
-  const tMusicInfo = useTranslations('musicInfo')
-  const tTrackInfo = useTranslations('trackInfo')
-  const tAudio = useTranslations('audioProperties')
-  const tNotes = useTranslations('notes')
-  const tStats = useTranslations('stats')
+  const t = useTranslations('fields')
 
   return [
     // --- Name (always visible, not hideable) ---
     {
       id: 'title',
       accessorKey: 'title',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('name')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('title')} />,
       cell: ({ row }) => <NameCell song={row.original} />,
       enableHiding: false
     },
@@ -49,210 +44,210 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'artist',
       accessorKey: 'artist',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('artist')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('artist')} />,
       cell: ({ row }) => textCell(row.original.artist),
       size: 160
     },
     {
       id: 'sortArtist',
       accessorKey: 'sortArtist',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('sortArtist')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('sortArtist')} />,
       cell: ({ row }) => textCell(row.original.sortArtist),
       size: 160
     },
     {
       id: 'album',
       accessorKey: 'album',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('album')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('album')} />,
       cell: ({ row }) => textCell(row.original.album),
       size: 180
     },
     {
       id: 'sortAlbum',
       accessorKey: 'sortAlbum',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('sortAlbum')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('sortAlbum')} />,
       cell: ({ row }) => textCell(row.original.sortAlbum),
       size: 180
     },
     {
       id: 'trackNumber',
       accessorKey: 'trackNumber',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('track')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('trackNumber')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.trackNumber),
       size: 80
     },
     {
       id: 'trackTotal',
       accessorKey: 'trackTotal',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('totalTracks')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('trackTotal')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.trackTotal),
       size: 100
     },
     {
       id: 'discNumber',
       accessorKey: 'discNumber',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('disc')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('discNumber')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.discNumber),
       size: 80
     },
     {
       id: 'discTotal',
       accessorKey: 'discTotal',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('totalDiscs')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('discTotal')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.discTotal),
       size: 100
     },
     {
       id: 'year',
       accessorKey: 'year',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('year')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('year')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.year),
       size: 80
     },
     {
       id: 'bpm',
       accessorKey: 'bpm',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('bpm')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('bpm')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.bpm),
       size: 80
     },
     {
       id: 'genre',
       accessorKey: 'genre',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('genre')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('genre')} />,
       cell: ({ row }) => textCell(row.original.genre),
       size: 120
     },
     {
       id: 'albumArtist',
       accessorKey: 'albumArtist',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('albumArtist')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('albumArtist')} />,
       cell: ({ row }) => textCell(row.original.albumArtist),
       size: 160
     },
     {
       id: 'sortAlbumArtist',
       accessorKey: 'sortAlbumArtist',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('sortAlbumArtist')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('sortAlbumArtist')} />,
       cell: ({ row }) => textCell(row.original.sortAlbumArtist),
       size: 160
     },
     {
       id: 'composer',
       accessorKey: 'composer',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('composer')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('composer')} />,
       cell: ({ row }) => textCell(row.original.composer),
       size: 160
     },
     {
       id: 'conductor',
       accessorKey: 'conductor',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('conductor')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('conductor')} />,
       cell: ({ row }) => textCell(row.original.conductor),
       size: 160
     },
     {
       id: 'comment',
       accessorKey: 'comment',
-      header: ({ column }) => <SortableHeader column={column} label={tNotes('comment')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('comment')} />,
       cell: ({ row }) => textCell(row.original.comment),
       size: 200
     },
     {
       id: 'grouping',
       accessorKey: 'grouping',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('grouping')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('grouping')} />,
       cell: ({ row }) => textCell(row.original.grouping),
       size: 140
     },
     {
       id: 'publisher',
       accessorKey: 'publisher',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('publisher')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('publisher')} />,
       cell: ({ row }) => textCell(row.original.publisher),
       size: 160
     },
     {
       id: 'description',
       accessorKey: 'description',
-      header: ({ column }) => <SortableHeader column={column} label={tNotes('description')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('description')} />,
       cell: ({ row }) => textCell(row.original.description),
       size: 200
     },
     {
       id: 'catalogNumber',
       accessorKey: 'catalogNumber',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('catalogNumber')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('catalogNumber')} />,
       cell: ({ row }) => textCell(row.original.catalogNumber),
       size: 140
     },
     {
       id: 'discSubtitle',
       accessorKey: 'discSubtitle',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('discSubtitle')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('discSubtitle')} />,
       cell: ({ row }) => textCell(row.original.discSubtitle),
       size: 160
     },
     {
       id: 'lyricist',
       accessorKey: 'lyricist',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('lyricist')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('lyricist')} />,
       cell: ({ row }) => textCell(row.original.lyricist),
       size: 160
     },
     {
       id: 'barcode',
       accessorKey: 'barcode',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('barcode')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('barcode')} />,
       cell: ({ row }) => textCell(row.original.barcode),
       size: 140
     },
     {
       id: 'work',
       accessorKey: 'work',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('work')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('work')} />,
       cell: ({ row }) => textCell(row.original.work),
       size: 160
     },
     {
       id: 'movementName',
       accessorKey: 'movementName',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('movementName')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('movementName')} />,
       cell: ({ row }) => textCell(row.original.movementName),
       size: 160
     },
     {
       id: 'movement',
       accessorKey: 'movement',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('movement')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('movement')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.movement),
       size: 100
     },
     {
       id: 'originalReleaseDate',
       accessorKey: 'originalReleaseDate',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('originalReleaseDate')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('originalReleaseDate')} />,
       cell: ({ row }) => textCell(row.original.originalReleaseDate),
       size: 160
     },
     {
       id: 'copyright',
       accessorKey: 'copyright',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('copyright')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('copyright')} />,
       cell: ({ row }) => textCell(row.original.copyright),
       size: 180
     },
     {
       id: 'rating',
       accessorKey: 'rating',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('rating')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('rating')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.rating),
       size: 80
     },
     {
       id: 'compilation',
       accessorKey: 'compilation',
-      header: ({ column }) => <SortableHeader column={column} label={tMusicInfo('compilation')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('compilation')} />,
       cell: ({ row }) => booleanCell(row.original.compilation),
       size: 100
     },
@@ -260,21 +255,21 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'dateAdded',
       accessorKey: 'dateAdded',
-      header: ({ column }) => <SortableHeader column={column} label={tStats('dateAdded')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('dateAdded')} />,
       cell: ({ row }) => dateCell(row.original.dateAdded),
       size: 160
     },
     {
       id: 'lastPlayed',
       accessorKey: 'lastPlayed',
-      header: ({ column }) => <SortableHeader column={column} label={tStats('lastPlayed')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('lastPlayed')} />,
       cell: ({ row }) => dateCell(row.original.lastPlayed),
       size: 160
     },
     {
       id: 'playCount',
       accessorKey: 'playCount',
-      header: ({ column }) => <SortableHeader column={column} label={tStats('playCount')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('playCount')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.playCount),
       size: 100
     },
@@ -282,21 +277,21 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'modifiedAt',
       accessorKey: 'modifiedAt',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('modified')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('modifiedAt')} justify={'end'} />,
       cell: ({ row }) => dateCell(row.original.modifiedAt),
       size: 160
     },
     {
       id: 'createdAt',
       accessorKey: 'createdAt',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('created')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('createdAt')} />,
       cell: ({ row }) => dateCell(row.original.createdAt),
       size: 160
     },
     {
       id: 'fileSize',
       accessorKey: 'fileSize',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('size')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('fileSize')} justify={'end'} />,
       cell: ({ row }) => (
         <span className='text-sm text-muted-foreground text-right block'>{formatFileSize(row.original.fileSize)}</span>
       ),
@@ -305,56 +300,56 @@ export function useSongColumns(): ColumnDef<Song>[] {
     {
       id: 'duration',
       accessorKey: 'duration',
-      header: ({ column }) => <SortableHeader column={column} label={tTrackInfo('duration')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('duration')} />,
       cell: ({ row }) => textCell(formatDuration(row.original.duration)),
       size: 80
     },
     {
       id: 'bitrate',
       accessorKey: 'bitrate',
-      header: ({ column }) => <SortableHeader column={column} label={tAudio('bitrate')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('bitrate')} />,
       cell: ({ row }) => textCell(row.original.bitrate ? `${Math.round(row.original.bitrate / 1000)} kbps` : ''),
       size: 100
     },
     {
       id: 'bitsPerSample',
       accessorKey: 'bitsPerSample',
-      header: ({ column }) => <SortableHeader column={column} label={tAudio('bitDepth')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('bitsPerSample')} />,
       cell: ({ row }) => textCell(row.original.bitsPerSample ? `${row.original.bitsPerSample}-bit` : ''),
       size: 80
     },
     {
       id: 'sampleRate',
       accessorKey: 'sampleRate',
-      header: ({ column }) => <SortableHeader column={column} label={tAudio('sampleRate')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('sampleRate')} />,
       cell: ({ row }) => textCell(row.original.sampleRate ? `${(row.original.sampleRate / 1000).toFixed(1)} kHz` : ''),
       size: 100
     },
     {
       id: 'channels',
       accessorKey: 'channels',
-      header: ({ column }) => <SortableHeader column={column} label={tAudio('channels')} justify={'end'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('channels')} justify={'end'} />,
       cell: ({ row }) => numericCell(row.original.channels),
       size: 80
     },
     {
       id: 'extension',
       accessorKey: 'extension',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('format')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('extension')} />,
       cell: ({ row }) => textCell(row.original.extension.toUpperCase()),
       size: 80
     },
     {
       id: 'encoder',
       accessorKey: 'encoder',
-      header: ({ column }) => <SortableHeader column={column} label={tAudio('encoder')} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('encoder')} />,
       cell: ({ row }) => textCell(row.original.encoder),
       size: 140
     },
     {
       id: 'fileName',
       accessorKey: 'fileName',
-      header: ({ column }) => <SortableHeader column={column} label={tCommon('name') + ' (file)'} />,
+      header: ({ column }) => <SortableHeader column={column} label={t('fileName')} />,
       cell: ({ row }) => textCell(row.original.fileName),
       size: 200
     }

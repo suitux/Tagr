@@ -13,12 +13,12 @@ interface DetailPanelAudioPropertiesSectionProps {
 }
 
 export function DetailPanelAudioPropertiesSection({ song, extName }: DetailPanelAudioPropertiesSectionProps) {
-  const t = useTranslations('audioProperties')
-  const tCommon = useTranslations('common')
+  const tSection = useTranslations('audioProperties')
+  const t = useTranslations('fields')
 
   return (
-    <DetailPanelSection title={t('title')}>
-      <DetailPanelRow icon={<FileTypeIcon className='w-4 h-4' />} label={tCommon('format')} value={extName} />
+    <DetailPanelSection title={tSection('title')}>
+      <DetailPanelRow icon={<FileTypeIcon className='w-4 h-4' />} label={t('extension')} value={extName} />
       {song.codec && <DetailPanelRow icon={<RadioIcon className='w-4 h-4' />} label={t('codec')} value={song.codec} />}
       {song.bitrate && (
         <DetailPanelRow
@@ -44,7 +44,7 @@ export function DetailPanelAudioPropertiesSection({ song, extName }: DetailPanel
       {song.bitsPerSample && (
         <DetailPanelRow
           icon={<HashIcon className='w-4 h-4' />}
-          label={t('bitDepth')}
+          label={t('bitsPerSample')}
           value={`${song.bitsPerSample}-bit`}
         />
       )}

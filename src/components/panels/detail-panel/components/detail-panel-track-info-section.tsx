@@ -12,10 +12,11 @@ interface DetailPanelTrackInfoSectionProps {
 }
 
 export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectionProps) {
-  const t = useTranslations('trackInfo')
+  const tSection = useTranslations('trackInfo')
+  const t = useTranslations('fields')
 
   return (
-    <DetailPanelSection title={t('title')}>
+    <DetailPanelSection title={tSection('title')}>
       {song.duration && (
         <DetailPanelRow
           icon={<ClockIcon className='w-4 h-4' />}
@@ -25,7 +26,7 @@ export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectio
       )}
       <DetailPanelRow
         icon={<HashIcon className='w-4 h-4' />}
-        label={t('track')}
+        label={t('trackNumber')}
         value={song.trackNumber}
         songId={song.id}
         fieldName='trackNumber'
@@ -33,7 +34,7 @@ export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectio
       />
       <DetailPanelRow
         icon={<HashIcon className='w-4 h-4' />}
-        label={t('totalTracks')}
+        label={t('trackTotal')}
         value={song.trackTotal}
         songId={song.id}
         fieldName='trackTotal'
@@ -41,7 +42,7 @@ export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectio
       />
       <DetailPanelRow
         icon={<Music2Icon className='w-4 h-4' />}
-        label={t('disc')}
+        label={t('discNumber')}
         value={song.discNumber}
         songId={song.id}
         fieldName='discNumber'
@@ -49,7 +50,7 @@ export function DetailPanelTrackInfoSection({ song }: DetailPanelTrackInfoSectio
       />
       <DetailPanelRow
         icon={<Music2Icon className='w-4 h-4' />}
-        label={t('totalDiscs')}
+        label={t('discTotal')}
         value={song.discTotal}
         songId={song.id}
         fieldName='discTotal'

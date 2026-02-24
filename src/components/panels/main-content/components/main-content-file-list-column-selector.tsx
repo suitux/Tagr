@@ -26,6 +26,7 @@ interface ColumnSelectorProps<TData> {
 function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityChange }: ColumnSelectorProps<TData>) {
   const tColumns = useTranslations('columns')
   const tCommon = useTranslations('common')
+  const t = useTranslations('fields')
   const [search, setSearch] = useState('')
 
   const hideableColumns = columns.filter(col => col.enableHiding !== false)
@@ -36,9 +37,10 @@ function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityCh
 
     return hideableColumns.filter(col => {
       const id = col.id ?? (col as { accessorKey?: string }).accessorKey ?? ''
-      return id.toLowerCase().includes(query)
+      const label = t(id as Parameters<typeof t>[0])
+      return label.toLowerCase().includes(query) || id.toLowerCase().includes(query)
     })
-  }, [hideableColumns, search])
+  }, [hideableColumns, search, t])
 
   return (
     <DropdownMenu onOpenChange={open => !open && setSearch('')}>
@@ -73,7 +75,7 @@ function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityCh
                 checked={columnVisibility?.[id]}
                 onCheckedChange={value => onColumnVisibilityChange({ ...columnVisibility, [id]: value })}
                 onSelect={e => e.preventDefault()}>
-                {id}
+                {t(id as Parameters<typeof t>[0])}
               </DropdownMenuCheckboxItem>
             )
           })}

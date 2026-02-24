@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarIcon, HashIcon, PlayIcon } from 'lucide-react'
+import { CalendarIcon, PlayIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
 import { formatDate } from '../utils'
@@ -12,7 +12,7 @@ interface DetailPanelStatsSectionProps {
 }
 
 export function DetailPanelStatsSection({ song }: DetailPanelStatsSectionProps) {
-  const t = useTranslations('stats')
+  const t = useTranslations('fields')
 
   const hasContent = song.dateAdded || song.lastPlayed || song.playCount
 

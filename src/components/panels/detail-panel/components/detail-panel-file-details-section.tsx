@@ -13,37 +13,37 @@ interface DetailPanelFileDetailsSectionProps {
 
 export function DetailPanelFileDetailsSection({ song }: DetailPanelFileDetailsSectionProps) {
   const tFiles = useTranslations('files')
-  const tCommon = useTranslations('common')
+  const t = useTranslations('fields')
 
   return (
     <DetailPanelSection title={tFiles('fileInfo')}>
       <DetailPanelRow
         icon={<FileIcon className='w-4 h-4' />}
-        label={tCommon('name') + ' (file)'}
+        label={t('fileName')}
         value={song.fileName}
       />
       <DetailPanelRow
         icon={<HardDriveIcon className='w-4 h-4' />}
-        label={tCommon('size')}
+        label={t('fileSize')}
         value={formatFileSize(song.fileSize)}
       />
       {song.createdAt && (
         <DetailPanelRow
           icon={<CalendarIcon className='w-4 h-4' />}
-          label={tFiles('created')}
+          label={t('createdAt')}
           value={formatDate(song.createdAt)!}
         />
       )}
       {song.modifiedAt && (
         <DetailPanelRow
           icon={<CalendarIcon className='w-4 h-4' />}
-          label={tCommon('modified')}
+          label={t('modifiedAt')}
           value={formatDate(song.modifiedAt)!}
         />
       )}
       <DetailPanelRow
         icon={<MapPinIcon className='w-4 h-4' />}
-        label={tCommon('file-path')}
+        label={t('filePath')}
         value={song.filePath}
         isPath
       />
