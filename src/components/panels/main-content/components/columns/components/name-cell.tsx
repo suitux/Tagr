@@ -2,7 +2,6 @@ import { AudioLines, MusicIcon, Pause, Play } from 'lucide-react'
 import { getExtensionVariant } from '@/components/panels/main-content/utils'
 import { Badge } from '@/components/ui/badge'
 import { Image } from '@/components/ui/image'
-import { useHome } from '@/contexts/home-context'
 import { usePlayer } from '@/contexts/player-context'
 import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
@@ -10,7 +9,6 @@ import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 const NameCell = function NameCell({ song }: { song: Song }) {
   const displayName = song.title || song.fileName
   const pictureUrl = getSongPictureUrl(song.id)
-  const { songs } = useHome()
   const { play, currentSong, isPlaying, togglePlayPause } = usePlayer()
   const isCurrent = currentSong?.id === song.id
 
@@ -19,7 +17,7 @@ const NameCell = function NameCell({ song }: { song: Song }) {
     if (isCurrent) {
       togglePlayPause()
     } else {
-      play(song, songs)
+      play(song)
     }
   }
 

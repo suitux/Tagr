@@ -1,17 +1,19 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
-import type { Song } from '@/features/songs/domain'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import type { Song, SongColumnFilters } from '@/features/songs/domain'
+import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
+import { useHome } from '@/contexts/home-context'
 
 interface PlayerContextValue {
   currentSong: Song | null
-  queue: Song[]
-  queueIndex: number
   isPlaying: boolean
   currentTime: number
   duration: number
-  play: (song: Song, queue: Song[]) => void
+  hasPrevious: boolean
+  hasNext: boolean
+  play: (song: Song) => void
   togglePlayPause: () => void
   playNext: () => void
   playPrevious: () => void
@@ -23,16 +25,35 @@ const PlayerContext = createContext<PlayerContextValue | null>(null)
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [currentSong, setCurrentSong] = useState<Song | null>(null)
-  const [queue, setQueue] = useState<Song[]>([])
-  const [queueIndex, setQueueIndex] = useState(0)
+  const [previousSong, setPreviousSong] = useState<Song | null>(null)
+  const [nextSong, setNextSong] = useState<Song | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
-  const play = useCallback((song: Song, newQueue: Song[]) => {
-    const index = newQueue.findIndex(s => s.id === song.id)
-    setQueue(newQueue)
-    setQueueIndex(index >= 0 ? index : 0)
+  const { selectedFolderId, search, sorting, columnFilters } = useHome()
+
+  const activeFilters = useMemo(() => {
+    const entries = Object.entries(columnFilters).filter(([, v]) => v)
+    return entries.length > 0 ? (Object.fromEntries(entries) as SongColumnFilters) : undefined
+  }, [columnFilters])
+
+  const { data: adjacentData } = useAdjacentSongs(
+    currentSong?.id ?? null,
+    selectedFolderId,
+    search || undefined,
+    sorting,
+    activeFilters
+  )
+
+  useEffect(() => {
+    if (adjacentData) {
+      setPreviousSong(adjacentData.previous)
+      setNextSong(adjacentData.next)
+    }
+  }, [adjacentData])
+
+  const play = useCallback((song: Song) => {
     setCurrentSong(song)
 
     const audio = audioRef.current
@@ -54,42 +75,35 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }, [currentSong])
 
   const playNext = useCallback(() => {
-    if (queue.length === 0) return
-    const nextIndex = queueIndex + 1
-    if (nextIndex >= queue.length) return
+    if (!nextSong) return
 
-    const nextSong = queue[nextIndex]
-    setQueueIndex(nextIndex)
     setCurrentSong(nextSong)
-
     const audio = audioRef.current
     if (audio) {
       audio.src = getSongAudioUrl(nextSong.id)
       audio.play()
     }
-  }, [queue, queueIndex])
+  }, [nextSong])
 
   const playPrevious = useCallback(() => {
-    if (queue.length === 0) return
-    const prevIndex = queueIndex - 1
-    if (prevIndex < 0) return
+    if (!previousSong) return
 
-    const prevSong = queue[prevIndex]
-    setQueueIndex(prevIndex)
-    setCurrentSong(prevSong)
-
+    setCurrentSong(previousSong)
     const audio = audioRef.current
     if (audio) {
-      audio.src = getSongAudioUrl(prevSong.id)
+      audio.src = getSongAudioUrl(previousSong.id)
       audio.play()
     }
-  }, [queue, queueIndex])
+  }, [previousSong])
 
   const seek = useCallback((time: number) => {
     const audio = audioRef.current
     if (!audio) return
     audio.currentTime = time
   }, [])
+
+  const hasPrevious = previousSong !== null
+  const hasNext = nextSong !== null
 
   useEffect(() => {
     const audio = audioRef.current
@@ -120,11 +134,11 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     <PlayerContext.Provider
       value={{
         currentSong,
-        queue,
-        queueIndex,
         isPlaying,
         currentTime,
         duration,
+        hasPrevious,
+        hasNext,
         play,
         togglePlayPause,
         playNext,
@@ -144,3 +158,4 @@ export function usePlayer() {
   }
   return context
 }
+

@@ -22,19 +22,19 @@ export default function Home() {
   }
 
   return (
-    <PlayerProvider>
-      <HomeProvider
-        selectedFolderId={selectedFolderId}
-        selectedSongId={selectedSong}
-        onFolderSelect={handleFolderSelect}
-        onSongSelect={handleSongSelect}
-      >
+    <HomeProvider
+      selectedFolderId={selectedFolderId}
+      selectedSongId={selectedSong}
+      onFolderSelect={handleFolderSelect}
+      onSongSelect={handleSongSelect}
+    >
+      <PlayerProvider>
         <ThreeColumnLayout
           sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
           main={<MainContent />}
           detail={selectedSong ? <DetailPanel songId={selectedSong} /> : undefined}
         />
-      </HomeProvider>
-    </PlayerProvider>
+      </PlayerProvider>
+    </HomeProvider>
   )
 }

@@ -21,8 +21,8 @@ export function SidebarPlayer() {
     togglePlayPause,
     playNext,
     playPrevious,
-    queueIndex,
-    queue,
+    hasPrevious,
+    hasNext,
     currentTime,
     duration,
     seek
@@ -40,8 +40,6 @@ export function SidebarPlayer() {
   if (!currentSong) return null
 
   const pictureUrl = getSongPictureUrl(currentSong.id)
-  const hasPrevious = queueIndex > 0
-  const hasNext = queueIndex < queue.length - 1
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0
 
   return (

@@ -391,6 +391,58 @@ export async function countSongsByFolder(
   })
 }
 
+export async function getAdjacentSongs(
+  songId: number,
+  folderPath: string,
+  search?: string,
+  sortField?: SongSortField,
+  sort?: SongSortDirection,
+  filters?: SongColumnFilters
+): Promise<{ previous: Song | null; next: Song | null }> {
+  const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
+  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+  const columnFilterConditions = buildColumnFiltersWhere(filters)
+
+  const where = {
+    folderPath,
+    ...(search && {
+      OR: [
+        { title: { contains: search } },
+        { artist: { contains: search } },
+        { publisher: { contains: search } },
+        { album: { contains: search } },
+        { fileName: { contains: search } },
+        { comment: { contains: search } }
+      ]
+    }),
+    ...(columnFilterConditions.length > 0 && {
+      AND: columnFilterConditions
+    })
+  }
+
+  // Get all IDs in order to find position of current song
+  const orderedIds = await prisma.song.findMany({
+    where,
+    orderBy,
+    select: { id: true }
+  })
+
+  const currentIndex = orderedIds.findIndex(s => s.id === songId)
+  if (currentIndex === -1) {
+    return { previous: null, next: null }
+  }
+
+  const prevId = currentIndex > 0 ? orderedIds[currentIndex - 1].id : null
+  const nextId = currentIndex < orderedIds.length - 1 ? orderedIds[currentIndex + 1].id : null
+
+  const [previous, next] = await Promise.all([
+    prevId !== null ? prisma.song.findUnique({ where: { id: prevId } }) : null,
+    nextId !== null ? prisma.song.findUnique({ where: { id: nextId } }) : null
+  ])
+
+  return { previous, next }
+}
+
 /**
  * Re-scan a single song file and update its metadata in the database
  * @param songId The ID of the song to rescan
