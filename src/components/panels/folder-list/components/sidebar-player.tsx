@@ -41,6 +41,10 @@ export function SidebarPlayer() {
   useEffect(() => {
     if (!waveformRef.current || !currentSong) return
 
+    const styles = getComputedStyle(waveformRef.current)
+    const primaryColor = styles.getPropertyValue('--primary').trim()
+    const mutedFg = styles.getPropertyValue('--muted-foreground').trim()
+
     const ws = WaveSurfer.create({
       container: waveformRef.current,
       height: 24,
@@ -48,8 +52,8 @@ export function SidebarPlayer() {
       barGap: 1,
       barRadius: 2,
       cursorWidth: 0,
-      waveColor: 'white',
-      progressColor: 'var(--color-primary)',
+      waveColor: mutedFg,
+      progressColor: primaryColor,
       interact: true,
       url: getSongAudioUrl(currentSong.id)
     })
