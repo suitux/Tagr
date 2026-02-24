@@ -13,6 +13,7 @@ import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns, DEFAULT_VISIBLE_COLUMNS } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
 import ColumnSelector from './main-content-file-list-column-selector'
+import { MainContentNoFilterResults } from './main-content-no-filter-results'
 
 export function MainContentFileList() {
   const {
@@ -92,6 +93,7 @@ export function MainContentFileList() {
           setColumnVisibility(value as VisibilityState)
         }}
         onScrollEnd={handleScrollEnd}
+        EmptyStateComponent={isAnyFilterActive ? MainContentNoFilterResults : undefined}
       />
       {isFetchingNextPage && (
         <div className='flex items-center justify-center py-3'>

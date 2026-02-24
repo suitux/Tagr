@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useRef, useState } from 'react'
+import { type ComponentType, useCallback, useRef, useState } from 'react'
 import { type TableComponents, type TableVirtuosoHandle, TableVirtuoso } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -27,6 +27,7 @@ interface DataTableProps<TData, TValue> {
   columnVisibility?: VisibilityState
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>
   onScrollEnd?: () => void
+  EmptyStateComponent?: ComponentType
 }
 
 interface VirtuosoContext<TData> {
@@ -45,7 +46,8 @@ export function DataTable<TData, TValue>({
   onSortingChange,
   columnVisibility,
   onColumnVisibilityChange,
-  onScrollEnd
+  onScrollEnd,
+  EmptyStateComponent
 }: DataTableProps<TData, TValue>) {
   const virtuosoRef = useRef<TableVirtuosoHandle>(null)
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
@@ -112,6 +114,17 @@ export function DataTable<TData, TValue>({
         />
       )
     }
+  }
+
+  if (rows.length === 0 && EmptyStateComponent) {
+    return (
+      <div className='flex flex-col h-full'>
+        <Table className='w-full caption-bottom text-sm' style={{ tableLayout: 'fixed' }}>
+          <thead>{fixedHeaderContent()}</thead>
+        </Table>
+        <EmptyStateComponent />
+      </div>
+    )
   }
 
   return (
