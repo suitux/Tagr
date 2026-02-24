@@ -15,6 +15,12 @@ function Input({ className, type, debounceMs, onChange, value, defaultValue, ...
   )
 
   React.useEffect(() => {
+    if (debounceMs !== undefined && value !== undefined) {
+      setLocalValue(String(value))
+    }
+  }, [debounceMs, value])
+
+  React.useEffect(() => {
     return () => {
       if (timerRef.current) clearTimeout(timerRef.current)
     }

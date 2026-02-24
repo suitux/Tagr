@@ -11,7 +11,7 @@ export function MainContentHeader() {
   const tFolders = useTranslations('folders')
   const tFiles = useTranslations('files')
 
-  const { selectedFolderId, setSearch, totalSongs } = useHome()
+  const { selectedFolderId, search, setSearch, totalSongs } = useHome()
   const folderName = selectedFolderId?.split('/').pop() || selectedFolderId
 
   return (
@@ -32,6 +32,7 @@ export function MainContentHeader() {
           <Input
             key={selectedFolderId}
             debounceMs={300}
+            value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder={tFiles('searchPlaceholder')}
             className='pl-9'
