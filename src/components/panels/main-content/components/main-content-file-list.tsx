@@ -25,7 +25,8 @@ export function MainContentFileList() {
     clearSorting,
     fetchNextPage,
     hasNextPage,
-    isFetchingNextPage
+    isFetchingNextPage,
+    isAnyFilterActive
   } = useHome()
   const columns = useSongColumns()
 
@@ -65,7 +66,7 @@ export function MainContentFileList() {
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
-  if (songs.length === 0 && !isLoadingSongs) {
+  if (songs.length === 0 && !isLoadingSongs && !isAnyFilterActive) {
     return <MainContentEmptyFilesState />
   }
 

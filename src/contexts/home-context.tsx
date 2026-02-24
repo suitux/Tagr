@@ -13,6 +13,7 @@ interface HomeContextValue {
   search: string
   sorting: SongsSortParams
   columnFilters: SongColumnFilters
+  isAnyFilterActive: boolean
   fetchNextPage: () => void
   hasNextPage: boolean
   isFetchingNextPage: boolean
@@ -45,10 +46,11 @@ export function HomeProvider({
   const [search, setSearch] = useState('')
   const [sorting, setSortingState] = useState<SongsSortParams>({})
   const [columnFilters, setColumnFilters] = useState<SongColumnFilters>({})
+  const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
 
   const activeFilters = useMemo(() => {
     const entries = Object.entries(columnFilters).filter(([, v]) => v)
-    return entries.length > 0 ? Object.fromEntries(entries) as SongColumnFilters : undefined
+    return entries.length > 0 ? (Object.fromEntries(entries) as SongColumnFilters) : undefined
   }, [columnFilters])
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder(
@@ -90,6 +92,7 @@ export function HomeProvider({
         search,
         sorting,
         columnFilters,
+        isAnyFilterActive,
         fetchNextPage,
         hasNextPage,
         isFetchingNextPage,
