@@ -2,6 +2,7 @@
 
 import { LoaderCircle } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
+import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
 import { DataTable } from '@/components/ui/data-table'
 import { useHome } from '@/contexts/home-context'
 import { ColumnVisibilityState } from '@/features/config/domain'
@@ -31,12 +32,7 @@ export function MainContentFileList() {
   } = useHome()
   const columns = useSongColumns()
 
-  const { data: columnVisibility } = useConfig({
-    key: 'columnVisibility',
-    parser: v => genericJsonObjectParser<ColumnVisibilityState>(v),
-    defaultData: DEFAULT_VISIBLE_COLUMNS
-  })
-
+  const { data: columnVisibility } = useColumnVisibility()
   const { mutate: updateConfig } = useUpdateConfig({ parser: genericJsonObjectParser })
 
   const setColumnVisibility = (value: VisibilityState) => {

@@ -1,19 +1,19 @@
 'use client'
 
-import { type ComponentType, useCallback, useMemo, useRef, useState } from 'react'
-import { type TableComponents, type TableVirtuosoHandle, TableVirtuoso } from 'react-virtuoso'
+import { ReactNode, useCallback, useRef, useState } from 'react'
+import { type TableComponents, TableVirtuoso, type TableVirtuosoHandle } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import {
   type ColumnDef,
+  ColumnResizeMode,
+  flexRender,
+  getCoreRowModel,
   type OnChangeFn,
   type Row,
   type SortingState,
-  type VisibilityState,
-  flexRender,
-  getCoreRowModel,
   useReactTable,
-  ColumnResizeMode
+  type VisibilityState
 } from '@tanstack/react-table'
 
 interface DataTableProps<TData, TValue> {
@@ -27,7 +27,7 @@ interface DataTableProps<TData, TValue> {
   columnVisibility?: VisibilityState
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>
   onScrollEnd?: () => void
-  EmptyStateComponent?: ComponentType
+  EmptyStateComponent?: () => ReactNode
 }
 
 interface VirtuosoContext<TData> {
@@ -113,7 +113,8 @@ export function DataTable<TData, TValue>({
           onClick={() => context?.onRowClick?.(row.original)}
         />
       )
-    }
+    },
+    EmptyPlaceholder: EmptyStateComponent ? () => <EmptyStateComponent /> : undefined
   }
 
   const showEmptyState = rows.length === 0 && !!EmptyStateComponent
@@ -140,7 +141,6 @@ export function DataTable<TData, TValue>({
         }}
         components={components}
       />
-      {showEmptyState && <EmptyStateComponent />}
     </div>
   )
 }
