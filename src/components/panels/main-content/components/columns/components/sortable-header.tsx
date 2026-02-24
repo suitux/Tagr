@@ -1,5 +1,6 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
-import { memo, useLayoutEffect, useRef } from 'react'
+import { useLayoutEffect, useRef } from 'react'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useHome } from '@/contexts/home-context'
@@ -20,6 +21,7 @@ let focusedFilterField: SongSortField | null = null
 
 function ColumnFilterInput({ field }: { field: SongSortField }) {
   const { columnFilters, setColumnFilter } = useHome()
+  const tFiles = useTranslations('files')
   const inputRef = useRef<HTMLInputElement>(null)
 
   useLayoutEffect(() => {
@@ -32,7 +34,7 @@ function ColumnFilterInput({ field }: { field: SongSortField }) {
     <Input
       ref={inputRef}
       className='h-6 text-xs px-1.5'
-      placeholder='Filter...'
+      placeholder={tFiles('filterPlaceholder')}
       debounceMs={300}
       value={columnFilters[field] ?? ''}
       onChange={e => setColumnFilter(field, e.target.value)}
