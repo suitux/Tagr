@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSongsByFolder, countSongsByFolder, PAGE_SIZE } from '@/features/metadata/metadata-scan.service'
 import { Song, SongSortField, SongSortDirection } from '@/features/songs/domain'
+import { getSearchParam } from '@/lib/api/search-params'
 
 interface RouteParams {
   params: Promise<{
@@ -36,12 +37,12 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   }
 
   const folderPath = '/' + path.map(segment => decodeURIComponent(segment)).join('/')
-  const url = new URL(request.url)
-  const search = url.searchParams.get('search') ?? undefined
-  const sortFieldParam = (url.searchParams.get('sortField') as SongSortField) ?? 'title'
-  const sortParam = (url.searchParams.get('sort') as SongSortDirection) ?? 'asc'
-  const limit = url.searchParams.has('limit') ? Number(url.searchParams.get('limit')) : PAGE_SIZE
-  const offset = url.searchParams.has('offset') ? Number(url.searchParams.get('offset')) : 0
+  const { searchParams } = new URL(request.url)
+  const search = getSearchParam(searchParams, 'search', 'string', '') || undefined
+  const sortFieldParam = getSearchParam(searchParams, 'sortField', 'string', 'title') as SongSortField
+  const sortParam = getSearchParam(searchParams, 'sort', 'string', 'asc') as SongSortDirection
+  const limit = getSearchParam(searchParams, 'limit', 'number', PAGE_SIZE)
+  const offset = getSearchParam(searchParams, 'offset', 'number', 0)
 
   try {
     const [songs, totalFiles] = await Promise.all([
