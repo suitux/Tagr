@@ -93,7 +93,7 @@ export function MainContentFileList() {
           setColumnVisibility(value as VisibilityState)
         }}
         onScrollEnd={handleScrollEnd}
-        EmptyStateComponent={isAnyFilterActive ? MainContentNoFilterResults : undefined}
+        EmptyStateComponent={MainContentNoFilterResults}
       />
       {isFetchingNextPage && (
         <div className='flex items-center justify-center py-3'>

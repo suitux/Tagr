@@ -116,34 +116,31 @@ export function DataTable<TData, TValue>({
     }
   }
 
-  if (rows.length === 0 && EmptyStateComponent) {
-    return (
-      <div className='flex flex-col h-full'>
-        <Table className='w-full caption-bottom text-sm' style={{ tableLayout: 'fixed' }}>
-          <thead>{fixedHeaderContent()}</thead>
-        </Table>
-        <EmptyStateComponent />
-      </div>
-    )
-  }
+  const showEmptyState = rows.length === 0 && EmptyStateComponent
 
   return (
-    <TableVirtuoso
-      ref={virtuosoRef}
-      totalCount={rows.length}
-      overscan={200}
-      endReached={onScrollEnd}
-      increaseViewportBy={200}
-      fixedHeaderContent={fixedHeaderContent}
-      context={{ rows, selectedRowId, onRowClick }}
-      itemContent={(index, _data, context) => {
-        const row = context.rows[index]
-        if (!row) return null
-        return row
-          .getVisibleCells()
-          .map(cell => <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>)
-      }}
-      components={components}
-    />
+    <div className='flex flex-col h-full'>
+      <TableVirtuoso
+        ref={virtuosoRef}
+        totalCount={rows.length}
+        overscan={200}
+        endReached={onScrollEnd}
+        increaseViewportBy={200}
+        fixedHeaderContent={fixedHeaderContent}
+        context={{ rows, selectedRowId, onRowClick }}
+        className={showEmptyState ? 'flex-none' : 'flex-1'}
+        itemContent={(index, _data, context) => {
+          const row = context.rows[index]
+          if (!row) return null
+          return row
+            .getVisibleCells()
+            .map(cell => (
+              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+            ))
+        }}
+        components={components}
+      />
+      {showEmptyState && <EmptyStateComponent />}
+    </div>
   )
 }
