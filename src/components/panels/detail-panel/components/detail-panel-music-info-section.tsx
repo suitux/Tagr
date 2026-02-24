@@ -204,7 +204,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
         value={song.rating}
         songId={song.id}
         fieldName='rating'
-        type='number'
+        type='rating'
       />
       <DetailPanelRow
         icon={<ToggleLeftIcon className='w-4 h-4' />}
