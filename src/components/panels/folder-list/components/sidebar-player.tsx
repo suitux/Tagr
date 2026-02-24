@@ -1,6 +1,7 @@
 'use client'
 
-import { MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { ChevronDown, ChevronUp, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform'
@@ -15,6 +16,7 @@ function formatTime(seconds: number): string {
 }
 
 export function SidebarPlayer() {
+  const [expanded, setExpanded] = useState(true)
   const {
     currentSong,
     isPlaying,
@@ -31,6 +33,58 @@ export function SidebarPlayer() {
   if (!currentSong) return null
 
   const pictureUrl = getSongPictureUrl(currentSong.id)
+
+  if (expanded) {
+    return (
+      <div className='p-4 space-y-3'>
+        <div className='flex justify-end'>
+          <Button variant='ghost' size='icon' className='h-6 w-6' onClick={() => setExpanded(false)}>
+            <ChevronDown className='h-4 w-4' />
+          </Button>
+        </div>
+
+        <div className='flex justify-center'>
+          <div className='w-full max-w-64 aspect-square rounded-lg bg-muted overflow-hidden flex items-center justify-center'>
+            <Image
+              src={pictureUrl}
+              alt=''
+              width={300}
+              height={300}
+              className='w-full h-full object-cover'
+              unoptimized
+              fallbackComponent={<MusicIcon className='w-12 h-12 text-muted-foreground' />}
+            />
+          </div>
+        </div>
+
+        <div className='text-center space-y-0.5'>
+          <p className='text-sm font-medium truncate'>{currentSong.title || currentSong.fileName}</p>
+          {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
+          {currentSong.album && <p className='text-xs text-muted-foreground/70 truncate'>{currentSong.album}</p>}
+        </div>
+
+        <div className='flex items-center justify-center gap-2'>
+          <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playPrevious} disabled={!hasPrevious}>
+            <SkipBack className='h-4 w-4' />
+          </Button>
+          <Button variant='ghost' size='icon' className='h-10 w-10' onClick={togglePlayPause}>
+            {isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
+          </Button>
+          <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playNext} disabled={!hasNext}>
+            <SkipForward className='h-4 w-4' />
+          </Button>
+        </div>
+
+        <div className='flex items-center gap-2'>
+          <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
+            {formatTime(currentTime)}
+          </span>
+          <Waveform url={getSongAudioUrl(currentSong.id)} currentTime={currentTime} duration={duration} onSeek={seek} />
+          <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTime(duration)}</span>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className='p-3 space-y-2'>
@@ -50,6 +104,12 @@ export function SidebarPlayer() {
           <p className='text-sm font-medium truncate'>{currentSong.title || currentSong.fileName}</p>
           {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
         </div>
+        <Button variant='ghost' size='icon' className='h-7 w-7 flex-shrink-0' onClick={() => setExpanded(true)}>
+          <ChevronUp className='h-3.5 w-3.5' />
+        </Button>
+      </div>
+
+      <div className='flex items-center gap-1'>
         <div className='flex items-center gap-0.5'>
           <Button variant='ghost' size='icon' className='h-7 w-7' onClick={playPrevious} disabled={!hasPrevious}>
             <SkipBack className='h-3.5 w-3.5' />
@@ -61,16 +121,10 @@ export function SidebarPlayer() {
             <SkipForward className='h-3.5 w-3.5' />
           </Button>
         </div>
-      </div>
-
-      <div className='flex items-center gap-2'>
         <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>{formatTime(currentTime)}</span>
-        <Waveform
-          url={getSongAudioUrl(currentSong.id)}
-          currentTime={currentTime}
-          duration={duration}
-          onSeek={seek}
-        />
+        <div className='flex-1'>
+          <Waveform url={getSongAudioUrl(currentSong.id)} currentTime={currentTime} duration={duration} onSeek={seek} />
+        </div>
         <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTime(duration)}</span>
       </div>
     </div>
