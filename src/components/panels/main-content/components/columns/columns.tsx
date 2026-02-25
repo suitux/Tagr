@@ -199,7 +199,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
       id: 'originalReleaseDate',
       accessorKey: 'originalReleaseDate',
       header: ({ column }) => <SortableHeader column={column} label={t('originalReleaseDate')} />,
-      cell: ({ row }) => textCell(row.original.originalReleaseDate),
+      cell: ({ row }) => dateCell(row.original.originalReleaseDate),
       size: 160
     },
     {

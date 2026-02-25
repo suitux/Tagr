@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
+import { formatDate } from '@/lib/date'
 import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
@@ -163,7 +164,7 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
       <DetailPanelRow
         icon={<CalendarIcon className='w-4 h-4' />}
         label={t('originalReleaseDate')}
-        value={song.originalReleaseDate}
+        value={formatDate(song.originalReleaseDate)}
         songId={song.id}
         fieldName='originalReleaseDate'
         type='date'

@@ -9,6 +9,7 @@ import {
   ScanResult,
   SongCreateInput
 } from '@/features/metadata/domain'
+import { parseDate } from '@/lib/date'
 import {
   BOOLEAN_SONG_FIELDS,
   DATE_SONG_FIELDS,
@@ -109,7 +110,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       lyricist: common.lyricist?.[0] || null,
       barcode: common.barcode || null,
       work: common.work || null,
-      originalReleaseDate: common.originaldate || common.originalyear?.toString() || null,
+      originalReleaseDate: parseDate(common.originaldate || common.originalyear?.toString()) ?? null,
       copyright: common.copyright || null,
       rating: common.rating?.[0]?.rating ? Math.round(common.rating[0].rating * 100) : null,
       lyrics: common.lyrics?.[0]?.text || null,

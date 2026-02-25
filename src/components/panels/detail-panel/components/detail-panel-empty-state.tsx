@@ -9,7 +9,7 @@ export function DetailPanelEmptyState() {
 
   return (
     <div className='flex flex-col h-full items-center justify-center text-center p-6'>
-      <Card>
+      <Card className={'w-full'}>
         <CardHeader className='text-center'>
           <div className='mx-auto w-16 h-16 rounded-2xl bg-muted/50 flex items-center justify-center mb-2'>
             <InfoIcon className='w-8 h-8 text-muted-foreground/50' />

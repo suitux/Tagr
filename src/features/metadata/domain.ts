@@ -92,7 +92,7 @@ export interface SongCreateInput {
   lyricist: string | null
   barcode: string | null
   work: string | null
-  originalReleaseDate: string | null
+  originalReleaseDate: Date | null
   copyright: string | null
   rating: number | null
   lyrics: string | null

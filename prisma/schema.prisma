@@ -46,7 +46,7 @@ model Song {
   lyricist         String?
   barcode          String?
   work             String?
-  originalReleaseDate String? @map("original_release_date")
+  originalReleaseDate DateTime? @map("original_release_date")
   copyright        String?
   rating           Int?
   lyrics           String?

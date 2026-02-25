@@ -57,7 +57,7 @@ export const NUMERIC_SONG_FIELDS: Set<SongSortField> = new Set([
 export const BOOLEAN_SONG_FIELDS: Set<SongSortField> = new Set(['compilation'])
 
 export const DATE_SONG_FIELDS: Set<SongSortField> = new Set([
-  'dateAdded', 'lastPlayed', 'modifiedAt', 'createdAt'
+  'dateAdded', 'lastPlayed', 'modifiedAt', 'createdAt', 'originalReleaseDate'
 ])
 
 export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'] as const
