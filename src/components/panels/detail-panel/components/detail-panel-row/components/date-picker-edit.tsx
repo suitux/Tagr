@@ -1,12 +1,11 @@
 'use client'
 
-import { format } from 'date-fns'
 import { CalendarIcon } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { parseDate } from './parse-date'
+import { formatDate, parseDate } from '@/lib/date'
 
 interface DatePickerEditProps {
   value: string | number | null | undefined
@@ -18,17 +17,14 @@ export function DatePickerEdit({ value, onSave }: DatePickerEditProps) {
 
   const handleSelect = (date: Date | undefined) => {
     if (!date) return
-    onSave(format(date, 'yyyy-MM-dd'))
+    onSave(formatDate(date)!)
     setOpen(false)
   }
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button
-          variant='ghost'
-          size='icon'
-          className='h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity'>
+        <Button variant='ghost' size='icon' className='h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity'>
           <CalendarIcon className='w-3 h-3' />
         </Button>
       </PopoverTrigger>

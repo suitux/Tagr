@@ -3,7 +3,7 @@
 import { CalendarIcon, FileIcon, HardDriveIcon, MapPinIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
-import { formatDate, formatFileSize } from '../utils'
+import { formatDetailDate, formatFileSize } from '../utils'
 import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
@@ -31,14 +31,14 @@ export function DetailPanelFileDetailsSection({ song }: DetailPanelFileDetailsSe
         <DetailPanelRow
           icon={<CalendarIcon className='w-4 h-4' />}
           label={t('createdAt')}
-          value={formatDate(song.createdAt)!}
+          value={formatDetailDate(song.createdAt)!}
         />
       )}
       {song.modifiedAt && (
         <DetailPanelRow
           icon={<CalendarIcon className='w-4 h-4' />}
           label={t('modifiedAt')}
-          value={formatDate(song.modifiedAt)!}
+          value={formatDetailDate(song.modifiedAt)!}
         />
       )}
       <DetailPanelRow

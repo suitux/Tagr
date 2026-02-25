@@ -3,7 +3,7 @@
 import { CalendarIcon, PlayIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
-import { formatDate } from '../utils'
+import { formatDetailDate } from '../utils'
 import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
@@ -24,14 +24,14 @@ export function DetailPanelStatsSection({ song }: DetailPanelStatsSectionProps) 
         <DetailPanelRow
           icon={<CalendarIcon className='w-4 h-4' />}
           label={t('dateAdded')}
-          value={formatDate(song.dateAdded)!}
+          value={formatDetailDate(song.dateAdded)!}
         />
       )}
       {song.lastPlayed && (
         <DetailPanelRow
           icon={<PlayIcon className='w-4 h-4' />}
           label={t('lastPlayed')}
-          value={formatDate(song.lastPlayed)!}
+          value={formatDetailDate(song.lastPlayed)!}
         />
       )}
     </DetailPanelSection>

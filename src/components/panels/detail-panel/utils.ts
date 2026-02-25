@@ -1,4 +1,4 @@
-import { format } from 'date-fns'
+import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
 
 export const formatFileSize = (bytes: number): string => {
   if (bytes < 1024) return `${bytes} B`
@@ -6,10 +6,7 @@ export const formatFileSize = (bytes: number): string => {
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
 }
 
-export const formatDate = (date: Date | null): string | null => {
-  if (!date) return null
-  return format(new Date(date), 'dd MMMM yyyy, HH:mm')
-}
+export const formatDetailDate = (date: Date | null) => formatDate(date, FULL_DATE_FORMAT)
 
 export const formatDuration = (seconds: number | null): string | null => {
   if (!seconds) return null
