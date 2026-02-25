@@ -7,6 +7,7 @@ import { useHome } from '@/contexts/home-context'
 import { DATE_SONG_FIELDS, type SongSortField } from '@/features/songs/domain'
 import { cn } from '@/lib/utils'
 import type { Column } from '@tanstack/react-table'
+import { DateFilterInput } from './date-filter-input'
 
 interface SortableHeaderProps<TData> {
   column: Column<TData>
@@ -60,7 +61,7 @@ export function SortableHeader<TData>({
 }: SortableHeaderProps<TData>) {
   const sorted = column.getIsSorted()
   const field = column.id as SongSortField
-  const showFilter = enableColumnFilter && !DATE_SONG_FIELDS.has(field)
+  const isDateField = DATE_SONG_FIELDS.has(field)
 
   return (
     <div className='flex flex-col gap-1 py-1'>
@@ -81,7 +82,7 @@ export function SortableHeader<TData>({
           <ArrowUpDown className='ml-2 h-4 w-4 text-muted-foreground/50' />
         )}
       </Button>
-      {showFilter && <ColumnFilterInput field={field} />}
+      {enableColumnFilter && (isDateField ? <DateFilterInput field={field} /> : <ColumnFilterInput field={field} />)}
     </div>
   )
 }

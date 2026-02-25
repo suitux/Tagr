@@ -307,7 +307,13 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
     const songField = field as SongSortField
 
     if (DATE_SONG_FIELDS.has(songField)) {
-      continue // skip date fields
+      const [fromStr, toStr] = value.split('..')
+      const condition: Record<string, Date> = {}
+      if (fromStr) condition.gte = new Date(fromStr + 'T00:00:00')
+      if (toStr) condition.lte = new Date(toStr + 'T23:59:59')
+      if (Object.keys(condition).length > 0) {
+        conditions.push({ [field]: condition })
+      }
     } else if (BOOLEAN_SONG_FIELDS.has(songField)) {
       conditions.push({ [field]: { equals: value === 'true' || value === '1' } })
     } else if (NUMERIC_SONG_FIELDS.has(songField)) {
