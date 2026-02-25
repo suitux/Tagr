@@ -69,6 +69,7 @@ export function DateFilterInput({ field }: { field: SongSortField }) {
           <InputGroupInput
             readOnly
             className='cursor-pointer text-xs'
+            placeholder={t('dateFilterPlaceholder')}
             value={
               isActive && committedRange?.from
                 ? formatDateRange(committedRange.from, committedRange.to ?? committedRange.from)
