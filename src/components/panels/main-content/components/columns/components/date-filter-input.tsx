@@ -6,6 +6,7 @@ import type { DateRange } from 'react-day-picker'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useHome } from '@/contexts/home-context'
 import type { SongSortField } from '@/features/songs/domain'
@@ -58,18 +59,23 @@ export function DateFilterInput({ field }: { field: SongSortField }) {
 
   return (
     <Popover open={open} onOpenChange={handleOpen}>
-      <PopoverTrigger asChild>
-        <Button
-          variant='ghost'
-          className={`h-6 relative px-1.5 ${isActive ? 'text-xs gap-1' : 'w-6'}`}
-          onClick={e => e.stopPropagation()}>
-          <CalendarIcon className='h-3.5 w-3.5 shrink-0' />
-          {isActive && committedRange?.from && (
-            <span className='truncate'>
-              {formatDateRange(committedRange.from, committedRange.to ?? committedRange.from)}
-            </span>
-          )}
-        </Button>
+      <PopoverTrigger asChild onClick={e => e.stopPropagation()}>
+        <InputGroup className='h-6 cursor-pointer'>
+          <InputGroupAddon align='inline-start'>
+            <InputGroupText>
+              <CalendarIcon className='h-3.5 w-3.5' />
+            </InputGroupText>
+          </InputGroupAddon>
+          <InputGroupInput
+            readOnly
+            className='cursor-pointer text-xs'
+            value={
+              isActive && committedRange?.from
+                ? formatDateRange(committedRange.from, committedRange.to ?? committedRange.from)
+                : ''
+            }
+          />
+        </InputGroup>
       </PopoverTrigger>
       <PopoverContent className='w-auto p-3' align='start'>
         <div className='flex flex-col gap-3'>
