@@ -186,9 +186,10 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
       <DetailPanelRow
         icon={<ToggleLeftIcon className='w-4 h-4' />}
         label={t('compilation')}
-        value={song.compilation ? 'Yes' : ''}
+        value={!!song.compilation}
         songId={song.id}
         fieldName='compilation'
+        type='boolean'
       />
     </DetailPanelSection>
   )
