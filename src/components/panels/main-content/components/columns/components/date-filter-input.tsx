@@ -3,6 +3,7 @@
 import { CalendarIcon, Check, X } from 'lucide-react'
 import { useState } from 'react'
 import type { DateRange } from 'react-day-picker'
+import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
@@ -27,6 +28,7 @@ function parseRange(value: string | undefined): DateRange | undefined {
 
 export function DateFilterInput({ field }: { field: SongSortField }) {
   const { columnFilters, setColumnFilter } = useHome()
+  const t = useTranslations('files')
   const [open, setOpen] = useState(false)
   const [clicks, setClicks] = useState(0)
   const [localRange, setLocalRange] = useState<DateRange | undefined>(undefined)
@@ -87,7 +89,7 @@ export function DateFilterInput({ field }: { field: SongSortField }) {
                   setOpen(false)
                 }}>
                 <X className='h-3 w-3 mr-1' />
-                Clear
+                {t('clearDateFilter')}
               </Button>
             )}
             {localRange?.from && (
@@ -102,7 +104,7 @@ export function DateFilterInput({ field }: { field: SongSortField }) {
                   setOpen(false)
                 }}>
                 <Check className='h-3 w-3 mr-1' />
-                Apply
+                {t('applyDateFilter')}
               </Button>
             )}
           </div>
