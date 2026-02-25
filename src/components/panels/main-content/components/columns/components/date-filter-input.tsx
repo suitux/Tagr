@@ -69,12 +69,7 @@ export function DateFilterInput({ field }: { field: SongSortField }) {
           {isActive && <span className='absolute top-0 right-0 h-1.5 w-1.5 rounded-full bg-primary' />}
         </Button>
       </PopoverTrigger>
-      <PopoverContent
-        className='w-auto p-3'
-        align='start'
-        onClick={e => e.stopPropagation()}
-        onPointerDownOutside={e => e.preventDefault()}
-        onFocusOutside={e => e.preventDefault()}>
+      <PopoverContent className='w-auto p-3' align='start'>
         <div className='flex flex-col gap-3'>
           <Calendar mode='range' selected={localRange} onSelect={handleSelect} numberOfMonths={2} />
           <div className='flex gap-2'>
