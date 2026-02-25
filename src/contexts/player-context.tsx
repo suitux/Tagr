@@ -1,8 +1,9 @@
 'use client'
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import type { Song, SongColumnFilters } from '@/features/songs/domain'
 import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
+import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
 import { useHome } from '@/contexts/home-context'
 
@@ -31,19 +32,20 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
 
-  const { selectedFolderId, search, sorting, columnFilters } = useHome()
+  // Snapshot of the queue context at the moment play() was pressed
+  const [queueFolder, setQueueFolder] = useState<string | null>(null)
+  const [queueSearch, setQueueSearch] = useState<string | undefined>(undefined)
+  const [queueSorting, setQueueSorting] = useState<SongsSortParams | undefined>(undefined)
+  const [queueFilters, setQueueFilters] = useState<SongColumnFilters | undefined>(undefined)
 
-  const activeFilters = useMemo(() => {
-    const entries = Object.entries(columnFilters).filter(([, v]) => v)
-    return entries.length > 0 ? (Object.fromEntries(entries) as SongColumnFilters) : undefined
-  }, [columnFilters])
+  const { selectedFolderId, search, sorting, columnFilters } = useHome()
 
   const { data: adjacentData } = useAdjacentSongs(
     currentSong?.id ?? null,
-    selectedFolderId,
-    search || undefined,
-    sorting,
-    activeFilters
+    queueFolder,
+    queueSearch,
+    queueSorting,
+    queueFilters
   )
 
   useEffect(() => {
@@ -56,12 +58,19 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const play = useCallback((song: Song) => {
     setCurrentSong(song)
 
+    // Snapshot current view state as the queue context
+    setQueueFolder(selectedFolderId)
+    const activeFilters = Object.entries(columnFilters).filter(([, v]) => v)
+    setQueueSearch(search || undefined)
+    setQueueSorting(sorting)
+    setQueueFilters(activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined)
+
     const audio = audioRef.current
     if (audio) {
       audio.src = getSongAudioUrl(song.id)
       audio.play()
     }
-  }, [])
+  }, [selectedFolderId, search, sorting, columnFilters])
 
   const togglePlayPause = useCallback(() => {
     const audio = audioRef.current
