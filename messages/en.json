@@ -54,7 +54,10 @@
     "noFilterResults": "No songs match the current filters",
     "clearFilters": "Clear filters",
     "clearDateFilter": "Clear",
-    "applyDateFilter": "Apply"
+    "applyDateFilter": "Apply",
+    "booleanFilterAll": "All",
+    "booleanFilterYes": "Yes",
+    "booleanFilterNo": "No"
   },
   "musicInfo": {
     "title": "Song Info"
