@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { HistoryIcon, Loader2Icon, MoreVerticalIcon, RefreshCwIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import NextImage from 'next/image'
-import { HistoryDrawer } from '@/components/history-drawer'
+import { HistoryModal } from '@/components/history-modal/history-modal'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useScan } from '@/features/scan/hooks/use-scan'
@@ -40,7 +40,7 @@ export function FolderListHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <HistoryDrawer open={historyOpen} onOpenChange={setHistoryOpen} />
+      <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} />
     </div>
   )
 }

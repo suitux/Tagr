@@ -125,6 +125,13 @@
     "lastPlayed": "Last Played",
     "playCount": "Play Count"
   },
+  "history": {
+    "title": "Change History",
+    "empty": "No changes recorded yet",
+    "unknownSong": "Unknown",
+    "revert": "Revert",
+    "emptyValue": "—"
+  },
   "columns": {
     "toggleColumns": "Columns"
   },
