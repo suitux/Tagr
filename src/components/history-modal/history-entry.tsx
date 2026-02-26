@@ -7,7 +7,12 @@ import { SongChangeHistoryEntry } from '@/features/history/domain'
 import { useRevertChange } from '@/features/history/hooks/use-revert-change'
 import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
 
-export function HistoryEntry({ entry }: { entry: SongChangeHistoryEntry }) {
+interface HistoryEntryProps {
+  entry: SongChangeHistoryEntry
+  onSongClick?: (songId: number) => void
+}
+
+export function HistoryEntry({ entry, onSongClick }: HistoryEntryProps) {
   const tFields = useTranslations('fields')
   const tHistory = useTranslations('history')
   const { mutate: revert, isPending } = useRevertChange()
@@ -24,9 +29,12 @@ export function HistoryEntry({ entry }: { entry: SongChangeHistoryEntry }) {
     <div className='group flex items-start gap-3 border-b border-border/50 px-4 py-3 last:border-b-0'>
       <div className='min-w-0 flex-1'>
         <div className='flex items-center gap-2'>
-          <span className='truncate text-sm font-medium text-foreground'>
+          <Button
+            variant='link'
+            className='h-auto truncate p-0 text-sm font-medium text-foreground'
+            onClick={() => onSongClick?.(entry.songId)}>
             {entry.songTitle || tHistory('unknownSong')}
-          </span>
+          </Button>
           {entry.songArtist && <span className='truncate text-xs text-muted-foreground'>— {entry.songArtist}</span>}
         </div>
         <div className='mt-1 text-xs text-muted-foreground truncate'>

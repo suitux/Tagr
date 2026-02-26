@@ -6,6 +6,7 @@ import { Virtuoso } from 'react-virtuoso'
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
+import { useHome } from '@/contexts/home-context'
 import { useHistory } from '@/features/history/hooks/use-history'
 import { HistoryEntry } from './history-entry'
 
@@ -18,6 +19,15 @@ interface HistoryModalProps {
 
 export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryModalProps) {
   const t = useTranslations('history')
+  const { setSelectedSongId } = useHome()
+
+  const handleSongClick = useCallback(
+    (clickedSongId: number) => {
+      setSelectedSongId(clickedSongId)
+      onOpenChange(false)
+    },
+    [setSelectedSongId, onOpenChange]
+  )
   const [search, setSearch] = useState('')
   const filters = { search: search || undefined, songId }
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useHistory(open, filters)
@@ -32,7 +42,7 @@ export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryM
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='flex max-w-2xl flex-col p-0'>
+      <DialogContent className='flex flex-col p-0 w-full max-w-2xl'>
         <DialogHeader className='border-b px-6 py-4'>
           <DialogTitle className='flex items-center gap-2 leading-normal'>
             <HistoryIcon className='h-4 w-4 shrink-0' />
@@ -67,7 +77,9 @@ export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryM
               data={entries}
               endReached={loadMore}
               overscan={200}
-              itemContent={(_index, entry) => <HistoryEntry key={entry.id} entry={entry} />}
+              itemContent={(_index, entry) => (
+                <HistoryEntry key={entry.id} entry={entry} onSongClick={handleSongClick} />
+              )}
               components={{
                 Footer: () =>
                   isFetchingNextPage ? (
