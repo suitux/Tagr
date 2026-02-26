@@ -1,13 +1,15 @@
 'use client'
 
-import { HistoryIcon, Loader2Icon, SearchIcon } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { HistoryIcon, Loader2Icon, SearchIcon, Undo2Icon, XIcon } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 import { useTranslations } from 'next-intl'
+import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { useHome } from '@/contexts/home-context'
 import { useHistory } from '@/features/history/hooks/use-history'
+import { useRevertChanges } from '@/features/history/hooks/use-revert-changes'
 import { HistoryEntry } from './history-entry'
 
 interface HistoryModalProps {
@@ -20,25 +22,62 @@ interface HistoryModalProps {
 export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryModalProps) {
   const t = useTranslations('history')
   const { setSelectedSongId } = useHome()
-
-  const handleSongClick = useCallback(
-    (clickedSongId: number) => {
-      setSelectedSongId(clickedSongId)
-      onOpenChange(false)
-    },
-    [setSelectedSongId, onOpenChange]
-  )
   const [search, setSearch] = useState('')
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
+  const lastSelectedRef = useRef<number | null>(null)
+
   const filters = { search: search || undefined, songId }
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useHistory(open, filters)
+  const { mutate: revertChanges, isPending: isReverting } = useRevertChanges()
 
   const entries = data?.pages.flatMap(p => p.entries) ?? []
 
-  const loadMore = useCallback(() => {
+  const handleSelect = (id: number, shiftKey: boolean) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+
+      if (shiftKey && lastSelectedRef.current !== null) {
+        const lastIndex = entries.findIndex(e => e.id === lastSelectedRef.current)
+        const currentIndex = entries.findIndex(e => e.id === id)
+        if (lastIndex !== -1 && currentIndex !== -1) {
+          const start = Math.min(lastIndex, currentIndex)
+          const end = Math.max(lastIndex, currentIndex)
+          for (let i = start; i <= end; i++) {
+            next.add(entries[i].id)
+          }
+          return next
+        }
+      }
+
+      if (next.has(id)) {
+        next.delete(id)
+      } else {
+        next.add(id)
+      }
+
+      lastSelectedRef.current = id
+      return next
+    })
+  }
+
+  const handleSongClick = (clickedSongId: number) => {
+    setSelectedSongId(clickedSongId)
+    onOpenChange(false)
+  }
+
+  const handleRevertSelected = () => {
+    const items = entries.filter(e => selectedIds.has(e.id)).map(e => ({ songId: e.songId, historyId: e.id }))
+
+    revertChanges(items, {
+      onSuccess: () => setSelectedIds(new Set())
+    })
+  }
+
+  const loadMore = () => {
     if (hasNextPage && !isFetchingNextPage) {
       void fetchNextPage()
     }
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -78,7 +117,13 @@ export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryM
               endReached={loadMore}
               overscan={200}
               itemContent={(_index, entry) => (
-                <HistoryEntry key={entry.id} entry={entry} onSongClick={handleSongClick} />
+                <HistoryEntry
+                  key={entry.id}
+                  entry={entry}
+                  selected={selectedIds.has(entry.id)}
+                  onSelect={handleSelect}
+                  onSongClick={handleSongClick}
+                />
               )}
               components={{
                 Footer: () =>
@@ -91,6 +136,21 @@ export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryM
             />
           )}
         </div>
+        {selectedIds.size > 0 && (
+          <div className='border-t px-6 py-3 flex items-center justify-between'>
+            <span className='text-sm text-muted-foreground'>{t('revertSelected', { count: selectedIds.size })}</span>
+            <div className='flex items-center gap-2'>
+              <Button size='sm' variant='outline' onClick={() => setSelectedIds(new Set())}>
+                <XIcon className='h-4 w-4' />
+                {t('clearSelection')}
+              </Button>
+              <Button size='sm' onClick={handleRevertSelected} disabled={isReverting}>
+                {isReverting ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <Undo2Icon className='h-4 w-4' />}
+                {t('revert')}
+              </Button>
+            </div>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   )

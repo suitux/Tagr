@@ -136,6 +136,8 @@
     "revert": "Revert",
     "searchPlaceholder": "Filter by song title or artist...",
     "viewHistory": "View change history",
+    "revertSelected": "Revert {count, plural, one {# change} other {# changes}}",
+    "clearSelection": "Deselect all",
     "emptyValue": "—"
   },
   "columns": {

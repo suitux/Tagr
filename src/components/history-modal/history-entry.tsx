@@ -3,16 +3,19 @@
 import { Loader2Icon, Undo2Icon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import { SongChangeHistoryEntry } from '@/features/history/domain'
 import { useRevertChange } from '@/features/history/hooks/use-revert-change'
 import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
 
 interface HistoryEntryProps {
   entry: SongChangeHistoryEntry
+  selected: boolean
+  onSelect: (id: number, shiftKey: boolean) => void
   onSongClick?: (songId: number) => void
 }
 
-export function HistoryEntry({ entry, onSongClick }: HistoryEntryProps) {
+export function HistoryEntry({ entry, selected, onSelect, onSongClick }: HistoryEntryProps) {
   const tFields = useTranslations('fields')
   const tHistory = useTranslations('history')
   const { mutate: revert, isPending } = useRevertChange()
@@ -27,6 +30,12 @@ export function HistoryEntry({ entry, onSongClick }: HistoryEntryProps) {
 
   return (
     <div className='group flex items-start gap-3 border-b border-border/50 px-4 py-3 last:border-b-0'>
+      <Checkbox
+        checked={selected}
+        onCheckedChange={() => {}}
+        onClick={e => onSelect(entry.id, e.shiftKey)}
+        className='mt-0.5 shrink-0'
+      />
       <div className='min-w-0 flex-1'>
         <div className='flex items-center gap-2'>
           <Button
