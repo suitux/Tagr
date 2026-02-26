@@ -1,7 +1,9 @@
 'use client'
 
-import { XIcon } from 'lucide-react'
+import { useState } from 'react'
+import { HistoryIcon, XIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
+import { HistoryModal } from '@/components/history-modal/history-modal'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -26,6 +28,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
   const tFormats = useTranslations('formats')
   const { setSelectedSongId } = useHome()
   const { data: song, isLoading } = useSong(songId)
+  const [historyOpen, setHistoryOpen] = useState(false)
 
   if (!songId) {
     return <DetailPanelEmptyState />
@@ -47,7 +50,10 @@ export function DetailPanel({ songId }: DetailPanelProps) {
 
   return (
     <div className='flex flex-col h-full overflow-hidden'>
-      <div className='flex justify-end p-2'>
+      <div className='flex justify-end gap-1 p-2'>
+        <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setHistoryOpen(true)}>
+          <HistoryIcon className='h-4 w-4' />
+        </Button>
         <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setSelectedSongId(null)}>
           <XIcon className='h-4 w-4' />
         </Button>
@@ -71,6 +77,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
           <DetailPanelFileDetailsSection song={song} />
         </div>
       </ScrollArea>
+      <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} songId={song.id} />
     </div>
   )
 }

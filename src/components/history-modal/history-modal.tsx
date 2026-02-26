@@ -12,12 +12,14 @@ import { HistoryEntry } from './history-entry'
 interface HistoryModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
+  songId?: number
 }
 
-export function HistoryModal({ open, onOpenChange }: HistoryModalProps) {
+export function HistoryModal({ open, onOpenChange, songId }: HistoryModalProps) {
   const t = useTranslations('history')
   const [search, setSearch] = useState('')
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useHistory(open, search || undefined)
+  const filters = { search: search || undefined, songId }
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useHistory(open, filters)
 
   const entries = data?.pages.flatMap(p => p.entries) ?? []
 

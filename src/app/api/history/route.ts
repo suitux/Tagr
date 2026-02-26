@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SongChangeHistoryEntry } from '@/features/history/domain'
+import { Prisma } from '@/generated/prisma/client'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { getSearchParam } from '@/lib/api/search-params'
 
@@ -22,21 +23,24 @@ export async function GET(request: NextRequest): Promise<NextResponse<HistoryRes
     const cursor = getSearchParam(searchParams, 'cursor', 'string')
     const limit = Math.min(getSearchParam(searchParams, 'limit', 'number', 50)!, 100)
     const search = getSearchParam(searchParams, 'search', 'string')
+    const songId = getSearchParam(searchParams, 'songId', 'number')
+
+    const where: Prisma.SongChangeHistoryWhereInput = {}
+    if (songId) where.songId = songId
+    if (search) {
+      where.song = { OR: [{ title: { contains: search } }, { artist: { contains: search } }] }
+    }
+
+    const cursorId = cursor ? parseInt(cursor, 10) : null
 
     const entries = await prisma.songChangeHistory.findMany({
       take: limit + 1,
-      ...(cursor && {
-        cursor: { id: parseInt(cursor, 10) },
+      ...(cursorId && {
+        cursor: { id: cursorId },
         skip: 1
       }),
       orderBy: { id: 'desc' },
-      where: search
-        ? {
-            song: {
-              OR: [{ title: { contains: search } }, { artist: { contains: search } }]
-            }
-          }
-        : undefined,
+      where,
       include: {
         song: {
           select: { title: true, artist: true }

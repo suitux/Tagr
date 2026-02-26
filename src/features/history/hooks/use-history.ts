@@ -10,17 +10,24 @@ interface HistoryResponse {
   nextCursor: number | null
 }
 
-export const getHistoryQueryKey = (search?: string) => ['history', search ?? '']
+interface HistoryFilters {
+  search?: string
+  songId?: number
+}
 
-async function getHistory(cursor: number | null, search?: string): Promise<HistoryResponse> {
-  const { data } = await api.get<HistoryResponse>(`/history`, { params: { cursor: String(cursor), search, limit: 50 } })
+export const getHistoryQueryKey = (filters?: HistoryFilters) => ['history', filters ?? {}]
+
+async function getHistory(cursor: number | null, filters?: HistoryFilters): Promise<HistoryResponse> {
+  const { data } = await api.get<HistoryResponse>('/history', {
+    params: { cursor: String(cursor), search: filters?.search, songId: filters?.songId, limit: 50 }
+  })
   return data
 }
 
-export function useHistory(enabled = true, search?: string) {
+export function useHistory(enabled = true, filters?: HistoryFilters) {
   return useInfiniteQuery({
-    queryKey: getHistoryQueryKey(search),
-    queryFn: ({ pageParam }) => getHistory(pageParam, search),
+    queryKey: getHistoryQueryKey(filters),
+    queryFn: ({ pageParam }) => getHistory(pageParam, filters),
     initialPageParam: null as number | null,
     getNextPageParam: lastPage => lastPage.nextCursor,
     enabled
