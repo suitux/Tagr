@@ -7,12 +7,24 @@ import NextImage from 'next/image'
 import { HistoryModal } from '@/components/history-modal/history-modal'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useScan } from '@/features/scan/hooks/use-scan'
 
 export function FolderListHeader() {
   const t = useTranslations('folders')
+  const tCommon = useTranslations('common')
   const { mutate: scan, isPending } = useScan()
   const [historyOpen, setHistoryOpen] = useState(false)
+  const { confirm } = useAlertDialog()
+
+  const handleRescan = () => {
+    confirm({
+      title: t('rescanConfirmTitle'),
+      description: t('rescanConfirmDescription'),
+      cancel: { label: tCommon('cancel') },
+      action: { label: t('rescanConfirmAction'), onClick: () => scan() }
+    })
+  }
 
   return (
     <div className='px-4 py-5'>
@@ -29,7 +41,7 @@ export function FolderListHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
-            <DropdownMenuItem onClick={() => scan()} disabled={isPending}>
+            <DropdownMenuItem onClick={handleRescan} disabled={isPending}>
               {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
               {t('rescan')}
             </DropdownMenuItem>

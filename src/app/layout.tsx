@@ -2,10 +2,10 @@ import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Geist, Geist_Mono } from 'next/font/google'
-import Head from 'next/head'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { Toaster } from '@/components/ui/sonner'
 import { TooltipProvider } from '@/components/ui/tooltip'
+import { AlertDialogProvider } from '@/contexts/alert-dialog-context'
 import './globals.css'
 
 const geistSans = Geist({
@@ -36,7 +36,9 @@ export default function RootLayout({
         <NuqsAdapter>
           <QueryProvider>
             <NextIntlClientProvider>
-              <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+              <AlertDialogProvider>
+                <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+              </AlertDialogProvider>
             </NextIntlClientProvider>
           </QueryProvider>
         </NuqsAdapter>
