@@ -1,6 +1,9 @@
+import { XIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
+import { useHome } from '@/contexts/home-context'
 
 function SkeletonRow() {
   return (
@@ -30,11 +33,14 @@ function SkeletonSection({ title, rows }: { title: string; rows: number }) {
 }
 
 const DetailPanelLoadingState = () => {
+  const { setSelectedSongId } = useHome()
+
   return (
     <div className='flex flex-col h-full overflow-hidden'>
-      {/* Close button area */}
       <div className='flex justify-end p-2'>
-        <Skeleton className='h-7 w-7 rounded-md' />
+        <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setSelectedSongId(null)}>
+          <XIcon className='h-4 w-4' />
+        </Button>
       </div>
       <ScrollArea className='flex-1 min-h-0'>
         <div className='px-4 pb-4 space-y-6'>

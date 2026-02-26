@@ -13,9 +13,10 @@ interface HistoryModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   songId?: number
+  songTitle?: string
 }
 
-export function HistoryModal({ open, onOpenChange, songId }: HistoryModalProps) {
+export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryModalProps) {
   const t = useTranslations('history')
   const [search, setSearch] = useState('')
   const filters = { search: search || undefined, songId }
@@ -33,9 +34,9 @@ export function HistoryModal({ open, onOpenChange, songId }: HistoryModalProps) 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='flex max-w-2xl flex-col p-0'>
         <DialogHeader className='border-b px-6 py-4'>
-          <DialogTitle className='flex items-center gap-2'>
-            <HistoryIcon className='h-4 w-4' />
-            {t('title')}
+          <DialogTitle className='flex items-center gap-2 leading-normal'>
+            <HistoryIcon className='h-4 w-4 shrink-0' />
+            {songTitle ? t('titleForSong', { songTitle }) : t('title')}
           </DialogTitle>
         </DialogHeader>
         <div className='relative px-6'>
