@@ -133,6 +133,7 @@
     "empty": "No changes recorded yet",
     "unknownSong": "Unknown",
     "revert": "Revert",
+    "searchPlaceholder": "Filter by song title or artist...",
     "emptyValue": "—"
   },
   "columns": {

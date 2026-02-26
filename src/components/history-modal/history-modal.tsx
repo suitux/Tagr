@@ -1,10 +1,11 @@
 'use client'
 
-import { HistoryIcon, Loader2Icon } from 'lucide-react'
-import { useCallback } from 'react'
+import { HistoryIcon, Loader2Icon, SearchIcon } from 'lucide-react'
+import { useCallback, useState } from 'react'
 import { Virtuoso } from 'react-virtuoso'
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+import { Input } from '@/components/ui/input'
 import { useHistory } from '@/features/history/hooks/use-history'
 import { HistoryEntry } from './history-entry'
 
@@ -15,7 +16,8 @@ interface HistoryModalProps {
 
 export function HistoryModal({ open, onOpenChange }: HistoryModalProps) {
   const t = useTranslations('history')
-  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useHistory(open)
+  const [search, setSearch] = useState('')
+  const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useHistory(open, search || undefined)
 
   const entries = data?.pages.flatMap(p => p.entries) ?? []
 
@@ -34,6 +36,16 @@ export function HistoryModal({ open, onOpenChange }: HistoryModalProps) {
             {t('title')}
           </DialogTitle>
         </DialogHeader>
+        <div className='relative px-6'>
+          <SearchIcon className='text-muted-foreground pointer-events-none absolute top-1/2 left-9 h-4 w-4 -translate-y-1/2' />
+          <Input
+            debounceMs={300}
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder={t('searchPlaceholder')}
+            className='pl-9'
+          />
+        </div>
         <div className='h-[60vh] overflow-hidden'>
           {isLoading && (
             <div className='flex items-center justify-center py-12'>

@@ -21,6 +21,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HistoryRes
     const { searchParams } = request.nextUrl
     const cursor = getSearchParam(searchParams, 'cursor', 'string')
     const limit = Math.min(getSearchParam(searchParams, 'limit', 'number', 50)!, 100)
+    const search = getSearchParam(searchParams, 'search', 'string')
 
     const entries = await prisma.songChangeHistory.findMany({
       take: limit + 1,
@@ -29,6 +30,13 @@ export async function GET(request: NextRequest): Promise<NextResponse<HistoryRes
         skip: 1
       }),
       orderBy: { id: 'desc' },
+      where: search
+        ? {
+            song: {
+              OR: [{ title: { contains: search } }, { artist: { contains: search } }]
+            }
+          }
+        : undefined,
       include: {
         song: {
           select: { title: true, artist: true }
