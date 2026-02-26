@@ -1,5 +1,6 @@
 'use client'
 
+import { getHistoryQueryKey } from '@/features/history/hooks/use-history'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { Song } from '@/features/songs/domain'
 import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
@@ -63,8 +64,8 @@ export function useUpdateSong() {
         }
       )
 
-      // Update individual song cache
       queryClient.setQueryData(['song', updatedSong.id], updatedSong)
+      queryClient.invalidateQueries({ queryKey: getHistoryQueryKey() })
     }
   })
 }

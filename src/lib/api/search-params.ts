@@ -12,8 +12,8 @@ export function getSearchParam<T extends ParamType>(
   searchParams: URLSearchParams,
   key: string,
   type: T,
-  defaultValue: ParsedValue<T>
-): ParsedValue<T> {
+  defaultValue?: ParsedValue<T>
+): ParsedValue<T> | undefined {
   const raw = searchParams.get(key)
 
   if (raw === null) return defaultValue

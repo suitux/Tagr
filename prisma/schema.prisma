@@ -74,11 +74,26 @@ model Song {
   encoder       String?
 
   // Relaciones
-  metadata SongMetadata[]
-  pictures SongPicture[]
+  metadata      SongMetadata[]
+  pictures      SongPicture[]
+  changeHistory SongChangeHistory[]
 
   @@index([folderPath])
   @@map("songs")
+}
+
+model SongChangeHistory {
+  id        Int      @id @default(autoincrement())
+  songId    Int      @map("song_id")
+  field     String
+  oldValue  String?  @map("old_value")
+  newValue  String?  @map("new_value")
+  changedAt DateTime @default(now()) @map("changed_at")
+
+  song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([songId, changedAt])
+  @@map("song_change_history")
 }
 
 model SongMetadata {

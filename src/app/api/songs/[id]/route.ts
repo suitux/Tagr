@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { recordChanges } from '@/features/history/history.service'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writeMetadataToFile } from '@/features/metadata/metadata-write.service'
@@ -96,6 +97,9 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }
+
+    // Record changes before writing to file
+    await recordChanges(song, body)
 
     // Write metadata to the file
     await writeMetadataToFile(song.filePath, body as SongMetadataUpdate)
