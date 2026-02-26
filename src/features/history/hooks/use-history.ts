@@ -13,11 +13,7 @@ interface HistoryResponse {
 export const getHistoryQueryKey = (search?: string) => ['history', search ?? '']
 
 async function getHistory(cursor: number | null, search?: string): Promise<HistoryResponse> {
-  const params = new URLSearchParams({ limit: '50' })
-  if (cursor) params.set('cursor', String(cursor))
-  if (search) params.set('search', search)
-
-  const { data } = await api.get<HistoryResponse>(`/history?${params}`)
+  const { data } = await api.get<HistoryResponse>(`/history`, { params: { cursor: String(cursor), search, limit: 50 } })
   return data
 }
 
