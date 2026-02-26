@@ -1,8 +1,8 @@
 import { HISTORY_TRACKABLE_FIELDS } from '@/features/history/consts'
-import { BOOLEAN_SONG_FIELDS, NUMERIC_SONG_FIELDS, DATE_SONG_FIELDS } from '@/features/songs/domain'
+import { BOOLEAN_SONG_FIELDS, NUMERIC_SONG_FIELDS } from '@/features/songs/domain'
 import { Song } from '@/generated/prisma/client'
 import { prisma } from '@/infrastructure/prisma/dbClient'
-import { formatDate, ISO_DATE_FORMAT, parseDate } from '@/lib/date'
+import { formatDate, ISO_DATE_FORMAT } from '@/lib/date'
 
 function serialize(value: unknown): string | null {
   if (value === null || value === undefined) return null
@@ -14,7 +14,6 @@ export function deserialize(field: string, value: string | null): unknown {
   if (value === null || value === undefined) return null
   if (NUMERIC_SONG_FIELDS.has(field as never)) return Number(value)
   if (BOOLEAN_SONG_FIELDS.has(field as never)) return value === 'true'
-  if (DATE_SONG_FIELDS.has(field as never)) return parseDate(value) ?? null
   return value
 }
 

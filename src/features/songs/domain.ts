@@ -49,15 +49,30 @@ export type SongSortDirection = 'asc' | 'desc'
 export type SongColumnFilters = Partial<Record<SongSortField, string>>
 
 export const NUMERIC_SONG_FIELDS: Set<SongSortField> = new Set([
-  'trackNumber', 'trackTotal', 'discNumber', 'discTotal', 'year', 'bpm',
-  'rating', 'playCount', 'duration', 'bitrate', 'sampleRate',
-  'channels', 'bitsPerSample', 'fileSize'
+  'trackNumber',
+  'trackTotal',
+  'discNumber',
+  'discTotal',
+  'year',
+  'bpm',
+  'rating',
+  'playCount',
+  'duration',
+  'bitrate',
+  'sampleRate',
+  'channels',
+  'bitsPerSample',
+  'fileSize'
 ])
 
 export const BOOLEAN_SONG_FIELDS: Set<SongSortField> = new Set(['compilation'])
 
 export const DATE_SONG_FIELDS: Set<SongSortField> = new Set([
-  'dateAdded', 'lastPlayed', 'modifiedAt', 'createdAt', 'originalReleaseDate'
+  'dateAdded',
+  'lastPlayed',
+  'modifiedAt',
+  'createdAt',
+  'originalReleaseDate'
 ])
 
 export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'] as const
