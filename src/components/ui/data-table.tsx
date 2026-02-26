@@ -78,7 +78,7 @@ export function DataTable<TData, TValue>({
       table.getHeaderGroups().map(headerGroup => (
         <TableRow key={headerGroup.id}>
           {headerGroup.headers.map(header => (
-            <TableHead className='relative' key={header.id} style={{ width: header.getSize() }}>
+            <TableHead className='relative pb-0.5' key={header.id} style={{ width: header.getSize() }}>
               {header.isPlaceholder ? null : flexRender(header.column.columnDef.header, header.getContext())}
               <div
                 className={`absolute top-0 right-0 h-full w-1 cursor-col-resize touch-none select-none bg-border opacity-10 hover:opacity-100 ${
