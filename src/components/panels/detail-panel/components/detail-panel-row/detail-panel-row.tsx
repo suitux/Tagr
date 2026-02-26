@@ -95,7 +95,10 @@ export function DetailPanelRow({
       <>
         <p className='text-xs text-muted-foreground'>{label}</p>
         <div className='flex items-center gap-2'>
-          <p className={cn('text-sm font-medium text-foreground mt-0.5 flex-1', isPath && 'break-all text-xs')}>
+          <p
+            className={cn('text-sm font-medium text-foreground mt-0.5 flex-1 break-all', {
+              'text-xs': isPath
+            })}>
             {typeof value === 'boolean' ? '' : value}
           </p>
           {canEdit && type === 'date' && <DatePickerEdit value={value as string | number | null} onSave={handleSave} />}
