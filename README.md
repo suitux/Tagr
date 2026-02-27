@@ -106,7 +106,7 @@ Lossless formats are automatically detected and displayed with a badge.
 ### 1. Clone the repository
 
 ```bash
-wget https://raw.githubusercontent.com/suitux/tagr/main/docker-compose.yml
+wget https://raw.githubusercontent.com/suitux/Tagr/main/docker-compose.yml
 ```
 
 ### 2. Generate a secret key
@@ -171,7 +171,7 @@ Navigate to [http://localhost:3000](http://localhost:3000), log in with your cre
 Requirements: **Node.js 22+**.
 
 ```bash
-git clone https://github.com/your-user/tagr.git
+git clone https://github.com/suitux/Tagr.git
 cd tagr
 pnpm install
 ```
