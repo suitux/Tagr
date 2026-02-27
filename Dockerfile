@@ -53,9 +53,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # Prisma: copy schema + config, install CLI for db push & studio at runtime
 COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
-RUN npm install -g prisma@7.4.0 && \
+RUN npm install -g prisma@7.4.0 dotenv@17.3.1 && \
     mkdir -p node_modules && \
-    ln -s /usr/local/lib/node_modules/prisma node_modules/prisma
+    ln -s /usr/local/lib/node_modules/prisma node_modules/prisma && \
+    ln -s /usr/local/lib/node_modules/dotenv node_modules/dotenv
 
 # Entrypoint script
 COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
