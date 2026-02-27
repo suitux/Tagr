@@ -20,6 +20,7 @@ RUN pnpm run prisma-generate-client
 FROM base AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
+COPY --from=deps /app/src/generated ./src/generated
 COPY . .
 
 # Set environment variables for build
