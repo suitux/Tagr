@@ -106,8 +106,7 @@ Lossless formats are automatically detected and displayed with a badge.
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/suitux/tagr.git
-cd tagr
+wget https://raw.githubusercontent.com/suitux/tagr/main/docker-compose.yml
 ```
 
 ### 2. Generate a secret key
