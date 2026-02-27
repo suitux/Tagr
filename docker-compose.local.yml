@@ -1,0 +1,22 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tagr
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - NODE_ENV=production
+      - DATABASE_URL=file:/data/tagr.db
+      - AUTH_SECRET=c5398a60cfd61607192d74ae8db237aaeaa07a98cd8ecdb8776c86eb87376ba3
+      - AUTH_USER=admin
+      - AUTH_PASSWORD=admin
+    volumes:
+      - sqlite_data:/data
+
+volumes:
+  sqlite_data:
