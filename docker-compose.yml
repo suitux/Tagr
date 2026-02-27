@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/suitux/tagr:latest
     container_name: tagr
     restart: unless-stopped
     ports:
@@ -12,13 +10,11 @@ services:
       - PGID=1000
       - NODE_ENV=production
       - DATABASE_URL=file:/data/tagr.db
-      - AUTH_SECRET=c5398a60cfd61607192d74ae8db237aaeaa07a98cd8ecdb8776c86eb87376ba3
+      - AUTH_SECRET=change-me
       - AUTH_USER=admin
-      - AUTH_PASSWORD=admin
+      - AUTH_PASSWORD=change-me
     volumes:
       - sqlite_data:/data
-      - /Users/xavierrinconrico/Music/tagr:/music/My Music
-      - /Users/xavierrinconrico/Music/tagr_folder_2:/music/My other music folder
       # Mount your music folder into the container:
       # - /your/music/folder1:/music/folder1
       # - /your/music/folder2:/music/folder2

@@ -122,9 +122,7 @@ Copy the output — you'll use it as `AUTH_SECRET` in the next step.
 ```yaml
 services:
   tagr:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/suitux/tagr:latest
     container_name: tagr
     restart: unless-stopped
     ports:
