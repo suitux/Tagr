@@ -1,10 +1,14 @@
-# Tagr
+<p align="center">
+  <img src="docs/tagr-logo.webp" alt="Tagr Logo" width="120" />
+</p>
 
-**A self-hosted music metadata editor with a modern, intuitive web UI.**
+<h1 align="center">Tagr</h1>
+
+<p align="center"><strong>A self-hosted music metadata editor with a modern, intuitive web UI.</strong></p>
 
 Tagr lets you browse, edit, and manage audio file tags from any browser. Just point it at your music folders, and get a clean three-panel interface for organizing your library — no desktop apps, no CLI wizardry.
 
-<!-- ![Tagr Screenshot](docs/screenshot.png) -->
+![Tagr Main Screen](docs/main-screen.png)
 
 ---
 
@@ -30,12 +34,16 @@ Tagr takes a different approach:
 - Support for track/disc numbering, sort fields, catalog numbers, barcodes, and extended tags
 - Read-only display of audio properties (codec, bitrate, sample rate, channels, bits per sample)
 
+![Search and metadata editing](docs/basic-search.png)
+
 ### Change History
 
 - **Full audit trail** of every metadata change with old and new values
 - **Revert** individual changes or bulk-select and undo multiple edits at once
 - Searchable history with shift+click and ctrl+click multi-selection
 - Per-song and per-folder history views
+
+![Song change history](docs/song-history.png)
 
 ### Music Player
 
@@ -45,6 +53,12 @@ Tagr takes a different approach:
 - Auto-advance to next song
 - Collapsible sidebar player with album art, title, and artist display
 
+<p>
+  <img src="docs/player-big.png" alt="Player expanded" height="400" />
+  &nbsp;&nbsp;
+  <img src="docs/player-mini.png" alt="Player mini" />
+</p>
+
 ### Library Browsing
 
 - **Three-panel layout** — folder tree, song list, and detail editor side by side
@@ -53,6 +67,12 @@ Tagr takes a different approach:
 - **Advanced filtering** — text, numeric ranges, date ranges, and boolean filters across all fields
 - **Customizable columns** — show/hide any of 40+ columns to match your workflow
 - Virtual scrolling and infinite pagination for large libraries
+
+<p>
+  <img src="docs/rescan-history-context-menu.png" alt="Folder tree with context menu" height="350" />
+  &nbsp;&nbsp;
+  <img src="docs/columns.png" alt="Customizable columns" height="350" />
+</p>
 
 ### File Support
 
@@ -76,6 +96,8 @@ Lossless formats are automatically detected and displayed with a badge.
 - **Dark theme** by default
 - **Toast notifications** for operation feedback
 - **URL-based state** — bookmarkable views with folder, song, sort, and filter state preserved in the URL
+
+![Rescan warning dialog](docs/scan%20warning.png)
 
 ---
 
