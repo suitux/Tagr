@@ -32,7 +32,7 @@ CREATE TABLE "songs" (
     "lyricist" TEXT,
     "barcode" TEXT,
     "work" TEXT,
-    "original_release_date" TEXT,
+    "original_release_date" DATETIME,
     "copyright" TEXT,
     "rating" INTEGER,
     "lyrics" TEXT,
@@ -55,6 +55,17 @@ CREATE TABLE "songs" (
 );
 
 -- CreateTable
+CREATE TABLE "song_change_history" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "song_id" INTEGER NOT NULL,
+    "field" TEXT NOT NULL,
+    "old_value" TEXT,
+    "new_value" TEXT,
+    "changed_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT "song_change_history_song_id_fkey" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- CreateTable
 CREATE TABLE "song_metadata" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "song_id" INTEGER NOT NULL,
@@ -74,11 +85,20 @@ CREATE TABLE "song_pictures" (
     CONSTRAINT "song_pictures_song_id_fkey" FOREIGN KEY ("song_id") REFERENCES "songs" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+-- CreateTable
+CREATE TABLE "user_config" (
+    "key" TEXT NOT NULL PRIMARY KEY,
+    "value" TEXT NOT NULL
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "songs_file_path_key" ON "songs"("file_path");
 
 -- CreateIndex
 CREATE INDEX "songs_folder_path_idx" ON "songs"("folder_path");
+
+-- CreateIndex
+CREATE INDEX "song_change_history_song_id_changed_at_idx" ON "song_change_history"("song_id", "changed_at");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "song_metadata_song_id_key_key" ON "song_metadata"("song_id", "key");

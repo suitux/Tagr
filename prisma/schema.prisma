@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-  provider        = "prisma-client"
+  provider        = "prisma-client-js"
   output          = "../src/generated/prisma"
   previewFeatures = ["relationJoins"]
 }
@@ -23,34 +23,34 @@ model Song {
   scannedAt  DateTime  @default(now()) @map("scanned_at")
 
   // Metadata principal
-  title            String?
-  artist           String?
-  sortArtist       String?  @map("sort_artist")
-  album            String?
-  sortAlbum        String?  @map("sort_album")
-  trackNumber      Int?     @map("track_number")
-  trackTotal       Int?     @map("track_total")
-  discNumber       Int?     @map("disc_number")
-  discTotal        Int?     @map("disc_total")
-  year             Int?
-  bpm              Int?
-  genre            String?
-  albumArtist      String?  @map("album_artist")
-  sortAlbumArtist  String?  @map("sort_album_artist")
-  composer         String?
-  conductor        String?
-  comment          String?
-  grouping         String?
-  publisher        String?
-  catalogNumber    String?  @map("catalog_number")
-  lyricist         String?
-  barcode          String?
-  work             String?
+  title               String?
+  artist              String?
+  sortArtist          String?   @map("sort_artist")
+  album               String?
+  sortAlbum           String?   @map("sort_album")
+  trackNumber         Int?      @map("track_number")
+  trackTotal          Int?      @map("track_total")
+  discNumber          Int?      @map("disc_number")
+  discTotal           Int?      @map("disc_total")
+  year                Int?
+  bpm                 Int?
+  genre               String?
+  albumArtist         String?   @map("album_artist")
+  sortAlbumArtist     String?   @map("sort_album_artist")
+  composer            String?
+  conductor           String?
+  comment             String?
+  grouping            String?
+  publisher           String?
+  catalogNumber       String?   @map("catalog_number")
+  lyricist            String?
+  barcode             String?
+  work                String?
   originalReleaseDate DateTime? @map("original_release_date")
-  copyright        String?
-  rating           Int?
-  lyrics           String?
-  compilation      Boolean? @default(false)
+  copyright           String?
+  rating              Int?
+  lyrics              String?
+  compilation         Boolean?  @default(false)
 
   // Playback
   volume    Float?
@@ -66,11 +66,11 @@ model Song {
   // Audio info
   duration      Float?
   bitrate       Int?
-  sampleRate    Int?     @map("sample_rate")
+  sampleRate    Int?    @map("sample_rate")
   channels      Int?
-  bitsPerSample Int?     @map("bits_per_sample")
+  bitsPerSample Int?    @map("bits_per_sample")
   codec         String?
-  lossless      Boolean  @default(false)
+  lossless      Boolean @default(false)
   encoder       String?
 
   // Relaciones
@@ -97,8 +97,8 @@ model SongChangeHistory {
 }
 
 model SongMetadata {
-  id     Int    @id @default(autoincrement())
-  songId Int    @map("song_id")
+  id     Int     @id @default(autoincrement())
+  songId Int     @map("song_id")
   key    String
   value  String?
 
