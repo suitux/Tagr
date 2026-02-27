@@ -88,7 +88,15 @@ git clone https://github.com/suitux/tagr.git
 cd tagr
 ```
 
-### 2. Configure `docker-compose.yml`
+### 2. Generate a secret key
+
+```bash
+openssl rand -hex 32
+```
+
+Copy the output — you'll use it as `AUTH_SECRET` in the next step.
+
+### 3. Configure `docker-compose.yml`
 
 ```yaml
 services:
@@ -103,7 +111,7 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:/data/tagr.db
-      - AUTH_SECRET=any-random-secret-string-here
+      - AUTH_SECRET=paste-your-generated-secret-here
       - AUTH_USER=admin
       - AUTH_PASSWORD=your-password-here
     volumes:
@@ -125,13 +133,13 @@ volumes:
 >
 > Set `MUSIC_FOLDERS` only if you want to **restrict** scanning to specific subdirectories (e.g., scan `/music/library` but skip `/music/podcasts`).
 
-### 3. Build and run
+### 4. Build and run
 
 ```bash
 docker compose up -d
 ```
 
-### 4. Open your browser
+### 5. Open your browser
 
 Navigate to [http://localhost:3000](http://localhost:3000), log in with your credentials, and hit the **scan** button to index your library.
 
@@ -139,7 +147,7 @@ Navigate to [http://localhost:3000](http://localhost:3000), log in with your cre
 
 ## Manual Installation
 
-Requirements: **Node.js 22+** and **pnpm**.
+Requirements: **Node.js 22+**.
 
 ```bash
 git clone https://github.com/your-user/tagr.git
@@ -151,10 +159,14 @@ Create a `.env` file in the project root:
 
 ```env
 DATABASE_URL=file:./data/tagr.db
-AUTH_SECRET="any-random-secret-string"
+AUTH_SECRET="c5398a60cfd61607192d74ae8db237aaeaa07a98cd8ecdb8776c86eb87376ba3"
+
 AUTH_USER="admin"
-AUTH_PASSWORD="your-password-here"
-MUSIC_FOLDERS="/path/to/your/music"
+AUTH_PASSWORD="admin"
+
+# Music folders (comma-separated paths)
+# Example: /Users/youruser/Music,/Volumes/External/Music
+MUSIC_FOLDERS="/Users/youruser/Music,/Volumes/External/Music"
 ```
 
 Then start:
@@ -172,7 +184,7 @@ pnpm dev                 # Development mode
 | Variable | Required | Description |
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | SQLite database path. Use `file:/data/tagr.db` in Docker or `file:./data/tagr.db` locally. |
-| `AUTH_SECRET` | Yes | Random string used for signing JWT sessions. |
+| `AUTH_SECRET` | Yes | Secret for signing JWT sessions. Generate with `openssl rand -hex 32`. |
 | `AUTH_USER` | Yes | Login username. |
 | `AUTH_PASSWORD` | Yes | Login password (plain text). |
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
