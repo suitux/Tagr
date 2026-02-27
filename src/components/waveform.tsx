@@ -1,8 +1,8 @@
 'use client'
 
-import { Loader2 } from 'lucide-react'
 import WaveSurfer from 'wavesurfer.js'
 import { useEffect, useRef, useState } from 'react'
+import { Slider } from '@/components/ui/slider'
 
 interface WaveformProps {
   url: string
@@ -78,11 +78,15 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
   return (
     <div className='relative flex-1'>
       {loading && (
-        <div className='absolute inset-0 flex items-center justify-center'>
-          <Loader2 className='h-4 w-4 animate-spin text-muted-foreground' />
-        </div>
+        <Slider
+          value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
+          max={100}
+          step={0.1}
+          onValueChange={([value]) => onSeek((value / 100) * duration)}
+          className='absolute inset-0 z-10'
+        />
       )}
-      <div ref={containerRef} className='cursor-pointer' />
+      <div ref={containerRef} className={loading ? 'invisible' : 'cursor-pointer'} />
     </div>
   )
 }
