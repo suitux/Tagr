@@ -130,6 +130,8 @@ services:
     ports:
       - "3000:3000"
     environment:
+      - PUID=1000
+      - PGID=1000
       - NODE_ENV=production
       - DATABASE_URL=file:/data/tagr.db
       - AUTH_SECRET=paste-your-generated-secret-here
@@ -209,6 +211,8 @@ pnpm dev                 # Development mode
 | `AUTH_USER` | Yes | Login username. |
 | `AUTH_PASSWORD` | Yes | Login password (plain text). |
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
+| `PUID` | No | User ID for the container process. Defaults to `1000`. (Docker only) |
+| `PGID` | No | Group ID for the container process. Defaults to `1000`. (Docker only) |
 
 ---
 

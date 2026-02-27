@@ -34,35 +34,30 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
+# Install su-exec for lightweight user switching (LSIO pattern)
+RUN apk add --no-cache su-exec
 
-# Create data directory for SQLite
-RUN mkdir -p /data && chown -R nextjs:nodejs /data
-
-# Create music directory for mounting music folders
-RUN mkdir -p /music && chown -R nextjs:nodejs /music
+# Create data and music directories (ownership set at runtime by entrypoint)
+RUN mkdir -p /data /music
 
 COPY --from=builder /app/public ./public
 
 # Automatically leverage output traces to reduce image size
 # https://nextjs.org/docs/advanced-features/output-file-tracing
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
 
 # Prisma: copy schema + config, install CLI for db push & studio at runtime
-COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
-COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./prisma.config.ts
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/prisma.config.ts ./prisma.config.ts
 RUN npm install -g prisma@7.4.0 dotenv@17.3.1 && \
     mkdir -p node_modules && \
     ln -s /usr/local/lib/node_modules/prisma node_modules/prisma && \
     ln -s /usr/local/lib/node_modules/dotenv node_modules/dotenv
 
 # Entrypoint script
-COPY --chown=nextjs:nodejs docker-entrypoint.sh ./docker-entrypoint.sh
+COPY docker-entrypoint.sh ./docker-entrypoint.sh
 RUN chmod +x docker-entrypoint.sh
-
-USER nextjs
 
 EXPOSE 3000
 
