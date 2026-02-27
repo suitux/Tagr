@@ -7,6 +7,7 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
+      - "5555:5555"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:/data/tagr.db
