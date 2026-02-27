@@ -71,7 +71,7 @@ Lossless formats are automatically detected and displayed with a badge.
 
 ### Additional
 
-- **Single-user authentication** — password-protected access with bcrypt hashing
+- **Single-user authentication** — password-protected access
 - **Resizable panels** — drag to resize the three-panel layout to your liking
 - **Dark theme** by default
 - **Toast notifications** for operation feedback
@@ -88,15 +88,7 @@ git clone https://github.com/suitux/tagr.git
 cd tagr
 ```
 
-### 2. Generate a password hash
-
-```bash
-npm run generate-hash [your-password-here]
-```
-
-Copy the resulting `\$2b\$12\$...` hash for the next step.
-
-### 3. Configure `docker-compose.yml`
+### 2. Configure `docker-compose.yml`
 
 ```yaml
 services:
@@ -111,9 +103,9 @@ services:
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:/data/tagr.db
-      - AUTH_SECRET=any-random-secret-string-here (generate with npx auth secret)
+      - AUTH_SECRET=any-random-secret-string-here
       - AUTH_USER=admin
-      - AUTH_PASSWORD=[your-generated-password-here]
+      - AUTH_PASSWORD=your-password-here
     volumes:
       - sqlite_data:/data
       # Mount your music folder into the container:
@@ -133,13 +125,13 @@ volumes:
 >
 > Set `MUSIC_FOLDERS` only if you want to **restrict** scanning to specific subdirectories (e.g., scan `/music/library` but skip `/music/podcasts`).
 
-### 4. Build and run
+### 3. Build and run
 
 ```bash
 docker compose up -d
 ```
 
-### 5. Open your browser
+### 4. Open your browser
 
 Navigate to [http://localhost:3000](http://localhost:3000), log in with your credentials, and hit the **scan** button to index your library.
 
@@ -161,14 +153,13 @@ Create a `.env` file in the project root:
 DATABASE_URL=file:./data/tagr.db
 AUTH_SECRET="any-random-secret-string"
 AUTH_USER="admin"
-AUTH_PASSWORD="$2b$12$..."
+AUTH_PASSWORD="your-password-here"
 MUSIC_FOLDERS="/path/to/your/music"
 ```
 
-Generate your password hash and start:
+Then start:
 
 ```bash
-pnpm generate-hash       # Follow the prompt, paste the hash into .env
 pnpm build && pnpm start # Production
 # or
 pnpm dev                 # Development mode
@@ -183,7 +174,7 @@ pnpm dev                 # Development mode
 | `DATABASE_URL` | Yes | SQLite database path. Use `file:/data/tagr.db` in Docker or `file:./data/tagr.db` locally. |
 | `AUTH_SECRET` | Yes | Random string used for signing JWT sessions. |
 | `AUTH_USER` | Yes | Login username. |
-| `AUTH_PASSWORD` | Yes | Bcrypt-hashed password. Generate with `pnpm generate-hash`. |
+| `AUTH_PASSWORD` | Yes | Login password (plain text). |
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
 
 ---

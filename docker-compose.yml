@@ -15,10 +15,10 @@ services:
       - AUTH_PASSWORD=admin
     volumes:
       - sqlite_data:/data
-      - /Users/xavierrinconrico/Music/tagr:/music/folder1
-      - /Users/xavierrinconrico/Music/tagr_folder_2:/music/folder2
       # Mount your music folder into the container:
-      # - /path/to/your/music:/music
+      # - /your/music/folder1:/music/folder1
+      # - /your/music/folder2:/music/folder2
+      # - /your/music/folder3:/music/folder3
 
 volumes:
   sqlite_data:
