@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 
@@ -12,9 +11,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       async authorize(credentials) {
         const authUser = process.env.AUTH_USER
-        const authPasswordHash = process.env.AUTH_PASSWORD
+        const authPassword = process.env.AUTH_PASSWORD
 
-        if (!authUser || !authPasswordHash) {
+        if (!authUser || !authPassword) {
           throw new Error('Auth credentials not configured')
         }
 
@@ -29,7 +28,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           return null
         }
 
-        const isValidPassword = await bcrypt.compare(password, authPasswordHash)
+        const isValidPassword = password === authPassword
 
         if (!isValidPassword) {
           return null
@@ -48,5 +47,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   },
   session: {
     strategy: 'jwt'
-  }
+  },
+  trustHost: true
 })

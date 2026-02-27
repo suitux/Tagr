@@ -3,22 +3,22 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tagr-app
+    container_name: tagr
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=file:/data/tagr.db
-      # Comma-separated list of music folders inside the container
-      - MUSIC_FOLDERS=/music/folder1,/music/folder2
+      - AUTH_SECRET=f778f230d8cbf13f4a72f16b38fda17879c5d9751e069da90bc95dfd226415a3
+      - AUTH_USER=admin
+      - AUTH_PASSWORD=admin
     volumes:
       - sqlite_data:/data
-      # Mount your local music folders to the container
-      # Example: /path/to/your/music:/music/folder1
-      # Uncomment and modify the lines below:
-      # - /Users/youruser/Music:/music/folder1:ro
-      # - /Volumes/ExternalDisk/Music:/music/folder2:ro
+      - /Users/xavierrinconrico/Music/tagr:/music/folder1
+      - /Users/xavierrinconrico/Music/tagr_folder_2:/music/folder2
+      # Mount your music folder into the container:
+      # - /path/to/your/music:/music
 
 volumes:
   sqlite_data:

@@ -11,6 +11,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches ./patches
+COPY prisma ./prisma
 RUN pnpm install --frozen-lockfile
 
 # Rebuild the source code only when needed

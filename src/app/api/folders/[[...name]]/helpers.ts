@@ -1,8 +1,42 @@
 import fs from 'fs/promises'
 import path from 'path'
+import { NextResponse } from 'next/server'
 import { FolderContent, Subfolder } from '@/features/folders/domain'
-import { isMusicFile } from '@/features/songs/song-file-helpers'
+import { DEFAULT_MUSIC_FOLDER, isMusicFile } from '@/features/songs/song-file-helpers'
 import { TFunction } from '@/i18n/types'
+
+function buildSummary(results: FolderContent[]) {
+  return {
+    totalFolders: results.length,
+    totalFiles: results.reduce((sum, r) => sum + r.totalFiles, 0),
+    totalSubfolders: results.reduce((sum, r) => sum + r.totalSubfolders, 0),
+    foldersWithErrors: results.filter(r => r.error).length
+  }
+}
+
+export function buildGetFoldersJsonResponse(results: FolderContent[]) {
+  return NextResponse.json({
+    success: true,
+    summary: buildSummary(results),
+    folders: results
+  })
+}
+
+export async function getRootFolders(folders: string[], t: TFunction) {
+  const isDefaultOnly = folders.length === 1 && folders[0] === DEFAULT_MUSIC_FOLDER
+
+  if (!isDefaultOnly) {
+    return Promise.all(folders.map(folder => readMusicFolder(folder, t)))
+  }
+
+  const root = await readMusicFolder(DEFAULT_MUSIC_FOLDER, t)
+
+  if (root.error || root.subfolders.length === 0) {
+    return root.error ? [root] : []
+  }
+
+  return Promise.all(root.subfolders.map(sub => readMusicFolder(sub.path, t)))
+}
 
 export async function readMusicFolder(folderPath: string, t: TFunction): Promise<FolderContent> {
   try {

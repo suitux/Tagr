@@ -1,8 +1,13 @@
 import path from 'path'
 import { MUSIC_EXTENSIONS, MusicExtension } from '@/features/songs/domain'
 
+export const DEFAULT_MUSIC_FOLDER = '/music'
+
 export function getMusicFolders(): string[] {
-  const foldersEnv = process.env.MUSIC_FOLDERS || ''
+  const foldersEnv = process.env.MUSIC_FOLDERS
+  if (!foldersEnv) {
+    return [DEFAULT_MUSIC_FOLDER]
+  }
   return foldersEnv
     .split(',')
     .map(folder => folder.trim())

@@ -114,25 +114,24 @@ services:
       - AUTH_SECRET=any-random-secret-string-here (generate with npx auth secret)
       - AUTH_USER=admin
       - AUTH_PASSWORD=[your-generated-password-here]
-      - MUSIC_FOLDERS=/music/library
     volumes:
-      - tagr_data:/data
-      # Mount your music folders into the container:
-      - /path/to/your/music:/music/library
+      - sqlite_data:/data
+      # Mount your music folder into the container:
+      - /path/to/your/music:/music
 
 volumes:
-  tagr_data:
+  sqlite_data:
 ```
 
-> **Tip:** You can mount multiple music folders. Just add more volume mounts and list them comma-separated in `MUSIC_FOLDERS`:
+> **Multiple folders:** If your music is spread across different host paths, mount them as subdirectories under `/music`. Tagr scans `/music` recursively, so all subdirectories are included automatically:
 >
 > ```yaml
-> environment:
->   - MUSIC_FOLDERS=/music/library,/music/other
 > volumes:
 >   - /home/user/Music:/music/library
->   - /mnt/nas/Music:/music/other
+>   - /mnt/nas/Music:/music/nas
 > ```
+>
+> Set `MUSIC_FOLDERS` only if you want to **restrict** scanning to specific subdirectories (e.g., scan `/music/library` but skip `/music/podcasts`).
 
 ### 4. Build and run
 
@@ -185,7 +184,7 @@ pnpm dev                 # Development mode
 | `AUTH_SECRET` | Yes | Random string used for signing JWT sessions. |
 | `AUTH_USER` | Yes | Login username. |
 | `AUTH_PASSWORD` | Yes | Bcrypt-hashed password. Generate with `pnpm generate-hash`. |
-| `MUSIC_FOLDERS` | Yes | Comma-separated list of paths to your music directories. |
+| `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
 
 ---
 

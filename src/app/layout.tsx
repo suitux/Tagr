@@ -1,4 +1,5 @@
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { Geist, Geist_Mono } from 'next/font/google'
@@ -37,7 +38,9 @@ export default function RootLayout({
           <QueryProvider>
             <NextIntlClientProvider>
               <AlertDialogProvider>
-                <TooltipProvider delayDuration={300}>{children}</TooltipProvider>
+                <TooltipProvider delayDuration={300}>
+                  <Suspense>{children}</Suspense>
+                </TooltipProvider>
               </AlertDialogProvider>
             </NextIntlClientProvider>
           </QueryProvider>
