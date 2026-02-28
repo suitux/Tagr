@@ -10,7 +10,7 @@
     "lint": "eslint",
     "generate-hash": "npx tsx ./scripts/hash-password.ts",
     "prisma-studio": "prisma studio",
-    "prisma-recreate-db": "prisma db push --config ./prisma.config.ts --force-reset",
+    "prisma-recreate-db": "rm -rf ./data/tagr.* & prisma db push --config ./prisma.config.ts --force-reset",
     "prisma-generate-client": "prisma generate",
     "postinstall": "prisma generate"
   },

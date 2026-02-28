@@ -152,6 +152,25 @@
     "aac": "Advanced Audio Coding",
     "unknown": "Audio File"
   },
+  "login": {
+    "title": "Sign In",
+    "description": "Enter your credentials to access your account",
+    "username": "Username",
+    "usernamePlaceholder": "Enter your username",
+    "password": "Password",
+    "passwordPlaceholder": "Enter your password",
+    "submit": "Sign In",
+    "submitting": "Signing in...",
+    "invalidCredentials": "Invalid username or password",
+    "genericError": "An error occurred. Please try again."
+  },
+  "welcome": {
+    "title": "Welcome to Tagr",
+    "description": "Tagr needs to scan your music folders to build a local database. This makes browsing and searching your library fast and smooth. No data leaves your machine.",
+    "timing": "This process may take a few minutes depending on the size of your library.",
+    "scanButton": "Scan library",
+    "scanning": "Scanning your library..."
+  },
   "api": {
     "folders": {
       "noFoldersConfigured": "No music folders configured. Set the MUSIC_FOLDERS environment variable.",

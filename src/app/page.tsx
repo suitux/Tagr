@@ -1,40 +1,15 @@
-'use client'
+import { WelcomeScanState } from '@/components/welcome-scan-state'
+import { prisma } from '@/infrastructure/prisma/dbClient'
+import { HomeClientPage } from './page.client'
 
-import { parseAsInteger, useQueryState } from 'nuqs'
-import { HomeProvider } from '@/contexts/home-context'
-import { PlayerProvider } from '@/contexts/player-context'
-import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
-import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
-import { FolderList } from '@/components/panels/folder-list/folder-list'
-import { MainContent } from '@/components/panels/main-content/main-content'
+export const dynamic = 'force-dynamic'
 
-export default function Home() {
-  const [selectedFolderId, setSelectedFolderId] = useQueryState('folder')
-  const [selectedSong, setSelectedSong] = useQueryState('song', parseAsInteger)
+export default async function Home() {
+  const songCount = await prisma.song.count()
 
-  const handleFolderSelect = (folderId: string | null) => {
-    setSelectedFolderId(folderId)
-    setSelectedSong(null)
+  if (songCount === 0) {
+    return <WelcomeScanState />
   }
 
-  const handleSongSelect = (songId: number | null) => {
-    setSelectedSong(songId)
-  }
-
-  return (
-    <HomeProvider
-      selectedFolderId={selectedFolderId}
-      selectedSongId={selectedSong}
-      onFolderSelect={handleFolderSelect}
-      onSongSelect={handleSongSelect}
-    >
-      <PlayerProvider>
-        <ThreeColumnLayout
-          sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
-          main={<MainContent />}
-          detail={selectedSong ? <DetailPanel songId={selectedSong} /> : undefined}
-        />
-      </PlayerProvider>
-    </HomeProvider>
-  )
+  return <HomeClientPage />
 }

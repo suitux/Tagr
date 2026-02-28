@@ -1,0 +1,39 @@
+'use client'
+
+import { parseAsInteger, useQueryState } from 'nuqs'
+import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
+import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
+import { FolderList } from '@/components/panels/folder-list/folder-list'
+import { MainContent } from '@/components/panels/main-content/main-content'
+import { HomeProvider } from '@/contexts/home-context'
+import { PlayerProvider } from '@/contexts/player-context'
+
+export function HomeClientPage() {
+  const [selectedFolderId, setSelectedFolderId] = useQueryState('folder')
+  const [selectedSong, setSelectedSong] = useQueryState('song', parseAsInteger)
+
+  const handleFolderSelect = (folderId: string | null) => {
+    setSelectedFolderId(folderId)
+    setSelectedSong(null)
+  }
+
+  const handleSongSelect = (songId: number | null) => {
+    setSelectedSong(songId)
+  }
+
+  return (
+    <HomeProvider
+      selectedFolderId={selectedFolderId}
+      selectedSongId={selectedSong}
+      onFolderSelect={handleFolderSelect}
+      onSongSelect={handleSongSelect}>
+      <PlayerProvider>
+        <ThreeColumnLayout
+          sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
+          main={<MainContent />}
+          detail={selectedSong ? <DetailPanel songId={selectedSong} /> : undefined}
+        />
+      </PlayerProvider>
+    </HomeProvider>
+  )
+}
