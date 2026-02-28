@@ -2,7 +2,7 @@
 
 import { ConfigKey } from '@/features/config/domain'
 import { api } from '@/lib/axios'
-import { useQuery, UseQueryOptions } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 
 export interface ConfigSuccessResponse {
   success: true
@@ -28,7 +28,7 @@ async function fetchConfig(key: string): Promise<string | null> {
 
 interface UseConfigParams<T> {
   key: ConfigKey
-  parser: (value: string | null) => T
+  parser?: (value: string | null) => T
   defaultData?: T
 }
 
@@ -41,7 +41,7 @@ export function useConfig<T>({ key, parser = v => v as unknown as T, defaultData
       const data = await fetchConfig(key)
 
       if (!data) {
-        return defaultData
+        return defaultData ?? null
       }
 
       return parser(data)

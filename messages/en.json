@@ -171,6 +171,11 @@
     "scanButton": "Scan library",
     "scanning": "Scanning your library..."
   },
+  "version": {
+    "updateAvailable": "Version {version} is available",
+    "viewRelease": "View release",
+    "dismiss": "Dismiss"
+  },
   "api": {
     "folders": {
       "noFoldersConfigured": "No music folders configured. Set the MUSIC_FOLDERS environment variable.",

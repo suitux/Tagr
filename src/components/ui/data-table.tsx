@@ -24,7 +24,7 @@ interface DataTableProps<TData, TValue> {
   getRowId?: (row: TData) => string
   sorting?: SortingState
   onSortingChange?: OnChangeFn<SortingState>
-  columnVisibility?: VisibilityState
+  columnVisibility?: VisibilityState | null
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>
   onScrollEnd?: () => void
   EmptyStateComponent?: () => ReactNode

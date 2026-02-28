@@ -5,6 +5,7 @@ import { HistoryIcon, Loader2Icon, MoreVerticalIcon, RefreshCwIcon } from 'lucid
 import { useTranslations } from 'next-intl'
 import NextImage from 'next/image'
 import { HistoryModal } from '@/components/history-modal/history-modal'
+import { UpdateBanner } from '@/components/panels/folder-list/components/update-banner'
 import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
@@ -53,6 +54,7 @@ export function FolderListHeader() {
         </DropdownMenu>
       </div>
       <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} />
+      <UpdateBanner />
     </div>
   )
 }
