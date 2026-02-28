@@ -68,6 +68,22 @@ PATCH `/api/songs/[id]` → `writeMetadataToFile()` (node-taglib-sharp writes to
 
 NextAuth 5 with Credentials provider. Single user configured via `AUTH_USER` / `AUTH_PASSWORD` env vars. JWT session strategy. Middleware protects all routes except `/login` and `/api/auth`.
 
+### Docker Release
+
+The Docker image is published to GitHub Container Registry (`ghcr.io`) only when a version tag is pushed. Pushes to `main` alone do **not** trigger a build.
+
+```bash
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+```
+
+This generates the following image tags:
+- `ghcr.io/<owner>/tagr:1.0.0` (full version)
+- `ghcr.io/<owner>/tagr:1.0` (major.minor)
+- `ghcr.io/<owner>/tagr:sha-<hash>`
+
+Configured in `.github/workflows/docker-publish.yml`.
+
 ### Path Handling
 
 Folder paths are URL-encoded when passed as route segments and decoded in API handlers. The `[[...path]]` catch-all segments handle nested folder paths.
