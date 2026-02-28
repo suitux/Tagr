@@ -1,13 +1,20 @@
-import { readFileSync } from 'fs'
+import { execSync } from 'child_process'
 import { NextConfig } from 'next'
 import createNextIntlPlugin from 'next-intl/plugin'
 
-const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8'))
+function getAppVersion(): string {
+  if (process.env.APP_VERSION) return process.env.APP_VERSION
+  try {
+    return execSync('git describe --tags --abbrev=0', { encoding: 'utf-8' }).trim().replace(/^v/, '')
+  } catch {
+    return '0.0.0'
+  }
+}
 
 const nextConfig: NextConfig = {
   output: 'standalone',
   env: {
-    APP_VERSION: packageJson.version
+    APP_VERSION: getAppVersion()
   }
 }
 

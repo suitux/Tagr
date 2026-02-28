@@ -10,6 +10,7 @@
     "lint": "eslint",
     "generate-hash": "npx tsx ./scripts/hash-password.ts",
     "prisma-studio": "prisma studio",
+    "docker:local": "APP_VERSION=$(git describe --tags --abbrev=0 | sed 's/^v//') docker compose -f docker-compose.local.yml up --build -d",
     "prisma-recreate-db": "rm -rf ./data/tagr.* & prisma db push --config ./prisma.config.ts --force-reset",
     "prisma-generate-client": "prisma generate",
     "postinstall": "prisma generate"
