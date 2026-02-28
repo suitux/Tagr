@@ -32,7 +32,9 @@ export function FolderListHeader() {
       <div className='flex items-center gap-3'>
         <NextImage src='/icons/tagr-logo.webp' alt='Tagr' width={40} height={40} className='rounded-xl' unoptimized />
         <div className='flex-1'>
-          <h2 className='text-base font-semibold text-foreground'>{t('title')}</h2>
+          <h2 className='text-base font-semibold text-foreground'>
+            {t('title')} <span className='text-xs font-normal text-muted-foreground'>v{process.env.APP_VERSION}</span>
+          </h2>
           <p className='text-xs text-muted-foreground'>{t('subtitle')}</p>
         </div>
         <DropdownMenu>
