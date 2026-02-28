@@ -1,5 +1,5 @@
 services:
-  app:
+  tagr:
     image: ghcr.io/suitux/tagr:latest
     container_name: tagr
     restart: unless-stopped
