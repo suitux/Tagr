@@ -8,7 +8,7 @@
 
 <p align="center">
   <a href="https://tagr-demo.fly.dev/"><strong>Live Demo</strong></a> — login with <code>demo</code> / <code>demo</code><br>
-  <sub>Hosted on Fly.io with auto-stop to save costs. First load may take ~30s while the machine wakes up.<br>Demo is read-only: you can browse, filter, scan, and play songs, but metadata editing is disabled.</sub>
+  <sub>Hosted on Fly.io with auto-stop to save costs. First load may take ~30s while the machine wakes up.<br>Demo is read-only: you can browse, filter, scan, view song edit history, and play songs, but metadata editing is disabled.</sub>
 </p>
 
 Tagr lets you browse, edit, and manage audio file tags from any browser. Just point it at your music folders, and get a clean three-panel interface for organizing your library — no desktop apps, no CLI wizardry.
