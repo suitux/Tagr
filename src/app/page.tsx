@@ -1,3 +1,4 @@
+import { DEFAULT_VISIBLE_COLUMNS } from '@/components/panels/main-content/components/columns/columns'
 import { WelcomeScanState } from '@/components/welcome-scan-state'
 import { getConfigQueryKey } from '@/features/config/hooks/use-config'
 import { getConfigValue } from '@/features/config/service'
@@ -18,7 +19,11 @@ export default async function Home() {
 
   await queryClient.prefetchQuery({
     queryKey: getConfigQueryKey('columnVisibility'),
-    queryFn: () => getConfigValue('columnVisibility')
+    queryFn: async () => {
+      const configValue = await getConfigValue('columnVisibility')
+
+      return configValue ? JSON.parse(configValue) : DEFAULT_VISIBLE_COLUMNS
+    }
   })
 
   return (
