@@ -2,13 +2,9 @@
 
 import { FilterXIcon, SearchXIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import { DEFAULT_VISIBLE_COLUMNS } from '@/components/panels/main-content/components/columns/columns'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
 import { Button } from '@/components/ui/button'
 import { useHome } from '@/contexts/home-context'
-import { ColumnVisibilityState } from '@/features/config/domain'
-import { useConfig } from '@/features/config/hooks/use-config'
-import { genericJsonObjectParser } from '@/features/config/parsers'
 
 export function MainContentNoFilterResults() {
   const tFiles = useTranslations('files')

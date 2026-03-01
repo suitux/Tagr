@@ -1,5 +1,5 @@
-import { DEFAULT_VISIBLE_COLUMNS } from '@/components/panels/main-content/components/columns/columns'
 import { WelcomeScanState } from '@/components/welcome-scan-state'
+import { DEFAULT_VISIBLE_COLUMNS } from '@/features/config/domain'
 import { getConfigQueryKey } from '@/features/config/hooks/use-config'
 import { getConfigValue } from '@/features/config/service'
 import { prisma } from '@/infrastructure/prisma/dbClient'

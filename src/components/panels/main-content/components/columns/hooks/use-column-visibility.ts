@@ -1,5 +1,4 @@
-import { DEFAULT_VISIBLE_COLUMNS } from '@/components/panels/main-content/components/columns/columns'
-import { ColumnVisibilityState } from '@/features/config/domain'
+import { ColumnVisibilityState, DEFAULT_VISIBLE_COLUMNS } from '@/features/config/domain'
 import { useConfig } from '@/features/config/hooks/use-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
 
