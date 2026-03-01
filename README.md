@@ -6,6 +6,10 @@
 
 <p align="center"><strong>A self-hosted music metadata editor with a modern, intuitive web UI.</strong></p>
 
+<p align="center">
+  <a href="https://tagr-demo.fly.dev/"><strong>Live Demo</strong></a> — login with <code>demo</code> / <code>demo</code>
+</p>
+
 Tagr lets you browse, edit, and manage audio file tags from any browser. Just point it at your music folders, and get a clean three-panel interface for organizing your library — no desktop apps, no CLI wizardry.
 
 ![Tagr Main Screen](docs/main-screen.png)
