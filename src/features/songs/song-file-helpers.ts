@@ -15,6 +15,7 @@ export function getMusicFolders(): string[] {
 }
 
 export function isMusicFile(filename: string): boolean {
+  if (filename.startsWith('._')) return false
   const ext = path.extname(filename).toLowerCase()
   return MUSIC_EXTENSIONS.includes(ext.toLowerCase() as MusicExtension)
 }
