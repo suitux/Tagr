@@ -1,10 +1,11 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BOOLEAN_SONG_FIELDS, DATE_SONG_FIELDS, SELECT_SONG_FIELDS, type SongSortField } from '@/features/songs/domain'
+import { BOOLEAN_SONG_FIELDS, DATE_SONG_FIELDS, DURATION_SONG_FIELDS, SELECT_SONG_FIELDS, type SongSortField } from '@/features/songs/domain'
 import { cn } from '@/lib/utils'
 import type { Column } from '@tanstack/react-table'
 import { BooleanFilterInput } from './boolean-filter-input'
 import { DateFilterInput } from './date-filter-input'
+import { DurationFilterInput } from './duration-filter-input'
 import { SelectFilterInput } from './select-filter-input'
 import { TagFilterInput } from './tag-filter-input'
 
@@ -26,6 +27,7 @@ export function SortableHeader<TData>({
   const sorted = column.getIsSorted()
   const field = column.id as SongSortField
   const isDateField = DATE_SONG_FIELDS.has(field)
+  const isDurationField = DURATION_SONG_FIELDS.has(field)
   const isBooleanField = BOOLEAN_SONG_FIELDS.has(field)
   const isSelectField = SELECT_SONG_FIELDS.has(field)
 
@@ -51,6 +53,8 @@ export function SortableHeader<TData>({
       {enableColumnFilter &&
         (isDateField ? (
           <DateFilterInput field={field} />
+        ) : isDurationField ? (
+          <DurationFilterInput field={field} />
         ) : isBooleanField ? (
           <BooleanFilterInput field={field} />
         ) : isSelectField ? (

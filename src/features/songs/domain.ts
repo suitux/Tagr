@@ -57,13 +57,14 @@ export const NUMERIC_SONG_FIELDS: Set<SongSortField> = new Set([
   'bpm',
   'rating',
   'playCount',
-  'duration',
   'bitrate',
   'sampleRate',
   'channels',
   'bitsPerSample',
   'fileSize'
 ])
+
+export const DURATION_SONG_FIELDS: Set<SongSortField> = new Set(['duration'])
 
 export const BOOLEAN_SONG_FIELDS: Set<SongSortField> = new Set(['compilation'])
 

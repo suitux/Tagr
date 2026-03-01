@@ -13,6 +13,7 @@ import { parseDate } from '@/lib/date'
 import {
   BOOLEAN_SONG_FIELDS,
   DATE_SONG_FIELDS,
+  DURATION_SONG_FIELDS,
   MULTI_VALUE_SEPARATOR,
   NUMERIC_SONG_FIELDS,
   SELECT_SONG_FIELDS,
@@ -331,6 +332,23 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
       }
     } else if (BOOLEAN_SONG_FIELDS.has(songField)) {
       conditions.push({ [field]: { equals: value === 'true' || value === '1' } })
+    } else if (DURATION_SONG_FIELDS.has(songField)) {
+      const ranges = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      const rangeConditions: Record<string, unknown>[] = []
+      for (const range of ranges) {
+        const [minStr, maxStr] = range.split('..')
+        const condition: Record<string, number> = {}
+        if (minStr) condition.gte = Number(minStr)
+        if (maxStr) condition.lt = Number(maxStr)
+        if (Object.keys(condition).length > 0) {
+          rangeConditions.push({ [field]: condition })
+        }
+      }
+      if (rangeConditions.length === 1) {
+        conditions.push(rangeConditions[0])
+      } else if (rangeConditions.length > 1) {
+        conditions.push({ OR: rangeConditions })
+      }
     } else if (NUMERIC_SONG_FIELDS.has(songField)) {
       const nums = value
         .split(MULTI_VALUE_SEPARATOR)
