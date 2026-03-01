@@ -1,5 +1,3 @@
-'use client'
-
 import { ConfigKey } from '@/features/config/domain'
 import { api } from '@/lib/axios'
 import { useQuery } from '@tanstack/react-query'

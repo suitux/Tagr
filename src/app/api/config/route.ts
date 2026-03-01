@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { getConfigValue, upsertConfigValue } from '@/features/config/service'
+import { getSearchParam } from '@/lib/api/search-params'
 
 interface ConfigSuccessResponse {
   success: true
@@ -14,15 +15,15 @@ interface ConfigErrorResponse {
 type ConfigResponse = ConfigSuccessResponse | ConfigErrorResponse
 
 export async function GET(request: NextRequest): Promise<NextResponse<ConfigResponse>> {
-  const key = request.nextUrl.searchParams.get('key')
+  const key = getSearchParam(request.nextUrl.searchParams, 'key', 'string')
 
   if (!key) {
     return NextResponse.json({ success: false, error: 'Missing "key" query parameter' }, { status: 400 })
   }
 
   try {
-    const config = await prisma.userConfig.findUnique({ where: { key } })
-    return NextResponse.json({ success: true, value: config?.value ?? null })
+    const value = await getConfigValue(key)
+    return NextResponse.json({ success: true, value })
   } catch (error) {
     console.error('Error fetching config:', error)
     return NextResponse.json(
@@ -56,11 +57,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<UpsertResp
       )
     }
 
-    const config = await prisma.userConfig.upsert({
-      where: { key: body.key },
-      update: { value: body.value },
-      create: { key: body.key, value: body.value }
-    })
+    const config = await upsertConfigValue(body.key, body.value)
 
     return NextResponse.json({ success: true, key: config.key, value: config.value })
   } catch (error) {
