@@ -17,18 +17,6 @@ Tagr lets you browse, edit, and manage audio file tags from any browser. Just po
 
 ---
 
-## Why?
-
-Most metadata editors are either desktop-only, command-line tools, or bloated apps with steep learning curves. If your music lives on a NAS, a server, or a headless machine, editing tags means SSH, mounting drives, or syncing files back and forth.
-
-Tagr takes a different approach:
-
-- **Run it anywhere** — Docker, bare metal, your NAS. If it runs Node.js, it runs Tagr.
-- **Edit from any browser** — No installs, no plugins. Just open a tab.
-- **Do one thing well** — Browse your library, edit tags, save. That's it.
-
----
-
 ## Features
 
 ### Metadata Editing
