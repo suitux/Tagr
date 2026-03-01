@@ -67,6 +67,16 @@ export const NUMERIC_SONG_FIELDS: Set<SongSortField> = new Set([
 
 export const BOOLEAN_SONG_FIELDS: Set<SongSortField> = new Set(['compilation'])
 
+export const SELECT_SONG_FIELDS: Set<SongSortField> = new Set([
+  'genre',
+  'publisher',
+  'albumArtist',
+  'composer',
+  'conductor',
+  'extension',
+  'encoder'
+])
+
 export const DATE_SONG_FIELDS: Set<SongSortField> = new Set([
   'dateAdded',
   'lastPlayed',
@@ -74,6 +84,8 @@ export const DATE_SONG_FIELDS: Set<SongSortField> = new Set([
   'createdAt',
   'originalReleaseDate'
 ])
+
+export const MULTI_VALUE_SEPARATOR = '||'
 
 export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'] as const
 export type MusicExtension = (typeof MUSIC_EXTENSIONS)[number]

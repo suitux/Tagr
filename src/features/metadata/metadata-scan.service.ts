@@ -13,7 +13,9 @@ import { parseDate } from '@/lib/date'
 import {
   BOOLEAN_SONG_FIELDS,
   DATE_SONG_FIELDS,
+  MULTI_VALUE_SEPARATOR,
   NUMERIC_SONG_FIELDS,
+  SELECT_SONG_FIELDS,
   Song,
   SongColumnFilters,
   SongSortDirection,
@@ -299,6 +301,18 @@ export async function scanAllFoldersAndUpdateDatabase(
 
 export const PAGE_SIZE = 50
 
+export async function getDistinctValues(field: SongSortField): Promise<string[]> {
+  const rows = (await prisma.song.findMany({
+    distinct: [field],
+    select: { [field]: true }
+  })) as Record<string, unknown>[]
+
+  return rows
+    .map(row => row[field])
+    .filter((v): v is string => typeof v === 'string' && v.length > 0)
+    .sort((a, b) => a.localeCompare(b))
+}
+
 function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, unknown>[] {
   if (!filters) return []
   const conditions: Record<string, unknown>[] = []
@@ -322,8 +336,20 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
       if (!Number.isNaN(num)) {
         conditions.push({ [field]: { equals: num } })
       }
+    } else if (SELECT_SONG_FIELDS.has(songField)) {
+      const values = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      if (values.length === 1) {
+        conditions.push({ [field]: { equals: values[0] } })
+      } else if (values.length > 1) {
+        conditions.push({ [field]: { in: values } })
+      }
     } else {
-      conditions.push({ [field]: { contains: value } })
+      const values = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      if (values.length === 1) {
+        conditions.push({ [field]: { contains: values[0] } })
+      } else if (values.length > 1) {
+        conditions.push({ OR: values.map(v => ({ [field]: { contains: v } })) })
+      }
     }
   }
 
