@@ -1,13 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { HistoryIcon, Loader2Icon, MoreVerticalIcon, RefreshCwIcon } from 'lucide-react'
+import { HistoryIcon, Loader2Icon, LogOutIcon, MoreVerticalIcon, RefreshCwIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import NextImage from 'next/image'
 import { HistoryModal } from '@/components/history-modal/history-modal'
 import { UpdateBanner } from '@/components/panels/folder-list/components/update-banner'
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
+import { signOut } from 'next-auth/react'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useScan } from '@/features/scan/hooks/use-scan'
 
@@ -51,6 +52,11 @@ export function FolderListHeader() {
             <DropdownMenuItem onClick={() => setHistoryOpen(true)}>
               <HistoryIcon className='h-4 w-4' />
               {t('history')}
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => signOut()}>
+              <LogOutIcon className='h-4 w-4' />
+              {tCommon('logout')}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

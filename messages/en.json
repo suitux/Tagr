@@ -10,7 +10,8 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
-    "search": "Search"
+    "search": "Search",
+    "logout": "Log out"
   },
   "folders": {
     "title": "Tagr",
