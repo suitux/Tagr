@@ -55,3 +55,9 @@ jobs:
             APP_VERSION=${{ steps.meta.outputs.version }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      - name: Deploy to Fly.io
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl deploy --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.meta.outputs.version }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
