@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform'
+import { useHome } from '@/contexts/home-context'
 import { usePlayer } from '@/contexts/player-context'
 import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { cn } from '@/lib/utils'
@@ -17,6 +18,7 @@ function formatTime(seconds: number): string {
 }
 
 export function SidebarPlayer() {
+  const { setSelectedSongId } = useHome()
   const [expanded, setExpanded] = useState(true)
   const {
     currentSong,
@@ -34,6 +36,10 @@ export function SidebarPlayer() {
   if (!currentSong) return null
 
   const pictureUrl = getSongPictureUrl(currentSong.id)
+
+  const handleSongTitleClick = () => {
+    setSelectedSongId(currentSong.id)
+  }
 
   return (
     <div className={cn('space-y-2', expanded ? 'p-4 space-y-3' : 'p-3')}>
@@ -55,7 +61,9 @@ export function SidebarPlayer() {
         </div>
 
         <div className={cn('min-w-0 flex-1', expanded && 'hidden')}>
-          <p className='text-sm font-medium truncate'>{currentSong.title || currentSong.fileName}</p>
+          <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongTitleClick}>
+            {currentSong.title || currentSong.fileName}
+          </p>
           {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
         </div>
 
@@ -83,7 +91,11 @@ export function SidebarPlayer() {
       </div>
 
       <div className={cn('text-center space-y-0.5', !expanded && 'hidden')}>
-        <p className='text-sm font-medium truncate'>{currentSong.title || currentSong.fileName}</p>
+        <p
+          className='text-sm font-medium truncate cursor-pointer hover:underline'
+          onClick={() => setSelectedSongId(currentSong.id)}>
+          {currentSong.title || currentSong.fileName}
+        </p>
         {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
         {currentSong.album && <p className='text-xs text-muted-foreground/70 truncate'>{currentSong.album}</p>}
       </div>
