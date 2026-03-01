@@ -68,10 +68,8 @@ export function DetailPanel({ songId }: DetailPanelProps) {
       <ScrollArea className='flex-1 min-h-0'>
         <div className='px-4 pb-4 space-y-6'>
           <DetailPanelPreviewCard
-            songId={song.id}
+            song={song}
             title={displayTitle}
-            extension={song.extension}
-            lossless={song.lossless}
             pictureUrl={pictureUrl}
             extColor={extColor}
           />

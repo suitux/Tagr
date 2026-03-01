@@ -1,33 +1,34 @@
 'use client'
 
-import { LoaderCircleIcon, MusicIcon, PencilIcon } from 'lucide-react'
+import { LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Image } from '@/components/ui/image'
+import { usePlayer } from '@/contexts/player-context'
+import type { Song } from '@/features/songs/domain'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { cn } from '@/lib/utils'
 
 interface DetailPanelPreviewCardProps {
-  songId: number
+  song: Song
   title: string
-  extension: string
-  lossless?: boolean
   pictureUrl: string
   extColor: string
 }
 
 export function DetailPanelPreviewCard({
-  songId,
+  song,
   title,
-  extension,
-  lossless,
   pictureUrl,
   extColor
 }: DetailPanelPreviewCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [cacheBust, setCacheBust] = useState(0)
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
+  const { play, currentSong, isPlaying, togglePlayPause } = usePlayer()
+  const isCurrent = currentSong?.id === song.id
 
   const imageUrl = cacheBust ? `${pictureUrl}?t=${cacheBust}` : pictureUrl
 
@@ -42,7 +43,7 @@ export function DetailPanelPreviewCard({
     if (!file) return
 
     updatePicture(
-      { songId, file },
+      { songId: song.id, file },
       {
         onSuccess: () => {
           setCacheBust(Date.now())
@@ -84,10 +85,31 @@ export function DetailPanelPreviewCard({
                 </div>
               )}
               {!isPending && (
-                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-center justify-center'>
-                  <div className='w-12 h-12 rounded-full border-2 border-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity'>
+                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-center justify-center gap-3'>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      if (isCurrent) {
+                        togglePlayPause()
+                      } else {
+                        play(song)
+                      }
+                    }}>
+                    {isCurrent && isPlaying ? (
+                      <PauseIcon className='w-5 h-5 text-white fill-white' />
+                    ) : (
+                      <PlayIcon className='w-5 h-5 text-white fill-white' />
+                    )}
+                  </Button>
+                  <Button
+                    variant='ghost'
+                    size='icon'
+                    className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'>
                     <PencilIcon className='w-5 h-5 text-white' />
-                  </div>
+                  </Button>
                 </div>
               )}
             </div>
@@ -95,8 +117,8 @@ export function DetailPanelPreviewCard({
             <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handleFileChange} />
 
             <div className='flex items-center gap-2'>
-              <Badge variant='secondary'>{extension.toUpperCase()}</Badge>
-              {lossless && <Badge variant='outline'>Lossless</Badge>}
+              <Badge variant='secondary'>{song.extension.toUpperCase()}</Badge>
+              {song.lossless && <Badge variant='outline'>Lossless</Badge>}
             </div>
           </div>
         </div>
