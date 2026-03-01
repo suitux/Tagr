@@ -1,6 +1,12 @@
 import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BOOLEAN_SONG_FIELDS, DATE_SONG_FIELDS, DURATION_SONG_FIELDS, SELECT_SONG_FIELDS, type SongSortField } from '@/features/songs/domain'
+import {
+  BOOLEAN_SONG_FIELDS,
+  DATE_SONG_FIELDS,
+  DURATION_SONG_FIELDS,
+  SELECT_SONG_FIELDS,
+  type SongSortField
+} from '@/features/songs/domain'
 import { cn } from '@/lib/utils'
 import type { Column } from '@tanstack/react-table'
 import { BooleanFilterInput } from './boolean-filter-input'

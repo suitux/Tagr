@@ -4,6 +4,7 @@ import { X } from 'lucide-react'
 import { useRef, useState, useLayoutEffect, type KeyboardEvent } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
 import { useHome } from '@/contexts/home-context'
 import { MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
@@ -52,7 +53,7 @@ export function TagFilterInput({ field }: { field: SongSortField }) {
       <InputGroup className='h-auto min-h-6 flex-wrap'>
         {tags.map((tag, i) => (
           <InputGroupAddon key={`${tag}-${i}`} align='inline-start' className='py-0.5 pl-0.5'>
-            <Badge variant='secondary' className='h-4 gap-0.5 px-1 text-[10px] shrink-0'>
+            <Badge variant='secondary' className='h-4 gap-1 px-2 text-[12px] shrink-0 flex justify-between'>
               <span className='truncate max-w-16'>{tag}</span>
               <InputGroupButton
                 size='icon-xs'
@@ -83,6 +84,21 @@ export function TagFilterInput({ field }: { field: SongSortField }) {
             if (inputValue.trim()) addTag(inputValue)
           }}
         />
+        {tags.length > 0 && (
+          <InputGroupAddon align='inline-end' className='pr-3'>
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-3 w-3'
+              onClick={e => {
+                e.stopPropagation()
+                setColumnFilter(field, '')
+                setInputValue('')
+              }}>
+              <X className='h-3 w-3' />
+            </Button>
+          </InputGroupAddon>
+        )}
       </InputGroup>
     </div>
   )
