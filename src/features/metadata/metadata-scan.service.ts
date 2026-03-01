@@ -332,9 +332,14 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
     } else if (BOOLEAN_SONG_FIELDS.has(songField)) {
       conditions.push({ [field]: { equals: value === 'true' || value === '1' } })
     } else if (NUMERIC_SONG_FIELDS.has(songField)) {
-      const num = Number(value)
-      if (!Number.isNaN(num)) {
-        conditions.push({ [field]: { equals: num } })
+      const nums = value
+        .split(MULTI_VALUE_SEPARATOR)
+        .map(Number)
+        .filter(n => !Number.isNaN(n))
+      if (nums.length === 1) {
+        conditions.push({ [field]: { equals: nums[0] } })
+      } else if (nums.length > 1) {
+        conditions.push({ [field]: { in: nums } })
       }
     } else if (SELECT_SONG_FIELDS.has(songField)) {
       const values = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
