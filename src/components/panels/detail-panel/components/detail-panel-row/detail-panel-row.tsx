@@ -91,10 +91,15 @@ export function DetailPanelRow({
       )
     }
 
+    const isEmpty = value === '' || value === null || value === undefined
+    const clickToEdit = canEdit && isEmpty && type !== 'date' && type !== 'boolean'
+
     return (
       <>
         <p className='text-xs text-muted-foreground'>{label}</p>
-        <div className='flex items-center gap-2'>
+        <div
+          className={cn('flex items-center gap-2', { 'cursor-pointer': clickToEdit })}
+          onClick={clickToEdit ? () => setIsEditing(true) : undefined}>
           <p
             className={cn('text-sm font-medium text-foreground mt-0.5 flex-1 break-all', {
               'text-xs': isPath
