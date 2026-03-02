@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HistoryModal } from '@/components/history-modal/history-modal'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
+import { RescanSongIconButton } from '@/components/panels/detail-panel/components/rescan-song-icon-button'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
@@ -53,6 +54,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
   return (
     <div className='flex flex-col h-full overflow-hidden'>
       <div className='flex justify-end gap-1 p-2'>
+        <RescanSongIconButton songId={song.id} />
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setHistoryOpen(true)}>
