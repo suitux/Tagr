@@ -43,7 +43,7 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
 
       <Separator />
 
-      <ScrollArea className='flex-1'>
+      <ScrollArea className='flex-1 min-h-0'>
         <div className='p-2'>
           {filteredFolders.length === 0 ? (
             <FolderListEmptyState hasSearchQuery={!!searchQuery} />
