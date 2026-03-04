@@ -19,7 +19,6 @@ services:
       - AUTH_PASSWORD=admin
     volumes:
       - sqlite_data:/data
-      - /Users/xavierrinconrico/Music/tagr:/music/folder1
 
 volumes:
   sqlite_data:
