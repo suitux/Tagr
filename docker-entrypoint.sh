@@ -22,9 +22,23 @@ fi
 chown -R "$USER_NAME":"$GROUP_NAME" /data
 chown -R "$USER_NAME":"$GROUP_NAME" /app
 
-# Create/migrate database schema on startup
-echo "Running prisma db push..."
-su-exec "$USER_NAME" npx prisma db push --config ./prisma.config.ts
+# Resolve DATABASE_URL to a file path for SQLite checks
+DB_PATH=$(echo "$DATABASE_URL" | sed 's|^file:||')
+
+# Baseline existing databases created by "db push" (pre-migration era).
+# If the DB file exists with tables but no _prisma_migrations table,
+# mark the init migration as already applied so migrate deploy doesn't fail.
+if [ -f "$DB_PATH" ]; then
+  HAS_MIGRATIONS_TABLE=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='table' AND name='_prisma_migrations';" 2>/dev/null || true)
+  if [ -z "$HAS_MIGRATIONS_TABLE" ]; then
+    echo "Existing database detected without migration history. Baselining..."
+    su-exec "$USER_NAME" npx prisma migrate resolve --applied "20260223143441_init" --config ./prisma.config.ts
+  fi
+fi
+
+# Apply pending database migrations on startup
+echo "Running prisma migrate deploy..."
+su-exec "$USER_NAME" npx prisma migrate deploy --config ./prisma.config.ts
 
 # Start Next.js server
 exec su-exec "$USER_NAME" node server.js

@@ -13,6 +13,7 @@ import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
 import ColumnSelector from './main-content-file-list-column-selector'
 import { MainContentNoFilterResults } from './main-content-no-filter-results'
+import { SavedFiltersDropdown } from './saved-filters-dropdown'
 
 export function MainContentFileList() {
   const {
@@ -67,7 +68,8 @@ export function MainContentFileList() {
 
   return (
     <div className='pt-4 px-4 flex flex-col overflow-hidden flex-1'>
-      <div className='flex justify-end mb-2'>
+      <div className='flex justify-end gap-2 mb-2'>
+        <SavedFiltersDropdown />
         <ColumnSelector
           columns={columns}
           columnVisibility={columnVisibility!}

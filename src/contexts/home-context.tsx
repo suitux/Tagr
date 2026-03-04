@@ -23,6 +23,7 @@ interface HomeContextValue {
   setSorting: (sortField: SongSortField, sort: SongSortDirection) => void
   clearSorting: () => void
   setColumnFilter: (field: SongSortField, value: string) => void
+  setAllColumnFilters: (filters: SongColumnFilters) => void
   clearColumnFilters: () => void
 }
 
@@ -77,6 +78,10 @@ export function HomeProvider({
     setColumnFilters(prev => ({ ...prev, [field]: value }))
   }
 
+  const setAllColumnFiltersHandler = (filters: SongColumnFilters) => {
+    setColumnFilters(filters)
+  }
+
   const clearColumnFilters = () => {
     setColumnFilters({})
   }
@@ -102,6 +107,7 @@ export function HomeProvider({
         setSorting,
         clearSorting,
         setColumnFilter,
+        setAllColumnFilters: setAllColumnFiltersHandler,
         clearColumnFilters
       }}>
       {children}

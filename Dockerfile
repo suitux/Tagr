@@ -39,7 +39,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install su-exec for lightweight user switching (LSIO pattern)
-RUN apk add --no-cache su-exec
+RUN apk add --no-cache su-exec sqlite
 
 # Create data and music directories (ownership set at runtime by entrypoint)
 RUN mkdir -p /data /music

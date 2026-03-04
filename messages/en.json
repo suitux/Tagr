@@ -181,6 +181,15 @@
     "viewRelease": "View release",
     "dismiss": "Dismiss"
   },
+  "savedFilters": {
+    "title": "Filters",
+    "save": "Save",
+    "saveCurrentFilters": "Save current filters",
+    "filterName": "Filter name",
+    "noSavedFilters": "No saved filters",
+    "deleteFilter": "Delete filter",
+    "loadFilter": "Load filter"
+  },
   "api": {
     "folders": {
       "noFoldersConfigured": "No music folders configured. Set the MUSIC_FOLDERS environment variable.",
