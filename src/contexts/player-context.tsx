@@ -2,7 +2,6 @@
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useHome } from '@/contexts/home-context'
-import { useMediaSession } from '@/features/player/hooks/use-media-session'
 import type { Song, SongColumnFilters } from '@/features/songs/domain'
 import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
 import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
