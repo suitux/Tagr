@@ -1,15 +1,16 @@
 'use client'
 
 import { ChevronDown, ChevronUp, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform'
 import { useHome } from '@/contexts/home-context'
-import { usePlayer } from '@/contexts/player-context'
 import { useMediaSession } from '@/features/player/hooks/use-media-session'
+import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
 import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { cn } from '@/lib/utils'
+import { usePlayerStore } from '@/stores/player-store'
 
 function formatTime(seconds: number): string {
   if (!isFinite(seconds) || seconds < 0) return '0:00'
@@ -21,23 +22,37 @@ function formatTime(seconds: number): string {
 export function SidebarPlayer() {
   const { setSelectedSongId } = useHome()
   const [expanded, setExpanded] = useState(true)
+
   const {
     currentSong,
-    isPlaying,
-    togglePlayPause,
     playNext,
     playPrevious,
-    hasPrevious,
-    hasNext,
+    togglePlayPause,
     currentTime,
     duration,
-    seek
-  } = usePlayer()
+    seek,
+    queueFolder,
+    queueSearch,
+    queueSorting,
+    queueFilters,
+    setAdjacentSongs,
+    _previousSong,
+    _nextSong,
+    isPlaying
+  } = usePlayerStore(s => s)
+
+  const hasPrevious = _previousSong !== null
+  const hasNext = _nextSong !== null
 
   useMediaSession({ currentSong, playPrevious, playNext, togglePlayPause })
 
-  if (!currentSong) return null
+  const { data } = useAdjacentSongs(currentSong?.id ?? null, queueFolder, queueSearch, queueSorting, queueFilters)
 
+  useEffect(() => {
+    setAdjacentSongs(data?.previous ?? null, data?.next ?? null)
+  }, [data, setAdjacentSongs])
+
+  if (!currentSong) return null
   const pictureUrl = getSongPictureUrl(currentSong.id)
 
   const handleSongTitleClick = () => {

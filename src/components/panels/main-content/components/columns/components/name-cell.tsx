@@ -3,15 +3,18 @@ import { getExtensionVariant } from '@/components/panels/main-content/utils'
 import { Badge } from '@/components/ui/badge'
 import { Image } from '@/components/ui/image'
 import { useHome } from '@/contexts/home-context'
-import { usePlayer } from '@/contexts/player-context'
 import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
+import { usePlayerStore } from '@/stores/player-store'
 
 const NameCell = function NameCell({ song }: { song: Song }) {
   const displayName = song.title || song.fileName
   const pictureUrl = getSongPictureUrl(song.id)
-  const { setSelectedSongId } = useHome()
-  const { play, currentSong, isPlaying, togglePlayPause } = usePlayer()
+  const { selectedFolderId, search, sorting, columnFilters, setSelectedSongId } = useHome()
+  const currentSong = usePlayerStore(s => s.currentSong)
+  const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
+  const isPlaying = usePlayerStore(s => s.isPlaying)
+  const play = usePlayerStore(s => s.play)
   const isCurrent = currentSong?.id === song.id
 
   const handlePlay = (e: React.MouseEvent) => {
@@ -20,7 +23,7 @@ const NameCell = function NameCell({ song }: { song: Song }) {
     if (isCurrent) {
       togglePlayPause()
     } else {
-      play(song)
+      play(song, { folder: selectedFolderId, search, sorting, columnFilters })
     }
   }
 

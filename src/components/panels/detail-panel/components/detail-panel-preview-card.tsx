@@ -6,10 +6,11 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Image } from '@/components/ui/image'
-import { usePlayer } from '@/contexts/player-context'
+import { useHome } from '@/contexts/home-context'
 import type { Song } from '@/features/songs/domain'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { cn } from '@/lib/utils'
+import { usePlayerStore } from '@/stores/player-store'
 
 interface DetailPanelPreviewCardProps {
   song: Song
@@ -27,7 +28,11 @@ export function DetailPanelPreviewCard({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [cacheBust, setCacheBust] = useState(0)
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
-  const { play, currentSong, isPlaying, togglePlayPause } = usePlayer()
+  const { selectedFolderId, search, sorting, columnFilters } = useHome()
+  const currentSong = usePlayerStore(s => s.currentSong)
+  const isPlaying = usePlayerStore(s => s.isPlaying)
+  const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
+  const play = usePlayerStore(s => s.play)
   const isCurrent = currentSong?.id === song.id
 
   const imageUrl = cacheBust ? `${pictureUrl}?t=${cacheBust}` : pictureUrl
@@ -95,7 +100,7 @@ export function DetailPanelPreviewCard({
                       if (isCurrent) {
                         togglePlayPause()
                       } else {
-                        play(song)
+                        play(song, { folder: selectedFolderId, search, sorting, columnFilters })
                       }
                     }}>
                     {isCurrent && isPlaying ? (
