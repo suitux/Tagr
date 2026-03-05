@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { SidebarPlayer } from '@/components/sidebar-player/sidebar-player'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useFolders } from '@/features/folders/hooks/use-folders'
@@ -10,7 +11,6 @@ import { FolderListHeader } from './components/folder-list-header'
 import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
-import { SidebarPlayer } from './components/sidebar-player'
 
 interface FolderListProps {
   onFolderSelect?: (folderId: string | null) => void
