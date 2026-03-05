@@ -2,18 +2,26 @@
 
 import { MusicIcon } from 'lucide-react'
 import { Image } from '@/components/ui/image'
-import { cn } from '@/lib/utils'
-import type { Song } from '@/features/songs/domain'
+import { useHome } from '@/contexts/home-context'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
+import { cn } from '@/lib/utils'
+import { usePlayerStore } from '@/stores/player-store'
 
 interface SidebarPlayerImageProps {
-  song: Song
   expanded: boolean
-  onSongTitleClick: () => void
 }
 
-export function SidebarPlayerImage({ song, expanded, onSongTitleClick }: SidebarPlayerImageProps) {
-  const pictureUrl = getSongPictureUrl(song.id)
+export function SidebarPlayerImage({ expanded }: SidebarPlayerImageProps) {
+  const currentSong = usePlayerStore(s => s.currentSong)
+  const { setSelectedSongId } = useHome()
+
+  if (!currentSong) return null
+
+  const pictureUrl = getSongPictureUrl(currentSong.id)
+
+  const handleSongTitleClick = () => {
+    setSelectedSongId(currentSong.id)
+  }
 
   return (
     <>
@@ -34,11 +42,11 @@ export function SidebarPlayerImage({ song, expanded, onSongTitleClick }: Sidebar
       <div className={cn('text-center space-y-0.5', !expanded && 'hidden')}>
         <p
           className='text-sm font-medium truncate cursor-pointer hover:underline'
-          onClick={onSongTitleClick}>
-          {song.title || song.fileName}
+          onClick={handleSongTitleClick}>
+          {currentSong.title || currentSong.fileName}
         </p>
-        {song.artist && <p className='text-xs text-muted-foreground truncate'>{song.artist}</p>}
-        {song.album && <p className='text-xs text-muted-foreground/70 truncate'>{song.album}</p>}
+        {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
+        {currentSong.album && <p className='text-xs text-muted-foreground/70 truncate'>{currentSong.album}</p>}
       </div>
     </>
   )

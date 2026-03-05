@@ -17,28 +17,12 @@ export function SidebarPlayer() {
   const { setSelectedSongId } = useHome()
   const [expanded, setExpanded] = useState(true)
 
-  const {
-    currentSong,
-    playNext,
-    playPrevious,
-    togglePlayPause,
-    currentTime,
-    duration,
-    seek,
-    queueFolder,
-    queueSearch,
-    queueSorting,
-    queueFilters,
-    setAdjacentSongs,
-    _previousSong,
-    _nextSong,
-    isPlaying
-  } = usePlayerStore(s => s)
-
-  const hasPrevious = _previousSong !== null
-  const hasNext = _nextSong !== null
-
-  useMediaSession({ currentSong, playPrevious, playNext, togglePlayPause })
+  const currentSong = usePlayerStore(s => s.currentSong)
+  const queueFolder = usePlayerStore(s => s.queueFolder)
+  const queueSearch = usePlayerStore(s => s.queueSearch)
+  const queueSorting = usePlayerStore(s => s.queueSorting)
+  const queueFilters = usePlayerStore(s => s.queueFilters)
+  const setAdjacentSongs = usePlayerStore(s => s.setAdjacentSongs)
 
   const { data } = useAdjacentSongs(currentSong?.id ?? null, queueFolder, queueSearch, queueSorting, queueFilters)
 
@@ -88,21 +72,9 @@ export function SidebarPlayer() {
         </Button>
       </div>
 
-      <SidebarPlayerImage song={currentSong} expanded={expanded} onSongTitleClick={handleSongTitleClick} />
+      <SidebarPlayerImage expanded={expanded} />
 
-      <SidebarPlayerAudioPlayer
-        songId={currentSong.id}
-        expanded={expanded}
-        isPlaying={isPlaying}
-        currentTime={currentTime}
-        duration={duration}
-        hasPrevious={hasPrevious}
-        hasNext={hasNext}
-        onTogglePlayPause={togglePlayPause}
-        onPlayPrevious={playPrevious}
-        onPlayNext={playNext}
-        onSeek={seek}
-      />
+      <SidebarPlayerAudioPlayer songId={currentSong.id} expanded={expanded} />
     </div>
   )
 }
