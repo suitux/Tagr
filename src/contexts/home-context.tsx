@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react'
+import { createContext, type ReactNode, useContext, useState } from 'react'
 import type { Song, SongColumnFilters, SongSortDirection, SongSortField } from '@/features/songs/domain'
-import { useSongsByFolder, type SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
+import { type SongsSortParams, useSongsByFolder } from '@/features/songs/hooks/use-songs-by-folder'
 
 interface HomeContextValue {
   selectedFolderId: string | null
@@ -49,10 +49,8 @@ export function HomeProvider({
   const [columnFilters, setColumnFilters] = useState<SongColumnFilters>({})
   const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
 
-  const activeFilters = useMemo(() => {
-    const entries = Object.entries(columnFilters).filter(([, v]) => v)
-    return entries.length > 0 ? (Object.fromEntries(entries) as SongColumnFilters) : undefined
-  }, [columnFilters])
+  const activeFilterEntries = Object.entries(columnFilters).filter(([, v]) => v)
+  const activeFilters = activeFilterEntries.length > 0 ? (Object.fromEntries(activeFilterEntries) as SongColumnFilters) : undefined
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder(
     selectedFolderId ?? undefined,
@@ -61,10 +59,7 @@ export function HomeProvider({
     activeFilters
   )
 
-  const songs = useMemo(() => {
-    if (!data) return []
-    return data.pages.flatMap(page => (page.success ? page.files : []))
-  }, [data])
+  const songs = data?.pages.flatMap(page => (page.success ? page.files : [])) || []
 
   const setSorting = (sortField: SongSortField, sort: SongSortDirection) => {
     setSortingState({ sortField, sort })
