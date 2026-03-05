@@ -2,11 +2,12 @@
 
 import { useTranslations } from 'next-intl'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useHome } from '@/contexts/home-context'
+import { useHomeStore } from '@/stores/home-store'
 import type { SongSortField } from '@/features/songs/domain'
 
 export function BooleanFilterInput({ field }: { field: SongSortField }) {
-  const { columnFilters, setColumnFilter } = useHome()
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
   const tFiles = useTranslations('files')
 
   return (

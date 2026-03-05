@@ -4,10 +4,12 @@ import { LoaderCircle } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
 import { DataTable } from '@/components/ui/data-table'
-import { useHome } from '@/contexts/home-context'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
 import type { Song, SongSortField } from '@/features/songs/domain'
+import { useSongsList } from '@/features/songs/hooks/use-songs-list'
+import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useHomeStore } from '@/stores/home-store'
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
@@ -16,19 +18,14 @@ import { MainContentNoFilterResults } from './main-content-no-filter-results'
 import { SavedFiltersDropdown } from './saved-filters-dropdown'
 
 export function MainContentFileList() {
-  const {
-    selectedSongId,
-    songs,
-    setSelectedSongId,
-    isLoadingSongs,
-    sorting,
-    setSorting,
-    clearSorting,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-    isAnyFilterActive
-  } = useHome()
+  const { selectedSongId, setSelectedSongId } = useSelectedSong()
+  const { songs, isLoadingSongs, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsList()
+  const sorting = useHomeStore(s => s.sorting)
+  const setSorting = useHomeStore(s => s.setSorting)
+  const clearSorting = useHomeStore(s => s.clearSorting)
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const search = useHomeStore(s => s.search)
+  const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
   const columns = useSongColumns()
 
   const { data: columnVisibility } = useColumnVisibility()

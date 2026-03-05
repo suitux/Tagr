@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { useHome } from '@/contexts/home-context'
+import { useHomeStore } from '@/stores/home-store'
 import { MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
 import { formatDuration } from '../../../utils'
 
@@ -45,7 +45,8 @@ function generateDurationRanges(): DurationRange[] {
 const DURATION_RANGES = generateDurationRanges()
 
 export function DurationFilterInput({ field }: { field: SongSortField }) {
-  const { columnFilters, setColumnFilter } = useHome()
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
   const tFiles = useTranslations('files')
 
   const raw = columnFilters[field] ?? ''

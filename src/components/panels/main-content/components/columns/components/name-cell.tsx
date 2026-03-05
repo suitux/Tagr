@@ -2,7 +2,9 @@ import { AudioLines, MusicIcon, Pause, Play } from 'lucide-react'
 import { getExtensionVariant } from '@/components/panels/main-content/utils'
 import { Badge } from '@/components/ui/badge'
 import { Image } from '@/components/ui/image'
-import { useHome } from '@/contexts/home-context'
+import { useSelectedFolder } from '@/hooks/use-selected-folder'
+import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useHomeStore } from '@/stores/home-store'
 import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { usePlayerStore } from '@/stores/player-store'
@@ -10,7 +12,11 @@ import { usePlayerStore } from '@/stores/player-store'
 const NameCell = function NameCell({ song }: { song: Song }) {
   const displayName = song.title || song.fileName
   const pictureUrl = getSongPictureUrl(song.id)
-  const { selectedFolderId, search, sorting, columnFilters, setSelectedSongId } = useHome()
+  const { selectedFolderId } = useSelectedFolder()
+  const { setSelectedSongId } = useSelectedSong()
+  const search = useHomeStore(s => s.search)
+  const sorting = useHomeStore(s => s.sorting)
+  const columnFilters = useHomeStore(s => s.columnFilters)
   const currentSong = usePlayerStore(s => s.currentSong)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const isPlaying = usePlayerStore(s => s.isPlaying)

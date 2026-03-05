@@ -3,14 +3,15 @@
 import { useLayoutEffect, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Input } from '@/components/ui/input'
-import { useHome } from '@/contexts/home-context'
+import { useHomeStore } from '@/stores/home-store'
 import type { SongSortField } from '@/features/songs/domain'
 
 // Track which filter field was focused before a potential remount
 let focusedFilterField: SongSortField | null = null
 
 export function ColumnFilterInput({ field }: { field: SongSortField }) {
-  const { columnFilters, setColumnFilter } = useHome()
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
   const tFiles = useTranslations('files')
   const inputRef = useRef<HTMLInputElement>(null)
 
