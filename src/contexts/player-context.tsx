@@ -1,11 +1,12 @@
 'use client'
 
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { useHome } from '@/contexts/home-context'
+import { useMediaSession } from '@/features/player/hooks/use-media-session'
 import type { Song, SongColumnFilters } from '@/features/songs/domain'
 import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
 import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
-import { useHome } from '@/contexts/home-context'
 
 interface PlayerContextValue {
   currentSong: Song | null
@@ -26,8 +27,6 @@ const PlayerContext = createContext<PlayerContextValue | null>(null)
 export function PlayerProvider({ children }: { children: ReactNode }) {
   const audioRef = useRef<HTMLAudioElement>(null)
   const [currentSong, setCurrentSong] = useState<Song | null>(null)
-  const [previousSong, setPreviousSong] = useState<Song | null>(null)
-  const [nextSong, setNextSong] = useState<Song | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
@@ -48,29 +47,28 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     queueFilters
   )
 
-  useEffect(() => {
-    if (adjacentData) {
-      setPreviousSong(adjacentData.previous)
-      setNextSong(adjacentData.next)
-    }
-  }, [adjacentData])
+  const previousSong = adjacentData?.previous ?? null
+  const nextSong = adjacentData?.next ?? null
 
-  const play = useCallback((song: Song) => {
-    setCurrentSong(song)
+  const play = useCallback(
+    (song: Song) => {
+      setCurrentSong(song)
 
-    // Snapshot current view state as the queue context
-    setQueueFolder(selectedFolderId)
-    const activeFilters = Object.entries(columnFilters).filter(([, v]) => v)
-    setQueueSearch(search || undefined)
-    setQueueSorting(sorting)
-    setQueueFilters(activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined)
+      // Snapshot current view state as the queue context
+      setQueueFolder(selectedFolderId)
+      const activeFilters = Object.entries(columnFilters).filter(([, v]) => v)
+      setQueueSearch(search || undefined)
+      setQueueSorting(sorting)
+      setQueueFilters(activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined)
 
-    const audio = audioRef.current
-    if (audio) {
-      audio.src = getSongAudioUrl(song.id)
-      audio.play()
-    }
-  }, [selectedFolderId, search, sorting, columnFilters])
+      const audio = audioRef.current
+      if (audio) {
+        audio.src = getSongAudioUrl(song.id)
+        audio.play()
+      }
+    },
+    [selectedFolderId, search, sorting, columnFilters]
+  )
 
   const togglePlayPause = useCallback(() => {
     const audio = audioRef.current
@@ -167,4 +165,3 @@ export function usePlayer() {
   }
   return context
 }
-

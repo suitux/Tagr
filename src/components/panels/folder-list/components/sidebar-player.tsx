@@ -7,6 +7,7 @@ import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform'
 import { useHome } from '@/contexts/home-context'
 import { usePlayer } from '@/contexts/player-context'
+import { useMediaSession } from '@/features/player/hooks/use-media-session'
 import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { cn } from '@/lib/utils'
 
@@ -32,6 +33,8 @@ export function SidebarPlayer() {
     duration,
     seek
   } = usePlayer()
+
+  useMediaSession({ currentSong, playPrevious, playNext, togglePlayPause })
 
   if (!currentSong) return null
 
