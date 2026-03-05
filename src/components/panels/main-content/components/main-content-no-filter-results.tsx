@@ -4,11 +4,12 @@ import { FilterXIcon, SearchXIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
 import { Button } from '@/components/ui/button'
-import { useHome } from '@/contexts/home-context'
+import { useHomeStore } from '@/stores/home-store'
 
 export function MainContentNoFilterResults() {
   const tFiles = useTranslations('files')
-  const { clearColumnFilters, setSearch } = useHome()
+  const clearColumnFilters = useHomeStore(s => s.clearColumnFilters)
+  const setSearch = useHomeStore(s => s.setSearch)
   const { data: columnVisibility } = useColumnVisibility()
 
   const activeColumnCount = Object.values(columnVisibility || {}).filter(Boolean).length

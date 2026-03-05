@@ -9,7 +9,7 @@ import { RescanSongIconButton } from '@/components/panels/detail-panel/component
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useHome } from '@/contexts/home-context'
+import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
@@ -29,7 +29,7 @@ interface DetailPanelProps {
 export function DetailPanel({ songId }: DetailPanelProps) {
   const tHistory = useTranslations('history')
   const tFormats = useTranslations('formats')
-  const { setSelectedSongId } = useHome()
+  const { setSelectedSongId } = useSelectedSong()
   const { data: song, isLoading } = useSong(songId)
   const [historyOpen, setHistoryOpen] = useState(false)
 

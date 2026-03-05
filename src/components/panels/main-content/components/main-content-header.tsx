@@ -5,13 +5,18 @@ import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { useHome } from '@/contexts/home-context'
+import { useSongsList } from '@/features/songs/hooks/use-songs-list'
+import { useSelectedFolder } from '@/hooks/use-selected-folder'
+import { useHomeStore } from '@/stores/home-store'
 
 export function MainContentHeader() {
   const tFolders = useTranslations('folders')
   const tFiles = useTranslations('files')
 
-  const { selectedFolderId, search, setSearch, totalSongs } = useHome()
+  const { selectedFolderId } = useSelectedFolder()
+  const search = useHomeStore(s => s.search)
+  const setSearch = useHomeStore(s => s.setSearch)
+  const { totalSongs } = useSongsList()
   const folderName = selectedFolderId?.split('/').pop() || selectedFolderId
 
   return (

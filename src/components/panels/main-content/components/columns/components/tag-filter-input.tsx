@@ -6,13 +6,14 @@ import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
-import { useHome } from '@/contexts/home-context'
+import { useHomeStore } from '@/stores/home-store'
 import { MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
 
 let focusedTagFilterField: SongSortField | null = null
 
 export function TagFilterInput({ field }: { field: SongSortField }) {
-  const { columnFilters, setColumnFilter } = useHome()
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
   const tFiles = useTranslations('files')
   const inputRef = useRef<HTMLInputElement>(null)
   const [inputValue, setInputValue] = useState('')

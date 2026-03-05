@@ -14,12 +14,13 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { useHome } from '@/contexts/home-context'
+import { useHomeStore } from '@/stores/home-store'
 import { MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
 import { useDistinctValues } from '@/features/songs/hooks/use-distinct-values'
 
 export function SelectFilterInput({ field }: { field: SongSortField }) {
-  const { columnFilters, setColumnFilter } = useHome()
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
   const tFiles = useTranslations('files')
   const { data: values = [] } = useDistinctValues(field)
   const [search, setSearch] = useState('')

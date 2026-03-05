@@ -1,12 +1,12 @@
 'use client'
 
-import { useHome } from '@/contexts/home-context'
+import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { MainContentEmptyFolderState } from './components/main-content-empty-folder-state'
 import { MainContentFileList } from './components/main-content-file-list'
 import { MainContentHeader } from './components/main-content-header'
 
 export function MainContent() {
-  const { selectedFolderId } = useHome()
+  const { selectedFolderId } = useSelectedFolder()
 
   if (!selectedFolderId) {
     return <MainContentEmptyFolderState />

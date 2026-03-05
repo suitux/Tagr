@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
-import { useHome } from '@/contexts/home-context'
+import { useSelectedSong } from '@/hooks/use-selected-song'
 
 function SkeletonRow() {
   return (
@@ -33,7 +33,7 @@ function SkeletonSection({ title, rows }: { title: string; rows: number }) {
 }
 
 const DetailPanelLoadingState = () => {
-  const { setSelectedSongId } = useHome()
+  const { setSelectedSongId } = useSelectedSong()
 
   return (
     <div className='flex flex-col h-full overflow-hidden'>

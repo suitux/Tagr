@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { useHome } from '@/contexts/home-context'
+import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useHistory } from '@/features/history/hooks/use-history'
 import { useRevertChanges } from '@/features/history/hooks/use-revert-changes'
 import { HistoryEntry } from './history-entry'
@@ -21,7 +21,7 @@ interface HistoryModalProps {
 
 export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryModalProps) {
   const t = useTranslations('history')
-  const { setSelectedSongId } = useHome()
+  const { setSelectedSongId } = useSelectedSong()
   const [search, setSearch] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set())
   const lastSelectedRef = useRef<number | null>(null)

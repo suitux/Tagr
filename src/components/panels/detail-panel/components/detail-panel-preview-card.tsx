@@ -6,10 +6,12 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Image } from '@/components/ui/image'
-import { usePlayer } from '@/contexts/player-context'
 import type { Song } from '@/features/songs/domain'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
+import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { cn } from '@/lib/utils'
+import { useHomeStore } from '@/stores/home-store'
+import { usePlayerStore } from '@/stores/player-store'
 
 interface DetailPanelPreviewCardProps {
   song: Song
@@ -18,16 +20,18 @@ interface DetailPanelPreviewCardProps {
   extColor: string
 }
 
-export function DetailPanelPreviewCard({
-  song,
-  title,
-  pictureUrl,
-  extColor
-}: DetailPanelPreviewCardProps) {
+export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: DetailPanelPreviewCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [cacheBust, setCacheBust] = useState(0)
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
-  const { play, currentSong, isPlaying, togglePlayPause } = usePlayer()
+  const { selectedFolderId } = useSelectedFolder()
+  const search = useHomeStore(s => s.search)
+  const sorting = useHomeStore(s => s.sorting)
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const currentSong = usePlayerStore(s => s.currentSong)
+  const isPlaying = usePlayerStore(s => s.isPlaying)
+  const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
+  const play = usePlayerStore(s => s.play)
   const isCurrent = currentSong?.id === song.id
 
   const imageUrl = cacheBust ? `${pictureUrl}?t=${cacheBust}` : pictureUrl
@@ -90,12 +94,12 @@ export function DetailPanelPreviewCard({
                     variant='ghost'
                     size='icon'
                     className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
-                    onClick={(e) => {
+                    onClick={e => {
                       e.stopPropagation()
                       if (isCurrent) {
                         togglePlayPause()
                       } else {
-                        play(song)
+                        play(song, { folder: selectedFolderId, search, sorting, columnFilters })
                       }
                     }}>
                     {isCurrent && isPlaying ? (

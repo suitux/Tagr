@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Calendar } from '@/components/ui/calendar'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useHome } from '@/contexts/home-context'
+import { useHomeStore } from '@/stores/home-store'
 import type { SongSortField } from '@/features/songs/domain'
 import { formatDate, formatDateRange, parseIsoDate } from '@/lib/date'
 
@@ -22,7 +22,8 @@ function parseRange(value: string | undefined): DateRange | undefined {
 }
 
 export function DateFilterInput({ field }: { field: SongSortField }) {
-  const { columnFilters, setColumnFilter } = useHome()
+  const columnFilters = useHomeStore(s => s.columnFilters)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
   const t = useTranslations('files')
   const [open, setOpen] = useState(false)
   const [clicks, setClicks] = useState(0)
