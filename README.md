@@ -128,6 +128,7 @@ services:
       - AUTH_SECRET=paste-your-generated-secret-here
       - AUTH_USER=admin
       - AUTH_PASSWORD=your-password-here
+      - AUTH_URL=https://your-domain.com
     volumes:
       - sqlite_data:/data
       # Mount your music folder into the container:
