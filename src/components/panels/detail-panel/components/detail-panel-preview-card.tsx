@@ -1,6 +1,6 @@
 'use client'
 
-import { DiscIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
+import { DiscIcon, DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Image } from '@/components/ui/image'
 import type { Song } from '@/features/songs/domain'
-import { useFetchMusicBrainzCover } from '@/features/songs/hooks/use-fetch-musicbrainz-cover'
+import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { cn } from '@/lib/utils'
@@ -45,6 +45,14 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
     if (!isUploading) {
       fileInputRef.current?.click()
     }
+  }
+
+  function handleDownload(e: React.MouseEvent) {
+    e.stopPropagation()
+    const link = document.createElement('a')
+    link.href = imageUrl
+    link.download = `${song.artist ?? 'Unknown'} - ${song.album ?? 'Unknown'}.jpg`
+    link.click()
   }
 
   function handleFetchCover(e: React.MouseEvent) {
@@ -104,30 +112,52 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
               )}
               {!isUploading && (
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-center justify-center gap-3'>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
-                    onClick={e => {
-                      e.stopPropagation()
-                      if (isCurrent) {
-                        togglePlayPause()
-                      } else {
-                        play(song, { folder: selectedFolderId, search, sorting, columnFilters })
-                      }
-                    }}>
-                    {isCurrent && isPlaying ? (
-                      <PauseIcon className='w-5 h-5 text-white fill-white' />
-                    ) : (
-                      <PlayIcon className='w-5 h-5 text-white fill-white' />
-                    )}
-                  </Button>
-                  <Button
-                    variant='ghost'
-                    size='icon'
-                    className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'>
-                    <PencilIcon className='w-5 h-5 text-white' />
-                  </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
+                        onClick={e => {
+                          e.stopPropagation()
+                          if (isCurrent) {
+                            togglePlayPause()
+                          } else {
+                            play(song, { folder: selectedFolderId, search, sorting, columnFilters })
+                          }
+                        }}>
+                        {isCurrent && isPlaying ? (
+                          <PauseIcon className='w-5 h-5 text-white fill-white' />
+                        ) : (
+                          <PlayIcon className='w-5 h-5 text-white fill-white' />
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{isCurrent && isPlaying ? 'Pause' : 'Play'}</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'>
+                        <PencilIcon className='w-5 h-5 text-white' />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Edit cover</TooltipContent>
+                  </Tooltip>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
+                        onClick={handleDownload}>
+                        <DownloadIcon className='w-5 h-5 text-white' />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Download cover</TooltipContent>
+                  </Tooltip>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
