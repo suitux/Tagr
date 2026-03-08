@@ -2,7 +2,7 @@
 
 import { Song } from '@/features/songs/domain'
 import { api } from '@/lib/axios'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, keepPreviousData } from '@tanstack/react-query'
 
 interface GetSongSuccessResponse {
   success: true
@@ -32,6 +32,7 @@ export function useSong(id: number | undefined) {
   return useQuery({
     queryKey: getSongQueryKey(id),
     queryFn: () => fetchSong(id!),
-    enabled: id !== undefined
+    enabled: id !== undefined,
+    placeholderData: keepPreviousData
   })
 }
