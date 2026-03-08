@@ -1,12 +1,14 @@
 'use client'
 
-import { LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
+import { DiscIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Image } from '@/components/ui/image'
 import type { Song } from '@/features/songs/domain'
+import { useFetchMusicBrainzCover } from '@/features/songs/hooks/use-fetch-musicbrainz-cover'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { cn } from '@/lib/utils'
@@ -24,6 +26,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [cacheBust, setCacheBust] = useState(0)
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
+  const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover()
   const { selectedFolderId } = useSelectedFolder()
   const search = useHomeStore(s => s.search)
   const sorting = useHomeStore(s => s.sorting)
@@ -36,10 +39,21 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
 
   const imageUrl = cacheBust ? `${pictureUrl}?t=${cacheBust}` : pictureUrl
 
+  const isUploading = isPending || isFetchingCover
+
   function handleImageClick() {
-    if (!isPending) {
+    if (!isUploading) {
       fileInputRef.current?.click()
     }
+  }
+
+  function handleFetchCover(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (isUploading) return
+
+    fetchMbCover(song.id, {
+      onSuccess: () => setCacheBust(Date.now())
+    })
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -83,12 +97,12 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                   </div>
                 }
               />
-              {isPending && (
+              {isUploading && (
                 <div className='absolute inset-0 bg-black/50 flex items-center justify-center rounded-2xl'>
                   <LoaderCircleIcon className='w-10 h-10 text-white animate-spin' />
                 </div>
               )}
-              {!isPending && (
+              {!isUploading && (
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-center justify-center gap-3'>
                   <Button
                     variant='ghost'
@@ -114,6 +128,18 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                     className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'>
                     <PencilIcon className='w-5 h-5 text-white' />
                   </Button>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant='ghost'
+                        size='icon'
+                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
+                        onClick={handleFetchCover}>
+                        <DiscIcon className='w-5 h-5 text-white' />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>Fetch cover from MusicBrainz</TooltipContent>
+                  </Tooltip>
                 </div>
               )}
             </div>
