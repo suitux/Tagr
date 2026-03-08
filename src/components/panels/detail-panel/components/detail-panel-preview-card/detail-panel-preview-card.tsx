@@ -3,9 +3,11 @@
 import { DiscIcon, DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Image } from '@/components/ui/image'
+import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import type { Song } from '@/features/songs/domain'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
@@ -36,6 +38,9 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const play = usePlayerStore(s => s.play)
   const t = useTranslations('previewCard')
+  const tCommon = useTranslations('common')
+  const tMb = useTranslations('musicbrainz')
+  const { confirm } = useAlertDialog()
   const isCurrent = currentSong?.id === song.id
 
   const imageUrl = cacheBust ? `${pictureUrl}?t=${cacheBust}` : pictureUrl
@@ -69,8 +74,26 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
     e.stopPropagation()
     if (isUploading) return
 
-    fetchMbCover(song.id, {
-      onSuccess: () => setCacheBust(Date.now())
+    confirm({
+      title: t('fetchMusicBrainzConfirmTitle'),
+      description: t('fetchMusicBrainzConfirmDescription'),
+      cancel: { label: tCommon('cancel') },
+      action: {
+        label: t('fetchMusicBrainzConfirmAction'),
+        onClick: () => {
+          fetchMbCover(song.id, {
+            onSuccess: () => {
+              setCacheBust(Date.now())
+              toast.success(tMb('fetchSuccess'))
+            },
+            onError: (error: Error) => {
+              toast.error(tMb('fetchError'), {
+                description: error.message
+              })
+            }
+          })
+        }
+      }
     })
   }
 
