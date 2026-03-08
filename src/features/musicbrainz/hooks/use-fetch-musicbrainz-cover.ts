@@ -1,9 +1,9 @@
 'use client'
 
+import axios from 'axios'
 import { Song } from '@/features/songs/domain'
 import { SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
-import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
+import { InfiniteData, UseMutationOptions, useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface FetchCoverResponse {
   success: true
@@ -27,12 +27,14 @@ async function fetchMusicBrainzCover(songId: number): Promise<Song> {
   return response.data.song
 }
 
-export function useFetchMusicBrainzCover() {
+type Options = Pick<UseMutationOptions<Song, Error, number>, 'onSuccess' | 'onError'>
+
+export function useFetchMusicBrainzCover(options?: Options) {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: fetchMusicBrainzCover,
-    onSuccess: updatedSong => {
+    onSuccess: (updatedSong, songId, onMutateResult, context) => {
       queryClient.setQueriesData<InfiniteData<SongsSuccessResponse, number>>(
         {
           predicate: ({ queryKey }) => queryKey[0] === 'songs' && queryKey[1] === 'folder'
@@ -51,6 +53,10 @@ export function useFetchMusicBrainzCover() {
       )
 
       queryClient.setQueryData(['song', updatedSong.id], updatedSong)
+      options?.onSuccess?.(updatedSong, songId, onMutateResult, context)
+    },
+    onError: (error, songId, onMutateResult, context) => {
+      options?.onError?.(error, songId, onMutateResult, context)
     }
   })
 }

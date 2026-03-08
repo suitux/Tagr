@@ -1,9 +1,9 @@
 'use client'
 
 import { DiscIcon, DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Image } from '@/components/ui/image'
@@ -28,7 +28,16 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [cacheBust, setCacheBust] = useState(0)
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
-  const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover()
+  const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
+    onSuccess: () => {
+      // eslint-disable-next-line react-hooks/purity
+      setCacheBust(Date.now())
+      toast.success(tMb('fetchSuccess'))
+    },
+    onError: error => {
+      toast.error(tMb('fetchError'), { description: error.message })
+    }
+  })
   const { selectedFolderId } = useSelectedFolder()
   const search = useHomeStore(s => s.search)
   const sorting = useHomeStore(s => s.sorting)
@@ -80,19 +89,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
       cancel: { label: tCommon('cancel') },
       action: {
         label: t('fetchMusicBrainzConfirmAction'),
-        onClick: () => {
-          fetchMbCover(song.id, {
-            onSuccess: () => {
-              setCacheBust(Date.now())
-              toast.success(tMb('fetchSuccess'))
-            },
-            onError: (error: Error) => {
-              toast.error(tMb('fetchError'), {
-                description: error.message
-              })
-            }
-          })
-        }
+        onClick: () => fetchMbCover(song.id)
       }
     })
   }
