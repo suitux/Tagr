@@ -2,18 +2,18 @@
 
 import { DiscIcon, DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { Image } from '@/components/ui/image'
-import type { Song } from '@/features/songs/domain'
 import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
+import type { Song } from '@/features/songs/domain'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { cn } from '@/lib/utils'
 import { useHomeStore } from '@/stores/home-store'
 import { usePlayerStore } from '@/stores/player-store'
+import { PreviewCardActionButton } from './components/preview-card-action-button'
 
 interface DetailPanelPreviewCardProps {
   song: Song
@@ -35,15 +35,25 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
   const isPlaying = usePlayerStore(s => s.isPlaying)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const play = usePlayerStore(s => s.play)
+  const t = useTranslations('previewCard')
   const isCurrent = currentSong?.id === song.id
 
   const imageUrl = cacheBust ? `${pictureUrl}?t=${cacheBust}` : pictureUrl
 
   const isUploading = isPending || isFetchingCover
 
-  function handleImageClick() {
+  function handleImageEdit() {
     if (!isUploading) {
       fileInputRef.current?.click()
+    }
+  }
+
+  function handlePlayPause(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (isCurrent) {
+      togglePlayPause()
+    } else {
+      play(song, { folder: selectedFolderId, search, sorting, columnFilters })
     }
   }
 
@@ -86,9 +96,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
         <div className='relative bg-gradient-to-br from-muted/50 to-muted'>
           <div className='absolute inset-0 bg-grid-pattern opacity-5' />
           <div className='relative flex flex-col items-center py-6 px-4'>
-            <div
-              className='w-64 h-64 rounded-2xl overflow-hidden shadow-2xl mb-4 relative cursor-pointer group'
-              onClick={handleImageClick}>
+            <div className='w-64 h-64 rounded-2xl overflow-hidden shadow-2xl mb-4 relative group'>
               <Image
                 src={imageUrl}
                 alt={title}
@@ -112,64 +120,27 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
               )}
               {!isUploading && (
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-center justify-center gap-3'>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
-                        onClick={e => {
-                          e.stopPropagation()
-                          if (isCurrent) {
-                            togglePlayPause()
-                          } else {
-                            play(song, { folder: selectedFolderId, search, sorting, columnFilters })
-                          }
-                        }}>
-                        {isCurrent && isPlaying ? (
-                          <PauseIcon className='w-5 h-5 text-white fill-white' />
-                        ) : (
-                          <PlayIcon className='w-5 h-5 text-white fill-white' />
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>{isCurrent && isPlaying ? 'Pause' : 'Play'}</TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'>
-                        <PencilIcon className='w-5 h-5 text-white' />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Edit cover</TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
-                        onClick={handleDownload}>
-                        <DownloadIcon className='w-5 h-5 text-white' />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Download cover</TooltipContent>
-                  </Tooltip>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant='ghost'
-                        size='icon'
-                        className='w-12 h-12 rounded-full border-2 border-white opacity-0 group-hover:opacity-100 transition-opacity hover:bg-white/20'
-                        onClick={handleFetchCover}>
-                        <DiscIcon className='w-5 h-5 text-white' />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Fetch cover from MusicBrainz</TooltipContent>
-                  </Tooltip>
+                  <div className={'grid grid-cols-2 gap-4'}>
+                    <PreviewCardActionButton
+                      tooltip={isCurrent && isPlaying ? t('pause') : t('play')}
+                      icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
+                      onClick={handlePlayPause}
+                      fillIcon
+                    />
+                    <PreviewCardActionButton tooltip={t('editCover')} icon={PencilIcon} onClick={handleImageEdit} />
+                    <PreviewCardActionButton
+                      tooltip={t('downloadCover')}
+                      icon={DownloadIcon}
+                      onClick={handleDownload}
+                      tooltipSide={'bottom'}
+                    />
+                    <PreviewCardActionButton
+                      tooltip={t('fetchMusicBrainz')}
+                      icon={DiscIcon}
+                      onClick={handleFetchCover}
+                      tooltipSide={'bottom'}
+                    />
+                  </div>
                 </div>
               )}
             </div>
@@ -178,7 +149,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
 
             <div className='flex items-center gap-2'>
               <Badge variant='secondary'>{song.extension.toUpperCase()}</Badge>
-              {song.lossless && <Badge variant='outline'>Lossless</Badge>}
+              {song.lossless && <Badge variant='outline'>{t('lossless')}</Badge>}
             </div>
           </div>
         </div>

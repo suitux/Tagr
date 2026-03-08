@@ -45,7 +45,7 @@ export function DetailPanelAudioPropertiesSection({ song, extName }: DetailPanel
         <DetailPanelRow
           icon={<HashIcon className='w-4 h-4' />}
           label={t('bitsPerSample')}
-          value={`${song.bitsPerSample}-bit`}
+          value={t('bitDepthValue', { value: song.bitsPerSample })}
         />
       )}
       {song.encoder && (

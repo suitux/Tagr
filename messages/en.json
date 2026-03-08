@@ -122,6 +122,7 @@
     "channels": "Channels",
     "bitsPerSample": "Bit Depth",
     "encoder": "Encoder",
+    "bitDepthValue": "{value}-bit",
     "extension": "Format",
     "fileSize": "Size",
     "modifiedAt": "Modified",
@@ -147,6 +148,17 @@
   },
   "columns": {
     "toggleColumns": "Columns"
+  },
+  "previewCard": {
+    "play": "Play",
+    "pause": "Pause",
+    "editCover": "Edit cover",
+    "downloadCover": "Download cover",
+    "fetchMusicBrainz": "Fetch cover from MusicBrainz",
+    "lossless": "Lossless"
+  },
+  "stats": {
+    "title": "Stats"
   },
   "formats": {
     "mp3": "MPEG Audio Layer 3",
