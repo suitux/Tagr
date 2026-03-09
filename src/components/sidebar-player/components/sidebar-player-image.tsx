@@ -19,7 +19,7 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
 
   if (!currentSong) return null
 
-  const pictureUrl = getSongPictureUrl(currentSong.id)
+  const pictureUrl = getSongPictureUrl(currentSong.id, currentSong.modifiedAt)
 
   const handleSongTitleClick = () => {
     setSelectedSongId(currentSong.id)

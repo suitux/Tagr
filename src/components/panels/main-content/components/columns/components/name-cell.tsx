@@ -11,7 +11,7 @@ import { usePlayerStore } from '@/stores/player-store'
 
 const NameCell = function NameCell({ song }: { song: Song }) {
   const displayName = song.title || song.fileName
-  const pictureUrl = getSongPictureUrl(song.id)
+  const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
   const { selectedFolderId } = useSelectedFolder()
   const { setSelectedSongId } = useSelectedSong()
   const search = useHomeStore(s => s.search)

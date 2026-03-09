@@ -20,8 +20,11 @@ export function isMusicFile(filename: string): boolean {
   return MUSIC_EXTENSIONS.includes(ext.toLowerCase() as MusicExtension)
 }
 
-export function getSongPictureUrl(songId: number): string {
-  return `/api/songs/${songId}/picture`
+export function getSongPictureUrl(songId: number, cacheBust?: string | Date | null): string {
+  const base = `/api/songs/${songId}/picture`
+  if (!cacheBust) return base
+  const t = cacheBust instanceof Date ? cacheBust.getTime() : cacheBust
+  return `${base}?t=${t}`
 }
 
 export function getSongAudioUrl(songId: number): string {

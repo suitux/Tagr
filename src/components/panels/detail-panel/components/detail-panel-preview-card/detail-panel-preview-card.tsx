@@ -2,7 +2,7 @@
 
 import { DiscIcon, DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
 import { toast } from 'sonner'
-import { useRef, useState } from 'react'
+import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
@@ -26,12 +26,9 @@ interface DetailPanelPreviewCardProps {
 
 export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: DetailPanelPreviewCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const [cacheBust, setCacheBust] = useState(0)
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
     onSuccess: () => {
-      // eslint-disable-next-line react-hooks/purity
-      setCacheBust(Date.now())
       toast.success(tMb('fetchSuccess'))
     },
     onError: error => {
@@ -51,8 +48,6 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
   const tMb = useTranslations('musicbrainz')
   const { confirm } = useAlertDialog()
   const isCurrent = currentSong?.id === song.id
-
-  const imageUrl = cacheBust ? `${pictureUrl}?t=${cacheBust}` : pictureUrl
 
   const isUploading = isPending || isFetchingCover
 
@@ -74,7 +69,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
   function handleDownload(e: React.MouseEvent) {
     e.stopPropagation()
     const link = document.createElement('a')
-    link.href = imageUrl
+    link.href = pictureUrl
     link.download = `${song.artist ?? 'Unknown'} - ${song.album ?? 'Unknown'}.jpg`
     link.click()
   }
@@ -98,14 +93,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
     const file = e.target.files?.[0]
     if (!file) return
 
-    updatePicture(
-      { songId: song.id, file },
-      {
-        onSuccess: () => {
-          setCacheBust(Date.now())
-        }
-      }
-    )
+    updatePicture({ songId: song.id, file })
 
     e.target.value = ''
   }
@@ -118,7 +106,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
           <div className='relative flex flex-col items-center py-6 px-4'>
             <div className='w-64 h-64 rounded-2xl overflow-hidden shadow-2xl mb-4 relative group'>
               <Image
-                src={imageUrl}
+                src={pictureUrl}
                 alt={title}
                 fill
                 className='object-cover'
