@@ -1,3 +1,4 @@
+import { Image } from '@/components/ui/image'
 import { ImageIcon } from 'lucide-react'
 
 interface PictureHistoryEntryItemProps {
@@ -12,13 +13,13 @@ export function PictureHistoryEntryItem({ fieldLabel, oldValue, newValue }: Pict
       <span className='font-medium text-foreground/80'>{fieldLabel}</span>
       {': '}
       {oldValue ? (
-        <img src={oldValue} alt='' className='h-8 w-8 rounded object-cover border border-red-400' />
+        <Image src={oldValue} alt='' width={32} height={32} unoptimized className='h-8 w-8 rounded object-cover border border-red-400' fallbackComponent={<ImageIcon className='h-4 w-4 text-red-400' />} />
       ) : (
         <ImageIcon className='h-4 w-4 text-red-400' />
       )}
       {' → '}
       {newValue ? (
-        <img src={newValue} alt='' className='h-8 w-8 rounded object-cover border border-green-400' />
+        <Image src={newValue} alt='' width={32} height={32} unoptimized className='h-8 w-8 rounded object-cover border border-green-400' fallbackComponent={<ImageIcon className='h-4 w-4 text-green-400' />} />
       ) : (
         <ImageIcon className='h-4 w-4 text-green-400' />
       )}
