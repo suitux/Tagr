@@ -70,7 +70,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
     e.stopPropagation()
     const link = document.createElement('a')
     link.href = pictureUrl
-    link.download = `${song.artist ?? 'Unknown'} - ${song.album ?? 'Unknown'}.jpg`
+    link.download = `${song.artist ?? tCommon('unknown')} - ${song.album ?? tCommon('unknown')}.jpg`
     link.click()
   }
 

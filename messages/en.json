@@ -11,7 +11,8 @@
     "delete": "Delete",
     "edit": "Edit",
     "search": "Search",
-    "logout": "Log out"
+    "logout": "Log out",
+    "unknown": "Unknown"
   },
   "folders": {
     "title": "Tagr",
