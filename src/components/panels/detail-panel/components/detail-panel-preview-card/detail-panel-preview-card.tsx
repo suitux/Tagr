@@ -79,11 +79,11 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
     if (isUploading) return
 
     confirm({
-      title: t('fetchMusicBrainzConfirmTitle'),
-      description: t('fetchMusicBrainzConfirmDescription'),
+      title: tMb('fetchMusicBrainzConfirmTitle'),
+      description: tMb('fetchMusicBrainzConfirmDescription'),
       cancel: { label: tCommon('cancel') },
       action: {
-        label: t('fetchMusicBrainzConfirmAction'),
+        label: tMb('fetchMusicBrainzConfirmAction'),
         onClick: () => fetchMbCover(song.id)
       }
     })
@@ -143,7 +143,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                       tooltipSide={'bottom'}
                     />
                     <PreviewCardActionButton
-                      tooltip={t('fetchMusicBrainz')}
+                      tooltip={tMb('fetchMusicBrainz')}
                       icon={DiscIcon}
                       onClick={handleFetchCover}
                       tooltipSide={'bottom'}

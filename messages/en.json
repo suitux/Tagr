@@ -155,16 +155,16 @@
     "pause": "Pause",
     "editCover": "Edit cover",
     "downloadCover": "Download cover",
-    "fetchMusicBrainz": "Fetch cover from MusicBrainz",
-    "fetchMusicBrainzConfirmTitle": "Fetch cover from MusicBrainz?",
-    "fetchMusicBrainzConfirmDescription": "This will search MusicBrainz for album art and replace the current cover image if found. This action can be undone in the history.",
-    "fetchMusicBrainzConfirmAction": "Fetch cover",
     "lossless": "Lossless"
   },
   "musicbrainz": {
     "fetchSuccess": "Cover art updated from MusicBrainz",
     "fetchError": "Failed to fetch cover art",
-    "unknownError": "An unknown error occurred"
+    "unknownError": "An unknown error occurred",
+    "fetchMusicBrainz": "Fetch cover from MusicBrainz",
+    "fetchMusicBrainzConfirmTitle": "Fetch cover from MusicBrainz?",
+    "fetchMusicBrainzConfirmDescription": "This will search MusicBrainz for album art and replace the current cover image if found. This action can be undone in the history.",
+    "fetchMusicBrainzConfirmAction": "Fetch cover"
   },
   "stats": {
     "title": "Stats"
