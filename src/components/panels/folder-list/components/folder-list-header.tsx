@@ -1,16 +1,34 @@
 'use client'
 
+import {
+  HistoryIcon,
+  Loader2Icon,
+  LogOutIcon,
+  MessageCircleIcon,
+  MessageCirclePlus,
+  MoreVerticalIcon,
+  RefreshCwIcon
+} from 'lucide-react'
 import { useState } from 'react'
-import { HistoryIcon, Loader2Icon, LogOutIcon, MoreVerticalIcon, RefreshCwIcon } from 'lucide-react'
+import { signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import NextImage from 'next/image'
+import Link from 'next/link'
 import { HistoryModal } from '@/components/history-modal/history-modal'
 import { UpdateBanner } from '@/components/panels/folder-list/components/update-banner'
 import { Button } from '@/components/ui/button'
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
-import { signOut } from 'next-auth/react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useScan } from '@/features/scan/hooks/use-scan'
+
+const GITHUB_ISSUE_URL = 'https://github.com/suitux/Tagr/issues/new'
 
 export function FolderListHeader() {
   const t = useTranslations('folders')
@@ -38,6 +56,16 @@ export function FolderListHeader() {
           </h2>
           <p className='text-xs text-muted-foreground'>{t('subtitle')}</p>
         </div>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant='ghost' size='icon' className='h-8 w-8' asChild>
+              <Link href={GITHUB_ISSUE_URL} target='_blank' rel='noopener noreferrer'>
+                <MessageCirclePlus className='h-4 w-4' />
+              </Link>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{t('feedback')}</TooltipContent>
+        </Tooltip>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant='ghost' size='icon' className='h-8 w-8'>
@@ -52,6 +80,12 @@ export function FolderListHeader() {
             <DropdownMenuItem onClick={() => setHistoryOpen(true)}>
               <HistoryIcon className='h-4 w-4' />
               {t('history')}
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link href={GITHUB_ISSUE_URL} target='_blank' rel='noopener noreferrer'>
+                <MessageCirclePlus className='h-4 w-4' />
+                {t('feedback')}
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => signOut()}>

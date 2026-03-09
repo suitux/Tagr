@@ -37,6 +37,7 @@
     "rescanConfirmDescription": "This will scan all music folders, add new songs to the database, and update metadata for existing ones. No files will be modified or deleted, but it may take some time depending on the size of your library.",
     "rescanConfirmAction": "Rescan",
     "history": "View change history",
+    "feedback": "Send feedback",
     "scanning": "Scanning library...",
     "scanCompleted": "Scan completed",
     "scanFailed": "Scan failed",
