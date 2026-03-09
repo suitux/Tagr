@@ -7,6 +7,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { SongChangeHistoryEntry } from '@/features/history/domain'
 import { useRevertChange } from '@/features/history/hooks/use-revert-change'
 import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
+import { HistoryEntryItem } from './components/history-entry-item'
 
 interface HistoryEntryProps {
   entry: SongChangeHistoryEntry
@@ -46,13 +47,7 @@ export function HistoryEntry({ entry, selected, onSelect, onSongClick }: History
           </Button>
           {entry.songArtist && <span className='truncate text-xs text-muted-foreground'>— {entry.songArtist}</span>}
         </div>
-        <div className='mt-1 text-xs text-muted-foreground truncate'>
-          <span className='font-medium text-foreground/80'>{fieldLabel}</span>
-          {': '}
-          <span className='text-red-400 line-through'>{entry.oldValue}</span>
-          {' → '}
-          <span className='text-green-400'>{entry.newValue}</span>
-        </div>
+        <HistoryEntryItem field={entry.field} fieldLabel={fieldLabel} oldValue={entry.oldValue} newValue={entry.newValue} />
         <div className='mt-0.5 text-[11px] text-muted-foreground/60'>
           {formatDate(new Date(entry.changedAt), FULL_DATE_FORMAT)}
         </div>

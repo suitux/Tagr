@@ -38,7 +38,7 @@ export function useMediaSession({ currentSong, togglePlayPause, playPrevious, pl
         album: currentSong.album || undefined,
         artwork: [
           {
-            src: `${window.location.protocol}//${window.location.host}${getSongPictureUrl(currentSong.id)}`,
+            src: `${window.location.protocol}//${window.location.host}${getSongPictureUrl(currentSong.id, currentSong.modifiedAt)}`,
             sizes: '300x300',
             type: 'image/jpeg'
           }

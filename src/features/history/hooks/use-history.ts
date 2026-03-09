@@ -2,7 +2,7 @@
 
 import { SongChangeHistoryEntry } from '@/features/history/domain'
 import { api } from '@/lib/axios'
-import { useInfiniteQuery } from '@tanstack/react-query'
+import { QueryClient, useInfiniteQuery } from '@tanstack/react-query'
 
 interface HistoryResponse {
   success: true
@@ -16,6 +16,9 @@ interface HistoryFilters {
 }
 
 export const getHistoryQueryKey = (filters?: HistoryFilters) => ['history', filters ?? {}]
+export const invalidateAllHistoryQueryKeys = (queryClient: QueryClient) => {
+  queryClient.invalidateQueries({ predicate: ({ queryKey }) => queryKey[0] === 'history' })
+}
 
 async function getHistory(cursor: number | null, filters?: HistoryFilters): Promise<HistoryResponse> {
   const { data } = await api.get<HistoryResponse>('/history', {

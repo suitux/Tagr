@@ -26,7 +26,7 @@ async function fetchSong(id: number): Promise<Song> {
   return response.data.song
 }
 
-const getSongQueryKey = (id?: number) => ['song', id]
+export const getSongQueryKey = (id?: number) => ['song', id]
 
 export function useSong(id: number | undefined) {
   return useQuery({

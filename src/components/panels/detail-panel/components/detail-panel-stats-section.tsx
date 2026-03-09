@@ -12,6 +12,7 @@ interface DetailPanelStatsSectionProps {
 }
 
 export function DetailPanelStatsSection({ song }: DetailPanelStatsSectionProps) {
+  const tSection = useTranslations('stats')
   const t = useTranslations('fields')
 
   const hasContent = song.dateAdded || song.lastPlayed || song.playCount
@@ -19,7 +20,7 @@ export function DetailPanelStatsSection({ song }: DetailPanelStatsSectionProps) 
   if (!hasContent) return null
 
   return (
-    <DetailPanelSection title='Stats'>
+    <DetailPanelSection title={tSection('title')}>
       {song.dateAdded && (
         <DetailPanelRow
           icon={<CalendarIcon className='w-4 h-4' />}

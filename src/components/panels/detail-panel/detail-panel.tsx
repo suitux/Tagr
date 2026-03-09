@@ -46,7 +46,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
     return <DetailPanelEmptyState />
   }
 
-  const pictureUrl = getSongPictureUrl(song?.id)
+  const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
   const extKey = getExtensionKey(song.extension)
   const extColor = getExtensionColor(song.extension)
   const extName = tFormats(extKey)

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { recordPictureChange } from '@/features/history/history.service'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { prisma } from '@/infrastructure/prisma/dbClient'
@@ -33,7 +34,9 @@ export async function PUT(request: Request, { params }: RouteParams) {
 
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
+    const newPictureData = `data:${file.type};base64,${buffer.toString('base64')}`
 
+    await recordPictureChange(songId, newPictureData)
     await writePictureToFile(song.filePath, buffer, file.type)
     const updatedSong = await rescanSongFileAndSaveIntoDb(songId)
 

@@ -1,4 +1,4 @@
-import { HISTORY_TRACKABLE_FIELDS } from '@/features/history/consts'
+import { HISTORY_TRACKABLE_FIELDS, PICTURE_FIELD } from '@/features/history/consts'
 import { BOOLEAN_SONG_FIELDS, NUMERIC_SONG_FIELDS } from '@/features/songs/domain'
 import { Song } from '@/generated/prisma/client'
 import { prisma } from '@/infrastructure/prisma/dbClient'
@@ -40,4 +40,37 @@ export async function recordChanges(song: Song, update: Record<string, unknown>)
   if (entries.length > 0) {
     await prisma.songChangeHistory.createMany({ data: entries })
   }
+}
+
+function serializePicture(data: Buffer | null, format: string | null): string | null {
+  if (!data) return null
+  const mimeType = format || 'image/jpeg'
+  return `data:${mimeType};base64,${data.toString('base64')}`
+}
+
+export function deserializePicture(value: string | null): { buffer: Buffer; mimeType: string } | null {
+  if (!value) return null
+  const match = value.match(/^data:([^;]+);base64,(.+)$/)
+  if (!match) return null
+  return { buffer: Buffer.from(match[2], 'base64'), mimeType: match[1] }
+}
+
+export async function recordPictureChange(songId: number, newPictureData: string | null) {
+  const oldPicture = await prisma.songPicture.findFirst({
+    where: { songId },
+    select: { data: true, format: true }
+  })
+
+  const oldValue = serializePicture(oldPicture?.data ? Buffer.from(oldPicture.data) : null, oldPicture?.format ?? null)
+
+  if (oldValue === newPictureData) return
+
+  await prisma.songChangeHistory.create({
+    data: {
+      songId,
+      field: PICTURE_FIELD,
+      oldValue,
+      newValue: newPictureData
+    }
+  })
 }

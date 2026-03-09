@@ -1,3 +1,5 @@
+export const PICTURE_FIELD = 'picture'
+
 export const HISTORY_TRACKABLE_FIELDS = new Set([
   'title',
   'artist',
