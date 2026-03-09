@@ -20,7 +20,7 @@ interface FetchCoverError {
 type FetchCoverResult = FetchCoverResponse | FetchCoverError
 
 async function fetchMusicBrainzCover(songId: number): Promise<Song> {
-  const response = await axios.post<FetchCoverResult>(`/api/songs/${songId}/musicbrainz-cover`)
+  const response = await axios.post<FetchCoverResult>(`/api/songs/${songId}/musicbrainz/fetch-cover`)
 
   if (!response.data.success) {
     throw new Error(response.data.error)
