@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server'
 import { recordPictureChange } from '@/features/history/history.service'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writePictureToFile } from '@/features/metadata/metadata-write.service'
-import { searchRelease, fetchCoverArt } from '@/features/musicbrainz/musicbrainz.service'
+import { searchReleaseId, fetchCoverArt } from '@/features/musicbrainz/musicbrainz.service'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface RouteParams {
@@ -31,7 +31,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ success: false, error: 'Song must have artist and album metadata' }, { status: 400 })
     }
 
-    const releaseId = await searchRelease(artist, album)
+    const releaseId = await searchReleaseId(artist, album)
     if (!releaseId) {
       return NextResponse.json({ success: false, error: 'No release found on MusicBrainz' }, { status: 404 })
     }

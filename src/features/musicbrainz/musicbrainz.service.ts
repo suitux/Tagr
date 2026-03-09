@@ -7,7 +7,7 @@ import {
   type MusicBrainzCoverArtResult
 } from './domain'
 
-export async function searchRelease(artist: string, album: string): Promise<string | null> {
+export async function searchReleaseId(artist: string, album: string): Promise<string | null> {
   const query = `release:${JSON.stringify(album)} AND artist:${JSON.stringify(artist)}`
   const url = `${MUSICBRAINZ_API}/release/?query=${encodeURIComponent(query)}&fmt=json&limit=5`
 
