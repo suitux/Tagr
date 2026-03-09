@@ -3,6 +3,7 @@
 import { getHistoryQueryKey } from '@/features/history/hooks/use-history'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { Song } from '@/features/songs/domain'
+import { getSongQueryKey } from '@/features/songs/hooks/use-song'
 import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
 import { api } from '@/lib/axios'
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -64,7 +65,7 @@ export function useUpdateSong() {
         }
       )
 
-      queryClient.setQueryData(['song', updatedSong.id], updatedSong)
+      queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
       queryClient.invalidateQueries({ queryKey: getHistoryQueryKey() })
     }
   })

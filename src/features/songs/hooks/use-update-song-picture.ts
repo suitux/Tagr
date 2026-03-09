@@ -1,9 +1,10 @@
 'use client'
 
+import axios from 'axios'
 import { Song } from '@/features/songs/domain'
+import { getSongQueryKey } from '@/features/songs/hooks/use-song'
 import { SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
-import axios from 'axios'
 
 type SongsResponse = SongsSuccessResponse | { success: false; error: string }
 
@@ -65,7 +66,7 @@ export function useUpdateSongPicture() {
         }
       )
 
-      queryClient.setQueryData(['song', updatedSong.id], updatedSong)
+      queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
     }
   })
 }

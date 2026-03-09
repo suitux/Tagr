@@ -1,8 +1,10 @@
 'use client'
 
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { api } from '@/lib/axios'
+import { invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-history'
 import { Song } from '@/features/songs/domain'
+import { getSongQueryKey } from '@/features/songs/hooks/use-song'
+import { api } from '@/lib/axios'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface RevertResponse {
   success: true
@@ -27,10 +29,10 @@ export function useRevertChanges() {
       return results
     },
     onSuccess: songs => {
-      queryClient.invalidateQueries({ queryKey: ['history'] })
+      invalidateAllHistoryQueryKeys(queryClient)
       queryClient.invalidateQueries({ queryKey: ['songs'] })
       for (const song of songs) {
-        queryClient.setQueryData(['song', song.id], song)
+        queryClient.setQueryData(getSongQueryKey(song.id), song)
       }
     }
   })
