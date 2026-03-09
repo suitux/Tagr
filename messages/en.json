@@ -127,6 +127,7 @@
     "fileSize": "Size",
     "modifiedAt": "Modified",
     "createdAt": "Created",
+    "picture": "Cover Art",
     "fileName": "File Name",
     "filePath": "File Path",
     "dateAdded": "Date Added",

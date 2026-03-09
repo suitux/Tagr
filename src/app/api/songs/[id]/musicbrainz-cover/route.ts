@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { recordPictureChange } from '@/features/history/history.service'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { searchRelease, fetchCoverArt } from '@/features/musicbrainz/musicbrainz.service'
@@ -40,6 +41,8 @@ export async function POST(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ success: false, error: 'No cover art found' }, { status: 404 })
     }
 
+    const newPictureData = `data:${cover.contentType};base64,${cover.buffer.toString('base64')}`
+    await recordPictureChange(songId, newPictureData)
     await writePictureToFile(song.filePath, cover.buffer, cover.contentType)
     const updatedSong = await rescanSongFileAndSaveIntoDb(songId)
 

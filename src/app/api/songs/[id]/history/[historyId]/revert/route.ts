@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server'
-import { recordChanges, deserialize } from '@/features/history/history.service'
+import { PICTURE_FIELD } from '@/features/history/consts'
+import { recordChanges, recordPictureChange, deserialize, deserializePicture } from '@/features/history/history.service'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
-import { writeMetadataToFile } from '@/features/metadata/metadata-write.service'
+import { writeMetadataToFile, writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { Song } from '@/features/songs/domain'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
@@ -48,15 +49,25 @@ export async function POST(_request: Request, { params }: RouteParams): Promise<
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }
 
-    const revertValue = deserialize(entry.field, entry.oldValue)
-    const update = { [entry.field]: revertValue }
+    let updatedSong: Song
 
-    // Record the revert as a new change
-    await recordChanges(song, update)
+    if (entry.field === PICTURE_FIELD) {
+      await recordPictureChange(songId, entry.oldValue)
 
-    // Write to file and rescan
-    await writeMetadataToFile(song.filePath, update as SongMetadataUpdate)
-    const updatedSong = await rescanSongFileAndSaveIntoDb(songId)
+      const picture = deserializePicture(entry.oldValue)
+      if (picture) {
+        await writePictureToFile(song.filePath, picture.buffer, picture.mimeType)
+      }
+      updatedSong = await rescanSongFileAndSaveIntoDb(songId)
+    } else {
+      const revertValue = deserialize(entry.field, entry.oldValue)
+      const update = { [entry.field]: revertValue }
+
+      await recordChanges(song, update)
+
+      await writeMetadataToFile(song.filePath, update as SongMetadataUpdate)
+      updatedSong = await rescanSongFileAndSaveIntoDb(songId)
+    }
 
     return NextResponse.json({ success: true, song: updatedSong })
   } catch (error) {

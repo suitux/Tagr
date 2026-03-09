@@ -7,10 +7,10 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useHistory } from '@/features/history/hooks/use-history'
 import { useRevertChanges } from '@/features/history/hooks/use-revert-changes'
-import { HistoryEntry } from './history-entry'
+import { useSelectedSong } from '@/hooks/use-selected-song'
+import { HistoryEntry } from './history-entry/history-entry'
 
 interface HistoryModalProps {
   open: boolean
