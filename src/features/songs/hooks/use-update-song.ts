@@ -1,6 +1,6 @@
 'use client'
 
-import { getHistoryQueryKey } from '@/features/history/hooks/use-history'
+import { getHistoryQueryKey, invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-history'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { Song } from '@/features/songs/domain'
 import { getSongQueryKey } from '@/features/songs/hooks/use-song'
@@ -66,7 +66,7 @@ export function useUpdateSong() {
       )
 
       queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
-      queryClient.invalidateQueries({ queryKey: getHistoryQueryKey() })
+      invalidateAllHistoryQueryKeys(queryClient)
     }
   })
 }
