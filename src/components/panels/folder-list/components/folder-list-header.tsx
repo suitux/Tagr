@@ -1,63 +1,21 @@
 'use client'
 
-import {
-  HistoryIcon,
-  Loader2Icon,
-  LogOutIcon,
-  MessageCircleIcon,
-  MessageCirclePlus,
-  MoreVerticalIcon,
-  RefreshCwIcon,
-  ZapIcon
-} from 'lucide-react'
+import { MessageCirclePlus } from 'lucide-react'
 import { useState } from 'react'
-import { signOut } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import NextImage from 'next/image'
 import Link from 'next/link'
 import { HistoryModal } from '@/components/history-modal/history-modal'
+import { FolderListHeaderMenu } from '@/components/panels/folder-list/components/folder-list-header-menu'
 import { UpdateBanner } from '@/components/panels/folder-list/components/update-banner'
 import { Button } from '@/components/ui/button'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { useAlertDialog } from '@/contexts/alert-dialog-context'
-import { useScan } from '@/features/scan/hooks/use-scan'
 
 const GITHUB_ISSUE_URL = 'https://github.com/suitux/Tagr/issues/new'
 
 export function FolderListHeader() {
   const t = useTranslations('folders')
-  const tCommon = useTranslations('common')
-  const { mutate: scan, isPending } = useScan()
   const [historyOpen, setHistoryOpen] = useState(false)
-  const { confirm } = useAlertDialog()
-
-  const handleQuickScan = () => {
-    confirm({
-      title: t('quickScanConfirmTitle'),
-      description: t('quickScanConfirmDescription'),
-      cancel: { label: tCommon('cancel') },
-      action: { label: t('quickScan'), onClick: () => scan({ mode: 'quick' }) }
-    })
-  }
-
-  const handleRescan = () => {
-    confirm({
-      title: t('fullScanConfirmTitle'),
-      description: t('fullScanConfirmDescription'),
-      cancel: { label: tCommon('cancel') },
-      action: { label: t('fullScan'), onClick: () => scan({ mode: 'full' }) }
-    })
-  }
 
   return (
     <div className='px-4 py-5'>
@@ -79,46 +37,7 @@ export function FolderListHeader() {
           </TooltipTrigger>
           <TooltipContent>{t('feedback')}</TooltipContent>
         </Tooltip>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' size='icon' className='h-8 w-8'>
-              <MoreVerticalIcon className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger disabled={isPending}>
-                {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
-                {t('rescan')}
-              </DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={handleQuickScan}>
-                  <ZapIcon className='h-4 w-4' />
-                  {t('quickScan')}
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleRescan}>
-                  <RefreshCwIcon className='h-4 w-4' />
-                  {t('fullScan')}
-                </DropdownMenuItem>
-              </DropdownMenuSubContent>
-            </DropdownMenuSub>
-            <DropdownMenuItem onClick={() => setHistoryOpen(true)}>
-              <HistoryIcon className='h-4 w-4' />
-              {t('history')}
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href={GITHUB_ISSUE_URL} target='_blank' rel='noopener noreferrer'>
-                <MessageCirclePlus className='h-4 w-4' />
-                {t('feedback')}
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => signOut()}>
-              <LogOutIcon className='h-4 w-4' />
-              {tCommon('logout')}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <FolderListHeaderMenu onOpenHistory={() => setHistoryOpen(true)} />
       </div>
       <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} />
       <UpdateBanner />
