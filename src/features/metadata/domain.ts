@@ -38,6 +38,7 @@ export interface ScanResult {
   totalAdded: number
   totalUpdated: number
   totalDeleted: number
+  totalSkipped: number
   totalErrors: number
   errors: Array<{ path: string; error: string }>
 }

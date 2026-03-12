@@ -6,6 +6,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 interface ScanResult {
   totalAdded: number
   totalDeleted: number
+  totalSkipped: number
   totalErrors: number
   totalScanned: number
   totalUpdated: number
@@ -18,8 +19,8 @@ interface ScanResponse {
   result?: ScanResult
 }
 
-async function scanDatabase(): Promise<ScanResponse> {
-  const { data } = await api.get<ScanResponse>('/scan')
+async function scanDatabase(mode?: 'full' | 'quick'): Promise<ScanResponse> {
+  const { data } = await api.get<ScanResponse>('/scan', { params: { mode } })
   return data
 }
 
@@ -28,7 +29,7 @@ export function useScan() {
   const t = useTranslations('folders')
 
   return useMutation({
-    mutationFn: scanDatabase,
+    mutationFn: ({ mode }: { mode?: 'full' | 'quick' } = {}) => scanDatabase(mode),
     onMutate: () => {
       return { toastId: toast.loading(t('scanning')) }
     },
@@ -37,10 +38,10 @@ export function useScan() {
       queryClient.invalidateQueries({ queryKey: ['songs'] })
 
       if (data.result) {
-        const { totalScanned, totalAdded, totalUpdated, totalDeleted, totalErrors } = data.result
+        const { totalScanned, totalAdded, totalUpdated, totalDeleted, totalSkipped, totalErrors } = data.result
         toast.success(t('scanCompleted'), {
           id: context?.toastId,
-          description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`
+          description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalSkipped > 0 ? ` • ${totalSkipped} ${t('skipped')}` : ''}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`
         })
       } else {
         toast.success(t('scanCompleted'), { id: context?.toastId })

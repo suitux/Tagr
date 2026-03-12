@@ -32,6 +32,8 @@
     "files": "{count} files",
     "subfolder": "{count, plural, one {subfolder} other {subfolders}}",
     "subfolders": "{count} subfolders",
+    "quickScan": "Quick scan",
+    "skipped": "skipped",
     "rescan": "Rescan library",
     "rescanConfirmTitle": "Rescan library?",
     "rescanConfirmDescription": "This will scan all music folders, add new songs to the database, and update metadata for existing ones. No files will be modified or deleted, but it may take some time depending on the size of your library.",

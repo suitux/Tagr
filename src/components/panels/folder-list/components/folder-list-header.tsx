@@ -7,7 +7,8 @@ import {
   MessageCircleIcon,
   MessageCirclePlus,
   MoreVerticalIcon,
-  RefreshCwIcon
+  RefreshCwIcon,
+  ZapIcon
 } from 'lucide-react'
 import { useState } from 'react'
 import { signOut } from 'next-auth/react'
@@ -42,8 +43,12 @@ export function FolderListHeader() {
       title: t('rescanConfirmTitle'),
       description: t('rescanConfirmDescription'),
       cancel: { label: tCommon('cancel') },
-      action: { label: t('rescanConfirmAction'), onClick: () => scan() }
+      action: { label: t('rescanConfirmAction'), onClick: () => scan({ mode: 'full' }) }
     })
+  }
+
+  const handleQuickScan = () => {
+    scan({ mode: 'quick' })
   }
 
   return (
@@ -73,6 +78,10 @@ export function FolderListHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align='end'>
+            <DropdownMenuItem onClick={handleQuickScan} disabled={isPending}>
+              {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <ZapIcon className='h-4 w-4' />}
+              {t('quickScan')}
+            </DropdownMenuItem>
             <DropdownMenuItem onClick={handleRescan} disabled={isPending}>
               {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
               {t('rescan')}

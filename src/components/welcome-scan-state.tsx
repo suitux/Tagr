@@ -14,7 +14,7 @@ export function WelcomeScanState() {
   const { mutate: scan, isPending } = useScan()
 
   const handleScan = () => {
-    scan(undefined, {
+    scan({}, {
       onSuccess: () => router.refresh()
     })
   }

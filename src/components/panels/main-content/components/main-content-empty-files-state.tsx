@@ -18,7 +18,7 @@ export function MainContentEmptyFilesState() {
             <FileAudioIcon className='w-8 h-8 text-muted-foreground' />
           </div>
           <p className='text-sm text-muted-foreground mb-4'>{tFiles('empty')}</p>
-          <Button size='lg' onClick={() => scan()} disabled={isPending}>
+          <Button size='lg' onClick={() => scan({})} disabled={isPending}>
             {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
             {tFiles('syncNow')}
           </Button>
