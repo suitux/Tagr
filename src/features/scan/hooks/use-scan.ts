@@ -1,5 +1,5 @@
-import { useCallback } from 'react'
 import { toast } from 'sonner'
+import { useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { api } from '@/lib/axios'
@@ -46,7 +46,8 @@ export function useScan() {
             onClick: () => setScanSummaryOpen(true)
           },
           dismissible: true,
-          duration: 30000
+          duration: 30000,
+          closeButton: true
         })
       } else {
         toast.success(t('scanCompleted'), { id: context?.toastId })
