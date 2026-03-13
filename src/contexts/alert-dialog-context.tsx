@@ -25,6 +25,7 @@ interface AlertDialogButtonProps {
 interface AlertDialogOptions {
   title: string
   description: string
+  icon?: ReactNode
   cancel?: AlertDialogButtonProps
   action?: AlertDialogButtonProps
 }
@@ -51,7 +52,10 @@ export function AlertDialogProvider({ children }: { children: ReactNode }) {
         <AlertDialog open={open} onOpenChange={setOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>{options.title}</AlertDialogTitle>
+              <AlertDialogTitle className='flex items-center gap-2'>
+                {options.icon}
+                {options.title}
+              </AlertDialogTitle>
               <AlertDialogDescription>{options.description}</AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

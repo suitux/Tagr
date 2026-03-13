@@ -9,6 +9,7 @@ import {
   ScanResult,
   SongCreateInput
 } from '@/features/metadata/domain'
+import { ScanMode } from '@/features/scan/domain'
 import {
   BOOLEAN_SONG_FIELDS,
   DATE_SONG_FIELDS,
@@ -151,7 +152,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
 export async function scanFolderAndUpdateDatabase(
   folderPath: string,
   onProgress?: (progress: ScanProgress) => void,
-  mode: 'full' | 'quick' = 'full'
+  mode: ScanMode = 'full'
 ): Promise<ScanResult> {
   const result: ScanResult = {
     addedFiles: [],
@@ -296,7 +297,7 @@ export async function scanFolderAndUpdateDatabase(
 export async function scanAllFoldersAndUpdateDatabase(
   folders: string[],
   onProgress?: (progress: ScanProgress & { folder: string }) => void,
-  mode: 'full' | 'quick' = 'full'
+  mode: ScanMode = 'full'
 ): Promise<ScanResult> {
   const result: ScanResult = {
     addedFiles: [],

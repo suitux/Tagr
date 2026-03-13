@@ -4,6 +4,7 @@ import { HistoryIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HistoryModal } from '@/components/history-modal/history-modal'
+import { MusicBrainzLookupModal } from '@/components/musicbrainz-lookup-modal/musicbrainz-lookup-modal'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { DetailPanelFetchingOverlay } from '@/components/panels/detail-panel/components/detail-panel-fetching-overlay'
 import { RescanSongIconButton } from '@/components/panels/detail-panel/components/rescan-song-icon-button'
@@ -13,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { useSelectedSong } from '@/hooks/use-selected-song'
+import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
 import { DetailPanelEmptyState } from './components/detail-panel-empty-state'
 import { DetailPanelFileDetailsSection } from './components/detail-panel-file-details-section'
@@ -30,9 +32,11 @@ interface DetailPanelProps {
 export function DetailPanel({ songId }: DetailPanelProps) {
   const tHistory = useTranslations('history')
   const tFormats = useTranslations('formats')
+  const tMusicBrainz = useTranslations('musicbrainzLookup')
   const { setSelectedSongId } = useSelectedSong()
   const { data: song, isPending, isFetching } = useSong(songId)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [musicBrainzLookupOpen, setMusicBrainzLookupOpen] = useState(false)
 
   if (!songId) {
     return <DetailPanelEmptyState />
@@ -54,11 +58,17 @@ export function DetailPanel({ songId }: DetailPanelProps) {
 
   return (
     <div className='relative flex flex-col h-full overflow-hidden'>
-      {isFetching && (
-        <DetailPanelFetchingOverlay />
-      )}
+      {isFetching && <DetailPanelFetchingOverlay />}
       <div className='flex justify-end gap-1 p-2'>
         <RescanSongIconButton songId={song.id} />
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setMusicBrainzLookupOpen(true)}>
+              <MusicBrainzIcon className='h-4 w-4' />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{tMusicBrainz('tooltip')}</TooltipContent>
+        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setHistoryOpen(true)}>
@@ -83,6 +93,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
         </div>
       </ScrollArea>
       <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} songId={song.id} songTitle={displayTitle} />
+      <MusicBrainzLookupModal open={musicBrainzLookupOpen} onOpenChange={setMusicBrainzLookupOpen} song={song} />
     </div>
   )
 }

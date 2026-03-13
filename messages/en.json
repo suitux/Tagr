@@ -177,6 +177,19 @@
     "downloadCover": "Download cover",
     "lossless": "Lossless"
   },
+  "musicbrainzLookup": {
+    "title": "MusicBrainz — {songTitle}",
+    "tooltip": "Look up metadata on MusicBrainz",
+    "search": "Search",
+    "back": "Back",
+    "score": "Score: {score}%",
+    "noResults": "No recordings found",
+    "field": "Field",
+    "currentValue": "Current",
+    "mbValue": "MusicBrainz",
+    "applySelected": "Apply Selected",
+    "noFields": "No metadata fields available from this release"
+  },
   "musicbrainz": {
     "fetchSuccess": "Cover art updated from MusicBrainz",
     "fetchError": "Failed to fetch cover art",

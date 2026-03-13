@@ -1,6 +1,6 @@
 'use client'
 
-import { DiscIcon, DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
+import { DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
@@ -12,6 +12,7 @@ import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch
 import type { Song } from '@/features/songs/domain'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
+import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { cn } from '@/lib/utils'
 import { useHomeStore } from '@/stores/home-store'
 import { usePlayerStore } from '@/stores/player-store'
@@ -81,6 +82,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
     confirm({
       title: tMb('fetchMusicBrainzConfirmTitle'),
       description: tMb('fetchMusicBrainzConfirmDescription'),
+      icon: <MusicBrainzIcon className='h-5 w-5 shrink-0' />,
       cancel: { label: tCommon('cancel') },
       action: {
         label: tMb('fetchMusicBrainzConfirmAction'),
@@ -144,7 +146,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                     />
                     <PreviewCardActionButton
                       tooltip={tMb('fetchMusicBrainz')}
-                      icon={DiscIcon}
+                      icon={MusicBrainzIcon}
                       onClick={handleFetchCover}
                       tooltipSide={'bottom'}
                     />
