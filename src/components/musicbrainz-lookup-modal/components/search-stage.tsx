@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2Icon, SearchIcon } from 'lucide-react'
-import { useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -12,6 +12,7 @@ import type { MusicBrainzRecording, MusicBrainzRecordingRelease } from '@/featur
 import { useMusicBrainzSearch } from '@/features/musicbrainz/hooks/use-musicbrainz-search'
 import type { Song } from '@/features/songs/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
+import { formatDate } from '@/lib/date'
 
 interface SearchStageProps {
   song: Song
@@ -26,48 +27,38 @@ function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string 
 export function SearchStage({ song, onSelect }: SearchStageProps) {
   const t = useTranslations('musicbrainzLookup')
   const tFields = useTranslations('fields')
-  const titleRef = useRef<HTMLInputElement>(null)
-  const albumRef = useRef<HTMLInputElement>(null)
-  const { mutate: search, data: recordings, isPending } = useMusicBrainzSearch()
 
-  const handleSearch = () => {
-    const title = titleRef.current?.value ?? ''
-    const album = albumRef.current?.value ?? ''
-    if (isPending || (!title && !album)) return
-    search({ title, album })
+  const [searchTitle, setSearchTitle] = useState(song.title ?? '')
+  const [searchAlbum, setSearchAlbum] = useState(song.album ?? '')
+
+  const { data: recordings, isPending } = useMusicBrainzSearch(searchTitle, searchAlbum)
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    setSearchTitle(formData.get('title') as string)
+    setSearchAlbum(formData.get('album') as string)
   }
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleSearch()
-  }
-
-  useEffect(() => {
-    const title = song.title ?? ''
-    const album = song.album ?? ''
-    if (title || album) {
-      search({ title, album })
-    }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
     <>
-      <div className='px-6 py-4 space-y-4'>
+      <form onSubmit={handleSubmit} className='px-6 py-4 space-y-4'>
         <div className='flex gap-3'>
           <div className='flex-1 space-y-1'>
             <label className='text-xs font-medium text-muted-foreground'>{tFields('title')}</label>
-            <Input ref={titleRef} defaultValue={song.title ?? ''} onKeyDown={handleKeyDown} />
+            <Input name='title' defaultValue={song.title ?? ''} />
           </div>
           <div className='flex-1 space-y-1'>
             <label className='text-xs font-medium text-muted-foreground'>{tFields('album')}</label>
-            <Input ref={albumRef} defaultValue={song.album ?? ''} onKeyDown={handleKeyDown} />
+            <Input name='album' defaultValue={song.album ?? ''} />
           </div>
           <div className='flex items-end'>
-            <Button onClick={handleSearch} disabled={isPending} size='icon'>
+            <Button type='submit' disabled={isPending} size='icon'>
               {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <SearchIcon className='h-4 w-4' />}
             </Button>
           </div>
         </div>
-      </div>
+      </form>
 
       <Separator />
 
@@ -102,7 +93,9 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
                       className='w-full justify-start h-auto py-1.5 px-3 text-xs font-normal'
                       onClick={() => onSelect(recording, release)}>
                       <span className='font-medium'>{release.title}</span>
-                      {release.date && <span className='text-muted-foreground'> ({release.date.substring(0, 4)})</span>}
+                      {release.date && (
+                        <span className='text-muted-foreground'> ({formatDate(release.date, 'yyyy')})</span>
+                      )}
                       {release.country && (
                         <Badge variant='outline' className='ml-auto text-[10px] h-4 px-1.5'>
                           {release.country}

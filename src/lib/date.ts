@@ -4,7 +4,7 @@ export const ISO_DATE_FORMAT = 'yyyy-MM-dd'
 export const DISPLAY_DATE_FORMAT = 'MMM d'
 export const FULL_DATE_FORMAT = 'dd MMMM yyyy, HH:mm'
 
-export function formatDate(date: Date | null, fmt: string = ISO_DATE_FORMAT): string | null {
+export function formatDate(date: Date | string | null, fmt: string = ISO_DATE_FORMAT): string | null {
   if (!date) return null
   return format(new Date(date), fmt)
 }

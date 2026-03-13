@@ -1,20 +1,15 @@
 'use client'
 
-import { useMutation } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import { api } from '@/lib/axios'
 import type { MusicBrainzRecording } from '@/features/musicbrainz/domain'
-
-interface SearchParams {
-  title: string
-  album: string
-}
 
 interface SearchResponse {
   success: true
   recordings: MusicBrainzRecording[]
 }
 
-async function searchRecordings({ title, album }: SearchParams): Promise<MusicBrainzRecording[]> {
+async function searchRecordings(title: string, album: string): Promise<MusicBrainzRecording[]> {
   const response = await api.get<SearchResponse>('/musicbrainz/search', {
     params: { title, album }
   })
@@ -26,8 +21,10 @@ async function searchRecordings({ title, album }: SearchParams): Promise<MusicBr
   return response.data.recordings
 }
 
-export function useMusicBrainzSearch() {
-  return useMutation({
-    mutationFn: searchRecordings
+export function useMusicBrainzSearch(title: string, album: string) {
+  return useQuery({
+    queryKey: ['musicbrainz', 'search', title, album],
+    queryFn: () => searchRecordings(title, album),
+    enabled: !!(title || album)
   })
 }
