@@ -15,12 +15,12 @@ interface MusicBrainzLookupModalProps {
   song: Song
 }
 
-type Stage = 'search' | 'compare'
+type MusicBrainzLookupModalStage = 'search' | 'compare'
 
 export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainzLookupModalProps) {
   const t = useTranslations('musicbrainzLookup')
 
-  const [stage, setStage] = useState<Stage>('search')
+  const [stage, setStage] = useState<MusicBrainzLookupModalStage>('search')
   const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(null)
   const [selectedReleaseId, setSelectedReleaseId] = useState<string | null>(null)
 
