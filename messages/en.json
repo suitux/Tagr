@@ -67,8 +67,9 @@
   },
   "files": {
     "title": "Files",
-    "empty": "No music files in this folder",
-    "syncNow": "Synchronize now",
+    "empty": "No music files found",
+    "emptyDescription": "This folder may not have been scanned yet, or it contains no supported audio files.",
+    "syncNow": "Scan now",
     "details": "File details",
     "selectFile": "Select a file to view its details",
     "fileInfo": "File information",

@@ -1,5 +1,7 @@
+import { useCallback } from 'react'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
+import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { api } from '@/lib/axios'
 import type { ScanSummaryResult } from '@/stores/home-store'
 import { useHomeStore } from '@/stores/home-store'
@@ -19,9 +21,11 @@ async function scanDatabase(mode?: 'full' | 'quick'): Promise<ScanResponse> {
 export function useScan() {
   const queryClient = useQueryClient()
   const t = useTranslations('folders')
+  const tCommon = useTranslations('common')
   const { setScanLastResult, setScanSummaryOpen } = useHomeStore()
+  const { confirm } = useAlertDialog()
 
-  return useMutation({
+  const mutation = useMutation({
     mutationFn: ({ mode }: { mode?: 'full' | 'quick' } = {}) => scanDatabase(mode),
     onMutate: () => {
       return { toastId: toast.loading(t('scanning')) }
@@ -55,4 +59,28 @@ export function useScan() {
       })
     }
   })
+
+  const confirmQuickScan = useCallback(() => {
+    confirm({
+      title: t('quickScanConfirmTitle'),
+      description: t('quickScanConfirmDescription'),
+      cancel: { label: tCommon('cancel') },
+      action: { label: t('quickScan'), onClick: () => mutation.mutate({ mode: 'quick' }) }
+    })
+  }, [confirm, t, tCommon, mutation])
+
+  const confirmFullScan = useCallback(() => {
+    confirm({
+      title: t('fullScanConfirmTitle'),
+      description: t('fullScanConfirmDescription'),
+      cancel: { label: tCommon('cancel') },
+      action: { label: t('fullScan'), onClick: () => mutation.mutate({ mode: 'full' }) }
+    })
+  }, [confirm, t, tCommon, mutation])
+
+  return {
+    ...mutation,
+    confirmQuickScan,
+    confirmFullScan
+  }
 }
