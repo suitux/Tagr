@@ -1,6 +1,6 @@
 'use client'
 
-import { FileAudioIcon, Loader2Icon, RefreshCwIcon } from 'lucide-react'
+import { FileAudioIcon, Loader2Icon, RefreshCwIcon, ZapIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -8,7 +8,8 @@ import { useScan } from '@/features/scan/hooks/use-scan'
 
 export function MainContentEmptyFilesState() {
   const tFiles = useTranslations('files')
-  const { mutate: scan, isPending } = useScan()
+  const t = useTranslations('folders')
+  const { isPending, confirmQuickScan, confirmFullScan } = useScan()
 
   return (
     <div className='flex flex-col items-center justify-center h-full min-h-[300px] text-center p-8'>
@@ -17,11 +18,18 @@ export function MainContentEmptyFilesState() {
           <div className='mx-auto w-16 h-16 rounded-xl bg-muted flex items-center justify-center mb-4'>
             <FileAudioIcon className='w-8 h-8 text-muted-foreground' />
           </div>
-          <p className='text-sm text-muted-foreground mb-4'>{tFiles('empty')}</p>
-          <Button size='lg' onClick={() => scan()} disabled={isPending}>
-            {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
-            {tFiles('syncNow')}
-          </Button>
+          <p className='text-sm font-medium mb-1'>{tFiles('empty')}</p>
+          <p className='text-xs text-muted-foreground mb-4'>{tFiles('emptyDescription')}</p>
+          <div className='flex gap-2 justify-center'>
+            <Button variant='outline' onClick={confirmQuickScan} disabled={isPending}>
+              {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <ZapIcon className='h-4 w-4' />}
+              {t('quickScan')}
+            </Button>
+            <Button onClick={confirmFullScan} disabled={isPending}>
+              {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
+              {t('fullScan')}
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>

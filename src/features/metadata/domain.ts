@@ -34,13 +34,22 @@ export interface SongMetadataUpdate {
 }
 
 export interface ScanResult {
-  totalScanned: number
-  totalAdded: number
-  totalUpdated: number
-  totalDeleted: number
-  totalErrors: number
+  addedFiles: string[]
+  updatedFiles: string[]
+  deletedFiles: string[]
+  skippedFiles: string[]
   errors: Array<{ path: string; error: string }>
 }
+
+export interface ScanResultResponse {
+  added: { count: number; files: string[] }
+  updated: { count: number; files: string[] }
+  deleted: { count: number; files: string[] }
+  skipped: { count: number }
+  errors: Array<{ path: string; error: string }>
+}
+
+export const SCAN_FILE_LIST_LIMIT = 500
 
 export interface ScanProgress {
   current: number

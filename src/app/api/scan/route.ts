@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
+import { adaptScanResultResponse } from '@/features/metadata/adapters'
 import { scanAllFoldersAndUpdateDatabase } from '@/features/metadata/metadata-scan.service'
 import { getMusicFolders } from '@/features/songs/song-file-helpers'
 import { analyzeDatabase, optimizeSQLite } from '@/infrastructure/prisma/optimize'
 
-export async function GET() {
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url)
+  const mode = searchParams.get('mode') === 'quick' ? 'quick' : 'full'
   const folders = getMusicFolders()
 
   if (folders.length === 0) {
@@ -17,18 +20,15 @@ export async function GET() {
   }
 
   try {
-    // Optimizar SQLite antes del scan
     await optimizeSQLite()
 
-    // Ejecutar el scan
-    const result = await scanAllFoldersAndUpdateDatabase(folders)
+    const result = await scanAllFoldersAndUpdateDatabase(folders, undefined, mode)
 
-    // Analizar la base de datos después del scan para optimizar queries
     await analyzeDatabase()
 
     return NextResponse.json({
       success: true,
-      result
+      result: adaptScanResultResponse(result)
     })
   } catch (error) {
     console.error('Error during scan:', error)

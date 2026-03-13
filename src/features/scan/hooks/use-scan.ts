@@ -1,34 +1,32 @@
 import { toast } from 'sonner'
+import { useCallback } from 'react'
 import { useTranslations } from 'next-intl'
+import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { api } from '@/lib/axios'
+import type { ScanSummaryResult } from '@/stores/home-store'
+import { useHomeStore } from '@/stores/home-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-
-interface ScanResult {
-  totalAdded: number
-  totalDeleted: number
-  totalErrors: number
-  totalScanned: number
-  totalUpdated: number
-  errors: number
-}
 
 interface ScanResponse {
   success: boolean
   error?: string
-  result?: ScanResult
+  result?: ScanSummaryResult
 }
 
-async function scanDatabase(): Promise<ScanResponse> {
-  const { data } = await api.get<ScanResponse>('/scan')
+async function scanDatabase(mode?: 'full' | 'quick'): Promise<ScanResponse> {
+  const { data } = await api.get<ScanResponse>('/scan', { params: { mode } })
   return data
 }
 
 export function useScan() {
   const queryClient = useQueryClient()
   const t = useTranslations('folders')
+  const tCommon = useTranslations('common')
+  const { setScanLastResult, setScanSummaryOpen } = useHomeStore()
+  const { confirm } = useAlertDialog()
 
-  return useMutation({
-    mutationFn: scanDatabase,
+  const mutation = useMutation({
+    mutationFn: ({ mode }: { mode?: 'full' | 'quick' } = {}) => scanDatabase(mode),
     onMutate: () => {
       return { toastId: toast.loading(t('scanning')) }
     },
@@ -37,10 +35,19 @@ export function useScan() {
       queryClient.invalidateQueries({ queryKey: ['songs'] })
 
       if (data.result) {
-        const { totalScanned, totalAdded, totalUpdated, totalDeleted, totalErrors } = data.result
+        setScanLastResult(data.result)
+        const { added, updated, deleted, skipped, errors } = data.result
+        const totalScanned = added.count + updated.count + errors.length
         toast.success(t('scanCompleted'), {
           id: context?.toastId,
-          description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`
+          description: `${totalScanned} ${t('filesScanned')} • ${added.count} ${t('added')} • ${updated.count} ${t('updated')} • ${deleted.count} ${t('deleted')}${skipped.count > 0 ? ` • ${skipped.count} ${t('skipped')}` : ''}${errors.length > 0 ? ` • ${errors.length} ${t('errors')}` : ''}`,
+          action: {
+            label: t('viewDetails'),
+            onClick: () => setScanSummaryOpen(true)
+          },
+          dismissible: true,
+          duration: 30000,
+          closeButton: true
         })
       } else {
         toast.success(t('scanCompleted'), { id: context?.toastId })
@@ -53,4 +60,28 @@ export function useScan() {
       })
     }
   })
+
+  const confirmQuickScan = useCallback(() => {
+    confirm({
+      title: t('quickScanConfirmTitle'),
+      description: t('quickScanConfirmDescription'),
+      cancel: { label: tCommon('cancel') },
+      action: { label: t('quickScan'), onClick: () => mutation.mutate({ mode: 'quick' }) }
+    })
+  }, [confirm, t, tCommon, mutation])
+
+  const confirmFullScan = useCallback(() => {
+    confirm({
+      title: t('fullScanConfirmTitle'),
+      description: t('fullScanConfirmDescription'),
+      cancel: { label: tCommon('cancel') },
+      action: { label: t('fullScan'), onClick: () => mutation.mutate({ mode: 'full' }) }
+    })
+  }, [confirm, t, tCommon, mutation])
+
+  return {
+    ...mutation,
+    confirmQuickScan,
+    confirmFullScan
+  }
 }

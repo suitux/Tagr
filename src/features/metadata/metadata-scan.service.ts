@@ -9,7 +9,6 @@ import {
   ScanResult,
   SongCreateInput
 } from '@/features/metadata/domain'
-import { parseDate } from '@/lib/date'
 import {
   BOOLEAN_SONG_FIELDS,
   DATE_SONG_FIELDS,
@@ -24,6 +23,7 @@ import {
 } from '@/features/songs/domain'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
+import { parseDate } from '@/lib/date'
 
 async function getAllMusicFiles(folderPath: string): Promise<string[]> {
   const files: string[] = []
@@ -150,23 +150,36 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
 
 export async function scanFolderAndUpdateDatabase(
   folderPath: string,
-  onProgress?: (progress: ScanProgress) => void
+  onProgress?: (progress: ScanProgress) => void,
+  mode: 'full' | 'quick' = 'full'
 ): Promise<ScanResult> {
   const result: ScanResult = {
-    totalScanned: 0,
-    totalAdded: 0,
-    totalUpdated: 0,
-    totalDeleted: 0,
-    totalErrors: 0,
+    addedFiles: [],
+    updatedFiles: [],
+    deletedFiles: [],
+    skippedFiles: [],
     errors: []
   }
 
   const files = await getAllMusicFiles(folderPath)
   const total = files.length
 
+  const folderPathFilter = {
+    OR: [{ folderPath }, { folderPath: { startsWith: folderPath + '/' } }]
+  }
+
+  // In quick mode, pre-fetch existing songs to skip unchanged files
+  let existingMap: Map<string, Date> | null = null
+  if (mode === 'quick') {
+    const existingSongs = await prisma.song.findMany({
+      where: folderPathFilter,
+      select: { filePath: true, modifiedAt: true }
+    })
+    existingMap = new Map(existingSongs.map(s => [s.filePath, s.modifiedAt!]))
+  }
+
   for (let i = 0; i < files.length; i++) {
     const filePath = files[i]
-    result.totalScanned++
 
     onProgress?.({
       current: i + 1,
@@ -174,10 +187,23 @@ export async function scanFolderAndUpdateDatabase(
       currentFile: filePath
     })
 
+    // In quick mode, skip files that haven't changed
+    if (existingMap) {
+      try {
+        const stats = await fs.stat(filePath)
+        const existingModified = existingMap.get(filePath)
+        if (existingModified && existingModified.getTime() === stats.mtime.getTime()) {
+          result.skippedFiles.push(filePath)
+          continue
+        }
+      } catch {
+        // If we can't stat the file, proceed with scanning it
+      }
+    }
+
     const songData = await extractMetadata(filePath)
 
     if (!songData) {
-      result.totalErrors++
       result.errors.push({ path: filePath, error: 'Failed to extract metadata' })
       continue
     }
@@ -213,7 +239,7 @@ export async function scanFolderAndUpdateDatabase(
             })
           }
         })
-        result.totalUpdated++
+        result.updatedFiles.push(filePath)
       } else {
         // Crear nuevo
         await prisma.song.create({
@@ -231,10 +257,9 @@ export async function scanFolderAndUpdateDatabase(
             })
           }
         })
-        result.totalAdded++
+        result.addedFiles.push(filePath)
       }
     } catch (error) {
-      result.totalErrors++
       result.errors.push({
         path: filePath,
         error: error instanceof Error ? error.message : 'Unknown database error'
@@ -245,11 +270,7 @@ export async function scanFolderAndUpdateDatabase(
   // Eliminar canciones que ya no existen en el sistema de archivos
   const existingPaths = new Set(files)
   const songsInDb = await prisma.song.findMany({
-    where: {
-      folderPath: {
-        startsWith: folderPath
-      }
-    },
+    where: folderPathFilter,
     select: { id: true, filePath: true }
   })
 
@@ -259,9 +280,8 @@ export async function scanFolderAndUpdateDatabase(
         await prisma.song.delete({
           where: { id: song.id }
         })
-        result.totalDeleted++
+        result.deletedFiles.push(song.filePath)
       } catch (error) {
-        result.totalErrors++
         result.errors.push({
           path: song.filePath,
           error: `Failed to delete: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -275,25 +295,28 @@ export async function scanFolderAndUpdateDatabase(
 
 export async function scanAllFoldersAndUpdateDatabase(
   folders: string[],
-  onProgress?: (progress: ScanProgress & { folder: string }) => void
+  onProgress?: (progress: ScanProgress & { folder: string }) => void,
+  mode: 'full' | 'quick' = 'full'
 ): Promise<ScanResult> {
   const result: ScanResult = {
-    totalScanned: 0,
-    totalAdded: 0,
-    totalUpdated: 0,
-    totalDeleted: 0,
-    totalErrors: 0,
+    addedFiles: [],
+    updatedFiles: [],
+    deletedFiles: [],
+    skippedFiles: [],
     errors: []
   }
 
   for (const folder of folders) {
-    const folderResult = await scanFolderAndUpdateDatabase(folder, progress => onProgress?.({ ...progress, folder }))
+    const folderResult = await scanFolderAndUpdateDatabase(
+      folder,
+      progress => onProgress?.({ ...progress, folder }),
+      mode
+    )
 
-    result.totalScanned += folderResult.totalScanned
-    result.totalAdded += folderResult.totalAdded
-    result.totalUpdated += folderResult.totalUpdated
-    result.totalDeleted += folderResult.totalDeleted
-    result.totalErrors += folderResult.totalErrors
+    result.addedFiles.push(...folderResult.addedFiles)
+    result.updatedFiles.push(...folderResult.updatedFiles)
+    result.deletedFiles.push(...folderResult.deletedFiles)
+    result.skippedFiles.push(...folderResult.skippedFiles)
     result.errors.push(...folderResult.errors)
   }
 
