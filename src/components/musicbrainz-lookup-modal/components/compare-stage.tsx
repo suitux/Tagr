@@ -13,6 +13,7 @@ import { useMusicBrainzRelease } from '@/features/musicbrainz/hooks/use-musicbra
 import { DATE_SONG_FIELDS, Song } from '@/features/songs/domain'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
 import { formatDate } from '@/lib/date'
+import { cn } from '@/lib/utils'
 
 interface CompareStageProps {
   song: Song
@@ -105,6 +106,12 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
     )
   }
 
+  const handleRowClick = (row: CompareRow) => {
+    if (row.differs) {
+      handleToggleField(row.field)
+    }
+  }
+
   return (
     <>
       <ScrollArea className='h-[60vh]'>
@@ -119,9 +126,16 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
           </TableHeader>
           <TableBody>
             {compareRows.map(row => (
-              <TableRow key={row.field} className={row.differs ? '' : 'opacity-60'}>
+              <TableRow
+                key={row.field}
+                className={cn({
+                  'opacity-60': !row.differs,
+                  'cursor-pointer hover:bg-accent': row.differs
+                })}
+                onClick={() => handleRowClick(row)}>
                 <TableCell className='px-6'>
                   <Checkbox
+                    disabled={!row.differs}
                     checked={checkedFields.has(row.field)}
                     onCheckedChange={() => handleToggleField(row.field)}
                   />
