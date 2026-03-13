@@ -1,8 +1,10 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
 import type { MusicBrainzRecording, MusicBrainzRecordingRelease } from '@/features/musicbrainz/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 
@@ -20,6 +22,8 @@ function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string 
 export function ResultsStage({ recordings, onSelect, onBack }: ResultsStageProps) {
   const t = useTranslations('musicbrainzLookup')
 
+  console.log(recordings)
+
   return (
     <>
       <ScrollArea className='h-[60vh]'>
@@ -29,32 +33,39 @@ export function ResultsStage({ recordings, onSelect, onBack }: ResultsStageProps
             <p className='text-sm'>{t('noResults')}</p>
           </div>
         )}
-        {recordings.map(recording => (
-          <div key={recording.id} className='border-b last:border-b-0'>
+        {recordings.map((recording, index) => (
+          <div key={recording.id}>
             <div className='px-6 py-3'>
-              <div className='flex items-baseline justify-between gap-2'>
+              <div className='flex items-center justify-between gap-2'>
                 <span className='font-medium text-sm'>{recording.title}</span>
-                <span className='text-xs text-muted-foreground shrink-0'>{t('score', { score: recording.score })}</span>
+                <Badge variant='secondary'>{t('score', { score: recording.score })}</Badge>
               </div>
-              <div className='text-xs text-muted-foreground'>
-                {formatArtistCredit(recording['artist-credit'])}
+              <p className='text-xs text-muted-foreground mt-0.5'>{formatArtistCredit(recording['artist-credit'])}</p>
+              <div className='mt-2 space-y-1'>
+                {recording.releases?.map(release => (
+                  <Button
+                    key={release.id}
+                    variant='ghost'
+                    size='sm'
+                    className='w-full justify-start h-auto py-1.5 px-3 text-xs font-normal'
+                    onClick={() => onSelect(recording, release)}>
+                    <span className='font-medium'>{release.title}</span>
+                    {release.date && <span className='text-muted-foreground'> ({release.date.substring(0, 4)})</span>}
+                    {release.country && (
+                      <Badge variant='outline' className='ml-auto text-[10px] h-4 px-1.5'>
+                        {release.country}
+                      </Badge>
+                    )}
+                  </Button>
+                ))}
               </div>
-              {recording.releases?.map(release => (
-                <button
-                  key={release.id}
-                  onClick={() => onSelect(recording, release)}
-                  className='mt-1 w-full text-left rounded-md px-3 py-2 text-xs hover:bg-accent transition-colors'
-                >
-                  <span className='font-medium'>{release.title}</span>
-                  {release.date && <span className='text-muted-foreground'> ({release.date.substring(0, 4)})</span>}
-                  {release.country && <span className='text-muted-foreground'> [{release.country}]</span>}
-                </button>
-              ))}
             </div>
+            {index < recordings.length - 1 && <Separator />}
           </div>
         ))}
       </ScrollArea>
-      <div className='border-t px-6 py-3'>
+      <Separator />
+      <div className='px-6 py-3'>
         <Button variant='outline' size='sm' onClick={onBack}>
           {t('back')}
         </Button>

@@ -6,6 +6,8 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { MUSIC_BRAINZ_FIELDS, MusicBrainzMappedMetadata } from '@/features/musicbrainz/domain'
 import { useMusicBrainzRelease } from '@/features/musicbrainz/hooks/use-musicbrainz-release'
 import type { Song } from '@/features/songs/domain'
@@ -98,40 +100,38 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
   return (
     <>
       <ScrollArea className='h-[60vh]'>
-        <table className='w-full text-sm'>
-          <thead>
-            <tr className='border-b text-left'>
-              <th className='px-6 py-2 w-8' />
-              <th className='py-2 font-medium text-muted-foreground'>{t('field')}</th>
-              <th className='py-2 font-medium text-muted-foreground'>{t('currentValue')}</th>
-              <th className='py-2 pr-6 font-medium text-muted-foreground'>{t('mbValue')}</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className='w-8 px-6' />
+              <TableHead>{t('field')}</TableHead>
+              <TableHead>{t('currentValue')}</TableHead>
+              <TableHead className='pr-6'>{t('mbValue')}</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
             {compareRows.map(row => (
-              <tr key={row.field} className={`border-b last:border-b-0 ${row.differs ? '' : 'opacity-60'}`}>
-                <td className='px-6 py-2'>
-                  <Checkbox
-                    checked={checkedFields.has(row.field)}
-                    onCheckedChange={() => handleToggleField(row.field)}
-                  />
-                </td>
-                <td className='py-2 font-medium'>{tFields(row.field)}</td>
-                <td className='py-2 text-muted-foreground'>{row.current || '\u2014'}</td>
-                <td className='py-2 pr-6'>{row.musicbrainz}</td>
-              </tr>
+              <TableRow key={row.field} className={row.differs ? '' : 'opacity-60'}>
+                <TableCell className='px-6'>
+                  <Checkbox checked={checkedFields.has(row.field)} onCheckedChange={() => handleToggleField(row.field)} />
+                </TableCell>
+                <TableCell className='font-medium'>{tFields(row.field)}</TableCell>
+                <TableCell className='text-muted-foreground'>{row.current || '\u2014'}</TableCell>
+                <TableCell className='pr-6'>{row.musicbrainz}</TableCell>
+              </TableRow>
             ))}
             {compareRows.length === 0 && (
-              <tr>
-                <td colSpan={4} className='px-6 py-8 text-center text-muted-foreground'>
+              <TableRow>
+                <TableCell colSpan={4} className='text-center text-muted-foreground py-8'>
                   {t('noFields')}
-                </td>
-              </tr>
+                </TableCell>
+              </TableRow>
             )}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
       </ScrollArea>
-      <div className='border-t px-6 py-3 flex items-center justify-between'>
+      <Separator />
+      <div className='px-6 py-3 flex items-center justify-between'>
         <Button variant='outline' size='sm' onClick={onBack}>
           {t('back')}
         </Button>
