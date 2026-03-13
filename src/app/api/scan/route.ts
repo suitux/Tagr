@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { adaptScanResultResponse } from '@/features/metadata/adapters'
 import { scanAllFoldersAndUpdateDatabase } from '@/features/metadata/metadata-scan.service'
 import { getMusicFolders } from '@/features/songs/song-file-helpers'
 import { analyzeDatabase, optimizeSQLite } from '@/infrastructure/prisma/optimize'
@@ -27,7 +28,7 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
-      result
+      result: adaptScanResultResponse(result)
     })
   } catch (error) {
     console.error('Error during scan:', error)

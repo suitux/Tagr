@@ -10,7 +10,8 @@ function basename(filePath: string) {
   return filePath.split('/').pop() || filePath
 }
 
-function FileList({ files }: { files: string[] }) {
+function FileList({ files, total }: { files: string[]; total: number }) {
+  const t = useTranslations('scanSummary')
   return (
     <ul className='space-y-0.5'>
       {files.map(filePath => (
@@ -18,6 +19,11 @@ function FileList({ files }: { files: string[] }) {
           {basename(filePath)}
         </li>
       ))}
+      {total > files.length && (
+        <li className='text-xs text-muted-foreground italic'>
+          {t('andMore', { count: total - files.length })}
+        </li>
+      )}
     </ul>
   )
 }
@@ -43,41 +49,41 @@ export function ScanSummaryModal() {
 
   if (!scanLastResult) return null
 
-  const { addedFiles, updatedFiles, deletedFiles, skippedFiles, errors } = scanLastResult
-  const totalFiles = addedFiles.length + updatedFiles.length + deletedFiles.length + skippedFiles.length + errors.length
+  const { added, updated, deleted, skipped, errors } = scanLastResult
+  const totalFiles = added.count + updated.count + deleted.count + skipped.count + errors.length
 
   const sections = [
     {
       id: 'added',
       icon: FilePlusIcon,
       label: t('added'),
-      count: addedFiles.length,
+      count: added.count,
       color: 'text-green-500',
-      content: <FileList files={addedFiles} />
+      content: <FileList files={added.files} total={added.count} />
     },
     {
       id: 'updated',
       icon: PencilIcon,
       label: t('updated'),
-      count: updatedFiles.length,
+      count: updated.count,
       color: 'text-blue-500',
-      content: <FileList files={updatedFiles} />
+      content: <FileList files={updated.files} total={updated.count} />
     },
     {
       id: 'deleted',
       icon: FileXIcon,
       label: t('deleted'),
-      count: deletedFiles.length,
+      count: deleted.count,
       color: 'text-orange-500',
-      content: <FileList files={deletedFiles} />
+      content: <FileList files={deleted.files} total={deleted.count} />
     },
     {
       id: 'skipped',
       icon: SkipForwardIcon,
       label: t('skipped'),
-      count: skippedFiles.length,
+      count: skipped.count,
       color: 'text-muted-foreground',
-      content: <FileList files={skippedFiles} />
+      content: null
     },
     {
       id: 'errors',
@@ -103,18 +109,26 @@ export function ScanSummaryModal() {
 
         <div className='overflow-y-auto -mx-4 px-4'>
           <Accordion type='multiple'>
-            {sections.map(({ id, icon: Icon, label, count, color, content }) => (
-              <AccordionItem key={id} value={id}>
-                <AccordionTrigger>
-                  <span className='flex items-center gap-2'>
-                    <Icon className={`h-4 w-4 ${color}`} />
-                    {label}
-                    <span className='text-muted-foreground font-normal'>({count})</span>
-                  </span>
-                </AccordionTrigger>
-                <AccordionContent>{content}</AccordionContent>
-              </AccordionItem>
-            ))}
+            {sections.map(({ id, icon: Icon, label, count, color, content }) =>
+              content ? (
+                <AccordionItem key={id} value={id}>
+                  <AccordionTrigger>
+                    <span className='flex items-center gap-2'>
+                      <Icon className={`h-4 w-4 ${color}`} />
+                      {label}
+                      <span className='text-muted-foreground font-normal'>({count})</span>
+                    </span>
+                  </AccordionTrigger>
+                  <AccordionContent>{content}</AccordionContent>
+                </AccordionItem>
+              ) : (
+                <div key={id} className='flex items-center gap-2 py-2.5 text-sm font-medium not-last:border-b'>
+                  <Icon className={`h-4 w-4 ${color}`} />
+                  {label}
+                  <span className='text-muted-foreground font-normal'>({count})</span>
+                </div>
+              )
+            )}
           </Accordion>
         </div>
 

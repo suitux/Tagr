@@ -32,11 +32,11 @@ export function useScan() {
 
       if (data.result) {
         setScanLastResult(data.result)
-        const { addedFiles, updatedFiles, deletedFiles, skippedFiles, errors } = data.result
-        const totalScanned = addedFiles.length + updatedFiles.length + errors.length
+        const { added, updated, deleted, skipped, errors } = data.result
+        const totalScanned = added.count + updated.count + errors.length
         toast.success(t('scanCompleted'), {
           id: context?.toastId,
-          description: `${totalScanned} ${t('filesScanned')} • ${addedFiles.length} ${t('added')} • ${updatedFiles.length} ${t('updated')} • ${deletedFiles.length} ${t('deleted')}${skippedFiles.length > 0 ? ` • ${skippedFiles.length} ${t('skipped')}` : ''}${errors.length > 0 ? ` • ${errors.length} ${t('errors')}` : ''}`,
+          description: `${totalScanned} ${t('filesScanned')} • ${added.count} ${t('added')} • ${updated.count} ${t('updated')} • ${deleted.count} ${t('deleted')}${skipped.count > 0 ? ` • ${skipped.count} ${t('skipped')}` : ''}${errors.length > 0 ? ` • ${errors.length} ${t('errors')}` : ''}`,
           action: {
             label: t('viewDetails'),
             onClick: () => setScanSummaryOpen(true)

@@ -41,6 +41,16 @@ export interface ScanResult {
   errors: Array<{ path: string; error: string }>
 }
 
+export interface ScanResultResponse {
+  added: { count: number; files: string[] }
+  updated: { count: number; files: string[] }
+  deleted: { count: number; files: string[] }
+  skipped: { count: number }
+  errors: Array<{ path: string; error: string }>
+}
+
+export const SCAN_FILE_LIST_LIMIT = 500
+
 export interface ScanProgress {
   current: number
   total: number

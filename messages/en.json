@@ -62,7 +62,8 @@
     "updated": "Updated",
     "deleted": "Deleted",
     "skipped": "Skipped",
-    "errors": "Errors"
+    "errors": "Errors",
+    "andMore": "…and {count, plural, one {# more} other {# more}}"
   },
   "files": {
     "title": "Files",

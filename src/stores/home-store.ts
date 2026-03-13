@@ -3,10 +3,10 @@ import type { SongColumnFilters, SongSortDirection, SongSortField } from '@/feat
 import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 
 export interface ScanSummaryResult {
-  addedFiles: string[]
-  updatedFiles: string[]
-  deletedFiles: string[]
-  skippedFiles: string[]
+  added: { count: number; files: string[] }
+  updated: { count: number; files: string[] }
+  deleted: { count: number; files: string[] }
+  skipped: { count: number }
   errors: Array<{ path: string; error: string }>
 }
 
