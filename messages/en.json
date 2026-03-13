@@ -178,7 +178,7 @@
     "lossless": "Lossless"
   },
   "musicbrainzLookup": {
-    "title": "MusicBrainz Lookup",
+    "title": "MusicBrainz — {songTitle}",
     "tooltip": "Look up metadata on MusicBrainz",
     "search": "Search",
     "back": "Back",

@@ -61,7 +61,7 @@ export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainz
         <DialogHeader className='border-b px-6 py-4'>
           <DialogTitle className='flex items-center gap-2 leading-normal'>
             <MusicBrainzIcon className='h-4 w-4 shrink-0' />
-            {t('title')}
+            {t('title', { songTitle: song.title || song.fileName })}
           </DialogTitle>
         </DialogHeader>
 
