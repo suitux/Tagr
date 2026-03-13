@@ -1,7 +1,7 @@
 'use client'
 
 import { Loader2Icon, SearchIcon } from 'lucide-react'
-import { useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,7 +33,7 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
 
   const { data: recordings, isPending } = useMusicBrainzSearch(searchTitle, searchAlbum)
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     setSearchTitle(formData.get('title') as string)
