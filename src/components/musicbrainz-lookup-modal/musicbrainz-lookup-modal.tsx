@@ -1,13 +1,12 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import type { MusicBrainzRecording, MusicBrainzRecordingRelease } from '@/features/musicbrainz/domain'
 import type { Song } from '@/features/songs/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { CompareStage } from './components/compare-stage'
-import { ResultsStage } from './components/results-stage'
 import { SearchStage } from './components/search-stage'
 
 interface MusicBrainzLookupModalProps {
@@ -16,29 +15,22 @@ interface MusicBrainzLookupModalProps {
   song: Song
 }
 
-type Stage = 'search' | 'results' | 'compare'
+type Stage = 'search' | 'compare'
 
 export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainzLookupModalProps) {
   const t = useTranslations('musicbrainzLookup')
 
   const [stage, setStage] = useState<Stage>('search')
-  const [recordings, setRecordings] = useState<MusicBrainzRecording[]>([])
   const [selectedRecordingId, setSelectedRecordingId] = useState<string | null>(null)
   const [selectedReleaseId, setSelectedReleaseId] = useState<string | null>(null)
 
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen) {
       setStage('search')
-      setRecordings([])
       setSelectedRecordingId(null)
       setSelectedReleaseId(null)
     }
     onOpenChange(nextOpen)
-  }
-
-  const handleResults = (data: MusicBrainzRecording[]) => {
-    setRecordings(data)
-    setStage('results')
   }
 
   const handleSelect = (recording: MusicBrainzRecording, release: MusicBrainzRecordingRelease) => {
@@ -47,12 +39,10 @@ export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainz
     setStage('compare')
   }
 
-  const handleBackFromResults = () => setStage('search')
-
   const handleBackFromCompare = () => {
     setSelectedRecordingId(null)
     setSelectedReleaseId(null)
-    setStage('results')
+    setStage('search')
   }
 
   return (
@@ -65,11 +55,7 @@ export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainz
           </DialogTitle>
         </DialogHeader>
 
-        {stage === 'search' && <SearchStage song={song} onResults={handleResults} />}
-
-        {stage === 'results' && (
-          <ResultsStage recordings={recordings} onSelect={handleSelect} onBack={handleBackFromResults} />
-        )}
+        {stage === 'search' && <SearchStage song={song} onSelect={handleSelect} />}
 
         {stage === 'compare' && selectedReleaseId && selectedRecordingId && (
           <CompareStage
