@@ -107,3 +107,20 @@ export interface MusicBrainzMappedMetadata {
   originalReleaseDate?: string
   genre?: string
 }
+
+export const MUSIC_BRAINZ_FIELDS: (keyof MusicBrainzMappedMetadata)[] = [
+  'title',
+  'artist',
+  'album',
+  'albumArtist',
+  'year',
+  'trackNumber',
+  'trackTotal',
+  'discNumber',
+  'discTotal',
+  'publisher',
+  'catalogNumber',
+  'barcode',
+  'originalReleaseDate',
+  'genre'
+]

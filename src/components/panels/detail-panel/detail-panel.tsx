@@ -3,9 +3,8 @@
 import { HistoryIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { HistoryModal } from '@/components/history-modal/history-modal'
-import { MusicBrainzLookupModal } from '@/components/panels/detail-panel/components/musicbrainz-lookup-modal/musicbrainz-lookup-modal'
+import { MusicBrainzLookupModal } from '@/components/musicbrainz-lookup-modal/musicbrainz-lookup-modal'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { DetailPanelFetchingOverlay } from '@/components/panels/detail-panel/components/detail-panel-fetching-overlay'
 import { RescanSongIconButton } from '@/components/panels/detail-panel/components/rescan-song-icon-button'
@@ -15,6 +14,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { useSelectedSong } from '@/hooks/use-selected-song'
+import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
 import { DetailPanelEmptyState } from './components/detail-panel-empty-state'
 import { DetailPanelFileDetailsSection } from './components/detail-panel-file-details-section'
@@ -58,9 +58,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
 
   return (
     <div className='relative flex flex-col h-full overflow-hidden'>
-      {isFetching && (
-        <DetailPanelFetchingOverlay />
-      )}
+      {isFetching && <DetailPanelFetchingOverlay />}
       <div className='flex justify-end gap-1 p-2'>
         <RescanSongIconButton songId={song.id} />
         <Tooltip>
