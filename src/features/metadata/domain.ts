@@ -34,12 +34,6 @@ export interface SongMetadataUpdate {
 }
 
 export interface ScanResult {
-  totalScanned: number
-  totalAdded: number
-  totalUpdated: number
-  totalDeleted: number
-  totalSkipped: number
-  totalErrors: number
   addedFiles: string[]
   updatedFiles: string[]
   deletedFiles: string[]

@@ -1,25 +1,14 @@
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { api } from '@/lib/axios'
+import type { ScanSummaryResult } from '@/stores/home-store'
 import { useHomeStore } from '@/stores/home-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface ScanResponse {
   success: boolean
   error?: string
-  result?: {
-    totalAdded: number
-    totalDeleted: number
-    totalSkipped: number
-    totalErrors: number
-    totalScanned: number
-    totalUpdated: number
-    addedFiles: string[]
-    updatedFiles: string[]
-    deletedFiles: string[]
-    skippedFiles: string[]
-    errors: Array<{ path: string; error: string }>
-  }
+  result?: ScanSummaryResult
 }
 
 async function scanDatabase(mode?: 'full' | 'quick'): Promise<ScanResponse> {
@@ -43,10 +32,11 @@ export function useScan() {
 
       if (data.result) {
         setScanLastResult(data.result)
-        const { totalScanned, totalAdded, totalUpdated, totalDeleted, totalSkipped, totalErrors } = data.result
+        const { addedFiles, updatedFiles, deletedFiles, skippedFiles, errors } = data.result
+        const totalScanned = addedFiles.length + updatedFiles.length + errors.length
         toast.success(t('scanCompleted'), {
           id: context?.toastId,
-          description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalSkipped > 0 ? ` • ${totalSkipped} ${t('skipped')}` : ''}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`,
+          description: `${totalScanned} ${t('filesScanned')} • ${addedFiles.length} ${t('added')} • ${updatedFiles.length} ${t('updated')} • ${deletedFiles.length} ${t('deleted')}${skippedFiles.length > 0 ? ` • ${skippedFiles.length} ${t('skipped')}` : ''}${errors.length > 0 ? ` • ${errors.length} ${t('errors')}` : ''}`,
           action: {
             label: t('viewDetails'),
             onClick: () => setScanSummaryOpen(true)

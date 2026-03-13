@@ -3,12 +3,6 @@ import type { SongColumnFilters, SongSortDirection, SongSortField } from '@/feat
 import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 
 export interface ScanSummaryResult {
-  totalAdded: number
-  totalDeleted: number
-  totalSkipped: number
-  totalErrors: number
-  totalScanned: number
-  totalUpdated: number
   addedFiles: string[]
   updatedFiles: string[]
   deletedFiles: string[]

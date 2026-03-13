@@ -4,7 +4,7 @@ import { AlertCircleIcon, CheckCircleIcon, FilePlusIcon, FileXIcon, PencilIcon, 
 import { useTranslations } from 'next-intl'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { ScanSummaryResult, useHomeStore } from '@/stores/home-store'
+import { useHomeStore } from '@/stores/home-store'
 
 function basename(filePath: string) {
   return filePath.split('/').pop() || filePath
@@ -43,48 +43,49 @@ export function ScanSummaryModal() {
 
   if (!scanLastResult) return null
 
-  const totalFiles = scanLastResult.totalScanned + scanLastResult.totalSkipped
+  const { addedFiles, updatedFiles, deletedFiles, skippedFiles, errors } = scanLastResult
+  const totalFiles = addedFiles.length + updatedFiles.length + deletedFiles.length + skippedFiles.length + errors.length
 
   const sections = [
     {
       id: 'added',
       icon: FilePlusIcon,
       label: t('added'),
-      count: scanLastResult.totalAdded,
+      count: addedFiles.length,
       color: 'text-green-500',
-      content: <FileList files={scanLastResult.addedFiles} />
+      content: <FileList files={addedFiles} />
     },
     {
       id: 'updated',
       icon: PencilIcon,
       label: t('updated'),
-      count: scanLastResult.totalUpdated,
+      count: updatedFiles.length,
       color: 'text-blue-500',
-      content: <FileList files={scanLastResult.updatedFiles} />
+      content: <FileList files={updatedFiles} />
     },
     {
       id: 'deleted',
       icon: FileXIcon,
       label: t('deleted'),
-      count: scanLastResult.totalDeleted,
+      count: deletedFiles.length,
       color: 'text-orange-500',
-      content: <FileList files={scanLastResult.deletedFiles} />
+      content: <FileList files={deletedFiles} />
     },
     {
       id: 'skipped',
       icon: SkipForwardIcon,
       label: t('skipped'),
-      count: scanLastResult.totalSkipped,
+      count: skippedFiles.length,
       color: 'text-muted-foreground',
-      content: <FileList files={scanLastResult.skippedFiles} />
+      content: <FileList files={skippedFiles} />
     },
     {
       id: 'errors',
       icon: AlertCircleIcon,
       label: t('errors'),
-      count: scanLastResult.totalErrors,
+      count: errors.length,
       color: 'text-destructive',
-      content: <ErrorList errors={scanLastResult.errors} />
+      content: <ErrorList errors={errors} />
     }
   ].filter(s => s.count > 0)
 

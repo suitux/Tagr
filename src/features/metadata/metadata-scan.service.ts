@@ -154,12 +154,6 @@ export async function scanFolderAndUpdateDatabase(
   mode: 'full' | 'quick' = 'full'
 ): Promise<ScanResult> {
   const result: ScanResult = {
-    totalScanned: 0,
-    totalAdded: 0,
-    totalUpdated: 0,
-    totalDeleted: 0,
-    totalSkipped: 0,
-    totalErrors: 0,
     addedFiles: [],
     updatedFiles: [],
     deletedFiles: [],
@@ -199,7 +193,6 @@ export async function scanFolderAndUpdateDatabase(
         const stats = await fs.stat(filePath)
         const existingModified = existingMap.get(filePath)
         if (existingModified && existingModified.getTime() === stats.mtime.getTime()) {
-          result.totalSkipped++
           result.skippedFiles.push(filePath)
           continue
         }
@@ -208,12 +201,9 @@ export async function scanFolderAndUpdateDatabase(
       }
     }
 
-    result.totalScanned++
-
     const songData = await extractMetadata(filePath)
 
     if (!songData) {
-      result.totalErrors++
       result.errors.push({ path: filePath, error: 'Failed to extract metadata' })
       continue
     }
@@ -249,7 +239,6 @@ export async function scanFolderAndUpdateDatabase(
             })
           }
         })
-        result.totalUpdated++
         result.updatedFiles.push(filePath)
       } else {
         // Crear nuevo
@@ -268,11 +257,9 @@ export async function scanFolderAndUpdateDatabase(
             })
           }
         })
-        result.totalAdded++
         result.addedFiles.push(filePath)
       }
     } catch (error) {
-      result.totalErrors++
       result.errors.push({
         path: filePath,
         error: error instanceof Error ? error.message : 'Unknown database error'
@@ -293,10 +280,8 @@ export async function scanFolderAndUpdateDatabase(
         await prisma.song.delete({
           where: { id: song.id }
         })
-        result.totalDeleted++
         result.deletedFiles.push(song.filePath)
       } catch (error) {
-        result.totalErrors++
         result.errors.push({
           path: song.filePath,
           error: `Failed to delete: ${error instanceof Error ? error.message : 'Unknown error'}`
@@ -314,12 +299,6 @@ export async function scanAllFoldersAndUpdateDatabase(
   mode: 'full' | 'quick' = 'full'
 ): Promise<ScanResult> {
   const result: ScanResult = {
-    totalScanned: 0,
-    totalAdded: 0,
-    totalUpdated: 0,
-    totalDeleted: 0,
-    totalSkipped: 0,
-    totalErrors: 0,
     addedFiles: [],
     updatedFiles: [],
     deletedFiles: [],
@@ -334,12 +313,6 @@ export async function scanAllFoldersAndUpdateDatabase(
       mode
     )
 
-    result.totalScanned += folderResult.totalScanned
-    result.totalAdded += folderResult.totalAdded
-    result.totalUpdated += folderResult.totalUpdated
-    result.totalDeleted += folderResult.totalDeleted
-    result.totalSkipped += folderResult.totalSkipped
-    result.totalErrors += folderResult.totalErrors
     result.addedFiles.push(...folderResult.addedFiles)
     result.updatedFiles.push(...folderResult.updatedFiles)
     result.deletedFiles.push(...folderResult.deletedFiles)
