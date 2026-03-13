@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { searchRecordings } from '@/features/musicbrainz/musicbrainz.service'
+import { getSearchParam } from '@/lib/api/search-params'
 
 export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
-  const title = searchParams.get('title') ?? ''
-  const album = searchParams.get('album') ?? ''
+  const title = getSearchParam(searchParams, 'title', 'string', '')
+  const album = getSearchParam(searchParams, 'album', 'string', '')
 
   if (!title && !album) {
     return NextResponse.json({ success: false, error: 'title or album is required' }, { status: 400 })

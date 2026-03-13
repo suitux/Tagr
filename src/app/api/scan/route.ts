@@ -1,12 +1,14 @@
 import { NextResponse } from 'next/server'
 import { adaptScanResultResponse } from '@/features/metadata/adapters'
 import { scanAllFoldersAndUpdateDatabase } from '@/features/metadata/metadata-scan.service'
+import { ScanMode } from '@/features/scan/domain'
 import { getMusicFolders } from '@/features/songs/song-file-helpers'
 import { analyzeDatabase, optimizeSQLite } from '@/infrastructure/prisma/optimize'
+import { getSearchParam } from '@/lib/api/search-params'
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const mode = searchParams.get('mode') === 'quick' ? 'quick' : 'full'
+  const mode = getSearchParam(searchParams, 'mode', 'string', 'full') as ScanMode
   const folders = getMusicFolders()
 
   if (folders.length === 0) {

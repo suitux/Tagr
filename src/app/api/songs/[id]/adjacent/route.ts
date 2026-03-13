@@ -31,7 +31,7 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   }
 
   const { searchParams } = new URL(request.url)
-  const folderPath = searchParams.get('folderPath')
+  const folderPath = getSearchParam(searchParams, 'folderPath', 'string')
 
   if (!folderPath) {
     return NextResponse.json({ success: false, error: 'folderPath is required' }, { status: 400 })

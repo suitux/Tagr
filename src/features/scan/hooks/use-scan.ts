@@ -2,6 +2,7 @@ import { toast } from 'sonner'
 import { useCallback } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
+import { ScanMode } from '@/features/scan/domain'
 import { api } from '@/lib/axios'
 import type { ScanSummaryResult } from '@/stores/home-store'
 import { useHomeStore } from '@/stores/home-store'
@@ -13,7 +14,7 @@ interface ScanResponse {
   result?: ScanSummaryResult
 }
 
-async function scanDatabase(mode?: 'full' | 'quick'): Promise<ScanResponse> {
+async function scanDatabase(mode?: ScanMode): Promise<ScanResponse> {
   const { data } = await api.get<ScanResponse>('/scan', { params: { mode } })
   return data
 }
@@ -26,7 +27,7 @@ export function useScan() {
   const { confirm } = useAlertDialog()
 
   const mutation = useMutation({
-    mutationFn: ({ mode }: { mode?: 'full' | 'quick' } = {}) => scanDatabase(mode),
+    mutationFn: ({ mode }: { mode?: ScanMode } = {}) => scanDatabase(mode),
     onMutate: () => {
       return { toastId: toast.loading(t('scanning')) }
     },

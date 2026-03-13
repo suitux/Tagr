@@ -1,11 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { MusicBrainzRecording } from '@/features/musicbrainz/domain'
 import { fetchReleaseDetails, mapToSongMetadata } from '@/features/musicbrainz/musicbrainz.service'
+import { getSearchParam } from '@/lib/api/search-params'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id: releaseId } = await params
   const { searchParams } = request.nextUrl
-  const recordingId = searchParams.get('recordingId') ?? ''
+  const recordingId = getSearchParam(searchParams, 'recordingId', 'string', '')
 
   if (!releaseId) {
     return NextResponse.json({ success: false, error: 'Release ID is required' }, { status: 400 })
