@@ -1,22 +1,25 @@
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { api } from '@/lib/axios'
+import { useHomeStore } from '@/stores/home-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-
-interface ScanResult {
-  totalAdded: number
-  totalDeleted: number
-  totalSkipped: number
-  totalErrors: number
-  totalScanned: number
-  totalUpdated: number
-  errors: number
-}
 
 interface ScanResponse {
   success: boolean
   error?: string
-  result?: ScanResult
+  result?: {
+    totalAdded: number
+    totalDeleted: number
+    totalSkipped: number
+    totalErrors: number
+    totalScanned: number
+    totalUpdated: number
+    addedFiles: string[]
+    updatedFiles: string[]
+    deletedFiles: string[]
+    skippedFiles: string[]
+    errors: Array<{ path: string; error: string }>
+  }
 }
 
 async function scanDatabase(mode?: 'full' | 'quick'): Promise<ScanResponse> {
@@ -27,6 +30,7 @@ async function scanDatabase(mode?: 'full' | 'quick'): Promise<ScanResponse> {
 export function useScan() {
   const queryClient = useQueryClient()
   const t = useTranslations('folders')
+  const { setScanLastResult, setScanSummaryOpen } = useHomeStore()
 
   return useMutation({
     mutationFn: ({ mode }: { mode?: 'full' | 'quick' } = {}) => scanDatabase(mode),
@@ -38,10 +42,17 @@ export function useScan() {
       queryClient.invalidateQueries({ queryKey: ['songs'] })
 
       if (data.result) {
+        setScanLastResult(data.result)
         const { totalScanned, totalAdded, totalUpdated, totalDeleted, totalSkipped, totalErrors } = data.result
         toast.success(t('scanCompleted'), {
           id: context?.toastId,
-          description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalSkipped > 0 ? ` • ${totalSkipped} ${t('skipped')}` : ''}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`
+          description: `${totalScanned} ${t('filesScanned')} • ${totalAdded} ${t('added')} • ${totalUpdated} ${t('updated')} • ${totalDeleted} ${t('deleted')}${totalSkipped > 0 ? ` • ${totalSkipped} ${t('skipped')}` : ''}${totalErrors > 0 ? ` • ${totalErrors} ${t('errors')}` : ''}`,
+          action: {
+            label: t('viewDetails'),
+            onClick: () => setScanSummaryOpen(true)
+          },
+          dismissible: true,
+          duration: 30000
         })
       } else {
         toast.success(t('scanCompleted'), { id: context?.toastId })

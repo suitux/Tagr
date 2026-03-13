@@ -160,6 +160,10 @@ export async function scanFolderAndUpdateDatabase(
     totalDeleted: 0,
     totalSkipped: 0,
     totalErrors: 0,
+    addedFiles: [],
+    updatedFiles: [],
+    deletedFiles: [],
+    skippedFiles: [],
     errors: []
   }
 
@@ -196,6 +200,7 @@ export async function scanFolderAndUpdateDatabase(
         const existingModified = existingMap.get(filePath)
         if (existingModified && existingModified.getTime() === stats.mtime.getTime()) {
           result.totalSkipped++
+          result.skippedFiles.push(filePath)
           continue
         }
       } catch {
@@ -245,6 +250,7 @@ export async function scanFolderAndUpdateDatabase(
           }
         })
         result.totalUpdated++
+        result.updatedFiles.push(filePath)
       } else {
         // Crear nuevo
         await prisma.song.create({
@@ -263,6 +269,7 @@ export async function scanFolderAndUpdateDatabase(
           }
         })
         result.totalAdded++
+        result.addedFiles.push(filePath)
       }
     } catch (error) {
       result.totalErrors++
@@ -287,6 +294,7 @@ export async function scanFolderAndUpdateDatabase(
           where: { id: song.id }
         })
         result.totalDeleted++
+        result.deletedFiles.push(song.filePath)
       } catch (error) {
         result.totalErrors++
         result.errors.push({
@@ -312,6 +320,10 @@ export async function scanAllFoldersAndUpdateDatabase(
     totalDeleted: 0,
     totalSkipped: 0,
     totalErrors: 0,
+    addedFiles: [],
+    updatedFiles: [],
+    deletedFiles: [],
+    skippedFiles: [],
     errors: []
   }
 
@@ -328,6 +340,10 @@ export async function scanAllFoldersAndUpdateDatabase(
     result.totalDeleted += folderResult.totalDeleted
     result.totalSkipped += folderResult.totalSkipped
     result.totalErrors += folderResult.totalErrors
+    result.addedFiles.push(...folderResult.addedFiles)
+    result.updatedFiles.push(...folderResult.updatedFiles)
+    result.deletedFiles.push(...folderResult.deletedFiles)
+    result.skippedFiles.push(...folderResult.skippedFiles)
     result.errors.push(...folderResult.errors)
   }
 

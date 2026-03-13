@@ -40,6 +40,10 @@ export interface ScanResult {
   totalDeleted: number
   totalSkipped: number
   totalErrors: number
+  addedFiles: string[]
+  updatedFiles: string[]
+  deletedFiles: string[]
+  skippedFiles: string[]
   errors: Array<{ path: string; error: string }>
 }
 

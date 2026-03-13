@@ -52,7 +52,17 @@
     "updated": "updated",
     "deleted": "deleted",
     "errors": "errors",
+    "viewDetails": "Details",
     "unknownError": "Unknown error occurred"
+  },
+  "scanSummary": {
+    "title": "Scan summary",
+    "totalFiles": "{count, plural, one {# file processed} other {# files processed}}",
+    "added": "Added",
+    "updated": "Updated",
+    "deleted": "Deleted",
+    "skipped": "Skipped",
+    "errors": "Errors"
   },
   "files": {
     "title": "Files",
