@@ -82,6 +82,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
     confirm({
       title: tMb('fetchMusicBrainzConfirmTitle'),
       description: tMb('fetchMusicBrainzConfirmDescription'),
+      icon: <MusicBrainzIcon className='h-5 w-5 shrink-0' />,
       cancel: { label: tCommon('cancel') },
       action: {
         label: tMb('fetchMusicBrainzConfirmAction'),
