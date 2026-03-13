@@ -1,8 +1,9 @@
 'use client'
 
-import { DiscIcon, HistoryIcon, XIcon } from 'lucide-react'
+import { HistoryIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
+import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { HistoryModal } from '@/components/history-modal/history-modal'
 import { MusicBrainzLookupModal } from '@/components/panels/detail-panel/components/musicbrainz-lookup-modal/musicbrainz-lookup-modal'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
@@ -65,7 +66,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setMusicBrainzLookupOpen(true)}>
-              <DiscIcon className='h-4 w-4' />
+              <MusicBrainzIcon className='h-4 w-4' />
             </Button>
           </TooltipTrigger>
           <TooltipContent>{tMusicBrainz('tooltip')}</TooltipContent>

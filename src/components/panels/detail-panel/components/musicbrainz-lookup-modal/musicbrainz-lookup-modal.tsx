@@ -1,6 +1,6 @@
 'use client'
 
-import { CheckIcon, DiscIcon, Loader2Icon, SearchIcon } from 'lucide-react'
+import { CheckIcon, Loader2Icon, SearchIcon } from 'lucide-react'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -13,6 +13,7 @@ import { useMusicBrainzRelease } from '@/features/musicbrainz/hooks/use-musicbra
 import { useMusicBrainzSearch } from '@/features/musicbrainz/hooks/use-musicbrainz-search'
 import type { Song } from '@/features/songs/domain'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
+import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 
 interface MusicBrainzLookupModalProps {
   open: boolean
@@ -168,7 +169,7 @@ export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainz
       <DialogContent className='flex flex-col p-0 w-full max-w-2xl'>
         <DialogHeader className='border-b px-6 py-4'>
           <DialogTitle className='flex items-center gap-2 leading-normal'>
-            <DiscIcon className='h-4 w-4 shrink-0' />
+            <MusicBrainzIcon className='h-4 w-4 shrink-0' />
             {t('title')}
           </DialogTitle>
         </DialogHeader>
@@ -195,7 +196,7 @@ export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainz
             <ScrollArea className='h-[60vh]'>
               {!recordings?.length && (
                 <div className='flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground'>
-                  <DiscIcon className='h-8 w-8 opacity-40' />
+                  <MusicBrainzIcon className='h-8 w-8 opacity-40' />
                   <p className='text-sm'>{t('noResults')}</p>
                 </div>
               )}
