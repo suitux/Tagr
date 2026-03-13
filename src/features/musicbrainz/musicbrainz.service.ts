@@ -1,7 +1,4 @@
 import {
-  MUSICBRAINZ_API,
-  COVERART_API,
-  USER_AGENT,
   type MusicBrainzSearchResponse,
   type MusicBrainzCoverArtResponse,
   type MusicBrainzCoverArtResult,
@@ -10,21 +7,18 @@ import {
   type MusicBrainzMappedMetadata,
   type MusicBrainzRecording
 } from './domain'
+import { musicBrainzApi } from './musicbrainz-api'
 
 export async function searchReleaseId(artist: string, album: string): Promise<string | null> {
   const query = `release:${JSON.stringify(album)} AND artist:${JSON.stringify(artist)}`
-  const url = `${MUSICBRAINZ_API}/release/?query=${encodeURIComponent(query)}&fmt=json&limit=5`
 
-  const response = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT }
-  })
-
-  if (!response.ok) return null
-
-  const data = (await response.json()) as MusicBrainzSearchResponse
-  if (!data.releases?.length) return null
-
-  return data.releases[0].id
+  try {
+    const data = await musicBrainzApi.searchReleases<MusicBrainzSearchResponse>(query, 5)
+    if (!data.releases?.length) return null
+    return data.releases[0].id
+  } catch {
+    return null
+  }
 }
 
 interface SearchRecordingsParams {
@@ -41,29 +35,14 @@ export async function searchRecordings({
   if (album) parts.push(`release:${JSON.stringify(album)}`)
   const query = parts.join(' AND ')
 
-  const url = `${MUSICBRAINZ_API}/recording/?query=${encodeURIComponent(query)}&fmt=json&limit=10`
-  const response = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT }
-  })
-
-  if (!response.ok) {
-    throw new Error(`MusicBrainz search failed: ${response.status}`)
-  }
-
-  return (await response.json()) as MusicBrainzRecordingSearchResponse
+  return musicBrainzApi.searchRecordings<MusicBrainzRecordingSearchResponse>(query, 10)
 }
 
 export async function fetchReleaseDetails(releaseId: string): Promise<MusicBrainzReleaseDetail> {
-  const url = `${MUSICBRAINZ_API}/release/${releaseId}?inc=recordings+artist-credits+labels+release-groups&fmt=json`
-  const response = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT }
-  })
-
-  if (!response.ok) {
-    throw new Error(`MusicBrainz release fetch failed: ${response.status}`)
-  }
-
-  return (await response.json()) as MusicBrainzReleaseDetail
+  return musicBrainzApi.getRelease<MusicBrainzReleaseDetail>(
+    releaseId,
+    'recordings+artist-credits+labels+release-groups'
+  )
 }
 
 function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string }>): string | undefined {
@@ -125,27 +104,14 @@ export function mapToSongMetadata(
 }
 
 export async function fetchCoverArt(releaseId: string): Promise<MusicBrainzCoverArtResult | null> {
-  const url = `${COVERART_API}/release/${releaseId}`
+  try {
+    const data = await musicBrainzApi.getCoverArt<MusicBrainzCoverArtResponse>(releaseId)
+    const front = data.images?.find(img => img.front)
+    if (!front) return null
 
-  const response = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT }
-  })
-
-  if (!response.ok) return null
-
-  const data = (await response.json()) as MusicBrainzCoverArtResponse
-  const front = data.images?.find(img => img.front)
-  if (!front) return null
-
-  const imageUrl = front.thumbnails['500'] ?? front.thumbnails.large ?? front.image
-  const imageResponse = await fetch(imageUrl, {
-    headers: { 'User-Agent': USER_AGENT }
-  })
-
-  if (!imageResponse.ok) return null
-
-  const arrayBuffer = await imageResponse.arrayBuffer()
-  const contentType = imageResponse.headers.get('content-type') ?? 'image/jpeg'
-
-  return { buffer: Buffer.from(arrayBuffer), contentType }
+    const imageUrl = front.thumbnails['500'] ?? front.thumbnails.large ?? front.image
+    return await musicBrainzApi.fetchImage(imageUrl)
+  } catch {
+    return null
+  }
 }
