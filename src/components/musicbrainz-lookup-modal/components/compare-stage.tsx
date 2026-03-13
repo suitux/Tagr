@@ -10,8 +10,9 @@ import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { MUSIC_BRAINZ_FIELDS, MusicBrainzMappedMetadata } from '@/features/musicbrainz/domain'
 import { useMusicBrainzRelease } from '@/features/musicbrainz/hooks/use-musicbrainz-release'
-import type { Song } from '@/features/songs/domain'
+import { DATE_SONG_FIELDS, Song } from '@/features/songs/domain'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
+import { formatDate } from '@/lib/date'
 
 interface CompareStageProps {
   song: Song
@@ -26,6 +27,12 @@ interface CompareRow {
   current: string
   musicbrainz: string
   differs: boolean
+}
+
+function formatFieldValue(value: unknown, isDate: boolean): string {
+  if (value == null) return ''
+  if (isDate) return formatDate(value instanceof Date ? value : new Date(String(value))) ?? ''
+  return String(value)
 }
 
 export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: CompareStageProps) {
@@ -45,11 +52,12 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
       const mbValue = mapped[field]
       if (mbValue === undefined && mbValue !== 0) continue
 
-      const mbStr = String(mbValue ?? '')
+      const isDate = DATE_SONG_FIELDS.has(field)
+      const mbStr = formatFieldValue(mbValue, isDate)
       if (!mbStr) continue
 
       const currentValue = song[field as keyof Song]
-      const currentStr = currentValue != null ? String(currentValue) : ''
+      const currentStr = formatFieldValue(currentValue, isDate)
 
       rows.push({ field, current: currentStr, musicbrainz: mbStr, differs: currentStr !== mbStr })
     }
@@ -113,7 +121,10 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
             {compareRows.map(row => (
               <TableRow key={row.field} className={row.differs ? '' : 'opacity-60'}>
                 <TableCell className='px-6'>
-                  <Checkbox checked={checkedFields.has(row.field)} onCheckedChange={() => handleToggleField(row.field)} />
+                  <Checkbox
+                    checked={checkedFields.has(row.field)}
+                    onCheckedChange={() => handleToggleField(row.field)}
+                  />
                 </TableCell>
                 <TableCell className='font-medium'>{tFields(row.field)}</TableCell>
                 <TableCell className='text-muted-foreground'>{row.current || '\u2014'}</TableCell>
