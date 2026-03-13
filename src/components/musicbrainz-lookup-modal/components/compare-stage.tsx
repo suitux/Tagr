@@ -127,8 +127,8 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
                   />
                 </TableCell>
                 <TableCell className='font-medium'>{tFields(row.field)}</TableCell>
-                <TableCell className='text-muted-foreground'>{row.current || '\u2014'}</TableCell>
-                <TableCell className='pr-6'>{row.musicbrainz}</TableCell>
+                <TableCell className='text-muted-foreground whitespace-normal'>{row.current || '\u2014'}</TableCell>
+                <TableCell className='pr-6 whitespace-normal'>{row.musicbrainz}</TableCell>
               </TableRow>
             ))}
             {compareRows.length === 0 && (
