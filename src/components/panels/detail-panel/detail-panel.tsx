@@ -1,9 +1,10 @@
 'use client'
 
-import { HistoryIcon, XIcon } from 'lucide-react'
+import { DiscIcon, HistoryIcon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HistoryModal } from '@/components/history-modal/history-modal'
+import { MusicBrainzLookupModal } from '@/components/panels/detail-panel/components/musicbrainz-lookup-modal/musicbrainz-lookup-modal'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { DetailPanelFetchingOverlay } from '@/components/panels/detail-panel/components/detail-panel-fetching-overlay'
 import { RescanSongIconButton } from '@/components/panels/detail-panel/components/rescan-song-icon-button'
@@ -30,9 +31,11 @@ interface DetailPanelProps {
 export function DetailPanel({ songId }: DetailPanelProps) {
   const tHistory = useTranslations('history')
   const tFormats = useTranslations('formats')
+  const tMusicBrainz = useTranslations('musicbrainzLookup')
   const { setSelectedSongId } = useSelectedSong()
   const { data: song, isPending, isFetching } = useSong(songId)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [musicBrainzLookupOpen, setMusicBrainzLookupOpen] = useState(false)
 
   if (!songId) {
     return <DetailPanelEmptyState />
@@ -61,6 +64,14 @@ export function DetailPanel({ songId }: DetailPanelProps) {
         <RescanSongIconButton songId={song.id} />
         <Tooltip>
           <TooltipTrigger asChild>
+            <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setMusicBrainzLookupOpen(true)}>
+              <DiscIcon className='h-4 w-4' />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{tMusicBrainz('tooltip')}</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
             <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setHistoryOpen(true)}>
               <HistoryIcon className='h-4 w-4' />
             </Button>
@@ -83,6 +94,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
         </div>
       </ScrollArea>
       <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} songId={song.id} songTitle={displayTitle} />
+      <MusicBrainzLookupModal open={musicBrainzLookupOpen} onOpenChange={setMusicBrainzLookupOpen} song={song} />
     </div>
   )
 }
