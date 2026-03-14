@@ -100,6 +100,16 @@
   "notes": {
     "title": "Notes"
   },
+  "customTags": {
+    "title": "Custom Tags",
+    "addTag": "Add Tag",
+    "key": "Key",
+    "value": "Value",
+    "empty": "No custom tags",
+    "keyPlaceholder": "Tag name (e.g. MOOD)",
+    "valuePlaceholder": "Tag value",
+    "deleteConfirm": "Remove this tag?"
+  },
   "playback": {
     "volume": "Volume",
     "startTime": "Start Time",

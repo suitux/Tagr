@@ -114,6 +114,52 @@ export async function writePictureToFile(filePath: string, imageBuffer: Buffer, 
   }
 }
 
+function writeCustomTags(
+  file: ReturnType<typeof File.createFromPath>,
+  customMetadata: { key: string; value: string | null }[]
+) {
+  for (const { key, value } of customMetadata) {
+    const upperKey = key.toUpperCase()
+    debugger
+
+    // ID3v2 (MP3, AIFF) — write as TXXX frame
+    const id3v2 = file.getTag(TagTypes.Id3v2, false) as Id3v2Tag | null
+    if (id3v2) {
+      if (value) {
+        setId3v2Txxx(id3v2, upperKey, value)
+      } else {
+        setId3v2Txxx(id3v2, upperKey, undefined)
+      }
+    }
+
+    // Vorbis comments (FLAC, OGG)
+    const xiph = file.getTag(TagTypes.Xiph, false) as XiphComment | null
+    if (xiph) {
+      if (value) {
+        xiph.setFieldAsStrings(upperKey, value)
+      } else {
+        xiph.removeField(upperKey)
+      }
+    }
+
+    // Apple/iTunes (M4A, AAC)
+    const apple = file.getTag(TagTypes.Apple, false) as Mpeg4AppleTag | null
+    if (apple) {
+      if (value) {
+        apple.setItunesStrings('com.apple.iTunes', upperKey, value)
+      } else {
+        apple.setItunesStrings('com.apple.iTunes', upperKey)
+      }
+    }
+
+    // APEv2
+    const ape = file.getTag(TagTypes.Ape, false) as ApeTag | null
+    if (ape) {
+      ape.setStringValue(upperKey, value ?? '')
+    }
+  }
+}
+
 export async function writeMetadataToFile(filePath: string, metadata: SongMetadataUpdate): Promise<void> {
   const file = File.createFromPath(filePath)
 
@@ -147,6 +193,11 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
 
     // Fields that require native tag writing
     writeNativeTags(file, metadata)
+
+    // Custom key-value tags
+    if (metadata.customMetadata) {
+      writeCustomTags(file, metadata.customMetadata)
+    }
 
     file.save()
   } finally {

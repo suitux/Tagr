@@ -1,6 +1,6 @@
 import { HISTORY_TRACKABLE_FIELDS, PICTURE_FIELD } from '@/features/history/consts'
 import { BOOLEAN_SONG_FIELDS, NUMERIC_SONG_FIELDS } from '@/features/songs/domain'
-import { Song } from '@/generated/prisma/client'
+import { Song, SongMetadata } from '@/generated/prisma/client'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { formatDate, ISO_DATE_FORMAT } from '@/lib/date'
 
@@ -33,6 +33,41 @@ export async function recordChanges(song: Song, update: Record<string, unknown>)
         field,
         oldValue: oldSerialized,
         newValue: newSerialized
+      })
+    }
+  }
+
+  if (entries.length > 0) {
+    await prisma.songChangeHistory.createMany({ data: entries })
+  }
+}
+
+export function stripMetadataKeyPrefix(key: string): string {
+  const parts = key.split(':')
+  return parts[parts.length - 1].toUpperCase()
+}
+
+export async function recordCustomMetadataChanges(
+  songId: number,
+  existingMetadata: SongMetadata[],
+  customMetadata: { key: string; value: string | null }[]
+) {
+  const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null }[] = []
+
+  for (const { key, value } of customMetadata) {
+    const upperKey = key.toUpperCase()
+    const historyField = `customMetadata:${upperKey}`
+
+    // Find existing value by matching the stripped key
+    const existing = existingMetadata.find(m => stripMetadataKeyPrefix(m.key) === upperKey)
+    const oldValue = existing?.value ?? null
+
+    if (oldValue !== value) {
+      entries.push({
+        songId,
+        field: historyField,
+        oldValue,
+        newValue: value
       })
     }
   }

@@ -31,6 +31,7 @@ export interface SongMetadataUpdate {
   startTime?: number
   stopTime?: number
   gapless?: boolean
+  customMetadata?: { key: string; value: string | null }[]
 }
 
 export interface ScanResult {

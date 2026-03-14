@@ -15,6 +15,7 @@ import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
+import { DetailPanelCustomMetadataSection } from './components/detail-panel-custom-metadata-section'
 import { DetailPanelAudioPropertiesSection } from './components/detail-panel-audio-properties-section'
 import { DetailPanelEmptyState } from './components/detail-panel-empty-state'
 import { DetailPanelFileDetailsSection } from './components/detail-panel-file-details-section'
@@ -86,6 +87,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
           <DetailPanelPreviewCard song={song} title={displayTitle} pictureUrl={pictureUrl} extColor={extColor} />
           <DetailPanelMusicInfoSection song={song} />
           <DetailPanelNotesSection song={song} />
+          <DetailPanelCustomMetadataSection songId={song.id} metadata={song.metadata ?? []} />
           <DetailPanelTrackInfoSection song={song} />
           <DetailPanelAudioPropertiesSection song={song} extName={extName} />
           <DetailPanelStatsSection song={song} />

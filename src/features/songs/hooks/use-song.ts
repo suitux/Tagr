@@ -1,12 +1,12 @@
 'use client'
 
-import { Song } from '@/features/songs/domain'
+import { SongWithMetadata } from '@/features/songs/domain'
 import { api } from '@/lib/axios'
 import { useQuery, keepPreviousData } from '@tanstack/react-query'
 
 interface GetSongSuccessResponse {
   success: true
-  song: Song
+  song: SongWithMetadata
 }
 
 interface GetSongErrorResponse {
@@ -16,7 +16,7 @@ interface GetSongErrorResponse {
 
 type GetSongResponse = GetSongSuccessResponse | GetSongErrorResponse
 
-async function fetchSong(id: number): Promise<Song> {
+async function fetchSong(id: number): Promise<SongWithMetadata> {
   const response = await api.get<GetSongResponse>(`/songs/${id}`)
 
   if (!response.data.success) {

@@ -22,6 +22,9 @@ export function HistoryEntry({ entry, selected, onSelect, onSongClick }: History
   const { mutate: revert, isPending } = useRevertChange()
 
   const fieldLabel = (() => {
+    if (entry.field.startsWith('customMetadata:')) {
+      return entry.field.slice('customMetadata:'.length)
+    }
     try {
       return tFields(entry.field)
     } catch {
