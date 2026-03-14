@@ -52,10 +52,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
       return
     }
 
-    updateSong(
-      { id: songId, metadata: { [fieldName]: saveValue } },
-      { onSuccess: () => setIsEditing(false) }
-    )
+    updateSong({ id: songId, metadata: { [fieldName]: saveValue } }, { onSuccess: () => setIsEditing(false) })
   }
 
   const handleDelete = () => {
@@ -127,6 +124,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
               variant='ghost'
               size='icon'
               className='h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'
+              disabled={isPending}
               onClick={() => setIsEditing(true)}>
               <PencilIcon className='w-3 h-3' />
             </Button>
@@ -136,6 +134,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
               variant='ghost'
               size='icon'
               className='h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive'
+              disabled={isPending}
               onClick={handleDelete}>
               <TrashIcon className='w-3 h-3' />
             </Button>
