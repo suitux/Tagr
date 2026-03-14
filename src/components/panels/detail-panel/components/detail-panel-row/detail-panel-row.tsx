@@ -1,6 +1,6 @@
 'use client'
 
-import { PencilIcon } from 'lucide-react'
+import { PencilIcon, TrashIcon } from 'lucide-react'
 import { HTMLInputTypeAttribute, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -11,41 +11,56 @@ import { DatePickerEdit } from './components/date-picker-edit'
 import { StarRatingEdit } from './components/star-rating-edit'
 import { TextEdit } from './components/text-edit'
 
-interface DetailPanelRowProps {
+interface BaseRowProps {
   icon: React.ReactNode
   label: string
   value?: string | number | boolean | null
   type?: HTMLInputTypeAttribute | 'date' | 'rating' | 'boolean'
   isPath?: boolean
   songId?: number
-  fieldName?: keyof SongMetadataUpdate
 }
 
-export function DetailPanelRow({
-  icon,
-  label,
-  value = '',
-  isPath,
-  songId,
-  fieldName,
-  type = 'text'
-}: DetailPanelRowProps) {
+interface StandardRowProps extends BaseRowProps {
+  fieldName?: keyof SongMetadataUpdate
+  isExtraMetadata?: never
+}
+
+interface ExtraMetadataRowProps extends BaseRowProps {
+  fieldName: string
+  isExtraMetadata: true
+}
+
+type DetailPanelRowProps = StandardRowProps | ExtraMetadataRowProps
+
+export function DetailPanelRow(props: DetailPanelRowProps) {
+  const { icon, label, value = '', isPath, songId, fieldName, type = 'text' } = props
+  const isExtraMetadata = 'isExtraMetadata' in props && props.isExtraMetadata
+
   const [isEditing, setIsEditing] = useState(false)
   const { mutate: updateSong, isPending } = useUpdateSong()
 
-  const canEdit = songId !== undefined && fieldName !== undefined
+  const canEdit = isExtraMetadata ? songId !== undefined : songId !== undefined && fieldName !== undefined
 
   const handleSave = (saveValue: string | number | boolean | null) => {
     if (!songId || !fieldName) return
 
+    if (isExtraMetadata) {
+      updateSong(
+        { id: songId, metadata: { customMetadata: [{ key: fieldName, value: (saveValue as string) || null }] } },
+        { onSuccess: () => setIsEditing(false) }
+      )
+      return
+    }
+
     updateSong(
       { id: songId, metadata: { [fieldName]: saveValue } },
-      {
-        onSuccess: () => {
-          setIsEditing(false)
-        }
-      }
+      { onSuccess: () => setIsEditing(false) }
     )
+  }
+
+  const handleDelete = () => {
+    if (!songId || !fieldName || !isExtraMetadata) return
+    updateSong({ id: songId, metadata: { customMetadata: [{ key: fieldName, value: null }] } })
   }
 
   function renderContent() {
@@ -111,9 +126,18 @@ export function DetailPanelRow({
             <Button
               variant='ghost'
               size='icon'
-              className='h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity'
+              className='h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'
               onClick={() => setIsEditing(true)}>
               <PencilIcon className='w-3 h-3' />
+            </Button>
+          )}
+          {isExtraMetadata && (
+            <Button
+              variant='ghost'
+              size='icon'
+              className='h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive'
+              onClick={handleDelete}>
+              <TrashIcon className='w-3 h-3' />
             </Button>
           )}
         </div>
