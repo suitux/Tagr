@@ -12,7 +12,9 @@
     "edit": "Edit",
     "search": "Search",
     "logout": "Log out",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "more": "More",
+    "less": "Less"
   },
   "folders": {
     "title": "Tagr",
