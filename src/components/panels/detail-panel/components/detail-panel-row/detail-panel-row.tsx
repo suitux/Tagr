@@ -113,10 +113,9 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
           className={cn('flex items-start gap-2', { 'cursor-pointer': clickToEdit })}
           onClick={clickToEdit ? () => setIsEditing(true) : undefined}>
           <p
-            className={cn('text-sm font-medium text-foreground mt-0.5 flex-1', {
+            className={cn('text-sm font-medium text-foreground mt-0.5 flex-1 wrap-anywhere', {
               'text-xs': isPath
-            })}
-            style={{ wordBreak: 'break-word' }}>
+            })}>
             {typeof value === 'boolean' ? '' : value}
           </p>
           {canEdit && type === 'date' && <DatePickerEdit value={value as string | number | null} onSave={handleSave} />}
