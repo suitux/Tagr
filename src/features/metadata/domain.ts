@@ -130,6 +130,8 @@ export interface SongCreateInput {
 // Native tag IDs already mapped to Song columns (case-insensitive)
 export const MAPPED_NATIVE_TAGS = new Set(
   [
+    // ID3v1
+    'YEAR',
     // ID3v2.3/v2.4
     'TIT2',
     'TPE1',
