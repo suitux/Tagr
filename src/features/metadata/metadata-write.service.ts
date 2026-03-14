@@ -30,7 +30,7 @@ function setId3v2Txxx(id3v2: Id3v2Tag, description: string, value: string | unde
 
   if (value) {
     const frame = Id3v2UserTextInformationFrame.fromDescription(description)
-    frame.text = [description, value]
+    frame.text = [value]
     id3v2.addFrame(frame)
   }
 }
@@ -120,7 +120,6 @@ function writeCustomTags(
 ) {
   for (const { key, value } of customMetadata) {
     const upperKey = key.toUpperCase()
-    debugger
 
     // ID3v2 (MP3, AIFF) — write as TXXX frame
     const id3v2 = file.getTag(TagTypes.Id3v2, false) as Id3v2Tag | null
