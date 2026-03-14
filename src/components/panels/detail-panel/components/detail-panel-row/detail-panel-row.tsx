@@ -8,6 +8,7 @@ import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
 import { cn } from '@/lib/utils'
 import { DatePickerEdit } from './components/date-picker-edit'
+import { ExpandableText } from './components/expandable-text'
 import { StarRatingEdit } from './components/star-rating-edit'
 import { TextEdit } from './components/text-edit'
 
@@ -16,7 +17,7 @@ interface BaseRowProps {
   label: string
   value?: string | number | boolean | null
   type?: HTMLInputTypeAttribute | 'date' | 'rating' | 'boolean'
-  isPath?: boolean
+  isAPath?: boolean
   songId?: number
 }
 
@@ -33,7 +34,7 @@ interface ExtraMetadataRowProps extends BaseRowProps {
 type DetailPanelRowProps = StandardRowProps | ExtraMetadataRowProps
 
 export function DetailPanelRow(props: DetailPanelRowProps) {
-  const { icon, label, value = '', isPath, songId, fieldName, type = 'text' } = props
+  const { icon, label, value = '', isAPath, songId, fieldName, type = 'text' } = props
   const isExtraMetadata = 'isExtraMetadata' in props && props.isExtraMetadata
 
   const [isEditing, setIsEditing] = useState(false)
@@ -105,6 +106,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
 
     const isEmpty = value === '' || value === null || value === undefined
     const clickToEdit = canEdit && isEmpty && type !== 'date' && type !== 'boolean'
+    const displayValue = type === 'boolean' ? '' : value
 
     return (
       <>
@@ -112,12 +114,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
         <div
           className={cn('flex items-start gap-2', { 'cursor-pointer': clickToEdit })}
           onClick={clickToEdit ? () => setIsEditing(true) : undefined}>
-          <p
-            className={cn('text-sm font-medium text-foreground mt-0.5 flex-1 wrap-anywhere', {
-              'text-xs': isPath
-            })}>
-            {typeof value === 'boolean' ? '' : value}
-          </p>
+          <ExpandableText value={displayValue} isPath={isAPath} />
           {canEdit && type === 'date' && <DatePickerEdit value={value as string | number | null} onSave={handleSave} />}
           {canEdit && type !== 'date' && (
             <Button
