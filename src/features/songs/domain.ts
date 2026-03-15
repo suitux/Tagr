@@ -88,5 +88,5 @@ export const DATE_SONG_FIELDS: Set<SongSortField> = new Set([
 
 export const MULTI_VALUE_SEPARATOR = '||'
 
-export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff'] as const
+export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff', '.opus'] as const
 export type MusicExtension = (typeof MUSIC_EXTENSIONS)[number]

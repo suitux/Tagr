@@ -140,7 +140,19 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     if (metadata.conductor !== undefined) tag.conductor = metadata.conductor
     if (metadata.comment !== undefined) tag.comment = metadata.comment
     if (metadata.grouping !== undefined) tag.grouping = metadata.grouping
-    if (metadata.publisher !== undefined) tag.publisher = metadata.publisher
+    if (metadata.publisher !== undefined) {
+      tag.publisher = metadata.publisher
+      // Convenience property doesn't map to Xiph/Vorbis comments — write directly
+      // Use LABEL (not PUBLISHER) because music-metadata only maps LABEL → common.label
+      const xiph = file.getTag(TagTypes.Xiph, false) as XiphComment | null
+      if (xiph) {
+        if (metadata.publisher) {
+          xiph.setFieldAsStrings('LABEL', metadata.publisher)
+        } else {
+          xiph.removeField('LABEL')
+        }
+      }
+    }
     if (metadata.copyright !== undefined) tag.copyright = metadata.copyright
     if (metadata.lyrics !== undefined) tag.lyrics = metadata.lyrics
     if (metadata.compilation !== undefined) tag.isCompilation = metadata.compilation
