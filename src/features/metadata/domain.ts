@@ -198,6 +198,7 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'GENRE',
     'ALBUMARTIST',
     'ALBUM ARTIST',
+    'PUBLISHER',
     'ALBUMARTISTSORT',
     'COMPOSER',
     'CONDUCTOR',
