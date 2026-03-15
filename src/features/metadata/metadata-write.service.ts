@@ -13,7 +13,6 @@ import {
   Picture,
   PictureType
 } from 'node-taglib-sharp'
-import { Tag } from 'node-taglib-sharp/src/tag'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 
 // --- Native tag helpers ---
@@ -34,6 +33,31 @@ function setId3v2Txxx(id3v2: Id3v2Tag, description: string, value: string | unde
     const frame = Id3v2UserTextInformationFrame.fromDescription(description)
     frame.text = [description, value]
     id3v2.addFrame(frame)
+  }
+}
+
+// tag.publisher doesn't work correctly for Xiph, Apple, or ASF — write natively
+// using the field names that music-metadata maps to common.label
+function writePublisher(file: ReturnType<typeof File.createFromPath>, value: string) {
+  file.tag.publisher = value
+
+  const xiph = file.getTag(TagTypes.Xiph, false) as XiphComment | null
+  if (xiph) {
+    if (value) {
+      xiph.setFieldAsStrings('LABEL', value)
+    } else {
+      xiph.removeField('LABEL')
+    }
+  }
+
+  const apple = file.getTag(TagTypes.Apple, false) as Mpeg4AppleTag | null
+  if (apple) {
+    apple.setItunesStrings('com.apple.iTunes', 'LABEL', value ?? '')
+  }
+
+  const asf = file.getTag(TagTypes.Asf, false) as AsfTag | null
+  if (asf) {
+    asf.setDescriptorString(value ?? '', 'WM/Publisher')
   }
 }
 
@@ -142,27 +166,7 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     if (metadata.conductor !== undefined) tag.conductor = metadata.conductor
     if (metadata.comment !== undefined) tag.comment = metadata.comment
     if (metadata.grouping !== undefined) tag.grouping = metadata.grouping
-    if (metadata.publisher !== undefined) {
-      tag.publisher = metadata.publisher
-      // tag.publisher doesn't work correctly for Xiph, Apple, or ASF — write natively
-      // using the field names that music-metadata maps to common.label
-      const xiph = file.getTag(TagTypes.Xiph, false) as XiphComment | null
-      if (xiph) {
-        if (metadata.publisher) {
-          xiph.setFieldAsStrings('LABEL', metadata.publisher)
-        } else {
-          xiph.removeField('LABEL')
-        }
-      }
-      const apple = file.getTag(TagTypes.Apple, false) as Mpeg4AppleTag | null
-      if (apple) {
-        apple.setItunesStrings('com.apple.iTunes', 'LABEL', metadata.publisher ?? '')
-      }
-      const asf = file.getTag(TagTypes.Asf, false) as AsfTag | null
-      if (asf) {
-        asf.setDescriptorString(metadata.publisher ?? '', 'WM/Publisher')
-      }
-    }
+    if (metadata.publisher !== undefined) writePublisher(file, metadata.publisher)
     if (metadata.copyright !== undefined) tag.copyright = metadata.copyright
     if (metadata.lyrics !== undefined) tag.lyrics = metadata.lyrics
     if (metadata.compilation !== undefined) tag.isCompilation = metadata.compilation
