@@ -7,6 +7,10 @@
 <p align="center"><strong>A self-hosted music metadata editor with a modern, intuitive web UI.</strong></p>
 
 <p align="center">
+  <a href="https://buymeacoffee.com/suitux"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" /></a>
+</p>
+
+<p align="center">
   <a href="https://tagr-demo.fly.dev/"><strong>Live Demo</strong></a> — login with <code>demo</code> / <code>demo</code><br>
   <sub>Hosted on Fly.io with auto-stop to save costs. First load may take ~30s while the machine wakes up.<br>Demo is read-only: you can browse, filter, scan, view song edit history, and play songs, but metadata editing is disabled.</sub>
 </p>
@@ -79,6 +83,7 @@ Tagr lets you browse, edit, and manage audio file tags from any browser. Just po
 | M4A    | Yes       |
 | WMA    | Yes       |
 | AIFF   | Yes       |
+| Opus   | Yes       |
 
 Lossless formats are automatically detected and displayed with a badge.
 
