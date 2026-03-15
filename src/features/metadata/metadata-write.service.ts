@@ -7,11 +7,13 @@ import {
   Id3v2UserTextInformationFrame,
   XiphComment,
   Mpeg4AppleTag,
+  AsfTag,
   ApeTag,
   ByteVector,
   Picture,
   PictureType
 } from 'node-taglib-sharp'
+import { Tag } from 'node-taglib-sharp/src/tag'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 
 // --- Native tag helpers ---
@@ -142,8 +144,8 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     if (metadata.grouping !== undefined) tag.grouping = metadata.grouping
     if (metadata.publisher !== undefined) {
       tag.publisher = metadata.publisher
-      // Convenience property doesn't map to Xiph/Vorbis comments — write directly
-      // Use LABEL (not PUBLISHER) because music-metadata only maps LABEL → common.label
+      // tag.publisher doesn't work correctly for Xiph, Apple, or ASF — write natively
+      // using the field names that music-metadata maps to common.label
       const xiph = file.getTag(TagTypes.Xiph, false) as XiphComment | null
       if (xiph) {
         if (metadata.publisher) {
@@ -151,6 +153,14 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
         } else {
           xiph.removeField('LABEL')
         }
+      }
+      const apple = file.getTag(TagTypes.Apple, false) as Mpeg4AppleTag | null
+      if (apple) {
+        apple.setItunesStrings('com.apple.iTunes', 'LABEL', metadata.publisher ?? '')
+      }
+      const asf = file.getTag(TagTypes.Asf, false) as AsfTag | null
+      if (asf) {
+        asf.setDescriptorString(metadata.publisher ?? '', 'WM/Publisher')
       }
     }
     if (metadata.copyright !== undefined) tag.copyright = metadata.copyright
