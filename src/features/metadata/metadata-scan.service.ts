@@ -51,6 +51,18 @@ async function getAllMusicFiles(folderPath: string): Promise<string[]> {
   return files
 }
 
+function getNativeTagValue(
+  native: Record<string, Array<{ id: string; value: unknown }>> | undefined,
+  tagName: string
+): string | undefined {
+  if (!native) return undefined
+  for (const tags of Object.values(native)) {
+    const tag = tags.find(t => t.id.toUpperCase() === tagName.toUpperCase())
+    if (tag && typeof tag.value === 'string') return tag.value
+  }
+  return undefined
+}
+
 async function extractMetadata(filePath: string): Promise<SongCreateInput | null> {
   try {
     const stats = await fs.stat(filePath)
@@ -109,7 +121,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       conductor: common.conductor?.[0] || null,
       comment: common.comment?.[0]?.text || null,
       grouping: common.grouping || null,
-      publisher: common.label?.[0] || null,
+      publisher: common.label?.[0] || getNativeTagValue(metadata.native, 'PUBLISHER') || null,
       catalogNumber: common.catalognumber?.[0] || null,
       lyricist: common.lyricist?.[0] || null,
       barcode: common.barcode || null,
