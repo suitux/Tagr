@@ -4,6 +4,7 @@ import { DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayI
 import { toast } from 'sonner'
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
+import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Image } from '@/components/ui/image'
@@ -159,7 +160,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
 
             <div className='flex items-center gap-2'>
               <Badge variant='secondary'>{song.extension.toUpperCase()}</Badge>
-              {song.lossless && <Badge variant='outline'>{t('lossless')}</Badge>}
+              {song.lossless && <LosslessBadge />}
             </div>
           </div>
         </div>

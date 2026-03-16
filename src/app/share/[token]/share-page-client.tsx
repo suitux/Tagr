@@ -3,6 +3,8 @@
 import { ClockIcon, DiscIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import Link from 'next/link'
+import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Waveform } from '@/components/waveform'
@@ -28,6 +30,7 @@ function MetadataRow({ label, value }: { label: string; value: string | number |
 
 export function SharePageClient({ token, song, expiresAt, error }: SharePageClientProps) {
   const t = useTranslations('share')
+  const tFields = useTranslations('fields')
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -134,36 +137,36 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
 
         {/* Metadata sections */}
         <div className='rounded-lg border border-border bg-card px-4 space-y-1'>
-          <MetadataRow label={t('artist')} value={song.artist} />
-          <MetadataRow label={t('album')} value={song.album} />
-          <MetadataRow label={t('albumArtist')} value={song.albumArtist} />
-          <MetadataRow label={t('bpm')} value={song.bpm} />
-          <MetadataRow label={t('year')} value={song.year} />
-          <MetadataRow label={t('genre')} value={song.genre} />
-          <MetadataRow label={t('composer')} value={song.composer} />
+          <MetadataRow label={tFields('artist')} value={song.artist} />
+          <MetadataRow label={tFields('album')} value={song.album} />
+          <MetadataRow label={tFields('albumArtist')} value={song.albumArtist} />
+          <MetadataRow label={tFields('bpm')} value={song.bpm} />
+          <MetadataRow label={tFields('year')} value={song.year} />
+          <MetadataRow label={tFields('genre')} value={song.genre} />
+          <MetadataRow label={tFields('composer')} value={song.composer} />
           {song.trackNumber && (
             <MetadataRow
-              label={t('track')}
+              label={tFields('trackNumber')}
               value={song.trackTotal ? `${song.trackNumber} ${t('of')} ${song.trackTotal}` : String(song.trackNumber)}
             />
           )}
           {song.discNumber && (
             <MetadataRow
-              label={t('disc')}
+              label={tFields('discNumber')}
               value={song.discTotal ? `${song.discNumber} ${t('of')} ${song.discTotal}` : String(song.discNumber)}
             />
           )}
-          {song.duration && <MetadataRow label={t('duration')} value={formatDuration(song.duration)} />}
-          <MetadataRow label={t('codec')} value={song.codec} />
-          {song.bitrate && <MetadataRow label={t('bitrate')} value={formatBitrate(song.bitrate)} />}
-          {song.sampleRate && <MetadataRow label={t('sampleRate')} value={formatSampleRate(song.sampleRate)} />}
+          {song.duration && <MetadataRow label={tFields('duration')} value={formatDuration(song.duration)} />}
+          <MetadataRow label={tFields('codec')} value={song.codec} />
+          {song.bitrate && <MetadataRow label={tFields('bitrate')} value={formatBitrate(song.bitrate)} />}
+          {song.sampleRate && <MetadataRow label={tFields('sampleRate')} value={formatSampleRate(song.sampleRate)} />}
         </div>
 
         {/* Footer */}
         <div className='flex items-center justify-between text-xs text-muted-foreground'>
           <div className='flex items-center gap-1.5'>
             <DiscIcon className='h-3 w-3' />
-            <span>{t('sharedVia')}</span>
+            <Link href={'https://github.com/suitux/tagr'}>{t('sharedVia')}</Link>
           </div>
           {expiresAt && (
             <div className='flex items-center gap-1.5'>
@@ -180,7 +183,7 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
               </span>
             </div>
           )}
-          {song.lossless && <Badge variant='secondary'>Lossless</Badge>}
+          {song.lossless && <LosslessBadge />}
         </div>
       </div>
     </div>

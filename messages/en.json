@@ -164,7 +164,8 @@
     "filePath": "File Path",
     "dateAdded": "Date Added",
     "lastPlayed": "Last Played",
-    "playCount": "Play Count"
+    "playCount": "Play Count",
+    "lossless": "Lossless"
   },
   "history": {
     "title": "Change History",
@@ -272,18 +273,6 @@
     "notFound": "Share link not found",
     "errorDescription": "This link may have expired or been removed.",
     "sharedVia": "Shared via Tagr",
-    "artist": "Artist",
-    "album": "Album",
-    "year": "Year",
-    "genre": "Genre",
-    "duration": "Duration",
-    "track": "Track",
-    "disc": "Disc",
-    "composer": "Composer",
-    "albumArtist": "Album Artist",
-    "codec": "Codec",
-    "bitrate": "Bitrate",
-    "sampleRate": "Sample Rate",
     "of": "of"
   },
   "time": {
