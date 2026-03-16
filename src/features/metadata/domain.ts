@@ -308,6 +308,11 @@ export const MAPPED_NATIVE_TAGS = new Set(
     '----:COM.APPLE.ITUNES:ORIGINALYEAR',
     '----:COM.APPLE.ITUNES:ALBUMARTISTSORT',
     '----:COM.APPLE.ITUNES:BAND',
+    '----:com.apple.iTunes:RATING',
+    '----:com.apple.iTunes:WORK',
+    '----:com.apple.iTunes:publisher',
+    'cond',
+    '©day',
     // ASF/WMA
     'AUTHOR',
     'DESCRIPTION',
