@@ -11,7 +11,8 @@ import {
   ApeTag,
   ByteVector,
   Picture,
-  PictureType
+  PictureType,
+  Id3v2PopularimeterFrame
 } from 'node-taglib-sharp'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 
@@ -94,25 +95,58 @@ function writeAsfOverrides(file: ReturnType<typeof File.createFromPath>, metadat
   }
 }
 
+function writeId3v2SpecialFields(id3v2: Id3v2Tag, metadata: SongMetadataUpdate) {
+  // TDOR — original release date (music-metadata reads TDOR, not TXXX:ORIGINALDATE)
+  if (metadata.originalReleaseDate !== undefined) {
+    if (metadata.originalReleaseDate) {
+      id3v2.setTextFrame(Id3v2FrameIdentifiers.TDOR, metadata.originalReleaseDate)
+    } else {
+      id3v2.setTextFrame(Id3v2FrameIdentifiers.TDOR)
+    }
+  }
+
+  // POPM — rating (music-metadata reads POPM, not TXXX:RATING)
+  if (metadata.rating !== undefined) {
+    // Remove existing POPM frames
+    const existingPopm = id3v2
+      .getFramesByIdentifier<Id3v2PopularimeterFrame>(
+        Id3v2FrameClassType.PopularimeterFrame,
+        Id3v2FrameIdentifiers.POPM
+      )
+    for (const f of existingPopm) {
+      id3v2.removeFrame(f)
+    }
+
+    if (metadata.rating !== null && metadata.rating > 0) {
+      // Convert 0-100 → 1-255 POPM byte
+      const popmRating = Math.round((metadata.rating / 100) * 254 + 1)
+      const frame = Id3v2PopularimeterFrame.fromUser('')
+      frame.rating = Math.min(255, Math.max(1, popmRating))
+      id3v2.addFrame(frame)
+    }
+  }
+}
+
 function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata: SongMetadataUpdate) {
   // Fields that need native tag writing (no convenience property in node-taglib-sharp)
   const nativeFields: { key: string; value: string | undefined; id3v2FrameId?: string }[] = [
     { key: 'LYRICIST', value: metadata.lyricist, id3v2FrameId: 'TEXT' },
     { key: 'BARCODE', value: metadata.barcode },
     { key: 'CATALOGNUMBER', value: metadata.catalogNumber },
-    { key: 'WORK', value: metadata.work },
-    { key: 'ORIGINALDATE', value: metadata.originalReleaseDate }
+    { key: 'WORK', value: metadata.work }
   ]
 
-  if (metadata.rating !== undefined) {
-    nativeFields.push({ key: 'RATING', value: metadata.rating?.toString() })
-  }
+  // Fields handled specially per format (not in nativeFields loop)
+  const hasSpecialFields =
+    metadata.originalReleaseDate !== undefined || metadata.rating !== undefined
+  const hasNativeFields = nativeFields.some(f => f.value !== undefined)
+
+  if (!hasNativeFields && !hasSpecialFields) return
 
   // Filter to only fields that were actually provided
   const fieldsToWrite = nativeFields.filter(f => f.value !== undefined)
-  if (fieldsToWrite.length === 0) return
 
-  // ID3v2 (MP3, AIFF)
+  // ID3v2 (MP3, AIFF, AAC)
   const id3v2 = file.getTag(TagTypes.Id3v2, false) as Id3v2Tag | null
   if (id3v2) {
     for (const field of fieldsToWrite) {
@@ -124,12 +158,20 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
         setId3v2Txxx(id3v2, field.key, field.value)
       }
     }
+    writeId3v2SpecialFields(id3v2, metadata)
   }
 
-  // Vorbis comments (FLAC, OGG)
+  // Vorbis comments (FLAC, OGG, Opus)
   const xiph = file.getTag(TagTypes.Xiph, false) as XiphComment | null
   if (xiph) {
-    for (const field of fieldsToWrite) {
+    // ORIGINALDATE and RATING use the same Vorbis comment field names
+    const xiphFields = [...fieldsToWrite]
+    if (metadata.originalReleaseDate !== undefined)
+      xiphFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
+    if (metadata.rating !== undefined)
+      xiphFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+
+    for (const field of xiphFields) {
       if (field.value) {
         xiph.setFieldAsStrings(field.key.toUpperCase(), field.value)
       } else {
@@ -138,10 +180,16 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
     }
   }
 
-  // Apple/iTunes (M4A, AAC)
+  // Apple/iTunes (M4A)
   const apple = file.getTag(TagTypes.Apple, false) as Mpeg4AppleTag | null
   if (apple) {
-    for (const field of fieldsToWrite) {
+    const appleFields = [...fieldsToWrite]
+    if (metadata.originalReleaseDate !== undefined)
+      appleFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
+    if (metadata.rating !== undefined)
+      appleFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+
+    for (const field of appleFields) {
       if (field.value) {
         apple.setItunesStrings('com.apple.iTunes', field.key, field.value)
       } else {
@@ -153,7 +201,13 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
   // ASF (WMA)
   const asf = file.getTag(TagTypes.Asf, false) as AsfTag | null
   if (asf) {
-    for (const field of fieldsToWrite) {
+    const asfFields = [...fieldsToWrite]
+    if (metadata.originalReleaseDate !== undefined)
+      asfFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
+    if (metadata.rating !== undefined)
+      asfFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+
+    for (const field of asfFields) {
       const descriptor = ASF_NATIVE_FIELD_MAP[field.key]
       if (descriptor) {
         asf.setDescriptorString(field.value ?? '', descriptor)
@@ -164,7 +218,13 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
   // APEv2
   const ape = file.getTag(TagTypes.Ape, false) as ApeTag | null
   if (ape) {
-    for (const field of fieldsToWrite) {
+    const apeFields = [...fieldsToWrite]
+    if (metadata.originalReleaseDate !== undefined)
+      apeFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
+    if (metadata.rating !== undefined)
+      apeFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+
+    for (const field of apeFields) {
       ape.setStringValue(field.key, field.value ?? '')
     }
   }

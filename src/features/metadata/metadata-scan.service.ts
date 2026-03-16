@@ -125,7 +125,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       catalogNumber: common.catalognumber?.[0] || null,
       lyricist: common.lyricist?.[0] || null,
       barcode: common.barcode || null,
-      work: common.work || null,
+      work: common.work || getNativeTagValue(metadata.native, 'WORK') || getNativeTagValue(metadata.native, 'TXXX:WORK') || null,
       originalReleaseDate: parseDate(common.originaldate || common.originalyear?.toString()) ?? null,
       copyright: common.copyright || null,
       rating: common.rating?.[0]?.rating ? Math.round(common.rating[0].rating * 100) : null,
