@@ -7,8 +7,10 @@ import Link from 'next/link'
 import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform'
 import { SongWithMetadata } from '@/features/songs/domain'
+import { formatDate, FULL_DATE_FORMAT, ISO_DATE_FORMAT } from '@/lib/date'
 import { formatBitrate, formatDuration, formatSampleRate } from '@/lib/formatters'
 
 interface SharePageClientProps {
@@ -97,20 +99,17 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
       <div className='w-full max-w-lg space-y-6'>
         {/* Album art */}
         <div className='relative aspect-square w-full max-w-sm mx-auto rounded-xl overflow-hidden bg-muted shadow-2xl'>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={pictureUrl}
             alt={displayTitle}
             className='w-full h-full object-cover'
-            onError={e => {
-              const target = e.target as HTMLImageElement
-              target.style.display = 'none'
-              target.parentElement?.classList.add('flex', 'items-center', 'justify-center')
-              const icon = document.createElement('div')
-              icon.innerHTML =
-                '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>'
-              target.parentElement?.appendChild(icon)
-            }}
+            fill
+            unoptimized
+            fallbackComponent={
+              <div className={'w-full h-full flex items-center justify-center'}>
+                <MusicIcon className='w-[50%] h-[50%] text-muted-foreground' />
+              </div>
+            }
           />
         </div>
 
@@ -173,12 +172,7 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
               <ClockIcon className='h-3 w-3' />
               <span>
                 {t('expiresAt', {
-                  date: new Date(expiresAt).toLocaleDateString(undefined, {
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
-                  })
+                  date: formatDate(expiresAt, FULL_DATE_FORMAT)!
                 })}
               </span>
             </div>
