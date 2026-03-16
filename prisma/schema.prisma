@@ -77,6 +77,7 @@ model Song {
   metadata      SongMetadata[]
   pictures      SongPicture[]
   changeHistory SongChangeHistory[]
+  sharedLinks   SharedLink[]
 
   @@index([folderPath])
   @@map("songs")
@@ -120,6 +121,19 @@ model SongPicture {
 
   @@index([songId])
   @@map("song_pictures")
+}
+
+model SharedLink {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  songId    Int      @map("song_id")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+  song      Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([expiresAt])
+  @@map("shared_links")
 }
 
 model UserConfig {
