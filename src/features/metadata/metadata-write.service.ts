@@ -61,6 +61,39 @@ function writePublisher(file: ReturnType<typeof File.createFromPath>, value: str
   }
 }
 
+// ASF descriptor names that music-metadata expects, keyed by our internal field name
+const ASF_NATIVE_FIELD_MAP: Record<string, string> = {
+  LYRICIST: 'WM/Writer',
+  BARCODE: 'WM/Barcode',
+  CATALOGNUMBER: 'WM/CatalogNo',
+  WORK: 'WM/Work',
+  ORIGINALDATE: 'WM/OriginalReleaseTime',
+  RATING: 'WM/SharedUserRating'
+}
+
+// Fields where node-taglib-sharp convenience properties write to wrong ASF descriptors
+function writeAsfOverrides(file: ReturnType<typeof File.createFromPath>, metadata: SongMetadataUpdate) {
+  const asf = file.getTag(TagTypes.Asf, false) as AsfTag | null
+  if (!asf) return
+
+  // tag.comment writes WM/Text, but music-metadata reads Description
+  if (metadata.comment !== undefined) {
+    asf.setDescriptorString(metadata.comment ?? '', 'Description')
+  }
+  // tag.trackCount writes TrackTotal, but music-metadata only reads WM/TrackNumber
+  // Write as "trackNumber/trackTotal" format that normalizeTrack() can parse
+  if (metadata.trackTotal !== undefined) {
+    const trackNo = metadata.trackNumber ?? file.tag.track ?? 0
+    if (trackNo > 0) {
+      asf.setDescriptorString(`${trackNo}/${metadata.trackTotal}`, 'WM/TrackNumber')
+    }
+  }
+  // tag.isCompilation is a no-op for ASF
+  if (metadata.compilation !== undefined) {
+    asf.setDescriptorString(metadata.compilation ? '1' : '0', 'WM/IsCompilation')
+  }
+}
+
 function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata: SongMetadataUpdate) {
   // Fields that need native tag writing (no convenience property in node-taglib-sharp)
   const nativeFields: { key: string; value: string | undefined; id3v2FrameId?: string }[] = [
@@ -113,6 +146,17 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
         apple.setItunesStrings('com.apple.iTunes', field.key, field.value)
       } else {
         apple.setItunesStrings('com.apple.iTunes', field.key)
+      }
+    }
+  }
+
+  // ASF (WMA)
+  const asf = file.getTag(TagTypes.Asf, false) as AsfTag | null
+  if (asf) {
+    for (const field of fieldsToWrite) {
+      const descriptor = ASF_NATIVE_FIELD_MAP[field.key]
+      if (descriptor) {
+        asf.setDescriptorString(field.value ?? '', descriptor)
       }
     }
   }
@@ -177,6 +221,12 @@ function writeCustomTags(
       }
     }
 
+    // ASF (WMA)
+    const asf = file.getTag(TagTypes.Asf, false) as AsfTag | null
+    if (asf) {
+      asf.setDescriptorString(value ?? '', upperKey)
+    }
+
     // APEv2
     const ape = file.getTag(TagTypes.Ape, false) as ApeTag | null
     if (ape) {
@@ -215,6 +265,9 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     if (metadata.copyright !== undefined) tag.copyright = metadata.copyright
     if (metadata.lyrics !== undefined) tag.lyrics = metadata.lyrics
     if (metadata.compilation !== undefined) tag.isCompilation = metadata.compilation
+
+    // Fix fields where ASF convenience properties don't match music-metadata expectations
+    writeAsfOverrides(file, metadata)
 
     // Fields that require native tag writing
     writeNativeTags(file, metadata)
