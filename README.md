@@ -26,6 +26,7 @@ Tagr lets you browse, edit, and manage audio file tags from any browser. Just po
 ### Metadata Editing
 
 - Edit **40+ metadata fields** inline — title, artist, album, year, genre, composer, BPM, lyrics, and more
+- **Custom metadata** — add, edit, and remove your own custom tags beyond the standard fields
 - **Album art** management — view, replace, and upload cover images directly
 - **Star ratings** (1–5) with a visual widget
 - Support for track/disc numbering, sort fields, catalog numbers, barcodes, and extended tags
