@@ -1,13 +1,13 @@
 'use client'
 
 import { ClockIcon, DiscIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Waveform } from '@/components/waveform'
 import { SongWithMetadata } from '@/features/songs/domain'
-import { formatBitrate, formatDuration, formatSampleRate, formatTimeSeconds } from '@/lib/formatters'
+import { formatBitrate, formatDuration, formatSampleRate } from '@/lib/formatters'
 
 interface SharePageClientProps {
   token: string
@@ -58,18 +58,18 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
     }
   }, [song])
 
-  const handleSeek = useCallback((time: number) => {
+  const handleSeek = (time: number) => {
     if (audioRef.current) audioRef.current.currentTime = time
-  }, [])
+  }
 
-  const togglePlayPause = useCallback(() => {
+  const togglePlayPause = () => {
     if (!audioRef.current) return
     if (audioRef.current.paused) {
       audioRef.current.play()
     } else {
       audioRef.current.pause()
     }
-  }, [])
+  }
 
   if (error || !song) {
     return (
@@ -133,10 +133,11 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
         </div>
 
         {/* Metadata sections */}
-        <div className='rounded-lg border border-border bg-card p-4 space-y-1'>
+        <div className='rounded-lg border border-border bg-card px-4 space-y-1'>
           <MetadataRow label={t('artist')} value={song.artist} />
           <MetadataRow label={t('album')} value={song.album} />
           <MetadataRow label={t('albumArtist')} value={song.albumArtist} />
+          <MetadataRow label={t('bpm')} value={song.bpm} />
           <MetadataRow label={t('year')} value={song.year} />
           <MetadataRow label={t('genre')} value={song.genre} />
           <MetadataRow label={t('composer')} value={song.composer} />
