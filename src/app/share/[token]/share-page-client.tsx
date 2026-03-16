@@ -1,10 +1,13 @@
 'use client'
 
-import { ClockIcon, DiscIcon, MusicIcon } from 'lucide-react'
+import { ClockIcon, DiscIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Waveform } from '@/components/waveform'
 import { SongWithMetadata } from '@/features/songs/domain'
-import { formatBitrate, formatDuration, formatSampleRate } from '@/lib/formatters'
+import { formatBitrate, formatDuration, formatSampleRate, formatTimeSeconds } from '@/lib/formatters'
 
 interface SharePageClientProps {
   token: string
@@ -25,6 +28,48 @@ function MetadataRow({ label, value }: { label: string; value: string | number |
 
 export function SharePageClient({ token, song, expiresAt, error }: SharePageClientProps) {
   const t = useTranslations('share')
+  const audioRef = useRef<HTMLAudioElement>(null)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTime, setCurrentTime] = useState(0)
+  const [duration, setDuration] = useState(0)
+
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+
+    const onTimeUpdate = () => setCurrentTime(audio.currentTime)
+    const onDurationChange = () => setDuration(audio.duration)
+    const onPlay = () => setIsPlaying(true)
+    const onPause = () => setIsPlaying(false)
+    const onEnded = () => setIsPlaying(false)
+
+    audio.addEventListener('timeupdate', onTimeUpdate)
+    audio.addEventListener('durationchange', onDurationChange)
+    audio.addEventListener('play', onPlay)
+    audio.addEventListener('pause', onPause)
+    audio.addEventListener('ended', onEnded)
+
+    return () => {
+      audio.removeEventListener('timeupdate', onTimeUpdate)
+      audio.removeEventListener('durationchange', onDurationChange)
+      audio.removeEventListener('play', onPlay)
+      audio.removeEventListener('pause', onPause)
+      audio.removeEventListener('ended', onEnded)
+    }
+  }, [song])
+
+  const handleSeek = useCallback((time: number) => {
+    if (audioRef.current) audioRef.current.currentTime = time
+  }, [])
+
+  const togglePlayPause = useCallback(() => {
+    if (!audioRef.current) return
+    if (audioRef.current.paused) {
+      audioRef.current.play()
+    } else {
+      audioRef.current.pause()
+    }
+  }, [])
 
   if (error || !song) {
     return (
@@ -79,9 +124,17 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
         </div>
 
         {/* Audio player */}
-        <audio controls className='w-full' preload='metadata' src={audioUrl}>
-          Your browser does not support the audio element.
-        </audio>
+        <audio ref={audioRef} preload='metadata' src={audioUrl} />
+        <div className='flex items-center gap-3'>
+          <Button variant='ghost' size='icon' className='h-10 w-10 shrink-0' onClick={togglePlayPause}>
+            {isPlaying ? <PauseIcon className='h-5 w-5' /> : <PlayIcon className='h-5 w-5' />}
+          </Button>
+          <span className='text-xs text-muted-foreground tabular-nums w-10 text-right'>
+            {formatTimeSeconds(currentTime)}
+          </span>
+          <Waveform url={audioUrl} currentTime={currentTime} duration={duration} onSeek={handleSeek} />
+          <span className='text-xs text-muted-foreground tabular-nums w-10'>{formatTimeSeconds(duration)}</span>
+        </div>
 
         {/* Metadata sections */}
         <div className='rounded-lg border border-border bg-card p-4 space-y-1'>

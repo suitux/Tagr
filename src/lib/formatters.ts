@@ -31,3 +31,10 @@ export const formatChannels = (channels: number | null): string | null => {
   if (channels === 2) return 'Stereo'
   return `${channels} channels`
 }
+
+export function formatTimeSeconds(seconds: number): string {
+  if (!isFinite(seconds) || seconds < 0) return '0:00'
+  const mins = Math.floor(seconds / 60)
+  const secs = Math.floor(seconds % 60)
+  return `${mins}:${secs.toString().padStart(2, '0')}`
+}

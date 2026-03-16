@@ -7,15 +7,9 @@ import { Waveform } from '@/components/waveform'
 import { useMediaSession } from '@/features/player/hooks/use-media-session'
 import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
+import { formatTimeSeconds } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { usePlayerStore } from '@/stores/player-store'
-
-function formatTime(seconds: number): string {
-  if (!isFinite(seconds) || seconds < 0) return '0:00'
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins}:${secs.toString().padStart(2, '0')}`
-}
 
 interface SidebarPlayerAudioPlayerProps {
   expanded: boolean
@@ -83,9 +77,11 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
       </div>
 
       <div className={cn('flex items-center gap-2', expanded ? 'w-full' : 'flex-1')}>
-        <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>{formatTime(currentTime)}</span>
+        <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
+          {formatTimeSeconds(currentTime)}
+        </span>
         <Waveform url={getSongAudioUrl(currentSong.id)} currentTime={currentTime} duration={duration} onSeek={seek} />
-        <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTime(duration)}</span>
+        <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTimeSeconds(duration)}</span>
       </div>
     </div>
   )
