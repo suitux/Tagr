@@ -5,12 +5,11 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import LosslessBadge from '@/components/lossless-badge'
-import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform'
 import { SongWithMetadata } from '@/features/songs/domain'
-import { formatDate, FULL_DATE_FORMAT, ISO_DATE_FORMAT } from '@/lib/date'
+import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
 import { formatBitrate, formatDuration, formatSampleRate } from '@/lib/formatters'
 
 interface SharePageClientProps {
