@@ -3,7 +3,7 @@
 import { ClockIcon, HashIcon, Music2Icon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
-import { formatDuration } from '../utils'
+import { formatDuration } from '@/lib/formatters'
 import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 

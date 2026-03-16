@@ -3,7 +3,7 @@
 import { CalendarIcon, FileIcon, HardDriveIcon, MapPinIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
-import { formatDetailDate, formatFileSize } from '../utils'
+import { formatDetailDate, formatFileSize } from '@/lib/formatters'
 import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 

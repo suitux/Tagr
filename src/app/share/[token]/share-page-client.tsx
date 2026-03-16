@@ -2,52 +2,15 @@
 
 import { ClockIcon, DiscIcon, MusicIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import type { SongMetadata } from '@/generated/prisma/client'
 import { Badge } from '@/components/ui/badge'
-
-interface Song {
-  id: number
-  fileName: string
-  extension: string
-  fileSize: number
-  title: string | null
-  artist: string | null
-  album: string | null
-  albumArtist: string | null
-  trackNumber: number | null
-  trackTotal: number | null
-  discNumber: number | null
-  discTotal: number | null
-  year: number | null
-  genre: string | null
-  composer: string | null
-  duration: number | null
-  bitrate: number | null
-  sampleRate: number | null
-  codec: string | null
-  lossless: boolean
-  metadata: SongMetadata[]
-}
+import { SongWithMetadata } from '@/features/songs/domain'
+import { formatBitrate, formatDuration, formatSampleRate } from '@/lib/formatters'
 
 interface SharePageClientProps {
   token: string
-  song?: Song
+  song?: Omit<SongWithMetadata, 'filePath' | 'folderPath'>
   expiresAt?: string
   error?: 'expired' | 'notFound'
-}
-
-function formatDuration(seconds: number): string {
-  const mins = Math.floor(seconds / 60)
-  const secs = Math.floor(seconds % 60)
-  return `${mins}:${secs.toString().padStart(2, '0')}`
-}
-
-function formatBitrate(bitrate: number): string {
-  return `${Math.round(bitrate / 1000)} kbps`
-}
-
-function formatSampleRate(rate: number): string {
-  return `${(rate / 1000).toFixed(1)} kHz`
 }
 
 function MetadataRow({ label, value }: { label: string; value: string | number | null | undefined }) {
@@ -96,7 +59,8 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
               target.style.display = 'none'
               target.parentElement?.classList.add('flex', 'items-center', 'justify-center')
               const icon = document.createElement('div')
-              icon.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>'
+              icon.innerHTML =
+                '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>'
               target.parentElement?.appendChild(icon)
             }}
           />

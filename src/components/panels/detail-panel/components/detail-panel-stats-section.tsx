@@ -3,7 +3,7 @@
 import { CalendarIcon, PlayIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
-import { formatDetailDate } from '../utils'
+import { formatDetailDate } from '@/lib/formatters'
 import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 

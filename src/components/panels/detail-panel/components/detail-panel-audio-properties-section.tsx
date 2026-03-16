@@ -3,7 +3,7 @@
 import { FileTypeIcon, HashIcon, MicIcon, RadioIcon, ScanLineIcon, SettingsIcon, WavesIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Song } from '@/features/songs/domain'
-import { formatBitrate, formatChannels, formatSampleRate } from '../utils'
+import { formatBitrate, formatChannels, formatSampleRate } from '@/lib/formatters'
 import { DetailPanelRow } from './detail-panel-row/detail-panel-row'
 import { DetailPanelSection } from './detail-panel-section'
 
