@@ -77,11 +77,13 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
       </div>
 
       <div className={cn('flex items-center gap-2', expanded ? 'w-full' : 'flex-1')}>
-        <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
-          {formatTimeSeconds(currentTime)}
-        </span>
-        <Waveform url={getSongAudioUrl(currentSong.id)} currentTime={currentTime} duration={duration} onSeek={seek} />
-        <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTimeSeconds(duration)}</span>
+        <Waveform
+          showTime
+          url={getSongAudioUrl(currentSong.id)}
+          currentTime={currentTime}
+          duration={duration}
+          onSeek={seek}
+        />
       </div>
     </div>
   )

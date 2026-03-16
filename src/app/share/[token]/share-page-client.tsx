@@ -129,11 +129,7 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
           <Button variant='ghost' size='icon' className='h-10 w-10 shrink-0' onClick={togglePlayPause}>
             {isPlaying ? <PauseIcon className='h-5 w-5' /> : <PlayIcon className='h-5 w-5' />}
           </Button>
-          <span className='text-xs text-muted-foreground tabular-nums w-10 text-right'>
-            {formatTimeSeconds(currentTime)}
-          </span>
-          <Waveform url={audioUrl} currentTime={currentTime} duration={duration} onSeek={handleSeek} />
-          <span className='text-xs text-muted-foreground tabular-nums w-10'>{formatTimeSeconds(duration)}</span>
+          <Waveform showTime url={audioUrl} currentTime={currentTime} duration={duration} onSeek={handleSeek} />
         </div>
 
         {/* Metadata sections */}

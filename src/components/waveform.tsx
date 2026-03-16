@@ -3,15 +3,17 @@
 import WaveSurfer from 'wavesurfer.js'
 import { useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
+import { formatTimeSeconds } from '@/lib/formatters'
 
 interface WaveformProps {
   url: string
   currentTime: number
   duration: number
   onSeek: (time: number) => void
+  showTime?: boolean
 }
 
-export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) {
+export function Waveform({ url, currentTime, duration, onSeek, showTime = false }: WaveformProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
   const durationRef = useRef(duration)
@@ -76,17 +78,27 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
   }, [currentTime, duration])
 
   return (
-    <div className='relative flex-1'>
-      {loading && (
-        <Slider
-          value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
-          max={100}
-          step={0.1}
-          onValueChange={([value]) => onSeek((value / 100) * duration)}
-          className='absolute inset-0 z-10'
-        />
+    <div className='flex items-center gap-2 flex-1'>
+      {showTime && (
+        <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
+          {formatTimeSeconds(currentTime)}
+        </span>
       )}
-      <div ref={containerRef} className={loading ? 'invisible' : 'cursor-pointer'} />
+      <div className='relative flex-1'>
+        {loading && (
+          <Slider
+            value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
+            max={100}
+            step={0.1}
+            onValueChange={([value]) => onSeek((value / 100) * duration)}
+            className='absolute inset-0 z-10'
+          />
+        )}
+        <div ref={containerRef} className={loading ? 'invisible' : 'cursor-pointer'} />
+      </div>
+      {showTime && (
+        <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTimeSeconds(duration)}</span>
+      )}
     </div>
   )
 }
