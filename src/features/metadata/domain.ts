@@ -257,6 +257,10 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'ENCODEDBY',
     'COVER ART (FRONT)',
     'COVER ART (BACK)',
+    // Opus
+    'TRACKTOTAL',
+    'ORGANIZATION',
+    'DISCTOTAL',
     // TXXX subtags
     'TXXX:BARCODE',
     'TXXX:CATALOGNUMBER',
