@@ -90,10 +90,8 @@ function writeToNonId3v2(ctx: TagContext, key: string, value: string | undefined
   }
 
   if (ctx.asf) {
-    const descriptor = ASF_NATIVE_FIELD_MAP[key.toUpperCase()]
-    if (descriptor) {
-      ctx.asf.setDescriptorString(value ?? '', descriptor)
-    }
+    const descriptor = ASF_NATIVE_FIELD_MAP[key.toUpperCase()] ?? key
+    ctx.asf.setDescriptorString(value ?? '', descriptor)
   }
 
   if (ctx.ape) {
