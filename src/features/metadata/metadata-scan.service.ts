@@ -63,22 +63,53 @@ function getNativeTagValue(
   return undefined
 }
 
+// ID3v2.2 uses shorter frame IDs (TXX instead of TXXX). For these frames,
+// the description is embedded in the value as "DESCRIPTION\0VALUE".
+// Check if the description matches a mapped TXXX subtag.
+const TXXX_SHORT_IDS = new Set(['TXX', 'TXXX'])
+function isMappedNativeTag(tagId: string, value: string): boolean {
+  const upperId = tagId.toUpperCase()
+  if (MAPPED_NATIVE_TAGS.has(upperId)) return true
+
+  // For TXX/TXXX frames, check if TXXX:DESCRIPTION is mapped
+  if (TXXX_SHORT_IDS.has(upperId)) {
+    const nullIndex = value.indexOf('\0')
+    const description = nullIndex >= 0 ? value.substring(0, nullIndex) : value
+    return MAPPED_NATIVE_TAGS.has(`TXXX:${description.toUpperCase()}`)
+  }
+
+  return false
+}
+
 async function extractMetadata(filePath: string): Promise<SongCreateInput | null> {
   try {
     const stats = await fs.stat(filePath)
     const metadata = await musicMetadata.parseFile(filePath)
     const { common, format } = metadata
 
-    // Metadata adicional (solo tags que no están mapeados a columnas de Song)
     const additionalMetadata: MetadataInput[] = []
 
     if (metadata.native) {
       for (const [formatType, tags] of Object.entries(metadata.native)) {
         for (const tag of tags) {
-          if (typeof tag.value === 'string' && !MAPPED_NATIVE_TAGS.has(tag.id.toUpperCase())) {
+          if (typeof tag.value === 'string' && !isMappedNativeTag(tag.id, tag.value)) {
+            let metaKey = `${formatType}:${tag.id}`
+            let metaValue = tag.value
+
+            // TXX (ID3v2.2) embeds description in value as "DESC\0VALUE"
+            // Normalize to match TXXX format: key becomes "format:TXX:DESC", value becomes just the value
+            if (TXXX_SHORT_IDS.has(tag.id.toUpperCase()) && tag.value.includes('\0')) {
+              const nullIndex = tag.value.indexOf('\0')
+              const description = tag.value.substring(0, nullIndex)
+              metaKey = `${formatType}:${tag.id}:${description}`
+              let text = tag.value.substring(nullIndex + 1)
+              if (text.charCodeAt(0) === 0xfeff) text = text.substring(1)
+              metaValue = text
+            }
+
             additionalMetadata.push({
-              key: `${formatType}:${tag.id}`,
-              value: tag.value
+              key: metaKey,
+              value: metaValue
             })
           }
         }
@@ -125,7 +156,11 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       catalogNumber: common.catalognumber?.[0] || null,
       lyricist: common.lyricist?.[0] || null,
       barcode: common.barcode || null,
-      work: common.work || getNativeTagValue(metadata.native, 'WORK') || getNativeTagValue(metadata.native, 'TXXX:WORK') || null,
+      work:
+        common.work ||
+        getNativeTagValue(metadata.native, 'WORK') ||
+        getNativeTagValue(metadata.native, 'TXXX:WORK') ||
+        null,
       originalReleaseDate: parseDate(common.originaldate || common.originalyear?.toString()) ?? null,
       copyright: common.copyright || null,
       rating: common.rating?.[0]?.rating ? Math.round(common.rating[0].rating * 100) : null,
@@ -548,6 +583,8 @@ export async function rescanSongFileAndSaveIntoDb(songId: number) {
 
   // Extract fresh metadata from the file
   const songData = await extractMetadata(existingSong.filePath)
+
+  debugger
 
   if (!songData) {
     throw new Error('Failed to extract metadata from file')

@@ -108,11 +108,10 @@ function writeId3v2SpecialFields(id3v2: Id3v2Tag, metadata: SongMetadataUpdate) 
   // POPM — rating (music-metadata reads POPM, not TXXX:RATING)
   if (metadata.rating !== undefined) {
     // Remove existing POPM frames
-    const existingPopm = id3v2
-      .getFramesByIdentifier<Id3v2PopularimeterFrame>(
-        Id3v2FrameClassType.PopularimeterFrame,
-        Id3v2FrameIdentifiers.POPM
-      )
+    const existingPopm = id3v2.getFramesByIdentifier<Id3v2PopularimeterFrame>(
+      Id3v2FrameClassType.PopularimeterFrame,
+      Id3v2FrameIdentifiers.POPM
+    )
     for (const f of existingPopm) {
       id3v2.removeFrame(f)
     }
@@ -137,8 +136,7 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
   ]
 
   // Fields handled specially per format (not in nativeFields loop)
-  const hasSpecialFields =
-    metadata.originalReleaseDate !== undefined || metadata.rating !== undefined
+  const hasSpecialFields = metadata.originalReleaseDate !== undefined || metadata.rating !== undefined
   const hasNativeFields = nativeFields.some(f => f.value !== undefined)
 
   if (!hasNativeFields && !hasSpecialFields) return
@@ -168,8 +166,7 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
     const xiphFields = [...fieldsToWrite]
     if (metadata.originalReleaseDate !== undefined)
       xiphFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
-    if (metadata.rating !== undefined)
-      xiphFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+    if (metadata.rating !== undefined) xiphFields.push({ key: 'RATING', value: metadata.rating?.toString() })
 
     for (const field of xiphFields) {
       if (field.value) {
@@ -186,8 +183,7 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
     const appleFields = [...fieldsToWrite]
     if (metadata.originalReleaseDate !== undefined)
       appleFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
-    if (metadata.rating !== undefined)
-      appleFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+    if (metadata.rating !== undefined) appleFields.push({ key: 'RATING', value: metadata.rating?.toString() })
 
     for (const field of appleFields) {
       if (field.value) {
@@ -204,8 +200,7 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
     const asfFields = [...fieldsToWrite]
     if (metadata.originalReleaseDate !== undefined)
       asfFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
-    if (metadata.rating !== undefined)
-      asfFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+    if (metadata.rating !== undefined) asfFields.push({ key: 'RATING', value: metadata.rating?.toString() })
 
     for (const field of asfFields) {
       const descriptor = ASF_NATIVE_FIELD_MAP[field.key]
@@ -221,8 +216,7 @@ function writeNativeTags(file: ReturnType<typeof File.createFromPath>, metadata:
     const apeFields = [...fieldsToWrite]
     if (metadata.originalReleaseDate !== undefined)
       apeFields.push({ key: 'ORIGINALDATE', value: metadata.originalReleaseDate })
-    if (metadata.rating !== undefined)
-      apeFields.push({ key: 'RATING', value: metadata.rating?.toString() })
+    if (metadata.rating !== undefined) apeFields.push({ key: 'RATING', value: metadata.rating?.toString() })
 
     for (const field of apeFields) {
       ape.setStringValue(field.key, field.value ?? '')
@@ -325,6 +319,8 @@ export async function writeMetadataToFile(filePath: string, metadata: SongMetada
     if (metadata.copyright !== undefined) tag.copyright = metadata.copyright
     if (metadata.lyrics !== undefined) tag.lyrics = metadata.lyrics
     if (metadata.compilation !== undefined) tag.isCompilation = metadata.compilation
+
+    debugger
 
     // Fix fields where ASF convenience properties don't match music-metadata expectations
     writeAsfOverrides(file, metadata)
