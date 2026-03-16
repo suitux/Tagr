@@ -584,8 +584,6 @@ export async function rescanSongFileAndSaveIntoDb(songId: number) {
   // Extract fresh metadata from the file
   const songData = await extractMetadata(existingSong.filePath)
 
-  debugger
-
   if (!songData) {
     throw new Error('Failed to extract metadata from file')
   }
