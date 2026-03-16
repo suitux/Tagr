@@ -12,7 +12,9 @@
     "edit": "Edit",
     "search": "Search",
     "logout": "Log out",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "more": "More",
+    "less": "Less"
   },
   "folders": {
     "title": "Tagr",
@@ -99,6 +101,16 @@
   },
   "notes": {
     "title": "Notes"
+  },
+  "customTags": {
+    "title": "Custom Tags",
+    "addTag": "Add Tag",
+    "key": "Key",
+    "value": "Value",
+    "empty": "No custom tags",
+    "keyPlaceholder": "Tag name (e.g. MOOD)",
+    "valuePlaceholder": "Tag value",
+    "deleteConfirm": "Remove this tag?"
   },
   "playback": {
     "volume": "Volume",

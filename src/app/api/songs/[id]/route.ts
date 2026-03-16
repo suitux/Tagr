@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server'
-import { recordChanges } from '@/features/history/history.service'
+import { recordChanges, recordCustomMetadataChanges } from '@/features/history/history.service'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writeMetadataToFile } from '@/features/metadata/metadata-write.service'
-import { Song } from '@/features/songs/domain'
+import { SongWithMetadata } from '@/features/songs/domain'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface RouteParams {
@@ -14,7 +14,7 @@ interface RouteParams {
 
 interface UpdateSongSuccessResponse {
   success: true
-  song: Song
+  song: SongWithMetadata
 }
 
 interface UpdateSongErrorResponse {
@@ -26,7 +26,7 @@ type UpdateSongResponse = UpdateSongSuccessResponse | UpdateSongErrorResponse
 
 interface GetSongSuccessResponse {
   success: true
-  song: Song
+  song: SongWithMetadata
 }
 
 interface GetSongErrorResponse {
@@ -46,7 +46,8 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
 
   try {
     const song = await prisma.song.findUnique({
-      where: { id: songId }
+      where: { id: songId },
+      include: { metadata: true }
     })
 
     if (!song) {
@@ -91,18 +92,28 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
 
   try {
     const song = await prisma.song.findUnique({
-      where: { id: songId }
+      where: { id: songId },
+      include: { metadata: true }
     })
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }
 
-    // Record changes before writing to file
-    await recordChanges(song, body)
+    const { customMetadata, ...standardFields } = body as SongMetadataUpdate & {
+      customMetadata?: { key: string; value: string | null }[]
+    }
+
+    if (Object.keys(standardFields).length > 0) {
+      await recordChanges(song, standardFields)
+    }
+
+    if (customMetadata) {
+      await recordCustomMetadataChanges(songId, song.metadata, customMetadata)
+    }
 
     // Write metadata to the file
-    await writeMetadataToFile(song.filePath, body as SongMetadataUpdate)
+    await writeMetadataToFile(song.filePath, { ...standardFields, customMetadata })
 
     // Re-scan the file to update all metadata in the database (Song, SongMetadata, SongPicture)
     const updatedSong = await rescanSongFileAndSaveIntoDb(songId)

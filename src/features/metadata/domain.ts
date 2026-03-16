@@ -31,6 +31,7 @@ export interface SongMetadataUpdate {
   startTime?: number
   stopTime?: number
   gapless?: boolean
+  customMetadata?: { key: string; value: string | null }[]
 }
 
 export interface ScanResult {
@@ -129,6 +130,8 @@ export interface SongCreateInput {
 // Native tag IDs already mapped to Song columns (case-insensitive)
 export const MAPPED_NATIVE_TAGS = new Set(
   [
+    // ID3v1
+    'YEAR',
     // ID3v2.3/v2.4
     'TIT2',
     'TPE1',
@@ -254,12 +257,46 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'ENCODEDBY',
     'COVER ART (FRONT)',
     'COVER ART (BACK)',
+    // Opus
+    'TRACKTOTAL',
+    'ORGANIZATION',
+    'DISCTOTAL',
     // TXXX subtags
     'TXXX:BARCODE',
     'TXXX:CATALOGNUMBER',
     'TXXX:DISCOGS_CATALOG',
     'TXXX:CATALOGID',
+    'TXXX:ORIGINALDATE',
     'TXXX:ORIGINALYEAR',
+    'TXXX:WORK',
+    'TXXX:RATING',
+    // RIFF/INFO (WAV exif tags)
+    'IART',
+    'ICRD',
+    'INAM',
+    'TITL',
+    'IPRD',
+    'ITRK',
+    'IPRT',
+    'COMM',
+    'ICMT',
+    'ICNT',
+    'GNRE',
+    'IWRI',
+    'RATE',
+    'ISFT',
+    'CODE',
+    'TURL',
+    'IGNR',
+    'IENG',
+    'ITCH',
+    'IMED',
+    'IRPD',
+    'DIRC',
+    'ICNM',
+    'ICOP',
+    'ISTR',
+    'IFRM',
     // iTunes custom tags
     '----:COM.APPLE.ITUNES:CONDUCTOR',
     '----:COM.APPLE.ITUNES:NOTES',
@@ -270,6 +307,44 @@ export const MAPPED_NATIVE_TAGS = new Set(
     '----:COM.APPLE.ITUNES:ORIGINALDATE',
     '----:COM.APPLE.ITUNES:ORIGINALYEAR',
     '----:COM.APPLE.ITUNES:ALBUMARTISTSORT',
-    '----:COM.APPLE.ITUNES:BAND'
+    '----:COM.APPLE.ITUNES:BAND',
+    '----:com.apple.iTunes:RATING',
+    '----:com.apple.iTunes:WORK',
+    '----:com.apple.iTunes:publisher',
+    'cond',
+    '©day',
+    // ASF/WMA
+    'AUTHOR',
+    'DESCRIPTION',
+    'TITLE',
+    'COPYRIGHT',
+    'WM/ALBUMARTIST',
+    'WM/ALBUMARTISTSORTORDER',
+    'WM/ALBUMSORTORDER',
+    'WM/ALBUMTITLE',
+    'WM/ARTISTSORTORDER',
+    'WM/BARCODE',
+    'WM/BEATSPERMINATE',
+    'WM/CATALOGNO',
+    'WM/COMPOSER',
+    'WM/CONDUCTOR',
+    'WM/CONTENTGROUPDESCRIPTION',
+    'WM/ENCODEDBY',
+    'WM/ENCODINGSETTINGS',
+    'WM/GENRE',
+    'WM/ISCOMPILATION',
+    'WM/LYRICS',
+    'WM/ORIGINALRELEASETIME',
+    'WM/ORIGINALRELEASEYEAR',
+    'WM/PARTOFSET',
+    'WM/PUBLISHER',
+    'WM/SHAREDUSERRATING',
+    'WM/TEXT',
+    'WM/TRACKNUMBER',
+    'WM/WORK',
+    'WM/WRITER',
+    'WM/BEATSPERMINUTE',
+    'WM/YEAR',
+    'WM/PICTURE'
   ].map(t => t.toUpperCase())
 )

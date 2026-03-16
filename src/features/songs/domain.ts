@@ -1,6 +1,10 @@
-import type { Song as PrismaSong } from '@/generated/prisma/client'
+import type { Song as PrismaSong, SongMetadata } from '@/generated/prisma/client'
 
 export type Song = PrismaSong
+
+export type SongWithMetadata = Song & {
+  metadata: SongMetadata[]
+}
 
 export type SongSortField =
   | 'title'

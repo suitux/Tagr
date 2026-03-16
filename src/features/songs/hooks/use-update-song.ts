@@ -2,7 +2,7 @@
 
 import { getHistoryQueryKey, invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-history'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
-import { Song } from '@/features/songs/domain'
+import { SongWithMetadata } from '@/features/songs/domain'
 import { getSongQueryKey } from '@/features/songs/hooks/use-song'
 import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
 import { api } from '@/lib/axios'
@@ -12,7 +12,7 @@ type SongsResponse = SongsSuccessResponse | { success: false; error: string }
 
 interface UpdateSongResponse {
   success: true
-  song: Song
+  song: SongWithMetadata
 }
 
 interface UpdateSongError {
@@ -27,7 +27,7 @@ interface UpdateSongParams {
   metadata: Partial<SongMetadataUpdate>
 }
 
-async function updateSong({ id, metadata }: UpdateSongParams): Promise<Song> {
+async function updateSong({ id, metadata }: UpdateSongParams): Promise<SongWithMetadata> {
   const response = await api.patch<UpdateSongResult>(`/songs/${id}`, metadata)
 
   if (!response.data.success) {
