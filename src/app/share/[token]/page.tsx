@@ -27,7 +27,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `${title} — ${artist}`,
       description: `Listen to ${title} by ${artist}`,
-      type: 'music.song'
+      type: 'music.song',
+      images: [`/api/share/${token}/picture`]
     }
   }
 }
