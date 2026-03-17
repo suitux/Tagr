@@ -35,7 +35,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       title: t('ogTitle', { title, artist }),
       description,
       type: 'music.song',
-      images: [`/api/share/${token}/picture`]
+      images: [`${process.env.AUTH_URL}/api/share/${token}/picture`]
     }
   }
 }
