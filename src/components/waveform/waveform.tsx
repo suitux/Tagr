@@ -1,7 +1,7 @@
 'use client'
 
 import WaveSurfer from 'wavesurfer.js'
-import { useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { formatTimeSeconds } from '@/lib/formatters'
 
@@ -11,9 +11,10 @@ interface WaveformProps {
   duration: number
   onSeek: (time: number) => void
   showTime?: boolean
+  audioRef?: RefObject<HTMLAudioElement | null>
 }
 
-export function Waveform({ url, currentTime, duration, onSeek, showTime = false }: WaveformProps) {
+export function Waveform({ url, currentTime, duration, onSeek, showTime = false, audioRef }: WaveformProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
   const onSeekRef = useRef(onSeek)
@@ -71,6 +72,7 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false 
 
   return (
     <div className='flex items-center gap-2 flex-1'>
+      {audioRef && <audio ref={audioRef} preload='metadata' src={url} />}
       {showTime && (
         <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
           {formatTimeSeconds(currentTime)}
