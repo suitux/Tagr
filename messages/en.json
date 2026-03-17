@@ -260,7 +260,7 @@
   "share": {
     "tooltip": "Share song",
     "title": "Share Song",
-    "description": "Generate a temporary link to share this song.",
+    "description": "Generate a temporary listen-only link. Recipients can play the song but cannot modify or delete any data.",
     "expiration": "Link expires in",
     "generate": "Generate Link",
     "generating": "Generating...",
