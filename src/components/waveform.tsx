@@ -16,17 +16,8 @@ interface WaveformProps {
 export function Waveform({ url, currentTime, duration, onSeek, showTime = false }: WaveformProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
-  const durationRef = useRef(duration)
   const onSeekRef = useRef(onSeek)
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    durationRef.current = duration
-  }, [duration])
-
-  useEffect(() => {
-    onSeekRef.current = onSeek
-  }, [onSeek])
 
   // Create/destroy wavesurfer when url changes
   useEffect(() => {
@@ -48,6 +39,7 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false 
       waveColor: mutedFg,
       progressColor: primaryColor,
       interact: true,
+      dragToSeek: true,
       url
     })
 
@@ -56,9 +48,9 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false 
 
     ws.on('ready', () => setLoading(false))
 
-    // Forward click-to-seek to the real player
-    ws.on('click', (relativeX: number) => {
-      onSeekRef.current(relativeX * durationRef.current)
+    // Forward click/drag-to-seek to the real player
+    ws.on('interaction', (newTime: number) => {
+      onSeekRef.current(newTime)
     })
 
     wsRef.current = ws
