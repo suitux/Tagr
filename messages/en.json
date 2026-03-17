@@ -273,7 +273,16 @@
     "notFound": "Share link not found",
     "errorDescription": "This link may have expired or been removed.",
     "sharedVia": "Shared via",
-    "of": "of"
+    "of": "of",
+    "metadata": {
+      "fallbackTitle": "Tagr — Shared Song",
+      "untitled": "Untitled",
+      "unknownArtist": "Unknown Artist",
+      "title": "{title} — {artist} | Tagr",
+      "description": "Listen to {title} by {artist}",
+      "descriptionWithAlbum": "Listen to {title} by {artist} from {album}",
+      "ogTitle": "{title} — {artist}"
+    }
   },
   "time": {
     "fiveMinutes": "5 minutes",

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getTranslations } from 'next-intl/server'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { SharePageClient } from './share-page-client'
 
@@ -8,6 +9,7 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { token } = await params
+  const t = await getTranslations('share.metadata')
 
   const sharedLink = await prisma.sharedLink.findUnique({
     where: { token },
@@ -15,18 +17,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   })
 
   if (!sharedLink || new Date() > sharedLink.expiresAt) {
-    return { title: 'Tagr — Shared Song' }
+    return { title: t('fallbackTitle') }
   }
 
-  const title = sharedLink.song.title || 'Untitled'
-  const artist = sharedLink.song.artist || 'Unknown Artist'
+  const title = sharedLink.song.title || t('untitled')
+  const artist = sharedLink.song.artist || t('unknownArtist')
+  const album = sharedLink.song.album
+
+  const description = album
+    ? t('descriptionWithAlbum', { title, artist, album })
+    : t('description', { title, artist })
 
   return {
-    title: `${title} — ${artist} | Tagr`,
-    description: `Listen to ${title} by ${artist}${sharedLink.song.album ? ` from ${sharedLink.song.album}` : ''}`,
+    title: t('title', { title, artist }),
+    description,
     openGraph: {
-      title: `${title} — ${artist}`,
-      description: `Listen to ${title} by ${artist}`,
+      title: t('ogTitle', { title, artist }),
+      description,
       type: 'music.song',
       images: [`/api/share/${token}/picture`]
     }
