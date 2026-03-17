@@ -3,7 +3,7 @@
 import { Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Waveform } from '@/components/waveform'
+import { Waveform } from '@/components/waveform/waveform'
 import { useMediaSession } from '@/features/player/hooks/use-media-session'
 import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'

@@ -1,13 +1,13 @@
 'use client'
 
 import { ClockIcon, DiscIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import LosslessBadge from '@/components/lossless-badge'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
-import { Waveform } from '@/components/waveform'
+import { useWaveform } from '@/components/waveform/use-waveform'
+import { Waveform } from '@/components/waveform/waveform'
 import { SongWithMetadata } from '@/features/songs/domain'
 import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
 import { formatBitrate, formatDuration, formatSampleRate } from '@/lib/formatters'
@@ -32,48 +32,7 @@ function MetadataRow({ label, value }: { label: string; value: string | number |
 export function SharePageClient({ token, song, expiresAt, error }: SharePageClientProps) {
   const t = useTranslations('share')
   const tFields = useTranslations('fields')
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-
-  useEffect(() => {
-    const audio = audioRef.current
-    if (!audio) return
-
-    const onTimeUpdate = () => setCurrentTime(audio.currentTime)
-    const onDurationChange = () => setDuration(audio.duration)
-    const onPlay = () => setIsPlaying(true)
-    const onPause = () => setIsPlaying(false)
-    const onEnded = () => setIsPlaying(false)
-
-    audio.addEventListener('timeupdate', onTimeUpdate)
-    audio.addEventListener('durationchange', onDurationChange)
-    audio.addEventListener('play', onPlay)
-    audio.addEventListener('pause', onPause)
-    audio.addEventListener('ended', onEnded)
-
-    return () => {
-      audio.removeEventListener('timeupdate', onTimeUpdate)
-      audio.removeEventListener('durationchange', onDurationChange)
-      audio.removeEventListener('play', onPlay)
-      audio.removeEventListener('pause', onPause)
-      audio.removeEventListener('ended', onEnded)
-    }
-  }, [song])
-
-  const handleSeek = (time: number) => {
-    if (audioRef.current) audioRef.current.currentTime = time
-  }
-
-  const togglePlayPause = () => {
-    if (!audioRef.current) return
-    if (audioRef.current.paused) {
-      audioRef.current.play()
-    } else {
-      audioRef.current.pause()
-    }
-  }
+  const { audioRef, isPlaying, currentTime, duration, handleSeek, togglePlayPause } = useWaveform()
 
   if (error || !song) {
     return (
@@ -124,7 +83,6 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
           )}
         </div>
 
-        {/* Audio player */}
         <audio ref={audioRef} preload='metadata' src={audioUrl} />
         <div className='flex items-center gap-3'>
           <Button variant='ghost' size='icon' className='h-10 w-10 shrink-0' onClick={togglePlayPause}>
