@@ -16,7 +16,12 @@ export function ShareFooter({ expiresAt, lossless }: ShareFooterProps) {
     <div className='flex items-center justify-between text-xs text-muted-foreground'>
       <div className='flex items-center gap-1.5'>
         <DiscIcon className='h-3 w-3' />
-        <Link href={'https://github.com/suitux/tagr'}>{t('sharedVia')}</Link>
+        <span>
+          {t('sharedVia')}{' '}
+          <Link href={'https://github.com/suitux/tagr'} className='text-primary hover:underline'>
+            Tagr
+          </Link>
+        </span>
       </div>
       {expiresAt && (
         <div className='flex items-center gap-1.5'>
