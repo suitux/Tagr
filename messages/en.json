@@ -3,6 +3,11 @@
     "home": "Home",
     "settings": "Settings"
   },
+  "navigation": {
+    "folders": "Folders",
+    "songs": "Songs",
+    "details": "Details"
+  },
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",

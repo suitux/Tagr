@@ -1,28 +1,30 @@
 'use client'
 
-import { parseAsInteger, useQueryState } from 'nuqs'
-import { ThreeColumnLayout } from '@/components/layout/three-column-layout'
+import { useQueryState } from 'nuqs'
+import { ResponsiveLayout } from '@/components/layout/responsive-layout'
 import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
 import { FolderList } from '@/components/panels/folder-list/folder-list'
 import { MainContent } from '@/components/panels/main-content/main-content'
 import { ScanSummaryModal } from '@/components/scan-summary-modal'
+import { useSelectedFolder } from '@/hooks/use-selected-folder'
+import { useSelectedSong } from '@/hooks/use-selected-song'
 
 export function HomeClientPage() {
-  const [selectedFolderId, setSelectedFolderId] = useQueryState('folder')
-  const [selectedSong, setSelectedSong] = useQueryState('song', parseAsInteger)
+  const { selectedFolderId, setSelectedFolderId } = useSelectedFolder()
+  const { selectedSongId, setSelectedSongId } = useSelectedSong()
 
   const handleFolderSelect = (folderId: string | null) => {
     setSelectedFolderId(folderId)
-    setSelectedSong(null)
+    setSelectedSongId(null)
   }
 
   return (
     <>
       <ScanSummaryModal />
-      <ThreeColumnLayout
+      <ResponsiveLayout
         sidebar={<FolderList selectedFolderId={selectedFolderId} onFolderSelect={handleFolderSelect} />}
         main={<MainContent />}
-        detail={selectedSong ? <DetailPanel songId={selectedSong} /> : undefined}
+        detail={selectedSongId ? <DetailPanel songId={selectedSongId} /> : undefined}
       />
     </>
   )
