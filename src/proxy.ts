@@ -7,8 +7,10 @@ export async function proxy(request: NextRequest) {
   const isLoggedIn = !!session
   const isOnLoginPage = request.nextUrl.pathname === '/login'
   const isAuthRoute = request.nextUrl.pathname.startsWith('/api/auth')
+  const isShareRoute = request.nextUrl.pathname.startsWith('/share/')
+    || request.nextUrl.pathname.startsWith('/api/share/')
 
-  if (isAuthRoute) {
+  if (isAuthRoute || isShareRoute) {
     return NextResponse.next()
   }
 

@@ -1,9 +1,10 @@
 'use client'
 
-import { HistoryIcon, XIcon } from 'lucide-react'
+import { HistoryIcon, Share2Icon, XIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HistoryModal } from '@/components/history-modal/history-modal'
+import { ShareDialog } from '@/components/share-dialog/share-dialog'
 import { MusicBrainzLookupModal } from '@/components/musicbrainz-lookup-modal/musicbrainz-lookup-modal'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { DetailPanelFetchingOverlay } from '@/components/panels/detail-panel/components/detail-panel-fetching-overlay'
@@ -34,10 +35,12 @@ export function DetailPanel({ songId }: DetailPanelProps) {
   const tHistory = useTranslations('history')
   const tFormats = useTranslations('formats')
   const tMusicBrainz = useTranslations('musicbrainzLookup')
+  const tShare = useTranslations('share')
   const { setSelectedSongId } = useSelectedSong()
   const { data: song, isPending, isFetching } = useSong(songId)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [musicBrainzLookupOpen, setMusicBrainzLookupOpen] = useState(false)
+  const [shareOpen, setShareOpen] = useState(false)
 
   if (!songId) {
     return <DetailPanelEmptyState />
@@ -61,6 +64,14 @@ export function DetailPanel({ songId }: DetailPanelProps) {
     <div className='relative flex flex-col h-full overflow-hidden'>
       {isFetching && <DetailPanelFetchingOverlay />}
       <div className='flex justify-end gap-1 p-2'>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setShareOpen(true)}>
+              <Share2Icon className='h-4 w-4' />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>{tShare('tooltip')}</TooltipContent>
+        </Tooltip>
         <RescanSongIconButton songId={song.id} />
         <Tooltip>
           <TooltipTrigger asChild>
@@ -96,6 +107,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
       </ScrollArea>
       <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} songId={song.id} songTitle={displayTitle} />
       <MusicBrainzLookupModal open={musicBrainzLookupOpen} onOpenChange={setMusicBrainzLookupOpen} song={song} />
+      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} songId={song.id} songTitle={displayTitle} />
     </div>
   )
 }

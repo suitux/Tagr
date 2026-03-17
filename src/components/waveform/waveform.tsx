@@ -1,30 +1,24 @@
 'use client'
 
 import WaveSurfer from 'wavesurfer.js'
-import { useEffect, useRef, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
+import { formatTimeSeconds } from '@/lib/formatters'
 
 interface WaveformProps {
   url: string
   currentTime: number
   duration: number
   onSeek: (time: number) => void
+  showTime?: boolean
+  audioRef?: RefObject<HTMLAudioElement | null>
 }
 
-export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) {
+export function Waveform({ url, currentTime, duration, onSeek, showTime = false, audioRef }: WaveformProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
-  const durationRef = useRef(duration)
   const onSeekRef = useRef(onSeek)
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    durationRef.current = duration
-  }, [duration])
-
-  useEffect(() => {
-    onSeekRef.current = onSeek
-  }, [onSeek])
 
   // Create/destroy wavesurfer when url changes
   useEffect(() => {
@@ -46,6 +40,7 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
       waveColor: mutedFg,
       progressColor: primaryColor,
       interact: true,
+      dragToSeek: true,
       url
     })
 
@@ -54,9 +49,9 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
 
     ws.on('ready', () => setLoading(false))
 
-    // Forward click-to-seek to the real player
-    ws.on('click', (relativeX: number) => {
-      onSeekRef.current(relativeX * durationRef.current)
+    // Forward click/drag-to-seek to the real player
+    ws.on('interaction', (newTime: number) => {
+      onSeekRef.current(newTime)
     })
 
     wsRef.current = ws
@@ -76,17 +71,28 @@ export function Waveform({ url, currentTime, duration, onSeek }: WaveformProps) 
   }, [currentTime, duration])
 
   return (
-    <div className='relative flex-1'>
-      {loading && (
-        <Slider
-          value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
-          max={100}
-          step={0.1}
-          onValueChange={([value]) => onSeek((value / 100) * duration)}
-          className='absolute inset-0 z-10'
-        />
+    <div className='flex items-center gap-2 flex-1'>
+      {audioRef && <audio ref={audioRef} preload='metadata' src={url} />}
+      {showTime && (
+        <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
+          {formatTimeSeconds(currentTime)}
+        </span>
       )}
-      <div ref={containerRef} className={loading ? 'invisible' : 'cursor-pointer'} />
+      <div className='relative flex-1'>
+        {loading && (
+          <Slider
+            value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
+            max={100}
+            step={0.1}
+            onValueChange={([value]) => onSeek((value / 100) * duration)}
+            className='absolute inset-0 z-10'
+          />
+        )}
+        <div ref={containerRef} className={loading ? 'invisible' : 'cursor-pointer'} />
+      </div>
+      {showTime && (
+        <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTimeSeconds(duration)}</span>
+      )}
     </div>
   )
 }

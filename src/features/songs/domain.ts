@@ -94,3 +94,14 @@ export const MULTI_VALUE_SEPARATOR = '||'
 
 export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.wma', '.aiff', '.opus'] as const
 export type MusicExtension = (typeof MUSIC_EXTENSIONS)[number]
+
+export const MIME_TYPES: Record<string, string> = {
+  '.mp3': 'audio/mpeg',
+  '.flac': 'audio/flac',
+  '.wav': 'audio/wav',
+  '.aac': 'audio/aac',
+  '.ogg': 'audio/ogg',
+  '.m4a': 'audio/mp4',
+  '.wma': 'audio/x-ms-wma',
+  '.aiff': 'audio/aiff'
+}
