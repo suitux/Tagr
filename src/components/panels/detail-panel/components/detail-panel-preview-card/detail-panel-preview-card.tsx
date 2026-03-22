@@ -1,6 +1,6 @@
 'use client'
 
-import { DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
+import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
@@ -17,7 +17,7 @@ import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { cn } from '@/lib/utils'
 import { useHomeStore } from '@/stores/home-store'
 import { usePlayerStore } from '@/stores/player-store'
-import { PreviewCardActionButton } from './components/preview-card-action-button'
+import { PreviewCardActionButton, PreviewCardMobileActionButton } from './components/preview-card-action-button'
 
 interface DetailPanelPreviewCardProps {
   song: Song
@@ -130,7 +130,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                 </div>
               )}
               {!isUploading && (
-                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-center justify-center gap-3'>
+                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl hidden md:flex items-center justify-center gap-3'>
                   <div className={'grid grid-cols-2 gap-4'}>
                     <PreviewCardActionButton
                       tooltip={isCurrent && isPlaying ? t('pause') : t('play')}
@@ -138,10 +138,10 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                       onClick={handlePlayPause}
                       fillIcon
                     />
-                    <PreviewCardActionButton tooltip={t('editCover')} icon={PencilIcon} onClick={handleImageEdit} />
+                    <PreviewCardActionButton tooltip={t('editCover')} icon={ImageUpIcon} onClick={handleImageEdit} />
                     <PreviewCardActionButton
                       tooltip={t('downloadCover')}
-                      icon={DownloadIcon}
+                      icon={ImageDownIcon}
                       onClick={handleDownload}
                       tooltipSide={'bottom'}
                     />
@@ -158,7 +158,20 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
 
             <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handleFileChange} />
 
-            <div className='flex items-center gap-2'>
+            {!isUploading && (
+              <div className='flex md:hidden items-center justify-center gap-2 mt-3'>
+                <PreviewCardMobileActionButton
+                  icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
+                  onClick={handlePlayPause}
+                  fillIcon
+                />
+                <PreviewCardMobileActionButton icon={ImageUpIcon} onClick={handleImageEdit} />
+                <PreviewCardMobileActionButton icon={ImageDownIcon} onClick={handleDownload} />
+                <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={handleFetchCover} />
+              </div>
+            )}
+
+            <div className='flex items-center gap-2 mt-3'>
               <Badge variant='secondary'>{song.extension.toUpperCase()}</Badge>
               {song.lossless && <LosslessBadge />}
             </div>
