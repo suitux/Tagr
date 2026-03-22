@@ -2,7 +2,6 @@
 
 import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon, Share2Icon } from 'lucide-react'
 import { toast } from 'sonner'
-import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
@@ -24,11 +23,12 @@ interface DetailPanelPreviewCardProps {
   title: string
   pictureUrl: string
   extColor: string
-  onShare?: () => void
+  onShare: () => void
+  onMusicBrainzLookup: () => void
+  fileInputRef: React.RefObject<HTMLInputElement | null>
 }
 
-export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onShare }: DetailPanelPreviewCardProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onShare, onMusicBrainzLookup, fileInputRef }: DetailPanelPreviewCardProps) {
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
     onSuccess: () => {
@@ -161,16 +161,14 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onSh
 
             {!isUploading && (
               <div className='flex lg:hidden items-center justify-center gap-4 mt-4'>
-                <PreviewCardMobileActionButton icon={ImageUpIcon} onClick={handleImageEdit} />
-                <PreviewCardMobileActionButton icon={ImageDownIcon} onClick={handleDownload} />
+                <PreviewCardMobileActionButton icon={Share2Icon} onClick={onShare} />
                 <PreviewCardMobileActionButton
                   icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
                   onClick={handlePlayPause}
                   fillIcon
                   primary
                 />
-                <PreviewCardMobileActionButton icon={Share2Icon} onClick={onShare} />
-                <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={handleFetchCover} />
+                <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={onMusicBrainzLookup} />
               </div>
             )}
 

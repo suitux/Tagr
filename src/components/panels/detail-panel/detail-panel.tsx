@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { MusicBrainzLookupModal } from '@/components/musicbrainz-lookup-modal/musicbrainz-lookup-modal'
 import { ShareDialog } from '@/components/share-dialog/share-dialog'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { DetailPanelFetchingOverlay } from '@/components/panels/detail-panel/components/detail-panel-fetching-overlay'
@@ -26,8 +27,11 @@ interface DetailPanelProps {
 
 export function DetailPanel({ songId }: DetailPanelProps) {
   const tFormats = useTranslations('formats')
+  const tCommon = useTranslations('common')
   const { data: song, isPending, isFetching } = useSong(songId)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [shareOpen, setShareOpen] = useState(false)
+  const [musicBrainzLookupOpen, setMusicBrainzLookupOpen] = useState(false)
 
   if (!songId) {
     return <DetailPanelEmptyState />
@@ -50,10 +54,22 @@ export function DetailPanel({ songId }: DetailPanelProps) {
   return (
     <div className='relative flex flex-col h-full overflow-hidden'>
       {isFetching && <DetailPanelFetchingOverlay />}
-      <DetailPanelToolbar song={song} displayTitle={displayTitle} onShare={() => setShareOpen(true)} />
+      <DetailPanelToolbar
+        song={song}
+        displayTitle={displayTitle}
+        onShare={() => setShareOpen(true)}
+        onMusicBrainzLookup={() => setMusicBrainzLookupOpen(true)}
+        onDownloadCover={() => {
+          const link = document.createElement('a')
+          link.href = pictureUrl
+          link.download = `${song.artist ?? tCommon('unknown')} - ${song.album ?? tCommon('unknown')}.jpg`
+          link.click()
+        }}
+        onEditCover={() => fileInputRef.current?.click()}
+      />
       <ScrollArea className='flex-1 min-h-0'>
         <div className='px-4 pb-4 space-y-6'>
-          <DetailPanelPreviewCard song={song} title={displayTitle} pictureUrl={pictureUrl} extColor={extColor} onShare={() => setShareOpen(true)} />
+          <DetailPanelPreviewCard song={song} title={displayTitle} pictureUrl={pictureUrl} extColor={extColor} onShare={() => setShareOpen(true)} onMusicBrainzLookup={() => setMusicBrainzLookupOpen(true)} fileInputRef={fileInputRef} />
           <DetailPanelMusicInfoSection song={song} />
           <DetailPanelNotesSection song={song} />
           <DetailPanelCustomMetadataSection songId={song.id} metadata={song.metadata ?? []} />
@@ -64,6 +80,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
         </div>
       </ScrollArea>
       <ShareDialog open={shareOpen} onOpenChange={setShareOpen} songId={song.id} songTitle={displayTitle} />
+      <MusicBrainzLookupModal open={musicBrainzLookupOpen} onOpenChange={setMusicBrainzLookupOpen} song={song} />
     </div>
   )
 }
