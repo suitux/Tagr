@@ -7,11 +7,14 @@ import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
 import { Image } from '@/components/ui/image'
+import { Waveform } from '@/components/waveform/waveform'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import type { Song } from '@/features/songs/domain'
 import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
+import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
+import { useBreakpoint } from '@/hooks/use-breakpoint'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { cn } from '@/lib/utils'
@@ -60,6 +63,10 @@ export function DetailPanelPreviewCard({
   const tCommon = useTranslations('common')
   const downloadCover = useDownloadCover(song)
   const { confirm } = useAlertDialog()
+  const currentTime = usePlayerStore(s => s.currentTime)
+  const duration = usePlayerStore(s => s.duration)
+  const seek = usePlayerStore(s => s.seek)
+  const breakpoint = useBreakpoint()
   const isCurrent = currentSong?.id === song.id
 
   const isUploading = isPending || isFetchingCover
@@ -176,6 +183,18 @@ export function DetailPanelPreviewCard({
                   primary
                 />
                 <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={onMusicBrainzLookup} />
+              </div>
+            )}
+
+            {isCurrent && breakpoint === 'mobile' && (
+              <div className='w-full mt-4 px-2'>
+                <Waveform
+                  showTime
+                  url={getSongAudioUrl(song.id)}
+                  currentTime={currentTime}
+                  duration={duration}
+                  onSeek={seek}
+                />
               </div>
             )}
 
