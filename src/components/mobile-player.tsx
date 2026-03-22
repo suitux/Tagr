@@ -1,6 +1,6 @@
 'use client'
 
-import { MusicIcon, Pause, Play, SkipForward } from 'lucide-react'
+import { MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
@@ -12,7 +12,9 @@ export function MobilePlayer() {
   const currentSong = usePlayerStore(s => s.currentSong)
   const isPlaying = usePlayerStore(s => s.isPlaying)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
+  const playPrevious = usePlayerStore(s => s.playPrevious)
   const playNext = usePlayerStore(s => s.playNext)
+  const _previousSong = usePlayerStore(s => s._previousSong)
   const _nextSong = usePlayerStore(s => s._nextSong)
   const { setSelectedSongId } = useSelectedSong()
   const setDetailSheetOpen = useMobileNavStore(s => s.setDetailSheetOpen)
@@ -48,6 +50,9 @@ export function MobilePlayer() {
       </button>
 
       <div className='flex items-center gap-1'>
+        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playPrevious} disabled={!_previousSong}>
+          <SkipBack className='h-4 w-4' />
+        </Button>
         <Button variant='ghost' size='icon' className='h-9 w-9' onClick={togglePlayPause}>
           {isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
         </Button>
