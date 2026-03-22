@@ -81,7 +81,7 @@ export function HistoryModal({ open, onOpenChange, songId, songTitle }: HistoryM
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className='flex flex-col p-0 w-full max-w-2xl'>
+      <DialogContent className='flex flex-col p-0 w-full'>
         <DialogHeader className='border-b px-6 py-4'>
           <DialogTitle className='flex items-center gap-2 leading-normal'>
             <HistoryIcon className='h-4 w-4 shrink-0' />

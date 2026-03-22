@@ -47,7 +47,7 @@ export function MusicBrainzLookupModal({ open, onOpenChange, song }: MusicBrainz
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='flex flex-col p-0 w-full max-w-2xl'>
+      <DialogContent className='flex flex-col p-0 w-full'>
         <DialogHeader className='border-b px-6 py-4'>
           <DialogTitle className='flex items-center gap-2 leading-normal'>
             <MusicBrainzIcon className='h-4 w-4 shrink-0' />

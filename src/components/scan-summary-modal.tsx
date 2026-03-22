@@ -20,9 +20,7 @@ function FileList({ files, total }: { files: string[]; total: number }) {
         </li>
       ))}
       {total > files.length && (
-        <li className='text-xs text-muted-foreground italic'>
-          {t('andMore', { count: total - files.length })}
-        </li>
+        <li className='text-xs text-muted-foreground italic'>{t('andMore', { count: total - files.length })}</li>
       )}
     </ul>
   )
@@ -97,7 +95,7 @@ export function ScanSummaryModal() {
 
   return (
     <Dialog open={scanSummaryOpen} onOpenChange={setScanSummaryOpen}>
-      <DialogContent className='max-w-md max-h-[80vh] flex flex-col'>
+      <DialogContent className='max-h-[80vh] flex flex-col'>
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <CheckCircleIcon className='h-5 w-5 text-green-500' />
