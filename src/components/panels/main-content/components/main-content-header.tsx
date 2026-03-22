@@ -25,7 +25,7 @@ export function MainContentHeader() {
   return (
     <>
       <div className='flex-shrink-0 px-4 py-3 md:px-6 md:py-5 bg-gradient-to-r from-background to-muted/20'>
-        <div className='flex items-center justify-between'>
+        <div className='hidden md:flex items-center justify-between'>
           <div className='flex items-center gap-2'>
             <Button variant='ghost' size='icon-sm' className='lg:hidden' onClick={() => setFolderSheetOpen(true)}>
               <FolderIcon className='w-4 h-4' />
@@ -40,7 +40,7 @@ export function MainContentHeader() {
             {tFolders('files', { count: totalSongs || '?' })}
           </Badge>
         </div>
-        <div className='relative mt-4'>
+        <div className='relative md:mt-4'>
           <SearchIcon className='absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none' />
           <Input
             key={selectedFolderId}
