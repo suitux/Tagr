@@ -1,6 +1,6 @@
 'use client'
 
-import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon } from 'lucide-react'
+import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon, Share2Icon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
@@ -24,9 +24,10 @@ interface DetailPanelPreviewCardProps {
   title: string
   pictureUrl: string
   extColor: string
+  onShare?: () => void
 }
 
-export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: DetailPanelPreviewCardProps) {
+export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onShare }: DetailPanelPreviewCardProps) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
@@ -159,14 +160,16 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
             <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handleFileChange} />
 
             {!isUploading && (
-              <div className='flex md:hidden items-center justify-center gap-2 mt-3'>
+              <div className='flex lg:hidden items-center justify-center gap-4 mt-4'>
+                <PreviewCardMobileActionButton icon={ImageUpIcon} onClick={handleImageEdit} />
+                <PreviewCardMobileActionButton icon={ImageDownIcon} onClick={handleDownload} />
                 <PreviewCardMobileActionButton
                   icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
                   onClick={handlePlayPause}
                   fillIcon
+                  primary
                 />
-                <PreviewCardMobileActionButton icon={ImageUpIcon} onClick={handleImageEdit} />
-                <PreviewCardMobileActionButton icon={ImageDownIcon} onClick={handleDownload} />
+                <PreviewCardMobileActionButton icon={Share2Icon} onClick={onShare} />
                 <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={handleFetchCover} />
               </div>
             )}

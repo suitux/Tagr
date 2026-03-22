@@ -5,7 +5,7 @@ import { useSyncExternalStore } from 'react'
 type Breakpoint = 'mobile' | 'tablet' | 'desktop'
 
 const mobileQuery = '(max-width: 767px)'
-const tabletQuery = '(min-width: 768px) and (max-width: 1024px)'
+const tabletQuery = '(min-width: 768px) and (max-width: 1023px)'
 
 function getBreakpoint(): Breakpoint {
   if (window.matchMedia(mobileQuery).matches) return 'mobile'
