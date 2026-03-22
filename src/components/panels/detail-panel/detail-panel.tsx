@@ -7,6 +7,7 @@ import { ShareDialog } from '@/components/share-dialog/share-dialog'
 import DetailPanelLoadingState from '@/components/panels/detail-panel/components/detail-pane-loading'
 import { DetailPanelFetchingOverlay } from '@/components/panels/detail-panel/components/detail-panel-fetching-overlay'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
 import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { DetailPanelToolbar } from './components/detail-panel-toolbar'
@@ -27,8 +28,8 @@ interface DetailPanelProps {
 
 export function DetailPanel({ songId }: DetailPanelProps) {
   const tFormats = useTranslations('formats')
-  const tCommon = useTranslations('common')
   const { data: song, isPending, isFetching } = useSong(songId)
+  const downloadCover = useDownloadCover(song)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [shareOpen, setShareOpen] = useState(false)
   const [musicBrainzLookupOpen, setMusicBrainzLookupOpen] = useState(false)
@@ -59,12 +60,7 @@ export function DetailPanel({ songId }: DetailPanelProps) {
         displayTitle={displayTitle}
         onShare={() => setShareOpen(true)}
         onMusicBrainzLookup={() => setMusicBrainzLookupOpen(true)}
-        onDownloadCover={() => {
-          const link = document.createElement('a')
-          link.href = pictureUrl
-          link.download = `${song.artist ?? tCommon('unknown')} - ${song.album ?? tCommon('unknown')}.jpg`
-          link.click()
-        }}
+        onDownloadCover={downloadCover}
         onEditCover={() => fileInputRef.current?.click()}
       />
       <ScrollArea className='flex-1 min-h-0'>

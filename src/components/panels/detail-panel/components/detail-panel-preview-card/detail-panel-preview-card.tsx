@@ -10,6 +10,7 @@ import { Image } from '@/components/ui/image'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import type { Song } from '@/features/songs/domain'
+import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
@@ -47,8 +48,8 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onSh
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const play = usePlayerStore(s => s.play)
   const t = useTranslations('previewCard')
-  const tCommon = useTranslations('common')
   const tMb = useTranslations('musicbrainz')
+  const downloadCover = useDownloadCover(song)
   const { confirm } = useAlertDialog()
   const isCurrent = currentSong?.id === song.id
 
@@ -71,10 +72,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onSh
 
   function handleDownload(e: React.MouseEvent) {
     e.stopPropagation()
-    const link = document.createElement('a')
-    link.href = pictureUrl
-    link.download = `${song.artist ?? tCommon('unknown')} - ${song.album ?? tCommon('unknown')}.jpg`
-    link.click()
+    downloadCover()
   }
 
   function handleFetchCover(e: React.MouseEvent) {
