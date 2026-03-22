@@ -1,6 +1,7 @@
 'use client'
 
 import { useBreakpoint } from '@/hooks/use-breakpoint'
+import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 import { usePlayerStore } from '@/stores/player-store'
@@ -19,6 +20,7 @@ interface ResponsiveLayoutProps {
 export function ResponsiveLayout({ sidebar, main, detail, className }: ResponsiveLayoutProps) {
   const breakpoint = useBreakpoint()
   const { folderSheetOpen, detailSheetOpen, setFolderSheetOpen, setDetailSheetOpen } = useMobileNavStore()
+  const { selectedSongId } = useSelectedSong()
   const hasPlayer = usePlayerStore(s => s.currentSong) !== null
 
   if (breakpoint === 'desktop') {
@@ -41,7 +43,8 @@ export function ResponsiveLayout({ sidebar, main, detail, className }: Responsiv
         open={detailSheetOpen}
         onClose={() => setDetailSheetOpen(false)}
         side='right'
-        hasPlayer={hasPlayer}>
+        hasPlayer={hasPlayer}
+        scrollKey={selectedSongId}>
         {detail}
       </FullScreenPanel>
 
