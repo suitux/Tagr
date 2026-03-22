@@ -29,7 +29,15 @@ interface DetailPanelPreviewCardProps {
   fileInputRef: React.RefObject<HTMLInputElement | null>
 }
 
-export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onShare, onMusicBrainzLookup, fileInputRef }: DetailPanelPreviewCardProps) {
+export function DetailPanelPreviewCard({
+  song,
+  title,
+  pictureUrl,
+  extColor,
+  onShare,
+  onMusicBrainzLookup,
+  fileInputRef
+}: DetailPanelPreviewCardProps) {
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
     onSuccess: () => {
@@ -49,6 +57,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor, onSh
   const play = usePlayerStore(s => s.play)
   const t = useTranslations('previewCard')
   const tMb = useTranslations('musicbrainz')
+  const tCommon = useTranslations('common')
   const downloadCover = useDownloadCover(song)
   const { confirm } = useAlertDialog()
   const isCurrent = currentSong?.id === song.id
