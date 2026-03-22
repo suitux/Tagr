@@ -10,7 +10,7 @@ export function useSelectedSong() {
   const _setSelectedSongId = (songId: number | null) => {
     setSelectedSongId(songId)
 
-    if (songId !== null) {
+    if (songId === null) {
       setDetailSheetOpen(false)
     }
   }
