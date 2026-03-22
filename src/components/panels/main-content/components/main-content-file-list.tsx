@@ -10,6 +10,7 @@ import type { Song, SongSortField } from '@/features/songs/domain'
 import { useSongsList } from '@/features/songs/hooks/use-songs-list'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useHomeStore } from '@/stores/home-store'
+import { useMobileNavStore } from '@/stores/mobile-nav-store'
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
@@ -19,6 +20,7 @@ import { SavedFiltersDropdown } from './saved-filters-dropdown'
 
 export function MainContentFileList() {
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
+  const setDetailSheetOpen = useMobileNavStore(s => s.setDetailSheetOpen)
   const { songs, isLoadingSongs, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsList()
   const sorting = useHomeStore(s => s.sorting)
   const setSorting = useHomeStore(s => s.setSorting)
@@ -78,7 +80,7 @@ export function MainContentFileList() {
         data={songs}
         getRowId={(song: Song) => String(song.id)}
         selectedRowId={selectedSongId != null ? String(selectedSongId) : null}
-        onRowClick={(song: Song) => setSelectedSongId?.(song.id)}
+        onRowClick={(song: Song) => { setSelectedSongId?.(song.id); setDetailSheetOpen(true) }}
         sorting={tableSorting}
         onSortingChange={onSortingChange}
         columnVisibility={columnVisibility}

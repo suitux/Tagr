@@ -1,8 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
 import { useBreakpoint } from '@/hooks/use-breakpoint'
-import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { cn } from '@/lib/utils'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 import { MobileBottomNav } from './mobile-bottom-nav'
@@ -52,19 +50,6 @@ function FullScreenPanel({
 export function ResponsiveLayout({ sidebar, main, detail, className }: ResponsiveLayoutProps) {
   const breakpoint = useBreakpoint()
   const { folderSheetOpen, detailSheetOpen, setFolderSheetOpen, setDetailSheetOpen } = useMobileNavStore()
-  const { selectedFolderId } = useSelectedFolder()
-
-  useEffect(() => {
-    if (breakpoint !== 'desktop' && detail) {
-      setDetailSheetOpen(true)
-    }
-  }, [detail, breakpoint, setDetailSheetOpen])
-
-  useEffect(() => {
-    if (breakpoint === 'mobile') {
-      setFolderSheetOpen(false)
-    }
-  }, [selectedFolderId, breakpoint, setFolderSheetOpen])
 
   if (breakpoint === 'desktop') {
     return <ThreeColumnLayout sidebar={sidebar} main={main} detail={detail} className={className} />

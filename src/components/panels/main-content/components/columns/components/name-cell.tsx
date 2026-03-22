@@ -7,6 +7,7 @@ import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useHomeStore } from '@/stores/home-store'
 import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
+import { useMobileNavStore } from '@/stores/mobile-nav-store'
 import { usePlayerStore } from '@/stores/player-store'
 
 const NameCell = function NameCell({ song }: { song: Song }) {
@@ -17,6 +18,7 @@ const NameCell = function NameCell({ song }: { song: Song }) {
   const search = useHomeStore(s => s.search)
   const sorting = useHomeStore(s => s.sorting)
   const columnFilters = useHomeStore(s => s.columnFilters)
+  const setDetailSheetOpen = useMobileNavStore(s => s.setDetailSheetOpen)
   const currentSong = usePlayerStore(s => s.currentSong)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const isPlaying = usePlayerStore(s => s.isPlaying)
@@ -26,6 +28,7 @@ const NameCell = function NameCell({ song }: { song: Song }) {
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation()
     setSelectedSongId(song.id)
+    setDetailSheetOpen(true)
     if (isCurrent) {
       togglePlayPause()
     } else {
