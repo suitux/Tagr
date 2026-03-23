@@ -17,7 +17,7 @@ export function MobileBottomNav({ hasDetail }: MobileBottomNavProps) {
   const isSongsActive = !folderSheetOpen && !detailSheetOpen
 
   return (
-    <div className='fixed bottom-0 inset-x-0 z-40 flex h-14 items-center justify-around border-t bg-background/95 backdrop-blur-sm'>
+    <div className='fixed bottom-0 inset-x-0 z-50 flex h-14 items-center justify-around border-t bg-background/95 backdrop-blur-sm'>
       <Button variant='ghost' size='sm' className={cn('flex-col gap-0.5 h-12', folderSheetOpen && 'text-primary')} onClick={() => { setFolderSheetOpen(true); setDetailSheetOpen(false) }}>
         <FolderIcon className='w-5 h-5' />
         <span className='text-[10px]'>{t('folders')}</span>

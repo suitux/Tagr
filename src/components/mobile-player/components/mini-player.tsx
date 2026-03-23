@@ -3,34 +3,30 @@
 import { MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
+import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
-import { useSelectedSong } from '@/hooks/use-selected-song'
-import { useMobileNavStore } from '@/stores/mobile-nav-store'
 import { usePlayerStore } from '@/stores/player-store'
 
-export function MobilePlayer() {
-  const currentSong = usePlayerStore(s => s.currentSong)
+interface MiniPlayerProps {
+  song: Song
+  expanded: boolean
+  onExpand: () => void
+}
+
+export function MiniPlayer({ song, expanded, onExpand }: MiniPlayerProps) {
   const isPlaying = usePlayerStore(s => s.isPlaying)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const playPrevious = usePlayerStore(s => s.playPrevious)
   const playNext = usePlayerStore(s => s.playNext)
   const _previousSong = usePlayerStore(s => s._previousSong)
   const _nextSong = usePlayerStore(s => s._nextSong)
-  const { setSelectedSongId } = useSelectedSong()
-  const setDetailSheetOpen = useMobileNavStore(s => s.setDetailSheetOpen)
 
-  if (!currentSong) return null
-
-  const pictureUrl = getSongPictureUrl(currentSong.id, currentSong.modifiedAt)
-
-  const openDetail = () => {
-    setSelectedSongId(currentSong.id)
-    setDetailSheetOpen(true)
-  }
+  const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
 
   return (
-    <div className='fixed bottom-14 inset-x-0 z-40 flex h-14 items-center gap-3 border-t bg-background/95 backdrop-blur-sm px-3'>
-      <button type='button' className='flex min-w-0 flex-1 items-center gap-3' onClick={openDetail}>
+    <div
+      className={`fixed bottom-14 inset-x-0 z-20 flex h-14 items-center gap-3 border-t bg-background/95 backdrop-blur-sm px-3 transition-opacity duration-300 ${expanded ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      <button type='button' className='flex min-w-0 flex-1 items-center gap-3' onClick={onExpand}>
         <div className='w-10 h-10 flex-shrink-0 rounded-md bg-muted overflow-hidden flex items-center justify-center'>
           <Image
             src={pictureUrl}
@@ -44,8 +40,8 @@ export function MobilePlayer() {
         </div>
 
         <div className='min-w-0 flex-1 text-left'>
-          <p className='text-sm font-medium truncate'>{currentSong.title || currentSong.fileName}</p>
-          {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
+          <p className='text-sm font-medium truncate'>{song.title || song.fileName}</p>
+          {song.artist && <p className='text-xs text-muted-foreground truncate'>{song.artist}</p>}
         </div>
       </button>
 
