@@ -6,6 +6,8 @@ import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform/waveform'
 import type { Song } from '@/features/songs/domain'
 import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
+import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useMobileNavStore } from '@/stores/mobile-nav-store'
 import { usePlayerStore } from '@/stores/player-store'
 
 interface ExpandedPlayerProps {
@@ -24,8 +26,16 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
   const currentTime = usePlayerStore(s => s.currentTime)
   const duration = usePlayerStore(s => s.duration)
   const seek = usePlayerStore(s => s.seek)
+  const { setSelectedSongId } = useSelectedSong()
+  const setDetailSheetOpen = useMobileNavStore(s => s.setDetailSheetOpen)
 
   const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
+
+  const openDetail = () => {
+    setSelectedSongId(song.id)
+    setDetailSheetOpen(true)
+    onCollapse()
+  }
 
   return (
     <div
@@ -47,10 +57,10 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
           />
         </div>
 
-        <div className='text-center min-w-0 w-full'>
+        <button type='button' className='text-center min-w-0 w-full' onClick={openDetail}>
           <p className='text-base font-semibold truncate'>{song.title || song.fileName}</p>
           {song.artist && <p className='text-sm text-muted-foreground truncate'>{song.artist}</p>}
-        </div>
+        </button>
 
         <div className='w-full px-2'>
           <Waveform showTime url={getSongAudioUrl(song.id)} currentTime={currentTime} duration={duration} onSeek={seek} />
