@@ -19,8 +19,8 @@ interface ResponsiveLayoutProps {
 
 export function ResponsiveLayout({ sidebar, main, detail, className }: ResponsiveLayoutProps) {
   const breakpoint = useBreakpoint()
-  const { folderSheetOpen, detailSheetOpen } = useMobileNavStore()
-  const { selectedSongId } = useSelectedSong()
+  const { folderSheetOpen } = useMobileNavStore()
+  const { selectedSongId, isSongSelected } = useSelectedSong()
   const hasPlayer = usePlayerStore(s => s.currentSong) !== null
 
   if (breakpoint === 'desktop') {
@@ -35,7 +35,7 @@ export function ResponsiveLayout({ sidebar, main, detail, className }: Responsiv
         {sidebar}
       </FullScreenPanel>
 
-      <FullScreenPanel open={detailSheetOpen} side='right' hasPlayer={hasPlayer} scrollKey={selectedSongId}>
+      <FullScreenPanel open={isSongSelected} side='right' hasPlayer={hasPlayer} scrollKey={selectedSongId}>
         {detail}
       </FullScreenPanel>
 

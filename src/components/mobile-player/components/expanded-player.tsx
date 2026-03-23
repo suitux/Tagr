@@ -7,7 +7,6 @@ import { Waveform } from '@/components/waveform/waveform'
 import type { Song } from '@/features/songs/domain'
 import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { useSelectedSong } from '@/hooks/use-selected-song'
-import { useMobileNavStore } from '@/stores/mobile-nav-store'
 import { usePlayerStore } from '@/stores/player-store'
 
 interface ExpandedPlayerProps {
@@ -27,13 +26,11 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
   const duration = usePlayerStore(s => s.duration)
   const seek = usePlayerStore(s => s.seek)
   const { setSelectedSongId } = useSelectedSong()
-  const setDetailSheetOpen = useMobileNavStore(s => s.setDetailSheetOpen)
 
   const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
 
   const openDetail = () => {
     setSelectedSongId(song.id)
-    setDetailSheetOpen(true)
     onCollapse()
   }
 
