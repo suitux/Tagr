@@ -4,6 +4,7 @@ import { FolderIcon, MusicIcon, SearchIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Image } from '@/components/ui/image'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { useSongsList } from '@/features/songs/hooks/use-songs-list'
@@ -25,6 +26,13 @@ export function MainContentHeader() {
   return (
     <>
       <div className='flex-shrink-0 px-4 py-3 md:px-6 md:py-5 bg-gradient-to-r from-background to-muted/20'>
+        <button
+          type='button'
+          className='flex md:hidden items-center gap-2 mb-3'
+          onClick={() => setFolderSheetOpen(true)}>
+          <Image src='/icons/tagr-logo.webp' alt='Tagr' width={28} height={28} className='rounded' unoptimized />
+          <span className='text-sm font-medium text-foreground truncate'>{folderName}</span>
+        </button>
         <div className='hidden md:flex items-center justify-between'>
           <div className='flex items-center gap-2'>
             <Button variant='ghost' size='icon-sm' className='lg:hidden' onClick={() => setFolderSheetOpen(true)}>
