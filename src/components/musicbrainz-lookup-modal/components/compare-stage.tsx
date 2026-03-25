@@ -134,11 +134,7 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
                 })}
                 onClick={() => handleRowClick(row)}>
                 <TableCell className='px-6'>
-                  <Checkbox
-                    disabled={!row.differs}
-                    checked={checkedFields.has(row.field)}
-                    onCheckedChange={() => handleToggleField(row.field)}
-                  />
+                  <Checkbox disabled={!row.differs} checked={checkedFields.has(row.field)} />
                 </TableCell>
                 <TableCell className='font-medium'>{tFields(row.field)}</TableCell>
                 <TableCell className='text-muted-foreground whitespace-normal'>{row.current || '\u2014'}</TableCell>
