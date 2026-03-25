@@ -7,6 +7,7 @@ import { Waveform } from '@/components/waveform/waveform'
 import type { Song } from '@/features/songs/domain'
 import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useSwipe } from '@/hooks/use-swipe'
 import { usePlayerStore } from '@/stores/player-store'
 
 interface ExpandedPlayerProps {
@@ -29,6 +30,8 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
 
   const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
 
+  const bind = useSwipe({ direction: 'down', onSwipe: onCollapse })
+
   const openDetail = () => {
     setSelectedSongId(song.id)
     onCollapse()
@@ -36,7 +39,8 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-14 z-40 border-t bg-background/95 backdrop-blur-sm transition-transform duration-300 ease-in-out ${expanded ? 'translate-y-0' : 'translate-y-full'}`}>
+      {...bind()}
+      className={`fixed inset-x-0 bottom-14 z-40 border-t bg-background/95 backdrop-blur-sm transition-transform duration-300 ease-in-out touch-pan-x ${expanded ? 'translate-y-0' : 'translate-y-full'}`}>
       <div className='flex flex-col items-center px-6 py-5 gap-4'>
         <button type='button' className='self-end' onClick={onCollapse}>
           <ChevronDown className='h-5 w-5 text-muted-foreground' />
@@ -60,7 +64,13 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
         </button>
 
         <div className='w-full px-2'>
-          <Waveform showTime url={getSongAudioUrl(song.id)} currentTime={currentTime} duration={duration} onSeek={seek} />
+          <Waveform
+            showTime
+            url={getSongAudioUrl(song.id)}
+            currentTime={currentTime}
+            duration={duration}
+            onSeek={seek}
+          />
         </div>
 
         <div className='flex items-center gap-3'>
