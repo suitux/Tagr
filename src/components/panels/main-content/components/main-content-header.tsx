@@ -25,7 +25,7 @@ export function MainContentHeader() {
 
   return (
     <>
-      <div className='flex-shrink-0 px-4 py-3 md:px-6 md:py-5 bg-gradient-to-r from-background to-muted/20'>
+      <div className='flex-shrink-0 px-2 py-3 md:px-6 md:py-5 bg-gradient-to-r from-background to-muted/20'>
         <button
           type='button'
           className='flex md:hidden items-center gap-2 mb-3'

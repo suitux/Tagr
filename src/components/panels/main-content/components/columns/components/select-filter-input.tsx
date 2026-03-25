@@ -54,8 +54,11 @@ export function SelectFilterInput({ field }: { field: SongSortField }) {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent
+          side='bottom'
           align='start'
-          className='min-w-(--radix-dropdown-menu-trigger-width) max-h-64 overflow-y-auto'>
+          sticky='always'
+          collisionPadding={16}
+          className='min-w-(--radix-dropdown-menu-trigger-width) max-h-[min(16rem,var(--radix-dropdown-menu-content-available-height))] overflow-y-auto'>
           <div className='p-1'>
             <Input
               ref={searchRef}
