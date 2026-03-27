@@ -129,3 +129,9 @@
 .tsqd-open-btn-container {
     bottom: 64px !important;
 }
+
+@media (max-width: 767px) {
+    nextjs-portal {
+        display: none;
+    }
+}

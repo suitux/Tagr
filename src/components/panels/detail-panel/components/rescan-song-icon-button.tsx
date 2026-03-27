@@ -17,8 +17,8 @@ export function RescanSongIconButton({ songId }: RescanSongIconButtonProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Button variant='ghost' size='icon' className='h-7 w-7' disabled={isPending} onClick={() => rescanSong(songId)}>
-          <RefreshCwIcon className={`h-4 w-4 ${isPending ? 'animate-spin' : ''}`} />
+        <Button variant='ghost' size='icon' className='h-9 w-9 md:h-7 md:w-7' disabled={isPending} onClick={() => rescanSong(songId)}>
+          <RefreshCwIcon className={`h-5 w-5 md:h-4 md:w-4 ${isPending ? 'animate-spin' : ''}`} />
         </Button>
       </TooltipTrigger>
       <TooltipContent>{t('rescanSong')}</TooltipContent>

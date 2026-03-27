@@ -3,12 +3,12 @@
 import { CheckIcon, CopyIcon, LinkIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { SHARE_EXPIRATION_OPTIONS } from '@/features/share/domain'
-import { useCreateShare } from '@/features/share/hooks/use-create-share'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { SHARE_EXPIRATION_OPTIONS } from '@/features/share/domain'
+import { useCreateShare } from '@/features/share/hooks/use-create-share'
 
 interface ShareDialogProps {
   open: boolean
@@ -54,7 +54,7 @@ export function ShareDialog({ open, onOpenChange, songId, songTitle }: ShareDial
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='sm:max-w-md'>
+      <DialogContent>
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
           <DialogDescription>{t('description')}</DialogDescription>

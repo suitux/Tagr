@@ -12,6 +12,30 @@ interface PreviewCardActionButtonProps {
   fillIcon?: boolean
 }
 
+interface PreviewCardMobileActionButtonProps {
+  icon: LucideIcon
+  onClick?: (e: React.MouseEvent) => void
+  fillIcon?: boolean
+  primary?: boolean
+}
+
+export function PreviewCardMobileActionButton({
+  icon: Icon,
+  onClick,
+  fillIcon,
+  primary
+}: PreviewCardMobileActionButtonProps) {
+  return (
+    <Button
+      variant={primary ? 'default' : 'secondary'}
+      size='icon'
+      className={cn('rounded-full active:scale-95', primary ? 'h-12 w-12 min-[400px]:h-16 min-[400px]:w-16 shadow-lg' : 'h-10 w-10 min-[400px]:h-14 min-[400px]:w-14 bg-muted/80')}
+      onClick={onClick}>
+      <Icon className={cn(primary ? '!h-5 !w-5 min-[400px]:!h-6 min-[400px]:!w-6' : '!h-4 !w-4 min-[400px]:!h-5 min-[400px]:!w-5', { 'fill-current': fillIcon })} />
+    </Button>
+  )
+}
+
 export function PreviewCardActionButton({
   tooltip,
   icon: Icon,

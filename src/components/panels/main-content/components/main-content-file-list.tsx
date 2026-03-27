@@ -64,7 +64,7 @@ export function MainContentFileList() {
   }
 
   return (
-    <div className='pt-4 px-4 flex flex-col overflow-hidden flex-1'>
+    <div className='pt-4 px-2 md:px-4 flex flex-col overflow-hidden flex-1'>
       <div className='flex justify-end gap-2 mb-2'>
         <SavedFiltersDropdown />
         <ColumnSelector
@@ -78,7 +78,9 @@ export function MainContentFileList() {
         data={songs}
         getRowId={(song: Song) => String(song.id)}
         selectedRowId={selectedSongId != null ? String(selectedSongId) : null}
-        onRowClick={(song: Song) => setSelectedSongId?.(song.id)}
+        onRowClick={(song: Song) => {
+          setSelectedSongId?.(song.id)
+        }}
         sorting={tableSorting}
         onSortingChange={onSortingChange}
         columnVisibility={columnVisibility}

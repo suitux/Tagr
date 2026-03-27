@@ -1,8 +1,7 @@
 'use client'
 
-import { DownloadIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PencilIcon, PlayIcon } from 'lucide-react'
+import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon, Share2Icon } from 'lucide-react'
 import { toast } from 'sonner'
-import { useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
@@ -11,23 +10,34 @@ import { Image } from '@/components/ui/image'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import type { Song } from '@/features/songs/domain'
+import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { cn } from '@/lib/utils'
 import { useHomeStore } from '@/stores/home-store'
 import { usePlayerStore } from '@/stores/player-store'
-import { PreviewCardActionButton } from './components/preview-card-action-button'
+import { PreviewCardActionButton, PreviewCardMobileActionButton } from './components/preview-card-action-button'
 
 interface DetailPanelPreviewCardProps {
   song: Song
   title: string
   pictureUrl: string
   extColor: string
+  onShare: () => void
+  onMusicBrainzLookup: () => void
+  fileInputRef: React.RefObject<HTMLInputElement | null>
 }
 
-export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: DetailPanelPreviewCardProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null)
+export function DetailPanelPreviewCard({
+  song,
+  title,
+  pictureUrl,
+  extColor,
+  onShare,
+  onMusicBrainzLookup,
+  fileInputRef
+}: DetailPanelPreviewCardProps) {
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
     onSuccess: () => {
@@ -46,8 +56,9 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const play = usePlayerStore(s => s.play)
   const t = useTranslations('previewCard')
-  const tCommon = useTranslations('common')
   const tMb = useTranslations('musicbrainz')
+  const tCommon = useTranslations('common')
+  const downloadCover = useDownloadCover(song)
   const { confirm } = useAlertDialog()
   const isCurrent = currentSong?.id === song.id
 
@@ -70,10 +81,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
 
   function handleDownload(e: React.MouseEvent) {
     e.stopPropagation()
-    const link = document.createElement('a')
-    link.href = pictureUrl
-    link.download = `${song.artist ?? tCommon('unknown')} - ${song.album ?? tCommon('unknown')}.jpg`
-    link.click()
+    downloadCover()
   }
 
   function handleFetchCover(e: React.MouseEvent) {
@@ -130,7 +138,7 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                 </div>
               )}
               {!isUploading && (
-                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl flex items-center justify-center gap-3'>
+                <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl hidden md:flex items-center justify-center gap-3'>
                   <div className={'grid grid-cols-2 gap-4'}>
                     <PreviewCardActionButton
                       tooltip={isCurrent && isPlaying ? t('pause') : t('play')}
@@ -138,10 +146,10 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
                       onClick={handlePlayPause}
                       fillIcon
                     />
-                    <PreviewCardActionButton tooltip={t('editCover')} icon={PencilIcon} onClick={handleImageEdit} />
+                    <PreviewCardActionButton tooltip={t('editCover')} icon={ImageUpIcon} onClick={handleImageEdit} />
                     <PreviewCardActionButton
                       tooltip={t('downloadCover')}
-                      icon={DownloadIcon}
+                      icon={ImageDownIcon}
                       onClick={handleDownload}
                       tooltipSide={'bottom'}
                     />
@@ -158,7 +166,20 @@ export function DetailPanelPreviewCard({ song, title, pictureUrl, extColor }: De
 
             <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handleFileChange} />
 
-            <div className='flex items-center gap-2'>
+            {!isUploading && (
+              <div className='flex lg:hidden items-center justify-center gap-4 mt-4'>
+                <PreviewCardMobileActionButton icon={Share2Icon} onClick={onShare} />
+                <PreviewCardMobileActionButton
+                  icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
+                  onClick={handlePlayPause}
+                  fillIcon
+                  primary
+                />
+                <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={onMusicBrainzLookup} />
+              </div>
+            )}
+
+            <div className='flex items-center gap-2 mt-3'>
               <Badge variant='secondary'>{song.extension.toUpperCase()}</Badge>
               {song.lossless && <LosslessBadge />}
             </div>

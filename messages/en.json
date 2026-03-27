@@ -3,6 +3,11 @@
     "home": "Home",
     "settings": "Settings"
   },
+  "navigation": {
+    "folders": "Folders",
+    "songs": "Songs",
+    "details": "Details"
+  },
   "common": {
     "loading": "Loading...",
     "error": "An error occurred",
@@ -292,6 +297,12 @@
     "twentyFourHours": "24 hours",
     "sevenDays": "7 days",
     "thirtyDays": "30 days"
+  },
+  "starPrompt": {
+    "title": "Enjoying Tagr?",
+    "description": "If Tagr has been useful to you, consider giving it a star on GitHub. It helps others discover the project! Don't worry, we won't ask again.",
+    "starOnGithub": "Star on GitHub",
+    "maybeLater": "No thanks"
   },
   "api": {
     "folders": {

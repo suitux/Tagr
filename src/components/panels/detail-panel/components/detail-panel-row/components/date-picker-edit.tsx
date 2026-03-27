@@ -24,7 +24,7 @@ export function DatePickerEdit({ value, onSave }: DatePickerEditProps) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant='ghost' size='icon' className='h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity'>
+        <Button variant='ghost' size='icon' className='h-6 w-6 md:opacity-0 md:group-hover:opacity-100 transition-opacity'>
           <CalendarIcon className='w-3 h-3' />
         </Button>
       </PopoverTrigger>

@@ -120,7 +120,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
             <Button
               variant='ghost'
               size='icon'
-              className='h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity'
+              className='h-6 w-6 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity'
               disabled={isPending}
               onClick={() => setIsEditing(true)}>
               <PencilIcon className='w-3 h-3' />
@@ -130,7 +130,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
             <Button
               variant='ghost'
               size='icon'
-              className='h-6 w-6 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity text-destructive'
+              className='h-6 w-6 shrink-0 md:opacity-0 md:group-hover:opacity-100 transition-opacity text-destructive'
               disabled={isPending}
               onClick={handleDelete}>
               <TrashIcon className='w-3 h-3' />

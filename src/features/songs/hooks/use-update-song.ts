@@ -5,6 +5,7 @@ import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { SongWithMetadata } from '@/features/songs/domain'
 import { getSongQueryKey } from '@/features/songs/hooks/use-song'
 import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
+import { incrementEditCount } from '@/components/star-prompt-dialog'
 import { api } from '@/lib/axios'
 import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -67,6 +68,7 @@ export function useUpdateSong() {
 
       queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
       invalidateAllHistoryQueryKeys(queryClient)
+      incrementEditCount()
     }
   })
 }

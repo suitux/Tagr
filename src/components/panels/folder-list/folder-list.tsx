@@ -63,8 +63,10 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
         </div>
       </ScrollArea>
 
-      <Separator />
-      <SidebarPlayer />
+      <div className='hidden md:block'>
+        <Separator />
+        <SidebarPlayer />
+      </div>
     </div>
   )
 }
