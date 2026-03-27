@@ -298,6 +298,12 @@
     "sevenDays": "7 days",
     "thirtyDays": "30 days"
   },
+  "starPrompt": {
+    "title": "Enjoying Tagr?",
+    "description": "If Tagr has been useful to you, consider giving it a star on GitHub. It helps others discover the project! Don't worry, we won't ask again.",
+    "starOnGithub": "Star on GitHub",
+    "maybeLater": "No thanks"
+  },
   "api": {
     "folders": {
       "noFoldersConfigured": "No music folders configured. Set the MUSIC_FOLDERS environment variable.",
