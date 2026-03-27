@@ -46,7 +46,9 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
           <ChevronDown className='h-5 w-5 text-muted-foreground' />
         </button>
 
-        <div className='w-48 h-48 rounded-2xl overflow-hidden shadow-xl bg-muted flex items-center justify-center'>
+        <div
+          className='w-48 h-48 rounded-2xl overflow-hidden shadow-xl bg-muted flex items-center justify-center'
+          onClick={openDetail}>
           <Image
             src={pictureUrl}
             alt=''
