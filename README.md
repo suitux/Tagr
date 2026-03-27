@@ -15,7 +15,7 @@
   <sub>Hosted on Fly.io with auto-stop to save costs. First load may take ~30s while the machine wakes up.<br>Demo is read-only: you can browse, filter, scan, view song edit history, and play songs, but metadata editing is disabled.</sub>
 </p>
 
-Tagr lets you browse, edit, and manage audio file tags from any browser. Just point it at your music folders, and get a clean three-panel interface for organizing your library — no desktop apps, no CLI wizardry.
+Tagr lets you browse, edit, and manage audio file tags from any browser — desktop or mobile. Just point it at your music folders, and get a clean three-panel interface for organizing your library — no desktop apps, no CLI wizardry.
 
 ![Tagr Main Screen](docs/main-screen.png)
 
@@ -87,6 +87,24 @@ Tagr lets you browse, edit, and manage audio file tags from any browser. Just po
 | Opus   | Yes       |
 
 Lossless formats are automatically detected and displayed with a badge.
+
+### Mobile Support
+
+Tagr is fully responsive and works on phones and tablets. The mobile UI adapts to smaller screens with:
+
+- **Full-screen panels** with swipe gestures to navigate between folders, song list, and detail editor
+- **Expanded music player** with album art, waveform, and playback controls
+- **Touch-friendly editing** — all edit actions are always visible (no hover required)
+
+<p>
+  <img src="docs/mobile-list.png" alt="Mobile song list" height="400" />
+  &nbsp;&nbsp;
+  <img src="docs/mobile-list-song.png" alt="Mobile player expanded" height="400" />
+  &nbsp;&nbsp;
+  <img src="docs/mobile-song.png" alt="Mobile song detail" height="400" />
+  &nbsp;&nbsp;
+  <img src="docs/mobile-musicbrainz-metadata-pick.png" alt="Mobile MusicBrainz metadata comparison" height="400" />
+</p>
 
 ### Additional
 
