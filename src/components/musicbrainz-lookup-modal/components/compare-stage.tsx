@@ -115,7 +115,7 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
   return (
     <>
       <ScrollArea className='h-[60vh]'>
-        <Table>
+        <Table className='w-max min-w-full'>
           <TableHeader>
             <TableRow>
               <TableHead className='w-8 px-6' />
@@ -137,8 +137,8 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
                   <Checkbox disabled={!row.differs} checked={checkedFields.has(row.field)} />
                 </TableCell>
                 <TableCell className='font-medium'>{tFields(row.field)}</TableCell>
-                <TableCell className='text-muted-foreground whitespace-normal'>{row.current || '\u2014'}</TableCell>
-                <TableCell className='pr-6 whitespace-normal'>{row.musicbrainz}</TableCell>
+                <TableCell className='text-muted-foreground whitespace-nowrap'>{row.current || '\u2014'}</TableCell>
+                <TableCell className='pr-6 whitespace-nowrap'>{row.musicbrainz}</TableCell>
               </TableRow>
             ))}
             {compareRows.length === 0 && (
