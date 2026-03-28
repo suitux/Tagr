@@ -3,8 +3,9 @@
 import { ChevronDown, ChevronUp, MusicIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
-import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
+import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
 import { usePlayerStore } from '@/stores/player-store'
 
@@ -15,11 +16,12 @@ interface SidebarPlayerImageProps {
 
 export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayerImageProps) {
   const currentSong = usePlayerStore(s => s.currentSong)
-  const { setSelectedSongId } = useSelectedSong()
+  const { setSelectedSongId, selectedSongId } = useSelectedSong()
+  const { data: updatedSong } = useSong(selectedSongId ?? undefined)
 
   if (!currentSong) return null
 
-  const pictureUrl = getSongPictureUrl(currentSong.id, currentSong.modifiedAt)
+  const pictureUrl = getSongPictureUrl(currentSong.id, updatedSong?.modifiedAt)
 
   const handleSongTitleClick = () => {
     setSelectedSongId(currentSong.id)
