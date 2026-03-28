@@ -59,6 +59,7 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
   const [checkedFields, setCheckedFields] = useState<Set<keyof MusicBrainzMappedMetadata>>(new Set())
   const [replaceCover, setReplaceCover] = useState(false)
   const [mbCoverLoaded, setMbCoverLoaded] = useState(false)
+  const [mbCoverLoading, setMbCoverLoading] = useState(true)
 
   const isApplying = isApplyingMetadata || isFetchingCover
 
@@ -147,6 +148,7 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
   }
 
   const onCoverLoaded = () => {
+    setMbCoverLoading(false)
     setMbCoverLoaded(true)
     setReplaceCover(true)
   }
@@ -167,10 +169,10 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
           </TableHeader>
           <TableBody>
             <TableRow
-              className={cn('cursor-pointer hover:bg-accent', { 'opacity-60': !mbCoverLoaded })}
-              onClick={() => mbCoverLoaded && setReplaceCover(v => !v)}>
+              className={cn('cursor-pointer hover:bg-accent', { 'opacity-60': mbCoverLoading || !mbCoverLoaded })}
+              onClick={() => !mbCoverLoading && mbCoverLoaded && setReplaceCover(v => !v)}>
               <TableCell className='px-6'>
-                <Checkbox checked={replaceCover} disabled={!mbCoverLoaded} />
+                <Checkbox checked={replaceCover} disabled={mbCoverLoading || !mbCoverLoaded} />
               </TableCell>
               <TableCell className='font-medium'>{t('coverArt')}</TableCell>
               <TableCell>
@@ -191,10 +193,18 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
                   alt=''
                   className='w-12 h-12 rounded-md object-cover'
                   onLoad={onCoverLoaded}
-                  onError={() => setMbCoverLoaded(false)}
+                  onError={() => {
+                    setMbCoverLoading(false)
+                    setMbCoverLoaded(false)
+                  }}
                   style={{ display: mbCoverLoaded ? 'block' : 'none' }}
                 />
-                {!mbCoverLoaded && <CoverPlaceholder label={t('noCover')} />}
+                {mbCoverLoading && (
+                  <div className='w-12 h-12 rounded-md bg-muted flex items-center justify-center'>
+                    <Loader2Icon className='w-4 h-4 animate-spin text-muted-foreground' />
+                  </div>
+                )}
+                {!mbCoverLoading && !mbCoverLoaded && <CoverPlaceholder label={t('noCover')} />}
               </TableCell>
             </TableRow>
             {compareRows.map(row => (
