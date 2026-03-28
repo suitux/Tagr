@@ -1,17 +1,20 @@
 'use client'
 
-import { CheckIcon, Loader2Icon } from 'lucide-react'
+import { CheckIcon, Loader2Icon, MusicIcon } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
+import { Image } from '@/components/ui/image'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { MUSIC_BRAINZ_FIELDS, MusicBrainzMappedMetadata } from '@/features/musicbrainz/domain'
+import { COVERART_API, MUSIC_BRAINZ_FIELDS, MusicBrainzMappedMetadata } from '@/features/musicbrainz/domain'
+import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import { useMusicBrainzRelease } from '@/features/musicbrainz/hooks/use-musicbrainz-release'
 import { DATE_SONG_FIELDS, Song } from '@/features/songs/domain'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
+import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { formatDate } from '@/lib/date'
 import { cn } from '@/lib/utils'
 
@@ -36,12 +39,31 @@ function formatFieldValue(value: unknown, isDate: boolean): string {
   return String(value)
 }
 
+function CoverPlaceholder({ label }: { label: string }) {
+  return (
+    <div className='w-12 h-12 rounded-md bg-muted flex items-center justify-center'>
+      <div className='flex flex-col items-center gap-0.5'>
+        <MusicIcon className='w-4 h-4 text-muted-foreground' />
+        <span className='text-[8px] text-muted-foreground'>{label}</span>
+      </div>
+    </div>
+  )
+}
+
 export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: CompareStageProps) {
   const t = useTranslations('musicbrainzLookup')
   const tFields = useTranslations('fields')
   const { data: releaseData, isPending: isLoadingRelease } = useMusicBrainzRelease(releaseId, recordingId)
-  const { mutate: updateSong, isPending: isApplying } = useUpdateSong()
+  const { mutate: updateSong, isPending: isApplyingMetadata } = useUpdateSong()
+  const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover()
   const [checkedFields, setCheckedFields] = useState<Set<keyof MusicBrainzMappedMetadata>>(new Set())
+  const [replaceCover, setReplaceCover] = useState(false)
+  const [mbCoverLoaded, setMbCoverLoaded] = useState(false)
+
+  const isApplying = isApplyingMetadata || isFetchingCover
+
+  const currentPictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
+  const mbCoverUrl = `${COVERART_API}/release/${releaseId}/front-500`
 
   const compareRows = useMemo<CompareRow[]>(() => {
     if (!releaseData?.mapped) return []
@@ -95,7 +117,19 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
       }
     }
 
-    updateSong({ id: song.id, metadata }, { onSuccess: () => onApply() })
+    const applyMetadata = () => {
+      if (Object.keys(metadata).length > 0) {
+        updateSong({ id: song.id, metadata }, { onSuccess: () => onApply() })
+      } else {
+        onApply()
+      }
+    }
+
+    if (replaceCover) {
+      fetchMbCover({ songId: song.id, releaseId }, { onSuccess: () => applyMetadata() })
+    } else {
+      applyMetadata()
+    }
   }
 
   if (isLoadingRelease) {
@@ -112,6 +146,13 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
     }
   }
 
+  const onCoverLoaded = () => {
+    setMbCoverLoaded(true)
+    setReplaceCover(true)
+  }
+
+  const hasChanges = checkedFields.size > 0 || replaceCover
+
   return (
     <>
       <ScrollArea className='h-[60vh]'>
@@ -125,6 +166,37 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
             </TableRow>
           </TableHeader>
           <TableBody>
+            <TableRow
+              className={cn('cursor-pointer hover:bg-accent', { 'opacity-60': !mbCoverLoaded })}
+              onClick={() => mbCoverLoaded && setReplaceCover(v => !v)}>
+              <TableCell className='px-6'>
+                <Checkbox checked={replaceCover} disabled={!mbCoverLoaded} />
+              </TableCell>
+              <TableCell className='font-medium'>{t('coverArt')}</TableCell>
+              <TableCell>
+                <Image
+                  src={currentPictureUrl}
+                  alt=''
+                  width={48}
+                  height={48}
+                  className='w-12 h-12 rounded-md object-cover'
+                  unoptimized
+                  fallbackComponent={<CoverPlaceholder label={t('noCover')} />}
+                />
+              </TableCell>
+              <TableCell className='pr-6'>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={mbCoverUrl}
+                  alt=''
+                  className='w-12 h-12 rounded-md object-cover'
+                  onLoad={onCoverLoaded}
+                  onError={() => setMbCoverLoaded(false)}
+                  style={{ display: mbCoverLoaded ? 'block' : 'none' }}
+                />
+                {!mbCoverLoaded && <CoverPlaceholder label={t('noCover')} />}
+              </TableCell>
+            </TableRow>
             {compareRows.map(row => (
               <TableRow
                 key={row.field}
@@ -156,7 +228,7 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
         <Button variant='outline' size='sm' onClick={onBack}>
           {t('back')}
         </Button>
-        <Button size='sm' onClick={handleApply} disabled={isApplying || checkedFields.size === 0}>
+        <Button size='sm' onClick={handleApply} disabled={isApplying || !hasChanges}>
           {isApplying ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <CheckIcon className='h-4 w-4' />}
           {t('applySelected')}
         </Button>

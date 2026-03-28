@@ -95,7 +95,7 @@ export function DetailPanelPreviewCard({
       cancel: { label: tCommon('cancel') },
       action: {
         label: tMb('fetchMusicBrainzConfirmAction'),
-        onClick: () => fetchMbCover(song.id)
+        onClick: () => fetchMbCover({ songId: song.id })
       }
     })
   }

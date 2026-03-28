@@ -19,8 +19,13 @@ interface FetchCoverError {
 
 type FetchCoverResult = FetchCoverResponse | FetchCoverError
 
-async function fetchMusicBrainzCover(songId: number): Promise<Song> {
-  const response = await axios.post<FetchCoverResult>(`/api/songs/${songId}/musicbrainz/fetch-cover`)
+interface FetchCoverParams {
+  songId: number
+  releaseId?: string
+}
+
+async function fetchMusicBrainzCover({ songId, releaseId }: FetchCoverParams): Promise<Song> {
+  const response = await axios.post<FetchCoverResult>(`/api/songs/${songId}/musicbrainz/fetch-cover`, releaseId ? { releaseId } : undefined)
 
   if (!response.data.success) {
     throw new Error(response.data.error)
@@ -29,14 +34,14 @@ async function fetchMusicBrainzCover(songId: number): Promise<Song> {
   return response.data.song
 }
 
-type Options = Pick<UseMutationOptions<Song, Error, number>, 'onSuccess' | 'onError'>
+type Options = Pick<UseMutationOptions<Song, Error, FetchCoverParams>, 'onSuccess' | 'onError'>
 
 export function useFetchMusicBrainzCover(options?: Options) {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: fetchMusicBrainzCover,
-    onSuccess: (updatedSong, songId, onMutateResult, context) => {
+    onSuccess: (updatedSong, params, onMutateResult, context) => {
       queryClient.setQueriesData<InfiniteData<SongsSuccessResponse, number>>(
         {
           predicate: ({ queryKey }) => queryKey[0] === 'songs' && queryKey[1] === 'folder'
@@ -56,10 +61,10 @@ export function useFetchMusicBrainzCover(options?: Options) {
 
       queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
       invalidateAllHistoryQueryKeys(queryClient)
-      options?.onSuccess?.(updatedSong, songId, onMutateResult, context)
+      options?.onSuccess?.(updatedSong, params, onMutateResult, context)
     },
-    onError: (error, songId, onMutateResult, context) => {
-      options?.onError?.(error, songId, onMutateResult, context)
+    onError: (error, params, onMutateResult, context) => {
+      options?.onError?.(error, params, onMutateResult, context)
     }
   })
 }

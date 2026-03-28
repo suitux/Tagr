@@ -206,7 +206,12 @@
     "currentValue": "Current",
     "mbValue": "MusicBrainz",
     "applySelected": "Apply Selected",
-    "noFields": "No metadata fields available from this release"
+    "noFields": "No metadata fields available from this release",
+    "coverArt": "Cover Art",
+    "currentCover": "Current",
+    "mbCover": "MusicBrainz",
+    "noCover": "No cover",
+    "replaceCover": "Replace cover art"
   },
   "musicbrainz": {
     "fetchSuccess": "Cover art updated from MusicBrainz",

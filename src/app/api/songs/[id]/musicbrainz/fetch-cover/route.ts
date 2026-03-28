@@ -9,7 +9,7 @@ interface RouteParams {
   params: Promise<{ id: string }>
 }
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(request: Request, { params }: RouteParams) {
   const { id } = await params
   const songId = parseInt(id, 10)
 
@@ -18,20 +18,27 @@ export async function POST(_request: Request, { params }: RouteParams) {
   }
 
   try {
+    const body = (await request.json().catch(() => ({}))) as { releaseId?: string }
+
     const song = await prisma.song.findUnique({ where: { id: songId } })
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }
 
-    const artist = song.albumArtist || song.artist
-    const album = song.album
+    let releaseId = body.releaseId
 
-    if (!artist || !album) {
-      return NextResponse.json({ success: false, error: 'Song must have artist and album metadata' }, { status: 400 })
+    if (!releaseId) {
+      const artist = song.albumArtist || song.artist
+      const album = song.album
+
+      if (!artist || !album) {
+        return NextResponse.json({ success: false, error: 'Song must have artist and album metadata' }, { status: 400 })
+      }
+
+      releaseId = (await searchReleaseId(artist, album)) ?? undefined
     }
 
-    const releaseId = await searchReleaseId(artist, album)
     if (!releaseId) {
       return NextResponse.json({ success: false, error: 'No release found on MusicBrainz' }, { status: 404 })
     }
