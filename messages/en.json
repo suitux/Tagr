@@ -51,6 +51,8 @@
     "rescan": "Rescan library",
     "history": "View change history",
     "feedback": "Send feedback",
+    "installApp": "Install app",
+    "appInstalled": "App installed",
     "scanning": "Scanning library...",
     "scanCompleted": "Scan completed",
     "scanFailed": "Scan failed",

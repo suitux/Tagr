@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  DownloadIcon,
   HistoryIcon,
   Loader2Icon,
   LogOutIcon,
@@ -23,6 +24,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { usePwaInstall } from '@/components/pwa/use-pwa-install'
 import { useScan } from '@/features/scan/hooks/use-scan'
 
 const GITHUB_ISSUE_URL = 'https://github.com/suitux/Tagr/issues/new'
@@ -35,6 +37,7 @@ export function FolderListHeaderMenu({ onOpenHistory }: FolderListHeaderMenuProp
   const t = useTranslations('folders')
   const tCommon = useTranslations('common')
   const { isPending, confirmQuickScan, confirmFullScan } = useScan()
+  const { canInstall, install } = usePwaInstall()
 
   return (
     <DropdownMenu>
@@ -70,6 +73,12 @@ export function FolderListHeaderMenu({ onOpenHistory }: FolderListHeaderMenuProp
             {t('feedback')}
           </Link>
         </DropdownMenuItem>
+        {canInstall && (
+          <DropdownMenuItem onClick={install}>
+            <DownloadIcon className='h-4 w-4' />
+            {t('installApp')}
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => signOut()}>
           <LogOutIcon className='h-4 w-4' />
