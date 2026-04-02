@@ -4,6 +4,25 @@ import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
 
 let audio: HTMLAudioElement | null = null
+let preloadAudio: HTMLAudioElement | null = null
+
+function getPreloadAudio(): HTMLAudioElement {
+  if (!preloadAudio && typeof window !== 'undefined') {
+    preloadAudio = new Audio()
+    preloadAudio.preload = 'auto'
+    preloadAudio.volume = 0
+  }
+  return preloadAudio!
+}
+
+function preloadNextSong(song: Song | null) {
+  if (!song || typeof window === 'undefined') return
+  const p = getPreloadAudio()
+  const url = getSongAudioUrl(song.id)
+  if (p.src !== url) {
+    p.src = url
+  }
+}
 
 function safePlay(a: HTMLAudioElement) {
   a.play().catch((err) => {
@@ -138,5 +157,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   setAdjacentSongs: (previous, next) => {
     set({ _previousSong: previous, _nextSong: next })
+    preloadNextSong(next)
   }
 }))
