@@ -1,3 +1,4 @@
+import path from 'path'
 import { NextResponse } from 'next/server'
 import { streamAudioFile } from '@/features/songs/audio-stream'
 import { prisma } from '@/infrastructure/prisma/dbClient'
@@ -12,7 +13,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   try {
     const sharedLink = await prisma.sharedLink.findUnique({
       where: { token },
-      include: { song: { select: { filePath: true } } }
+      include: { song: { select: { filePath: true, fileName: true } } }
     })
 
     if (!sharedLink) {
@@ -23,7 +24,10 @@ export async function GET(request: Request, { params }: RouteParams) {
       return NextResponse.json({ success: false, error: 'Share link has expired' }, { status: 410 })
     }
 
-    return streamAudioFile(sharedLink.song.filePath, request.headers.get('range'))
+    const response = streamAudioFile(sharedLink.song.filePath, request.headers.get('range'))
+    const fileName = sharedLink.song.fileName || path.basename(sharedLink.song.filePath)
+    response.headers.set('Content-Disposition', `inline; filename="${fileName}"`)
+    return response
   } catch (error) {
     console.error('Error streaming shared audio:', error)
     return NextResponse.json(

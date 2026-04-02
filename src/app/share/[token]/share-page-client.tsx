@@ -39,7 +39,7 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
           )}
         </div>
 
-        <SharePlayer audioUrl={audioUrl} />
+        <SharePlayer audioUrl={audioUrl} fileName={song.fileName} />
         <ShareMetadataSection song={song} />
         <ShareFooter expiresAt={expiresAt} lossless={song.lossless} />
       </div>
