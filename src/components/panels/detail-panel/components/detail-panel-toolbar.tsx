@@ -1,6 +1,7 @@
 'use client'
 
 import { EllipsisVerticalIcon, HistoryIcon, ImageDownIcon, ImageUpIcon, RefreshCwIcon, Share2Icon, XIcon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HistoryModal } from '@/components/history-modal/history-modal'
@@ -31,9 +32,11 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
   const tMusicBrainz = useTranslations('musicbrainzLookup')
   const tShare = useTranslations('share')
   const tPreviewCard = useTranslations('previewCard')
+  const { data: session } = useSession()
   const { setSelectedSongId } = useSelectedSong()
   const { mutate: rescanSong, isPending: isRescanning } = useRescanSong()
   const [historyOpen, setHistoryOpen] = useState(false)
+  const isListener = session?.user?.role === 'listener'
 
   return (
     <>
@@ -55,30 +58,34 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
             </TooltipTrigger>
             <TooltipContent>{tShare('tooltip')}</TooltipContent>
           </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant='ghost' size='icon' className='h-7 w-7' disabled={isRescanning} onClick={() => rescanSong(song.id)}>
-                <RefreshCwIcon className={`h-4 w-4 ${isRescanning ? 'animate-spin' : ''}`} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{tHistory('rescanSong')}</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant='ghost' size='icon' className='h-7 w-7' onClick={onMusicBrainzLookup}>
-                <MusicBrainzIcon className='h-4 w-4' />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{tMusicBrainz('tooltip')}</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setHistoryOpen(true)}>
-                <HistoryIcon className='h-4 w-4' />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{tHistory('viewHistory')}</TooltipContent>
-          </Tooltip>
+          {!isListener && (
+            <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant='ghost' size='icon' className='h-7 w-7' disabled={isRescanning} onClick={() => rescanSong(song.id)}>
+                    <RefreshCwIcon className={`h-4 w-4 ${isRescanning ? 'animate-spin' : ''}`} />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{tHistory('rescanSong')}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant='ghost' size='icon' className='h-7 w-7' onClick={onMusicBrainzLookup}>
+                    <MusicBrainzIcon className='h-4 w-4' />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{tMusicBrainz('tooltip')}</TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setHistoryOpen(true)}>
+                    <HistoryIcon className='h-4 w-4' />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>{tHistory('viewHistory')}</TooltipContent>
+              </Tooltip>
+            </>
+          )}
         </div>
 
         {/* Mobile dropdown */}
@@ -94,18 +101,22 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
                 <ImageDownIcon />
                 {tPreviewCard('downloadCover')}
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={onEditCover}>
-                <ImageUpIcon />
-                {tPreviewCard('editCover')}
-              </DropdownMenuItem>
-              <DropdownMenuItem disabled={isRescanning} onClick={() => rescanSong(song.id)}>
-                <RefreshCwIcon className={isRescanning ? 'animate-spin' : ''} />
-                {tHistory('rescanSong')}
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setHistoryOpen(true)}>
-                <HistoryIcon />
-                {tHistory('viewHistory')}
-              </DropdownMenuItem>
+              {!isListener && (
+                <>
+                  <DropdownMenuItem onClick={onEditCover}>
+                    <ImageUpIcon />
+                    {tPreviewCard('editCover')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem disabled={isRescanning} onClick={() => rescanSong(song.id)}>
+                    <RefreshCwIcon className={isRescanning ? 'animate-spin' : ''} />
+                    {tHistory('rescanSong')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setHistoryOpen(true)}>
+                    <HistoryIcon />
+                    {tHistory('viewHistory')}
+                  </DropdownMenuItem>
+                </>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

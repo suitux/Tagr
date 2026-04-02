@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { getConfigValue, upsertConfigValue } from '@/features/config/service'
 import { getSearchParam } from '@/lib/api/search-params'
 
@@ -47,6 +48,9 @@ interface UpsertSuccessResponse {
 type UpsertResponse = UpsertSuccessResponse | ConfigErrorResponse
 
 export async function PUT(request: NextRequest): Promise<NextResponse<UpsertResponse>> {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   try {
     const body = (await request.json()) as UpsertBody
 

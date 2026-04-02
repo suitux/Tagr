@@ -54,6 +54,7 @@
     "feedback": "Send feedback",
     "installApp": "Install app",
     "appInstalled": "App installed",
+    "manageUsers": "Manage users",
     "scanning": "Scanning library...",
     "scanCompleted": "Scan completed",
     "scanFailed": "Scan failed",
@@ -318,5 +319,25 @@
       "pathNotDirectory": "The path is not a directory",
       "unknownError": "Unknown error reading the folder"
     }
+  },
+  "users": {
+    "title": "Manage Users",
+    "createUser": "Create user",
+    "editUser": "Edit user",
+    "deleteUser": "Delete user",
+    "deleteConfirm": "Are you sure you want to delete user \"{username}\"?",
+    "username": "Username",
+    "password": "Password",
+    "passwordHint": "Leave blank to keep current",
+    "role": "Role",
+    "roleAdmin": "Admin",
+    "roleTagger": "Tagger",
+    "roleListener": "Listener",
+    "noUsers": "No users yet",
+    "userCreated": "User created",
+    "userUpdated": "User updated",
+    "userDeleted": "User deleted",
+    "cancel": "Cancel",
+    "save": "Save"
   }
 }

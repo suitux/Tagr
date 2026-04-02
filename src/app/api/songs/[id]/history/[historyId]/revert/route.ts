@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { PICTURE_FIELD } from '@/features/history/consts'
 import { recordChanges, recordCustomMetadataChanges, recordPictureChange, deserialize, deserializePicture } from '@/features/history/history.service'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
@@ -27,6 +28,9 @@ interface RevertErrorResponse {
 type RevertResponse = RevertSuccessResponse | RevertErrorResponse
 
 export async function POST(_request: Request, { params }: RouteParams): Promise<NextResponse<RevertResponse>> {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   const { id, historyId } = await params
   const songId = parseInt(id, 10)
   const changeId = parseInt(historyId, 10)

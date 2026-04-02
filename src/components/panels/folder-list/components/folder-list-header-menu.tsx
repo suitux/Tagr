@@ -8,11 +8,13 @@ import {
   MessageCirclePlus,
   MoreVerticalIcon,
   RefreshCwIcon,
+  UsersIcon,
   ZapIcon
 } from 'lucide-react'
-import { signOut } from 'next-auth/react'
+import { signOut, useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
+import { usePwaInstall } from '@/components/pwa/use-pwa-install'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -24,20 +26,25 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
-import { usePwaInstall } from '@/components/pwa/use-pwa-install'
 import { useScan } from '@/features/scan/hooks/use-scan'
 
 const GITHUB_ISSUE_URL = 'https://github.com/suitux/Tagr/issues/new'
 
 interface FolderListHeaderMenuProps {
   onOpenHistory: () => void
+  onOpenUserManagement: () => void
 }
 
-export function FolderListHeaderMenu({ onOpenHistory }: FolderListHeaderMenuProps) {
+export function FolderListHeaderMenu({ onOpenHistory, onOpenUserManagement }: FolderListHeaderMenuProps) {
   const t = useTranslations('folders')
   const tCommon = useTranslations('common')
+  const { data: session } = useSession()
   const { isPending, confirmQuickScan, confirmFullScan } = useScan()
   const { canInstall, install } = usePwaInstall()
+
+  const role = session?.user?.role
+  const isAdmin = role === 'admin'
+  const isListener = role === 'listener'
 
   return (
     <DropdownMenu>
@@ -47,26 +54,36 @@ export function FolderListHeaderMenu({ onOpenHistory }: FolderListHeaderMenuProp
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        <DropdownMenuSub>
-          <DropdownMenuSubTrigger disabled={isPending}>
-            {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
-            {t('rescan')}
-          </DropdownMenuSubTrigger>
-          <DropdownMenuSubContent>
-            <DropdownMenuItem onClick={confirmQuickScan}>
-              <ZapIcon className='h-4 w-4' />
-              {t('quickScan')}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={confirmFullScan}>
-              <RefreshCwIcon className='h-4 w-4' />
-              {t('fullScan')}
-            </DropdownMenuItem>
-          </DropdownMenuSubContent>
-        </DropdownMenuSub>
-        <DropdownMenuItem onClick={onOpenHistory}>
-          <HistoryIcon className='h-4 w-4' />
-          {t('history')}
-        </DropdownMenuItem>
+        {!isListener && (
+          <DropdownMenuSub>
+            <DropdownMenuSubTrigger disabled={isPending}>
+              {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
+              {t('rescan')}
+            </DropdownMenuSubTrigger>
+            <DropdownMenuSubContent>
+              <DropdownMenuItem onClick={confirmQuickScan}>
+                <ZapIcon className='h-4 w-4' />
+                {t('quickScan')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={confirmFullScan}>
+                <RefreshCwIcon className='h-4 w-4' />
+                {t('fullScan')}
+              </DropdownMenuItem>
+            </DropdownMenuSubContent>
+          </DropdownMenuSub>
+        )}
+        {!isListener && (
+          <DropdownMenuItem onClick={onOpenHistory}>
+            <HistoryIcon className='h-4 w-4' />
+            {t('history')}
+          </DropdownMenuItem>
+        )}
+        {isAdmin && (
+          <DropdownMenuItem onClick={onOpenUserManagement}>
+            <UsersIcon className='h-4 w-4' />
+            {t('manageUsers')}
+          </DropdownMenuItem>
+        )}
         <DropdownMenuItem asChild>
           <Link href={GITHUB_ISSUE_URL} target='_blank' rel='noopener noreferrer'>
             <MessageCirclePlus className='h-4 w-4' />

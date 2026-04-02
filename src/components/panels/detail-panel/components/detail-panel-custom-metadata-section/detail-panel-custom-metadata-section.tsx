@@ -2,6 +2,7 @@
 
 import { PlusIcon, TagIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -33,6 +34,7 @@ function deduplicateMetadata(metadata: SongMetadata[]): { key: string; value: st
 
 export function DetailPanelCustomMetadataSection({ songId, metadata }: DetailPanelCustomMetadataSectionProps) {
   const t = useTranslations('customTags')
+  const { data: session } = useSession()
   const [isAdding, setIsAdding] = useState(false)
 
   const entries = deduplicateMetadata(metadata)
@@ -41,19 +43,21 @@ export function DetailPanelCustomMetadataSection({ songId, metadata }: DetailPan
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
         <h3 className='text-xs font-semibold text-muted-foreground uppercase tracking-wider'>{t('title')}</h3>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant='ghost'
-              size='icon'
-              className='h-6 w-6'
-              onClick={() => setIsAdding(true)}
-              disabled={isAdding}>
-              <PlusIcon className='w-3.5 h-3.5' />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>{t('addTag')}</TooltipContent>
-        </Tooltip>
+        {session?.user?.role !== 'listener' && (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-6 w-6'
+                onClick={() => setIsAdding(true)}
+                disabled={isAdding}>
+                <PlusIcon className='w-3.5 h-3.5' />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('addTag')}</TooltipContent>
+          </Tooltip>
+        )}
       </div>
       <Card className='p-0'>
         <CardContent className='p-0 divide-y divide-border'>

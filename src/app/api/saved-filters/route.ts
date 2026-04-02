@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface SavedFilterResponse {
@@ -46,6 +47,9 @@ export async function GET(): Promise<NextResponse<ListResponse | ErrorResponse>>
 }
 
 export async function POST(request: Request): Promise<NextResponse<CreateResponse | ErrorResponse>> {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   try {
     const body = await request.json()
     const { name, filters } = body as { name?: string; filters?: string }

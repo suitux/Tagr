@@ -1,6 +1,7 @@
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { Suspense } from 'react'
 import type { Metadata } from 'next'
+import { SessionProvider } from 'next-auth/react'
 import { NextIntlClientProvider } from 'next-intl'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { QueryProvider } from '@/components/providers/query-provider'
@@ -55,17 +56,19 @@ export default function RootLayout({
   return (
     <html lang='en' className='dark'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} cz-shortcut-listen='true'>
-        <NuqsAdapter>
-          <QueryProvider>
-            <NextIntlClientProvider>
-              <AlertDialogProvider>
-                <TooltipProvider delayDuration={300}>
-                  <Suspense>{children}</Suspense>
-                </TooltipProvider>
-              </AlertDialogProvider>
-            </NextIntlClientProvider>
-          </QueryProvider>
-        </NuqsAdapter>
+        <SessionProvider>
+          <NuqsAdapter>
+            <QueryProvider>
+              <NextIntlClientProvider>
+                <AlertDialogProvider>
+                  <TooltipProvider delayDuration={300}>
+                    <Suspense>{children}</Suspense>
+                  </TooltipProvider>
+                </AlertDialogProvider>
+              </NextIntlClientProvider>
+            </QueryProvider>
+          </NuqsAdapter>
+        </SessionProvider>
         <Toaster richColors />
         <ServiceWorkerRegister />
       </body>

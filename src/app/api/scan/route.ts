@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { adaptScanResultResponse } from '@/features/metadata/adapters'
 import { scanAllFoldersAndUpdateDatabase } from '@/features/metadata/metadata-scan.service'
 import { ScanMode } from '@/features/scan/domain'
@@ -7,6 +8,9 @@ import { analyzeDatabase, optimizeSQLite } from '@/infrastructure/prisma/optimiz
 import { getSearchParam } from '@/lib/api/search-params'
 
 export async function GET(request: Request) {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   const { searchParams } = new URL(request.url)
   const mode = getSearchParam(searchParams, 'mode', 'string', 'full') as ScanMode
   const folders = getMusicFolders()
