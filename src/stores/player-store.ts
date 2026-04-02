@@ -5,6 +5,15 @@ import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
 
 let audio: HTMLAudioElement | null = null
 
+function safePlay(a: HTMLAudioElement) {
+  a.play().catch((err) => {
+    if (err.name !== 'AbortError') {
+      console.warn('Play failed:', err.message)
+      usePlayerStore.setState({ isPlaying: false })
+    }
+  })
+}
+
 function getAudio(): HTMLAudioElement | null {
   if (!audio && typeof window !== 'undefined') {
     audio = new Audio()
@@ -25,6 +34,13 @@ function getAudio(): HTMLAudioElement | null {
     })
     audio.addEventListener('durationchange', () => {
       usePlayerStore.setState({ duration: audio!.duration || 0 })
+    })
+    audio.addEventListener('error', () => {
+      usePlayerStore.setState({ isPlaying: false })
+      console.warn('Audio error:', audio?.error?.message)
+    })
+    audio.addEventListener('stalled', () => {
+      console.warn('Audio stalled — network may be slow')
     })
   }
   return audio
@@ -74,8 +90,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     set({ currentSong: song })
     const a = getAudio()
     if (a) {
+      a.pause()
       a.src = getSongAudioUrl(song.id)
-      a.play()
+      safePlay(a)
     }
   },
 
@@ -91,15 +108,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     })
     const a = getAudio()
     if (a) {
+      a.pause()
       a.src = getSongAudioUrl(song.id)
-      a.play()
+      safePlay(a)
     }
   },
 
   togglePlayPause: () => {
     const a = getAudio()
     if (!a || !get().currentSong) return
-    if (a.paused) a.play()
+    if (a.paused) safePlay(a)
     else a.pause()
   },
 
