@@ -42,7 +42,7 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
         </div>
 
         <SharePlayer audioUrl={audioUrl} />
-
+        <ShareMetadataSection song={song} />
         <div className='flex justify-center'>
           <Button variant='outline' asChild>
             <a href={audioUrl} download={song.fileName || true}>
@@ -51,8 +51,6 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
             </a>
           </Button>
         </div>
-
-        <ShareMetadataSection song={song} />
         <ShareFooter expiresAt={expiresAt} lossless={song.lossless} />
       </div>
     </div>
