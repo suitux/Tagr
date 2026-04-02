@@ -36,7 +36,8 @@ export function streamAudioFile(filePath: string, rangeHeader: string | null): N
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
         'Accept-Ranges': 'bytes',
         'Content-Length': String(chunkSize),
-        'Content-Type': contentType
+        'Content-Type': contentType,
+        'Cache-Control': 'private, max-age=3600'
       }
     })
   }
@@ -48,7 +49,8 @@ export function streamAudioFile(filePath: string, rangeHeader: string | null): N
     headers: {
       'Content-Length': String(fileSize),
       'Content-Type': contentType,
-      'Accept-Ranges': 'bytes'
+      'Accept-Ranges': 'bytes',
+      'Cache-Control': 'private, max-age=3600'
     }
   })
 }
