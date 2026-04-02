@@ -1,14 +1,13 @@
-import { DownloadIcon, PauseIcon, PlayIcon } from 'lucide-react'
+import { PauseIcon, PlayIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useWaveform } from '@/components/waveform/use-waveform'
 import { Waveform } from '@/components/waveform/waveform'
 
 interface SharePlayerProps {
   audioUrl: string
-  fileName?: string
 }
 
-export function SharePlayer({ audioUrl, fileName }: SharePlayerProps) {
+export function SharePlayer({ audioUrl }: SharePlayerProps) {
   const { audioRef, isPlaying, currentTime, duration, handleSeek, togglePlayPause } = useWaveform()
 
   return (
@@ -24,11 +23,6 @@ export function SharePlayer({ audioUrl, fileName }: SharePlayerProps) {
         onSeek={handleSeek}
         audioRef={audioRef}
       />
-      <Button variant='ghost' size='icon' className='h-10 w-10 shrink-0' asChild>
-        <a href={audioUrl} download={fileName || true}>
-          <DownloadIcon className='h-5 w-5' />
-        </a>
-      </Button>
     </div>
   )
 }

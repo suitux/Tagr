@@ -1,5 +1,7 @@
 'use client'
 
+import { DownloadIcon } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 import type { SongWithMetadata } from '@/features/songs/domain'
 import { ShareAlbumArt } from './components/share-album-art'
 import { ShareErrorState } from './components/share-error-state'
@@ -39,7 +41,17 @@ export function SharePageClient({ token, song, expiresAt, error }: SharePageClie
           )}
         </div>
 
-        <SharePlayer audioUrl={audioUrl} fileName={song.fileName} />
+        <SharePlayer audioUrl={audioUrl} />
+
+        <div className='flex justify-center'>
+          <Button variant='outline' asChild>
+            <a href={audioUrl} download={song.fileName || true}>
+              <DownloadIcon className='h-4 w-4' />
+              Download
+            </a>
+          </Button>
+        </div>
+
         <ShareMetadataSection song={song} />
         <ShareFooter expiresAt={expiresAt} lossless={song.lossless} />
       </div>
