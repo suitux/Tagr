@@ -219,8 +219,10 @@ export function CompareStage({ song, releaseId, recordingId, onApply, onBack }: 
                   <Checkbox disabled={!row.differs} checked={checkedFields.has(row.field)} />
                 </TableCell>
                 <TableCell className='font-medium'>{tFields(row.field)}</TableCell>
-                <TableCell className='text-muted-foreground whitespace-nowrap'>{row.current || '\u2014'}</TableCell>
-                <TableCell className='pr-6 whitespace-nowrap'>{row.musicbrainz}</TableCell>
+                <TableCell className='text-muted-foreground max-w-96 whitespace-normal'>
+                  {row.current || '\u2014'}
+                </TableCell>
+                <TableCell className='pr-6 whitespace-normal max-w-64'>{row.musicbrainz}</TableCell>
               </TableRow>
             ))}
             {compareRows.length === 0 && (
