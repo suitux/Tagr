@@ -1,9 +1,22 @@
+import { Session } from 'next-auth'
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { UserRole } from '@/features/users/domain'
 import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 
-export async function requireRole(minimumRole: UserRole) {
+interface RequireRoleResultAuthorized {
+  authorized: true
+  session: Session
+}
+
+interface RequireRoleResultUnauthorized {
+  authorized: false
+  response: NextResponse<{ success: false; error: string }>
+}
+
+type RequireRoleResult = RequireRoleResultAuthorized | RequireRoleResultUnauthorized
+
+export async function requireRole(minimumRole: UserRole): Promise<RequireRoleResult> {
   const session = await auth()
 
   if (!session?.user) {
