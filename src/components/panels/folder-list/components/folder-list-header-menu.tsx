@@ -12,8 +12,6 @@ import {
   ZapIcon
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
-import type { UserRole } from '@/features/users/domain'
-import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePwaInstall } from '@/components/pwa/use-pwa-install'
@@ -29,6 +27,8 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { useScan } from '@/features/scan/hooks/use-scan'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 
 const GITHUB_ISSUE_URL = 'https://github.com/suitux/Tagr/issues/new'
 
