@@ -57,7 +57,7 @@ export function UserForm({ initialValues, onSubmit, onCancel, isPending }: UserF
       />
       <div className='flex flex-col gap-2'>
         <Label className='text-xs text-muted-foreground'>{t('role')}</Label>
-        <div className='grid grid-cols-2 gap-2'>
+        <div className='grid grid-cols-1 md:grid-cols-2 gap-2'>
           {ROLES.map(r => (
             <button
               key={r}
