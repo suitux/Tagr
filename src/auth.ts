@@ -56,8 +56,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.userId = user.id
       }
 
-      console.log(token.role)
-
       if (!token.role) {
         return null
       }
