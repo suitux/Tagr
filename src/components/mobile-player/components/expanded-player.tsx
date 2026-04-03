@@ -3,9 +3,9 @@
 import { ChevronDown, Loader2, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
-import { Waveform } from '@/components/waveform/waveform'
 import type { Song } from '@/features/songs/domain'
-import { getSongAudioUrl, getSongPictureUrl } from '@/features/songs/song-file-helpers'
+import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
+import { ExpandedPlayerWaveform } from './expanded-player-waveform'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useSwipe } from '@/hooks/use-swipe'
 import { usePlayerStore } from '@/stores/player-store'
@@ -25,9 +25,6 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
   const playNext = usePlayerStore(s => s.playNext)
   const _previousSong = usePlayerStore(s => s._previousSong)
   const _nextSong = usePlayerStore(s => s._nextSong)
-  const currentTime = usePlayerStore(s => s.currentTime)
-  const duration = usePlayerStore(s => s.duration)
-  const seek = usePlayerStore(s => s.seek)
   const { setSelectedSongId } = useSelectedSong()
 
   const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
@@ -68,14 +65,7 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
         </button>
 
         <div className='w-full px-2'>
-          <Waveform
-            showTime
-            disabled={isBuffering}
-            url={getSongAudioUrl(song.id)}
-            currentTime={currentTime}
-            duration={duration}
-            onSeek={seek}
-          />
+          <ExpandedPlayerWaveform songId={song.id} />
         </div>
 
         <div className='flex items-center gap-3'>
