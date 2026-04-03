@@ -54,8 +54,14 @@ function getAudio(): HTMLAudioElement | null {
     audio.addEventListener('durationchange', () => {
       usePlayerStore.setState({ duration: audio!.duration || 0 })
     })
+    audio.addEventListener('waiting', () => {
+      usePlayerStore.setState({ isBuffering: true })
+    })
+    audio.addEventListener('canplay', () => {
+      usePlayerStore.setState({ isBuffering: false })
+    })
     audio.addEventListener('error', () => {
-      usePlayerStore.setState({ isPlaying: false })
+      usePlayerStore.setState({ isPlaying: false, isBuffering: false })
       console.warn('Audio error:', audio?.error?.message)
     })
     audio.addEventListener('stalled', () => {
@@ -75,6 +81,7 @@ interface QueueContext {
 interface PlayerState {
   currentSong: Song | null
   isPlaying: boolean
+  isBuffering: boolean
   currentTime: number
   duration: number
   _previousSong: Song | null
@@ -96,6 +103,7 @@ interface PlayerState {
 export const usePlayerStore = create<PlayerState>((set, get) => ({
   currentSong: null,
   isPlaying: false,
+  isBuffering: false,
   currentTime: 0,
   duration: 0,
   _previousSong: null,
@@ -106,7 +114,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   queueFilters: undefined,
 
   _playDirect: (song) => {
-    set({ currentSong: song })
+    set({ currentSong: song, isBuffering: true })
     const a = getAudio()
     if (a) {
       a.pause()
@@ -119,6 +127,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     const activeFilters = Object.entries(columnFilters).filter(([, v]) => v)
     set({
       currentSong: song,
+      isBuffering: true,
       queueFolder: folder,
       queueSearch: search || undefined,
       queueSorting: sorting,

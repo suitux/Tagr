@@ -1,13 +1,12 @@
 'use client'
 
-import { Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { Loader2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Waveform } from '@/components/waveform/waveform'
 import { useMediaSession } from '@/features/player/hooks/use-media-session'
 import { useAdjacentSongs } from '@/features/songs/hooks/use-adjacent-songs'
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
-import { formatTimeSeconds } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 import { usePlayerStore } from '@/stores/player-store'
 
@@ -17,6 +16,7 @@ interface SidebarPlayerAudioPlayerProps {
 
 export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerProps) {
   const isPlaying = usePlayerStore(s => s.isPlaying)
+  const isBuffering = usePlayerStore(s => s.isBuffering)
   const currentTime = usePlayerStore(s => s.currentTime)
   const duration = usePlayerStore(s => s.duration)
   const _previousSong = usePlayerStore(s => s._previousSong)
@@ -33,7 +33,13 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
   const queueFilters = usePlayerStore(s => s.queueFilters)
   useMediaSession({ currentSong, playPrevious, playNext, togglePlayPause })
 
-  const { data } = useAdjacentSongs(currentSong?.id ?? null, queueFolder, queueSearch, queueSorting, queueFilters)
+  const { data, isPending: isAdjacentSongsPending } = useAdjacentSongs(
+    currentSong?.id ?? null,
+    queueFolder,
+    queueSearch,
+    queueSorting,
+    queueFilters
+  )
 
   useEffect(() => {
     setAdjacentSongs(data?.previous ?? null, data?.next ?? null)
@@ -52,15 +58,18 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
           size='icon'
           className={cn(expanded ? 'h-9 w-9' : 'h-7 w-7')}
           onClick={playPrevious}
-          disabled={!hasPrevious}>
+          disabled={!hasPrevious || isAdjacentSongsPending}>
           <SkipBack className={cn(expanded ? 'h-4 w-4' : 'h-3.5 w-3.5')} />
         </Button>
         <Button
           variant='ghost'
           size='icon'
           className={cn(expanded ? 'h-10 w-10' : 'h-7 w-7')}
-          onClick={togglePlayPause}>
-          {isPlaying ? (
+          onClick={togglePlayPause}
+          disabled={isBuffering}>
+          {isBuffering ? (
+            <Loader2 className={cn('animate-spin', expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
+          ) : isPlaying ? (
             <Pause className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
           ) : (
             <Play className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
@@ -71,7 +80,7 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
           size='icon'
           className={cn(expanded ? 'h-9 w-9' : 'h-7 w-7')}
           onClick={playNext}
-          disabled={!hasNext}>
+          disabled={!hasNext || isAdjacentSongsPending}>
           <SkipForward className={cn(expanded ? 'h-4 w-4' : 'h-3.5 w-3.5')} />
         </Button>
       </div>
@@ -79,6 +88,7 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
       <div className={cn('flex items-center gap-2', expanded ? 'w-full' : 'flex-1')}>
         <Waveform
           showTime
+          disabled={isBuffering}
           url={getSongAudioUrl(currentSong.id)}
           currentTime={currentTime}
           duration={duration}

@@ -4,6 +4,7 @@ import WaveSurfer from 'wavesurfer.js'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
 import { formatTimeSeconds } from '@/lib/formatters'
+import { cn } from '@/lib/utils'
 
 interface WaveformProps {
   url: string
@@ -11,10 +12,11 @@ interface WaveformProps {
   duration: number
   onSeek: (time: number) => void
   showTime?: boolean
+  disabled?: boolean
   audioRef?: RefObject<HTMLAudioElement | null>
 }
 
-export function Waveform({ url, currentTime, duration, onSeek, showTime = false, audioRef }: WaveformProps) {
+export function Waveform({ url, currentTime, duration, onSeek, showTime = false, disabled = false, audioRef }: WaveformProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
   const onSeekRef = useRef(onSeek)
@@ -84,11 +86,12 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false,
             value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
             max={100}
             step={0.1}
+            disabled={disabled}
             onValueChange={([value]) => onSeek((value / 100) * duration)}
             className='absolute inset-0 z-10'
           />
         )}
-        <div ref={containerRef} className={loading ? 'invisible' : 'cursor-pointer'} />
+        <div ref={containerRef} className={cn(loading ? 'invisible' : 'cursor-pointer', disabled && 'pointer-events-none opacity-50')} />
       </div>
       {showTime && (
         <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTimeSeconds(duration)}</span>
