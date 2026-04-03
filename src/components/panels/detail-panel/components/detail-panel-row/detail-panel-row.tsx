@@ -2,6 +2,8 @@
 
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { HTMLInputTypeAttribute, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -39,11 +41,11 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
   const isExtraMetadata = 'isExtraMetadata' in props && props.isExtraMetadata
 
   const { data: session } = useSession()
-  const isListener = session?.user?.role === 'listener'
+  const isTaggerOrAbove = hasMinimumRole(session?.user?.role as UserRole, 'tagger')
   const [isEditing, setIsEditing] = useState(false)
   const { mutate: updateSong, isPending } = useUpdateSong()
 
-  const canEdit = !isListener && (isExtraMetadata ? songId !== undefined : songId !== undefined && fieldName !== undefined)
+  const canEdit = isTaggerOrAbove && (isExtraMetadata ? songId !== undefined : songId !== undefined && fieldName !== undefined)
 
   const handleSave = (saveValue: string | number | boolean | null) => {
     if (!songId || !fieldName) return

@@ -2,6 +2,8 @@
 
 import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon, Share2Icon } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import LosslessBadge from '@/components/lossless-badge'
@@ -40,7 +42,7 @@ export function DetailPanelPreviewCard({
   fileInputRef
 }: DetailPanelPreviewCardProps) {
   const { data: session } = useSession()
-  const isListener = session?.user?.role === 'listener'
+  const canEdit = hasMinimumRole(session?.user?.role as UserRole, 'tagger')
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
     onSuccess: () => {
@@ -149,7 +151,7 @@ export function DetailPanelPreviewCard({
                       onClick={handlePlayPause}
                       fillIcon
                     />
-                    {!isListener && (
+                    {canEdit && (
                       <PreviewCardActionButton tooltip={t('editCover')} icon={ImageUpIcon} onClick={handleImageEdit} />
                     )}
                     <PreviewCardActionButton
@@ -158,7 +160,7 @@ export function DetailPanelPreviewCard({
                       onClick={handleDownload}
                       tooltipSide={'bottom'}
                     />
-                    {!isListener && (
+                    {canEdit && (
                       <PreviewCardActionButton
                         tooltip={tMb('fetchMusicBrainz')}
                         icon={MusicBrainzIcon}
@@ -182,7 +184,7 @@ export function DetailPanelPreviewCard({
                   fillIcon
                   primary
                 />
-                {!isListener && <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={onMusicBrainzLookup} />}
+                {canEdit && <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={onMusicBrainzLookup} />}
               </div>
             )}
 

@@ -2,6 +2,8 @@
 
 import { EllipsisVerticalIcon, HistoryIcon, ImageDownIcon, ImageUpIcon, RefreshCwIcon, Share2Icon, XIcon } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HistoryModal } from '@/components/history-modal/history-modal'
@@ -36,7 +38,7 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
   const { setSelectedSongId } = useSelectedSong()
   const { mutate: rescanSong, isPending: isRescanning } = useRescanSong()
   const [historyOpen, setHistoryOpen] = useState(false)
-  const isListener = session?.user?.role === 'listener'
+  const canEdit = hasMinimumRole(session?.user?.role as UserRole, 'tagger')
 
   return (
     <>
@@ -58,7 +60,7 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
             </TooltipTrigger>
             <TooltipContent>{tShare('tooltip')}</TooltipContent>
           </Tooltip>
-          {!isListener && (
+          {canEdit && (
             <>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -101,7 +103,7 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
                 <ImageDownIcon />
                 {tPreviewCard('downloadCover')}
               </DropdownMenuItem>
-              {!isListener && (
+              {canEdit && (
                 <>
                   <DropdownMenuItem onClick={onEditCover}>
                     <ImageUpIcon />

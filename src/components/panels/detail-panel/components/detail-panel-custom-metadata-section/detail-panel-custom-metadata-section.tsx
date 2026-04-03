@@ -7,6 +7,8 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import type { SongMetadata } from '@/generated/prisma/client'
 import { DetailPanelRow } from '../detail-panel-row/detail-panel-row'
 import { AddCustomTagForm } from './components/add-custom-tag-form'
@@ -43,7 +45,7 @@ export function DetailPanelCustomMetadataSection({ songId, metadata }: DetailPan
     <div className='space-y-3'>
       <div className='flex items-center justify-between'>
         <h3 className='text-xs font-semibold text-muted-foreground uppercase tracking-wider'>{t('title')}</h3>
-        {session?.user?.role !== 'listener' && (
+        {hasMinimumRole(session?.user?.role as UserRole, 'tagger') && (
           <Tooltip>
             <TooltipTrigger asChild>
               <Button

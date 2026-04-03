@@ -8,17 +8,17 @@ export async function requireRole(minimumRole: UserRole) {
 
   if (!session?.user) {
     return {
-      authorized: false as const,
+      authorized: false,
       response: NextResponse.json({ success: false as const, error: 'Unauthorized' }, { status: 401 })
     }
   }
 
-  if (!hasMinimumRole(session.user.role as UserRole, minimumRole)) {
+  if (!hasMinimumRole(session.user.role, minimumRole)) {
     return {
-      authorized: false as const,
+      authorized: false,
       response: NextResponse.json({ success: false as const, error: 'Forbidden' }, { status: 403 })
     }
   }
 
-  return { authorized: true as const, session }
+  return { authorized: true, session }
 }

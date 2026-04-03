@@ -12,6 +12,8 @@ import {
   ZapIcon
 } from 'lucide-react'
 import { signOut, useSession } from 'next-auth/react'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { usePwaInstall } from '@/components/pwa/use-pwa-install'
@@ -42,9 +44,9 @@ export function FolderListHeaderMenu({ onOpenHistory, onOpenUserManagement }: Fo
   const { isPending, confirmQuickScan, confirmFullScan } = useScan()
   const { canInstall, install } = usePwaInstall()
 
-  const role = session?.user?.role
-  const isAdmin = role === 'admin'
-  const isListener = role === 'listener'
+  const role = session?.user?.role as UserRole
+  const isAdmin = hasMinimumRole(role, 'admin')
+  const isTagger = hasMinimumRole(role, 'tagger')
 
   return (
     <DropdownMenu>
@@ -54,7 +56,7 @@ export function FolderListHeaderMenu({ onOpenHistory, onOpenUserManagement }: Fo
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align='end'>
-        {!isListener && (
+        {isTagger && (
           <DropdownMenuSub>
             <DropdownMenuSubTrigger disabled={isPending}>
               {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <RefreshCwIcon className='h-4 w-4' />}
@@ -72,7 +74,7 @@ export function FolderListHeaderMenu({ onOpenHistory, onOpenUserManagement }: Fo
             </DropdownMenuSubContent>
           </DropdownMenuSub>
         )}
-        {!isListener && (
+        {isTagger && (
           <DropdownMenuItem onClick={onOpenHistory}>
             <HistoryIcon className='h-4 w-4' />
             {t('history')}
