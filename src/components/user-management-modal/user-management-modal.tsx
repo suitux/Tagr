@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2Icon, PlusIcon, UserPlusIcon, UsersIcon } from 'lucide-react'
+import { Loader2Icon, PlusIcon, UsersIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
@@ -12,6 +12,7 @@ import { useCreateUser } from '@/features/users/hooks/use-create-user'
 import { useDeleteUser } from '@/features/users/hooks/use-delete-user'
 import { useUpdateUser } from '@/features/users/hooks/use-update-user'
 import { useUsers } from '@/features/users/hooks/use-users'
+import { UserEmptyState } from './components/user-empty-state'
 import { UserForm } from './components/user-form'
 import { UserTable } from './components/user-table'
 
@@ -114,13 +115,9 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
               }}
               onDelete={handleDelete}
             />
-          ) : (
-            <div className='flex flex-col items-center justify-center rounded-md border border-dashed py-10 text-center'>
-              <UserPlusIcon className='h-10 w-10 text-muted-foreground/50' />
-              <p className='mt-3 text-sm font-medium'>{t('noUsers')}</p>
-              <p className='mt-1 text-xs text-muted-foreground'>{t('noUsersDescription')}</p>
-            </div>
-          )}
+          ) : !showForm ? (
+            <UserEmptyState onCreateUser={() => setShowForm(true)} />
+          ) : null}
 
           {showForm && (
             <UserForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} isPending={createUser.isPending} />
@@ -135,7 +132,7 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
             />
           )}
 
-          {!showForm && !editingUser && (
+          {!showForm && !editingUser && users && users.length > 0 && (
             <Button variant='outline' size='sm' className='self-start' onClick={() => setShowForm(true)}>
               <PlusIcon className='h-4 w-4' />
               {t('createUser')}
