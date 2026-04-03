@@ -20,5 +20,8 @@ export async function requireRole(minimumRole: UserRole) {
     }
   }
 
-  return { authorized: true, session }
+  return {
+    authorized: true,
+    session
+  }
 }

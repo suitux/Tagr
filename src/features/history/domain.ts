@@ -4,6 +4,7 @@ export interface SongChangeHistoryEntry {
   field: string
   oldValue: string | null
   newValue: string | null
+  changedBy: string | null
   changedAt: string
   songTitle: string | null
   songArtist: string | null

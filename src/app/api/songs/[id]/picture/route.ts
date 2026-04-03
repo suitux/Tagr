@@ -40,7 +40,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
     const buffer = Buffer.from(arrayBuffer)
     const newPictureData = `data:${file.type};base64,${buffer.toString('base64')}`
 
-    await recordPictureChange(songId, newPictureData)
+    await recordPictureChange(songId, newPictureData, guard.session.user?.name ?? undefined)
     await writePictureToFile(song.filePath, buffer, file.type)
     const updatedSong = await rescanSongFileAndSaveIntoDb(songId)
 

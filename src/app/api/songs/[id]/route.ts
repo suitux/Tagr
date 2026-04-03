@@ -108,12 +108,14 @@ export async function PATCH(request: Request, { params }: RouteParams): Promise<
       customMetadata?: { key: string; value: string | null }[]
     }
 
+    const changedBy = guard.session.user?.name ?? undefined
+
     if (Object.keys(standardFields).length > 0) {
-      await recordChanges(song, standardFields)
+      await recordChanges(song, standardFields, changedBy)
     }
 
     if (customMetadata) {
-      await recordCustomMetadataChanges(songId, song.metadata, customMetadata)
+      await recordCustomMetadataChanges(songId, song.metadata, customMetadata, changedBy)
     }
 
     // Write metadata to the file

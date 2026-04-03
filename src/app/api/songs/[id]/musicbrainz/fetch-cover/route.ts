@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { requireRole } from '@/lib/api/auth-guard'
 import { recordPictureChange } from '@/features/history/history.service'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { searchReleaseId, fetchCoverArt } from '@/features/musicbrainz/musicbrainz.service'
 import { prisma } from '@/infrastructure/prisma/dbClient'
+import { requireRole } from '@/lib/api/auth-guard'
 
 interface RouteParams {
   params: Promise<{ id: string }>
@@ -53,7 +53,7 @@ export async function POST(request: Request, { params }: RouteParams) {
     }
 
     const newPictureData = `data:${cover.contentType};base64,${cover.buffer.toString('base64')}`
-    await recordPictureChange(songId, newPictureData)
+    await recordPictureChange(songId, newPictureData, guard.session.user?.name ?? undefined)
     await writePictureToFile(song.filePath, cover.buffer, cover.contentType)
     const updatedSong = await rescanSongFileAndSaveIntoDb(songId)
 

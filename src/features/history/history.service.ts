@@ -17,8 +17,8 @@ export function deserialize(field: string, value: string | null): unknown {
   return value
 }
 
-export async function recordChanges(song: Song, update: Record<string, unknown>) {
-  const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null }[] = []
+export async function recordChanges(song: Song, update: Record<string, unknown>, changedBy?: string) {
+  const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null; changedBy?: string }[] = []
 
   for (const [field, newVal] of Object.entries(update)) {
     if (!HISTORY_TRACKABLE_FIELDS.has(field)) continue
@@ -32,7 +32,8 @@ export async function recordChanges(song: Song, update: Record<string, unknown>)
         songId: song.id,
         field,
         oldValue: oldSerialized,
-        newValue: newSerialized
+        newValue: newSerialized,
+        changedBy
       })
     }
   }
@@ -50,9 +51,10 @@ export function stripMetadataKeyPrefix(key: string): string {
 export async function recordCustomMetadataChanges(
   songId: number,
   existingMetadata: SongMetadata[],
-  customMetadata: { key: string; value: string | null }[]
+  customMetadata: { key: string; value: string | null }[],
+  changedBy?: string
 ) {
-  const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null }[] = []
+  const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null; changedBy?: string }[] = []
 
   for (const { key, value } of customMetadata) {
     const upperKey = key.toUpperCase()
@@ -67,7 +69,8 @@ export async function recordCustomMetadataChanges(
         songId,
         field: historyField,
         oldValue,
-        newValue: value
+        newValue: value,
+        changedBy
       })
     }
   }
@@ -90,7 +93,7 @@ export function deserializePicture(value: string | null): { buffer: Buffer; mime
   return { buffer: Buffer.from(match[2], 'base64'), mimeType: match[1] }
 }
 
-export async function recordPictureChange(songId: number, newPictureData: string | null) {
+export async function recordPictureChange(songId: number, newPictureData: string | null, changedBy?: string) {
   const oldPicture = await prisma.songPicture.findFirst({
     where: { songId },
     select: { data: true, format: true }
@@ -105,7 +108,8 @@ export async function recordPictureChange(songId: number, newPictureData: string
       songId,
       field: PICTURE_FIELD,
       oldValue,
-      newValue: newPictureData
+      newValue: newPictureData,
+      changedBy
     }
   })
 }

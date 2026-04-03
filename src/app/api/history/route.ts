@@ -59,6 +59,7 @@ export async function GET(request: NextRequest): Promise<NextResponse<HistoryRes
         field: e.field,
         oldValue: e.oldValue,
         newValue: e.newValue,
+        changedBy: e.changedBy,
         changedAt: e.changedAt.toISOString(),
         songTitle: e.song.title,
         songArtist: e.song.artist

@@ -51,8 +51,10 @@ export function HistoryEntry({ entry, selected, onSelect, onSongClick }: History
           {entry.songArtist && <span className='truncate text-xs text-muted-foreground'>— {entry.songArtist}</span>}
         </div>
         <HistoryEntryItem field={entry.field} fieldLabel={fieldLabel} oldValue={entry.oldValue} newValue={entry.newValue} />
-        <div className='mt-0.5 text-[11px] text-muted-foreground/60'>
-          {formatDate(new Date(entry.changedAt), FULL_DATE_FORMAT)}
+        <div className='mt-0.5 flex items-center gap-1.5 text-[11px] text-muted-foreground/60'>
+          {entry.changedBy && <span className='font-medium text-muted-foreground'>{entry.changedBy}</span>}
+          {entry.changedBy && <span>·</span>}
+          <span>{formatDate(new Date(entry.changedAt), FULL_DATE_FORMAT)}</span>
         </div>
       </div>
       <Button

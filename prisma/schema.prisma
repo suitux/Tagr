@@ -89,6 +89,7 @@ model SongChangeHistory {
   field     String
   oldValue  String?  @map("old_value")
   newValue  String?  @map("new_value")
+  changedBy String?  @map("changed_by")
   changedAt DateTime @default(now()) @map("changed_at")
 
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)

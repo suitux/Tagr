@@ -1,12 +1,18 @@
 import { NextResponse } from 'next/server'
-import { requireRole } from '@/lib/api/auth-guard'
 import { PICTURE_FIELD } from '@/features/history/consts'
-import { recordChanges, recordCustomMetadataChanges, recordPictureChange, deserialize, deserializePicture } from '@/features/history/history.service'
+import {
+  recordChanges,
+  recordCustomMetadataChanges,
+  recordPictureChange,
+  deserialize,
+  deserializePicture
+} from '@/features/history/history.service'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writeMetadataToFile, writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { SongWithMetadata } from '@/features/songs/domain'
 import { prisma } from '@/infrastructure/prisma/dbClient'
+import { requireRole } from '@/lib/api/auth-guard'
 
 interface RouteParams {
   params: Promise<{
@@ -56,10 +62,11 @@ export async function POST(_request: Request, { params }: RouteParams): Promise<
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }
 
+    const changedBy = guard.session.user?.name ?? undefined
     let updatedSong: SongWithMetadata
 
     if (entry.field === PICTURE_FIELD) {
-      await recordPictureChange(songId, entry.oldValue)
+      await recordPictureChange(songId, entry.oldValue, changedBy)
 
       const picture = deserializePicture(entry.oldValue)
       if (picture) {
@@ -70,14 +77,14 @@ export async function POST(_request: Request, { params }: RouteParams): Promise<
       const customKey = entry.field.slice('customMetadata:'.length)
       const customMetadata = [{ key: customKey, value: entry.oldValue }]
 
-      await recordCustomMetadataChanges(songId, song.metadata, customMetadata)
+      await recordCustomMetadataChanges(songId, song.metadata, customMetadata, changedBy)
       await writeMetadataToFile(song.filePath, { customMetadata })
       updatedSong = await rescanSongFileAndSaveIntoDb(songId)
     } else {
       const revertValue = deserialize(entry.field, entry.oldValue)
       const update = { [entry.field]: revertValue }
 
-      await recordChanges(song, update)
+      await recordChanges(song, update, changedBy)
 
       await writeMetadataToFile(song.filePath, update as SongMetadataUpdate)
       updatedSong = await rescanSongFileAndSaveIntoDb(songId)
