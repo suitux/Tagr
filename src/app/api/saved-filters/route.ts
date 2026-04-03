@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { requireRole } from '@/lib/api/auth-guard'
+import { auth } from '@/auth'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface SavedFilterResponse {
@@ -25,8 +25,14 @@ interface ErrorResponse {
 }
 
 export async function GET(): Promise<NextResponse<ListResponse | ErrorResponse>> {
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const filters = await prisma.savedFilter.findMany({
+      where: { userId: session.user.id },
       orderBy: { createdAt: 'desc' }
     })
 
@@ -47,8 +53,12 @@ export async function GET(): Promise<NextResponse<ListResponse | ErrorResponse>>
 }
 
 export async function POST(request: Request): Promise<NextResponse<CreateResponse | ErrorResponse>> {
-  const guard = await requireRole('tagger')
-  if (!guard.authorized) return guard.response
+  const session = await auth()
+  const userId = session?.user.id
+
+  if (!userId) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
 
   try {
     const body = await request.json()
@@ -70,7 +80,7 @@ export async function POST(request: Request): Promise<NextResponse<CreateRespons
     }
 
     const filter = await prisma.savedFilter.create({
-      data: { name: name.trim(), filters }
+      data: { userId, name: name.trim(), filters }
     })
 
     return NextResponse.json({

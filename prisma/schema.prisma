@@ -148,10 +148,12 @@ model UserConfig {
 
 model SavedFilter {
   id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
   name      String
   filters   String   // JSON-serialized SongColumnFilters
   createdAt DateTime @default(now()) @map("created_at")
 
+  @@index([userId])
   @@map("saved_filters")
 }
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { requireRole } from '@/lib/api/auth-guard'
+import { auth } from '@/auth'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface SuccessResponse {
@@ -15,8 +15,11 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
-  const guard = await requireRole('tagger')
-  if (!guard.authorized) return guard.response
+  const session = await auth()
+  const userId = session?.user.id
+  if (!userId) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
 
   const { id } = await params
 
@@ -26,6 +29,11 @@ export async function DELETE(
   }
 
   try {
+    const filter = await prisma.savedFilter.findUnique({ where: { id: numericId } })
+    if (!filter || filter.userId !== userId) {
+      return NextResponse.json({ success: false, error: 'Filter not found' }, { status: 404 })
+    }
+
     await prisma.savedFilter.delete({ where: { id: numericId } })
     return NextResponse.json({ success: true })
   } catch (error) {

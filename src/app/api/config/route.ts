@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { requireRole } from '@/lib/api/auth-guard'
 import { getConfigValue, upsertConfigValue } from '@/features/config/service'
+import { requireRole } from '@/lib/api/auth-guard'
 
 interface ConfigSuccessResponse {
   success: true
@@ -53,10 +53,8 @@ interface UpsertSuccessResponse {
 type UpsertResponse = UpsertSuccessResponse | ConfigErrorResponse
 
 export async function PUT(request: NextRequest): Promise<NextResponse<UpsertResponse>> {
-  const guard = await requireRole('tagger')
-  if (!guard.authorized) return guard.response
-
-  const userId = guard.session.user?.id
+  const session = await auth()
+  const userId = session?.user.id
   if (!userId) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
   }
