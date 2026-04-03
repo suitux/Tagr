@@ -1,6 +1,9 @@
 'use client'
 
 import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon, Share2Icon } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import LosslessBadge from '@/components/lossless-badge'
@@ -38,6 +41,8 @@ export function DetailPanelPreviewCard({
   onMusicBrainzLookup,
   fileInputRef
 }: DetailPanelPreviewCardProps) {
+  const { data: session } = useSession()
+  const canEdit = hasMinimumRole(session?.user?.role as UserRole, 'tagger')
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
     onSuccess: () => {
@@ -139,26 +144,30 @@ export function DetailPanelPreviewCard({
               )}
               {!isUploading && (
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl hidden md:flex items-center justify-center gap-3'>
-                  <div className={'grid grid-cols-2 gap-4'}>
+                  <div className='grid grid-cols-2 gap-4'>
                     <PreviewCardActionButton
                       tooltip={isCurrent && isPlaying ? t('pause') : t('play')}
                       icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
                       onClick={handlePlayPause}
                       fillIcon
                     />
-                    <PreviewCardActionButton tooltip={t('editCover')} icon={ImageUpIcon} onClick={handleImageEdit} />
+                    {canEdit && (
+                      <PreviewCardActionButton tooltip={t('editCover')} icon={ImageUpIcon} onClick={handleImageEdit} />
+                    )}
                     <PreviewCardActionButton
                       tooltip={t('downloadCover')}
                       icon={ImageDownIcon}
                       onClick={handleDownload}
                       tooltipSide={'bottom'}
                     />
-                    <PreviewCardActionButton
-                      tooltip={tMb('fetchMusicBrainz')}
-                      icon={MusicBrainzIcon}
-                      onClick={handleFetchCover}
-                      tooltipSide={'bottom'}
-                    />
+                    {canEdit && (
+                      <PreviewCardActionButton
+                        tooltip={tMb('fetchMusicBrainz')}
+                        icon={MusicBrainzIcon}
+                        onClick={handleFetchCover}
+                        tooltipSide={'bottom'}
+                      />
+                    )}
                   </div>
                 </div>
               )}
@@ -175,7 +184,7 @@ export function DetailPanelPreviewCard({
                   fillIcon
                   primary
                 />
-                <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={onMusicBrainzLookup} />
+                {canEdit && <PreviewCardMobileActionButton icon={MusicBrainzIcon} onClick={onMusicBrainzLookup} />}
               </div>
             )}
 

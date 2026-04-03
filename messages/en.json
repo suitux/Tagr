@@ -54,6 +54,7 @@
     "feedback": "Send feedback",
     "installApp": "Install app",
     "appInstalled": "App installed",
+    "manageUsers": "Manage users",
     "scanning": "Scanning library...",
     "scanCompleted": "Scan completed",
     "scanFailed": "Scan failed",
@@ -318,5 +319,32 @@
       "pathNotDirectory": "The path is not a directory",
       "unknownError": "Unknown error reading the folder"
     }
+  },
+  "users": {
+    "title": "Manage Users",
+    "createUser": "Create user",
+    "editUser": "Edit user",
+    "deleteUser": "Delete user",
+    "deleteConfirm": "Are you sure you want to delete user \"{username}\"?",
+    "username": "Username",
+    "password": "Password",
+    "passwordHint": "Leave blank to keep current",
+    "role": "Role",
+    "roles": {
+      "admin": "Admin",
+      "tagger": "Tagger",
+      "listener": "Listener"
+    },
+    "roleDescriptions": {
+      "tagger": "Can browse, play, edit metadata tags, and rescan the library",
+      "listener": "Can only browse and play music"
+    },
+    "noUsers": "No users yet",
+    "noUsersDescription": "Create your first user to get started",
+    "userCreated": "User created",
+    "userUpdated": "User updated",
+    "userDeleted": "User deleted",
+    "cancel": "Cancel",
+    "save": "Save"
   }
 }

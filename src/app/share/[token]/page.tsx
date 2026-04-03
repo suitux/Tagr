@@ -1,5 +1,7 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import { auth } from '@/auth'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { SharePageClient } from './share-page-client'
 
@@ -58,6 +60,11 @@ export default async function SharePage({ params }: PageProps) {
 
   if (new Date() > sharedLink.expiresAt) {
     return <SharePageClient error='expired' token={token} />
+  }
+
+  const session = await auth()
+  if (session?.user) {
+    redirect(`/?song=${sharedLink.song.id}`)
   }
 
   const { filePath: _filePath, folderPath: _folderPath, ...safeSong } = sharedLink.song

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { recordPictureChange } from '@/features/history/history.service'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writePictureToFile } from '@/features/metadata/metadata-write.service'
@@ -10,6 +11,9 @@ interface RouteParams {
 }
 
 export async function POST(request: Request, { params }: RouteParams) {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   const { id } = await params
   const songId = parseInt(id, 10)
 

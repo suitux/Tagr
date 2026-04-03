@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 
 interface RouteParams {
@@ -6,6 +7,9 @@ interface RouteParams {
 }
 
 export async function POST(_request: Request, { params }: RouteParams) {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   const { id } = await params
   const songId = parseInt(id, 10)
 

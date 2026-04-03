@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface SuccessResponse {
@@ -14,6 +15,9 @@ export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   const { id } = await params
 
   const numericId = Number(id)

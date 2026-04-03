@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireRole } from '@/lib/api/auth-guard'
 import { recordChanges, recordCustomMetadataChanges } from '@/features/history/history.service'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
@@ -71,6 +72,9 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
 }
 
 export async function PATCH(request: Request, { params }: RouteParams): Promise<NextResponse<UpdateSongResponse>> {
+  const guard = await requireRole('tagger')
+  if (!guard.authorized) return guard.response
+
   const { id } = await params
   const songId = parseInt(id, 10)
 
