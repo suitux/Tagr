@@ -1,3 +1,4 @@
+import { auth } from '@/auth'
 import { WelcomeScanState } from '@/components/welcome-scan-state'
 import { DEFAULT_VISIBLE_COLUMNS } from '@/features/config/domain'
 import { getConfigQueryKey } from '@/features/config/hooks/use-config'
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function Home() {
   const songCount = await prisma.song.count()
+  const session = await auth()
 
   if (songCount === 0) {
     return <WelcomeScanState />
@@ -20,7 +22,7 @@ export default async function Home() {
   await queryClient.prefetchQuery({
     queryKey: getConfigQueryKey('columnVisibility'),
     queryFn: async () => {
-      const configValue = await getConfigValue('columnVisibility')
+      const configValue = await getConfigValue(session!.user.id, 'columnVisibility')
 
       return configValue ? JSON.parse(configValue) : DEFAULT_VISIBLE_COLUMNS
     }

@@ -138,9 +138,11 @@ model SharedLink {
 }
 
 model UserConfig {
-  key   String @id
-  value String
+  userId String @map("user_id")
+  key    String
+  value  String
 
+  @@id([userId, key])
   @@map("user_config")
 }
 

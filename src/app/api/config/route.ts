@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { auth } from '@/auth'
 import { requireRole } from '@/lib/api/auth-guard'
 import { getConfigValue, upsertConfigValue } from '@/features/config/service'
-import { getSearchParam } from '@/lib/api/search-params'
 
 interface ConfigSuccessResponse {
   success: true
@@ -16,14 +16,19 @@ interface ConfigErrorResponse {
 type ConfigResponse = ConfigSuccessResponse | ConfigErrorResponse
 
 export async function GET(request: NextRequest): Promise<NextResponse<ConfigResponse>> {
-  const key = getSearchParam(request.nextUrl.searchParams, 'key', 'string')
+  const session = await auth()
+  if (!session?.user?.id) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const key = request.nextUrl.searchParams.get('key')
 
   if (!key) {
     return NextResponse.json({ success: false, error: 'Missing "key" query parameter' }, { status: 400 })
   }
 
   try {
-    const value = await getConfigValue(key)
+    const value = await getConfigValue(session.user.id, key)
     return NextResponse.json({ success: true, value })
   } catch (error) {
     console.error('Error fetching config:', error)
@@ -51,6 +56,11 @@ export async function PUT(request: NextRequest): Promise<NextResponse<UpsertResp
   const guard = await requireRole('tagger')
   if (!guard.authorized) return guard.response
 
+  const userId = guard.session.user?.id
+  if (!userId) {
+    return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+  }
+
   try {
     const body = (await request.json()) as UpsertBody
 
@@ -61,7 +71,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse<UpsertResp
       )
     }
 
-    const config = await upsertConfigValue(body.key, body.value)
+    const config = await upsertConfigValue(userId, body.key, body.value)
 
     return NextResponse.json({ success: true, key: config.key, value: config.value })
   } catch (error) {
