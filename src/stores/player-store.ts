@@ -86,6 +86,7 @@ interface PlayerState {
   duration: number
   _previousSong: Song | null
   _nextSong: Song | null
+  isAdjacentLoading: boolean
   queueFolder: string | null
   queueSearch: string | undefined
   queueSorting: SongsSortParams | undefined
@@ -98,6 +99,7 @@ interface PlayerState {
   playPrevious: () => void
   seek: (time: number) => void
   setAdjacentSongs: (previous: Song | null, next: Song | null) => void
+  setAdjacentLoading: (loading: boolean) => void
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -108,6 +110,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   duration: 0,
   _previousSong: null,
   _nextSong: null,
+  isAdjacentLoading: false,
   queueFolder: null,
   queueSearch: undefined,
   queueSorting: undefined,
@@ -167,5 +170,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   setAdjacentSongs: (previous, next) => {
     set({ _previousSong: previous, _nextSong: next })
     preloadNextSong(next)
+  },
+
+  setAdjacentLoading: (loading) => {
+    set({ isAdjacentLoading: loading })
   }
 }))

@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronDown, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { ChevronDown, Loader2, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import { Waveform } from '@/components/waveform/waveform'
@@ -18,6 +18,8 @@ interface ExpandedPlayerProps {
 
 export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerProps) {
   const isPlaying = usePlayerStore(s => s.isPlaying)
+  const isBuffering = usePlayerStore(s => s.isBuffering)
+  const isAdjacentLoading = usePlayerStore(s => s.isAdjacentLoading)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const playPrevious = usePlayerStore(s => s.playPrevious)
   const playNext = usePlayerStore(s => s.playNext)
@@ -68,6 +70,7 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
         <div className='w-full px-2'>
           <Waveform
             showTime
+            disabled={isBuffering}
             url={getSongAudioUrl(song.id)}
             currentTime={currentTime}
             duration={duration}
@@ -76,13 +79,29 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
         </div>
 
         <div className='flex items-center gap-3'>
-          <Button variant='ghost' size='icon' className='h-10 w-10' onClick={playPrevious} disabled={!_previousSong}>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-10 w-10'
+            onClick={playPrevious}
+            disabled={!_previousSong || isAdjacentLoading}>
             <SkipBack className='h-5 w-5' />
           </Button>
-          <Button variant='ghost' size='icon' className='h-12 w-12' onClick={togglePlayPause}>
-            {isPlaying ? <Pause className='h-6 w-6' /> : <Play className='h-6 w-6' />}
+          <Button variant='ghost' size='icon' className='h-12 w-12' onClick={togglePlayPause} disabled={isBuffering}>
+            {isBuffering ? (
+              <Loader2 className='h-6 w-6 animate-spin' />
+            ) : isPlaying ? (
+              <Pause className='h-6 w-6' />
+            ) : (
+              <Play className='h-6 w-6' />
+            )}
           </Button>
-          <Button variant='ghost' size='icon' className='h-10 w-10' onClick={playNext} disabled={!_nextSong}>
+          <Button
+            variant='ghost'
+            size='icon'
+            className='h-10 w-10'
+            onClick={playNext}
+            disabled={!_nextSong || isAdjacentLoading}>
             <SkipForward className='h-5 w-5' />
           </Button>
         </div>

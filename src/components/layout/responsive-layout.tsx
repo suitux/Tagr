@@ -1,5 +1,6 @@
 'use client'
 
+import { usePlayerAdjacentSync } from '@/features/player/hooks/use-player-adjacent-sync'
 import { useBreakpoint } from '@/hooks/use-breakpoint'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
@@ -22,6 +23,7 @@ export function ResponsiveLayout({ sidebar, main, detail, className }: Responsiv
   const { folderSheetOpen } = useMobileNavStore()
   const { selectedSongId, isSongSelected } = useSelectedSong()
   const hasPlayer = usePlayerStore(s => s.currentSong) !== null
+  usePlayerAdjacentSync()
 
   if (breakpoint === 'desktop') {
     return <ThreeColumnLayout sidebar={sidebar} main={main} detail={detail} className={className} />

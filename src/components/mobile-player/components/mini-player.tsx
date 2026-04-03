@@ -1,6 +1,6 @@
 'use client'
 
-import { MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { Loader2, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import type { Song } from '@/features/songs/domain'
@@ -15,6 +15,8 @@ interface MiniPlayerProps {
 
 export function MiniPlayer({ song, expanded, onExpand }: MiniPlayerProps) {
   const isPlaying = usePlayerStore(s => s.isPlaying)
+  const isBuffering = usePlayerStore(s => s.isBuffering)
+  const isAdjacentLoading = usePlayerStore(s => s.isAdjacentLoading)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
   const playPrevious = usePlayerStore(s => s.playPrevious)
   const playNext = usePlayerStore(s => s.playNext)
@@ -46,13 +48,13 @@ export function MiniPlayer({ song, expanded, onExpand }: MiniPlayerProps) {
       </button>
 
       <div className='flex items-center gap-1'>
-        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playPrevious} disabled={!_previousSong}>
+        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playPrevious} disabled={!_previousSong || isAdjacentLoading}>
           <SkipBack className='h-4 w-4' />
         </Button>
-        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={togglePlayPause}>
-          {isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
+        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={togglePlayPause} disabled={isBuffering}>
+          {isBuffering ? <Loader2 className='h-5 w-5 animate-spin' /> : isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
         </Button>
-        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playNext} disabled={!_nextSong}>
+        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playNext} disabled={!_nextSong || isAdjacentLoading}>
           <SkipForward className='h-4 w-4' />
         </Button>
       </div>
