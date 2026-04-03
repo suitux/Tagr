@@ -16,6 +16,7 @@ interface UserFormProps {
 
 export function UserForm({ initialValues, onSubmit, onCancel, isPending }: UserFormProps) {
   const t = useTranslations('users')
+  const tRoles = useTranslations('users.roles')
   const [username, setUsername] = useState(initialValues?.username ?? '')
   const [password, setPassword] = useState('')
   const [role, setRole] = useState(initialValues?.role ?? 'listener')
@@ -48,8 +49,8 @@ export function UserForm({ initialValues, onSubmit, onCancel, isPending }: UserF
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
-          <SelectItem value='tagger'>{t('roleTagger')}</SelectItem>
-          <SelectItem value='listener'>{t('roleListener')}</SelectItem>
+          <SelectItem value='tagger'>{tRoles('tagger')}</SelectItem>
+          <SelectItem value='listener'>{tRoles('listener')}</SelectItem>
         </SelectContent>
       </Select>
       <div className='flex gap-2 justify-end'>

@@ -330,10 +330,13 @@
     "password": "Password",
     "passwordHint": "Leave blank to keep current",
     "role": "Role",
-    "roleAdmin": "Admin",
-    "roleTagger": "Tagger",
-    "roleListener": "Listener",
+    "roles": {
+      "admin": "Admin",
+      "tagger": "Tagger",
+      "listener": "Listener"
+    },
     "noUsers": "No users yet",
+    "noUsersDescription": "Create your first user to get started",
     "userCreated": "User created",
     "userUpdated": "User updated",
     "userDeleted": "User deleted",

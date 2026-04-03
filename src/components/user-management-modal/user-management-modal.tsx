@@ -1,19 +1,19 @@
 'use client'
 
-import { Loader2Icon, PlusIcon, UsersIcon } from 'lucide-react'
+import { Loader2Icon, PlusIcon, UserPlusIcon, UsersIcon } from 'lucide-react'
+import { toast } from 'sonner'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
+import type { UserPublic } from '@/features/users/domain'
 import { useCreateUser } from '@/features/users/hooks/use-create-user'
 import { useDeleteUser } from '@/features/users/hooks/use-delete-user'
 import { useUpdateUser } from '@/features/users/hooks/use-update-user'
 import { useUsers } from '@/features/users/hooks/use-users'
-import type { UserPublic } from '@/features/users/domain'
 import { UserForm } from './components/user-form'
-import { UserListItem } from './components/user-list-item'
+import { UserTable } from './components/user-table'
 
 interface UserManagementModalProps {
   open: boolean
@@ -37,7 +37,7 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
         toast.success(t('userCreated'))
         setShowForm(false)
       },
-      onError: (error) => {
+      onError: error => {
         toast.error(error.message)
       }
     })
@@ -57,7 +57,7 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
           toast.success(t('userUpdated'))
           setEditingUser(null)
         },
-        onError: (error) => {
+        onError: error => {
           toast.error(error.message)
         }
       }
@@ -75,7 +75,7 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
         onClick: () => {
           deleteUser.mutate(user.id, {
             onSuccess: () => toast.success(t('userDeleted')),
-            onError: (error) => toast.error(error.message)
+            onError: error => toast.error(error.message)
           })
         }
       }
@@ -92,7 +92,7 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-w-md'>
+      <DialogContent className='max-w-lg'>
         <DialogHeader>
           <DialogTitle className='flex items-center gap-2'>
             <UsersIcon className='h-5 w-5' />
@@ -100,20 +100,30 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
           </DialogTitle>
         </DialogHeader>
 
-        <div className='flex flex-col gap-3'>
-          {!showForm && !editingUser && (
-            <Button variant='outline' size='sm' className='self-start' onClick={() => setShowForm(true)}>
-              <PlusIcon className='h-4 w-4' />
-              {t('createUser')}
-            </Button>
+        <div className='flex flex-col gap-4'>
+          {isLoading ? (
+            <div className='flex justify-center py-8'>
+              <Loader2Icon className='h-5 w-5 animate-spin text-muted-foreground' />
+            </div>
+          ) : users && users.length > 0 ? (
+            <UserTable
+              users={users}
+              onEdit={u => {
+                setShowForm(false)
+                setEditingUser(u)
+              }}
+              onDelete={handleDelete}
+            />
+          ) : (
+            <div className='flex flex-col items-center justify-center rounded-md border border-dashed py-10 text-center'>
+              <UserPlusIcon className='h-10 w-10 text-muted-foreground/50' />
+              <p className='mt-3 text-sm font-medium'>{t('noUsers')}</p>
+              <p className='mt-1 text-xs text-muted-foreground'>{t('noUsersDescription')}</p>
+            </div>
           )}
 
           {showForm && (
-            <UserForm
-              onSubmit={handleCreate}
-              onCancel={() => setShowForm(false)}
-              isPending={createUser.isPending}
-            />
+            <UserForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} isPending={createUser.isPending} />
           )}
 
           {editingUser && (
@@ -125,26 +135,11 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
             />
           )}
 
-          {isLoading ? (
-            <div className='flex justify-center py-8'>
-              <Loader2Icon className='h-5 w-5 animate-spin text-muted-foreground' />
-            </div>
-          ) : users && users.length > 0 ? (
-            <div className='flex flex-col gap-1'>
-              {users.map(user => (
-                <UserListItem
-                  key={user.id}
-                  user={user}
-                  onEdit={u => {
-                    setShowForm(false)
-                    setEditingUser(u)
-                  }}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </div>
-          ) : (
-            <p className='text-sm text-muted-foreground text-center py-4'>{t('noUsers')}</p>
+          {!showForm && !editingUser && (
+            <Button variant='outline' size='sm' className='self-start' onClick={() => setShowForm(true)}>
+              <PlusIcon className='h-4 w-4' />
+              {t('createUser')}
+            </Button>
           )}
         </div>
       </DialogContent>
