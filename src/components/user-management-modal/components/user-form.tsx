@@ -1,11 +1,12 @@
 'use client'
 
-import { KeyRoundIcon, Loader2Icon, UserIcon } from 'lucide-react'
+import { Loader2Icon, UserIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 import { Label } from '@/components/ui/label'
+import { PasswordInput } from '@/components/ui/password-input'
 import { cn } from '@/lib/utils'
 
 const ROLES = ['tagger', 'listener'] as const
@@ -34,28 +35,26 @@ export function UserForm({ initialValues, onSubmit, onCancel, isPending }: UserF
 
   return (
     <form onSubmit={handleSubmit} className='flex flex-col gap-3 p-4 border rounded-lg bg-muted/30'>
-      <div className='relative'>
-        <UserIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
-        <Input
-          className='pl-9'
+      <InputGroup>
+        <InputGroupAddon align='inline-start'>
+          <InputGroupText>
+            <UserIcon />
+          </InputGroupText>
+        </InputGroupAddon>
+        <InputGroupInput
           placeholder={t('username')}
           value={username}
           onChange={e => setUsername(e.target.value)}
           required
           autoFocus
         />
-      </div>
-      <div className='relative'>
-        <KeyRoundIcon className='absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground' />
-        <Input
-          className='pl-9'
-          type='password'
-          placeholder={isEditing ? t('passwordHint') : t('password')}
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          required={!isEditing}
-        />
-      </div>
+      </InputGroup>
+      <PasswordInput
+        placeholder={isEditing ? t('passwordHint') : t('password')}
+        value={password}
+        onChange={e => setPassword(e.target.value)}
+        required={!isEditing}
+      />
       <div className='flex flex-col gap-2'>
         <Label className='text-xs text-muted-foreground'>{t('role')}</Label>
         <div className='grid grid-cols-2 gap-2'>
