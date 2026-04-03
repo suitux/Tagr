@@ -335,6 +335,10 @@
       "tagger": "Tagger",
       "listener": "Listener"
     },
+    "roleDescriptions": {
+      "tagger": "Can browse, play, edit metadata tags, and rescan the library",
+      "listener": "Can only browse and play music"
+    },
     "noUsers": "No users yet",
     "noUsersDescription": "Create your first user to get started",
     "userCreated": "User created",
