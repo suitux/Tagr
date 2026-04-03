@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { UserRole } from '@/features/users/domain'
-
-const ROLE_LEVEL: Record<UserRole, number> = { admin: 3, tagger: 2, listener: 1 }
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 
 export async function requireRole(minimumRole: UserRole) {
   const session = await auth()
@@ -14,10 +13,7 @@ export async function requireRole(minimumRole: UserRole) {
     }
   }
 
-  const userLevel = ROLE_LEVEL[session.user.role as UserRole] ?? 0
-  const requiredLevel = ROLE_LEVEL[minimumRole]
-
-  if (userLevel < requiredLevel) {
+  if (!hasMinimumRole(session.user.role as UserRole, minimumRole)) {
     return {
       authorized: false as const,
       response: NextResponse.json({ success: false as const, error: 'Forbidden' }, { status: 403 })
