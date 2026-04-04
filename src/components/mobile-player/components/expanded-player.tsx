@@ -79,7 +79,7 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
           </Button>
           <Button variant='ghost' size='icon' className='relative h-12 w-12' onClick={togglePlayPause}>
             {isPlaying ? <Pause className='h-6 w-6' /> : <Play className='h-6 w-6' />}
-            {isBuffering && <Loader2 className='absolute h-11 w-11 animate-spin text-muted-foreground' />}
+            {isBuffering && <Loader2 className='absolute h-14 w-14 animate-spin text-muted-foreground' />}
           </Button>
           <Button
             variant='ghost'

@@ -54,7 +54,7 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
             <Play className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
           )}
           {isBuffering && (
-            <Loader2 className={cn('absolute animate-spin text-muted-foreground', expanded ? 'h-9 w-9' : 'h-6 w-6')} />
+            <Loader2 className={cn('absolute animate-spin text-muted-foreground', expanded ? 'h-12 w-12' : 'h-8 w-8')} />
           )}
         </Button>
         <Button

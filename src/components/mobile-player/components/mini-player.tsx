@@ -53,7 +53,7 @@ export function MiniPlayer({ song, expanded, onExpand }: MiniPlayerProps) {
         </Button>
         <Button variant='ghost' size='icon' className='relative h-9 w-9' onClick={togglePlayPause}>
           {isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
-          {isBuffering && <Loader2 className='absolute h-8 w-8 animate-spin text-muted-foreground' />}
+          {isBuffering && <Loader2 className='absolute h-10 w-10 animate-spin text-muted-foreground' />}
         </Button>
         <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playNext} disabled={!_nextSong || isAdjacentLoading}>
           <SkipForward className='h-4 w-4' />
