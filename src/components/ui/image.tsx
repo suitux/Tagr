@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import NextImage, { ImageProps } from 'next/image'
 
 const failedSrcs = new Set<string>()
@@ -15,16 +15,21 @@ const Image = ({ fallbackComponent, alt, src = '', ...props }: ImageWithFallback
     setError(failedSrcs.has(src))
   }, [src])
 
-  const errorHandler = useCallback(() => {
-    failedSrcs.add(src)
-    setError(true)
-  }, [src])
-
   if (error) {
     return fallbackComponent
   }
 
-  return <NextImage alt={alt} src={src} onError={errorHandler} {...props} />
+  return (
+    <NextImage
+      alt={alt}
+      src={src}
+      onError={() => {
+        failedSrcs.add(src)
+        setError(true)
+      }}
+      {...props}
+    />
+  )
 }
 
 export { Image }
