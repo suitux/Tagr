@@ -46,15 +46,15 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
         <Button
           variant='ghost'
           size='icon'
-          className={cn(expanded ? 'h-10 w-10' : 'h-7 w-7')}
-          onClick={togglePlayPause}
-          disabled={isBuffering}>
-          {isBuffering ? (
-            <Loader2 className={cn('animate-spin', expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
-          ) : isPlaying ? (
+          className={cn('relative', expanded ? 'h-10 w-10' : 'h-7 w-7')}
+          onClick={togglePlayPause}>
+          {isPlaying ? (
             <Pause className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
           ) : (
             <Play className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
+          )}
+          {isBuffering && (
+            <Loader2 className={cn('absolute animate-spin text-muted-foreground', expanded ? 'h-9 w-9' : 'h-6 w-6')} />
           )}
         </Button>
         <Button
@@ -70,7 +70,6 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
       <div className={cn('flex items-center gap-2', expanded ? 'w-full' : 'flex-1')}>
         <Waveform
           showTime
-          disabled={isBuffering}
           url={getSongAudioUrl(currentSong.id)}
           currentTime={currentTime}
           duration={duration}

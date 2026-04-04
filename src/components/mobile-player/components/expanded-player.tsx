@@ -77,14 +77,9 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
             disabled={!_previousSong || isAdjacentLoading}>
             <SkipBack className='h-5 w-5' />
           </Button>
-          <Button variant='ghost' size='icon' className='h-12 w-12' onClick={togglePlayPause} disabled={isBuffering}>
-            {isBuffering ? (
-              <Loader2 className='h-6 w-6 animate-spin' />
-            ) : isPlaying ? (
-              <Pause className='h-6 w-6' />
-            ) : (
-              <Play className='h-6 w-6' />
-            )}
+          <Button variant='ghost' size='icon' className='relative h-12 w-12' onClick={togglePlayPause}>
+            {isPlaying ? <Pause className='h-6 w-6' /> : <Play className='h-6 w-6' />}
+            {isBuffering && <Loader2 className='absolute h-11 w-11 animate-spin text-muted-foreground' />}
           </Button>
           <Button
             variant='ghost'

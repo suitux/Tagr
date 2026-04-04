@@ -11,13 +11,11 @@ interface ExpandedPlayerWaveformProps {
 export function ExpandedPlayerWaveform({ songId }: ExpandedPlayerWaveformProps) {
   const currentTime = usePlayerStore(s => s.currentTime)
   const duration = usePlayerStore(s => s.duration)
-  const isBuffering = usePlayerStore(s => s.isBuffering)
   const seek = usePlayerStore(s => s.seek)
 
   return (
     <Waveform
       showTime
-      disabled={isBuffering}
       url={getSongAudioUrl(songId)}
       currentTime={currentTime}
       duration={duration}
