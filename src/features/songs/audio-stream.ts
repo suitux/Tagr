@@ -40,7 +40,8 @@ export function streamAudioFile(filePath: string, rangeHeader: string | null): N
     }
 
     const start = parseInt(match[1], 10)
-    const end = match[2] ? parseInt(match[2], 10) : fileSize - 1
+    const MAX_CHUNK = 1024 * 1024 // 1MB chunks for progressive playback
+    const end = match[2] ? parseInt(match[2], 10) : Math.min(start + MAX_CHUNK - 1, fileSize - 1)
 
     if (start >= fileSize || end >= fileSize) {
       return new NextResponse(null, { status: 416, headers: { 'Content-Range': `bytes */${fileSize}` } })
