@@ -6,6 +6,63 @@ import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
 let audio: HTMLAudioElement | null = null
 let preloadAudio: HTMLAudioElement | null = null
 
+let bufferingTimeout: ReturnType<typeof setTimeout> | null = null
+
+const listeners = {
+  play: () => usePlayerStore.setState({ isPlaying: true }),
+  pause: () => usePlayerStore.setState({ isPlaying: false }),
+  ended: () => {
+    const { _nextSong, _playDirect } = usePlayerStore.getState()
+    if (_nextSong) _playDirect(_nextSong)
+  },
+  timeupdate: () => {
+    if (audio) usePlayerStore.setState({ currentTime: audio.currentTime })
+  },
+  durationchange: () => {
+    if (audio) usePlayerStore.setState({ duration: audio.duration || 0 })
+  },
+  waiting: () => {
+    bufferingTimeout = setTimeout(() => {
+      usePlayerStore.setState({ isBuffering: true })
+    }, 150)
+  },
+  canplay: () => {
+    if (bufferingTimeout) {
+      clearTimeout(bufferingTimeout)
+      bufferingTimeout = null
+    }
+    usePlayerStore.setState({ isBuffering: false, hasStartedPlaying: true })
+  },
+  error: () => {
+    usePlayerStore.setState({ isPlaying: false, isBuffering: false })
+    console.warn('Audio error:', audio?.error?.message)
+  },
+  stalled: () => {
+    console.warn('Audio stalled — network may be slow')
+  }
+}
+
+function attachListeners(el: HTMLAudioElement) {
+  for (const [event, handler] of Object.entries(listeners)) {
+    el.addEventListener(event, handler)
+  }
+}
+
+function detachListeners(el: HTMLAudioElement) {
+  for (const [event, handler] of Object.entries(listeners)) {
+    el.removeEventListener(event, handler)
+  }
+}
+
+function getAudio(): HTMLAudioElement | null {
+  if (!audio && typeof window !== 'undefined') {
+    audio = new Audio()
+    audio.preload = 'auto'
+    attachListeners(audio)
+  }
+  return audio
+}
+
 function getPreloadAudio(): HTMLAudioElement {
   if (!preloadAudio && typeof window !== 'undefined') {
     preloadAudio = new Audio()
@@ -15,11 +72,46 @@ function getPreloadAudio(): HTMLAudioElement {
   return preloadAudio!
 }
 
+function isPreloaded(song: Song): boolean {
+  if (!preloadAudio) return false
+  const url = getSongAudioUrl(song.id)
+  return preloadAudio.src.endsWith(url) && preloadAudio.readyState >= 2
+}
+
+function swapToPreloaded(song: Song) {
+  const old = audio!
+  const pre = preloadAudio!
+
+  // Detach listeners from old, attach to preloaded
+  old.pause()
+  detachListeners(old)
+
+  pre.volume = 1
+  attachListeners(pre)
+
+  // Swap references
+  audio = pre
+  preloadAudio = old
+
+  // Reset the old element for future preloading
+  preloadAudio.volume = 0
+  preloadAudio.src = ''
+
+  usePlayerStore.setState({
+    currentSong: song,
+    isBuffering: false,
+    hasStartedPlaying: false,
+    duration: audio.duration || 0,
+    currentTime: audio.currentTime
+  })
+  safePlay(audio)
+}
+
 function preloadNextSong(song: Song | null) {
   if (!song || typeof window === 'undefined') return
   const p = getPreloadAudio()
   const url = getSongAudioUrl(song.id)
-  if (p.src !== url) {
+  if (!p.src.endsWith(url)) {
     p.src = url
   }
 }
@@ -35,57 +127,12 @@ function debouncedSeek(a: HTMLAudioElement, time: number) {
 }
 
 function safePlay(a: HTMLAudioElement) {
-  a.play().catch((err) => {
+  a.play().catch(err => {
     if (err.name !== 'AbortError') {
       console.warn('Play failed:', err.message)
       usePlayerStore.setState({ isPlaying: false })
     }
   })
-}
-
-function getAudio(): HTMLAudioElement | null {
-  if (!audio && typeof window !== 'undefined') {
-    audio = new Audio()
-    audio.preload = 'auto'
-
-    audio.addEventListener('play', () => {
-      usePlayerStore.setState({ isPlaying: true })
-    })
-    audio.addEventListener('pause', () => {
-      usePlayerStore.setState({ isPlaying: false })
-    })
-    audio.addEventListener('ended', () => {
-      const { _nextSong, _playDirect } = usePlayerStore.getState()
-      if (_nextSong) _playDirect(_nextSong)
-    })
-    audio.addEventListener('timeupdate', () => {
-      usePlayerStore.setState({ currentTime: audio!.currentTime })
-    })
-    audio.addEventListener('durationchange', () => {
-      usePlayerStore.setState({ duration: audio!.duration || 0 })
-    })
-    let bufferingTimeout: ReturnType<typeof setTimeout> | null = null
-    audio.addEventListener('waiting', () => {
-      bufferingTimeout = setTimeout(() => {
-        usePlayerStore.setState({ isBuffering: true })
-      }, 150)
-    })
-    audio.addEventListener('canplay', () => {
-      if (bufferingTimeout) {
-        clearTimeout(bufferingTimeout)
-        bufferingTimeout = null
-      }
-      usePlayerStore.setState({ isBuffering: false, hasStartedPlaying: true })
-    })
-    audio.addEventListener('error', () => {
-      usePlayerStore.setState({ isPlaying: false, isBuffering: false })
-      console.warn('Audio error:', audio?.error?.message)
-    })
-    audio.addEventListener('stalled', () => {
-      console.warn('Audio stalled — network may be slow')
-    })
-  }
-  return audio
 }
 
 interface QueueContext {
@@ -135,7 +182,12 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   queueSorting: undefined,
   queueFilters: undefined,
 
-  _playDirect: (song) => {
+  _playDirect: song => {
+    // If preloaded, swap elements instead of making a new request
+    if (isPreloaded(song)) {
+      swapToPreloaded(song)
+      return
+    }
     set({ currentSong: song, isBuffering: true, hasStartedPlaying: false })
     const a = getAudio()
     if (a) {
@@ -154,8 +206,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       queueFolder: folder,
       queueSearch: search || undefined,
       queueSorting: sorting,
-      queueFilters:
-        activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined
+      queueFilters: activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined
     })
     const a = getAudio()
     if (a) {
@@ -182,7 +233,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     if (_previousSong) _playDirect(_previousSong)
   },
 
-  seek: (time) => {
+  seek: time => {
     set({ currentTime: time })
     const a = getAudio()
     if (a) debouncedSeek(a, time)
@@ -193,7 +244,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     preloadNextSong(next)
   },
 
-  setAdjacentLoading: (loading) => {
+  setAdjacentLoading: loading => {
     set({ isAdjacentLoading: loading })
   }
 }))
