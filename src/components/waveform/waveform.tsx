@@ -14,9 +14,19 @@ interface WaveformProps {
   showTime?: boolean
   disabled?: boolean
   audioRef?: RefObject<HTMLAudioElement | null>
+  readyToLoadWaveform?: boolean
 }
 
-export function Waveform({ url, currentTime, duration, onSeek, showTime = false, disabled = false, audioRef }: WaveformProps) {
+export function Waveform({
+  url,
+  currentTime,
+  duration,
+  onSeek,
+  showTime = false,
+  disabled = false,
+  audioRef,
+  readyToLoadWaveform = true
+}: WaveformProps) {
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
   const onSeekRef = useRef(onSeek)
@@ -24,7 +34,7 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false,
 
   // Create/destroy wavesurfer when url changes
   useEffect(() => {
-    if (!containerRef.current) return
+    if (!containerRef.current || !readyToLoadWaveform) return
 
     const styles = getComputedStyle(containerRef.current)
     const primaryColor = styles.getPropertyValue('--primary').trim()
@@ -62,7 +72,7 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false,
       ws.destroy()
       wsRef.current = null
     }
-  }, [url])
+  }, [url, readyToLoadWaveform])
 
   // Sync visual progress
   useEffect(() => {
@@ -81,7 +91,7 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false,
         </span>
       )}
       <div className='relative flex-1'>
-        {loading && (
+        {(loading || !readyToLoadWaveform) && (
           <Slider
             value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
             max={100}
@@ -91,7 +101,10 @@ export function Waveform({ url, currentTime, duration, onSeek, showTime = false,
             className='absolute inset-0 z-10'
           />
         )}
-        <div ref={containerRef} className={cn(loading ? 'invisible' : 'cursor-pointer', disabled && 'pointer-events-none opacity-50')} />
+        <div
+          ref={containerRef}
+          className={cn(loading ? 'invisible' : 'cursor-pointer', disabled && 'pointer-events-none opacity-50')}
+        />
       </div>
       {showTime && (
         <span className='text-[10px] text-muted-foreground tabular-nums w-8'>{formatTimeSeconds(duration)}</span>

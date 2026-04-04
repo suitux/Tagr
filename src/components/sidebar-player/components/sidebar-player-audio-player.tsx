@@ -1,6 +1,7 @@
 'use client'
 
 import { Loader2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
+import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Waveform } from '@/components/waveform/waveform'
 import { useMediaSession } from '@/features/player/hooks/use-media-session'
@@ -30,6 +31,17 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
   const hasPrevious = _previousSong !== null
   const hasNext = _nextSong !== null
 
+  // Sticky: once the song starts playing, keep waveform mounted. Reset on song change.
+  const waveformReady = useRef(false)
+  const lastSongId = useRef<number | null>(null)
+  if (currentSong && currentSong.id !== lastSongId.current) {
+    lastSongId.current = currentSong.id
+    waveformReady.current = false
+  }
+  if (isPlaying && !isBuffering) {
+    waveformReady.current = true
+  }
+
   if (!currentSong) return null
 
   return (
@@ -54,7 +66,9 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
             <Play className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
           )}
           {isBuffering && (
-            <Loader2 className={cn('absolute animate-spin text-muted-foreground', expanded ? 'h-12 w-12' : 'h-8 w-8')} />
+            <Loader2
+              className={cn('absolute animate-spin text-muted-foreground', expanded ? 'h-12 w-12' : 'h-8 w-8')}
+            />
           )}
         </Button>
         <Button
@@ -71,6 +85,7 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
         <Waveform
           showTime
           url={getSongAudioUrl(currentSong.id)}
+          readyToLoadWaveform={isPlaying && !isBuffering}
           currentTime={currentTime}
           duration={duration}
           onSeek={seek}
