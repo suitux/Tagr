@@ -24,6 +24,16 @@ function preloadNextSong(song: Song | null) {
   }
 }
 
+let seekTimeout: ReturnType<typeof setTimeout> | null = null
+
+function debouncedSeek(a: HTMLAudioElement, time: number) {
+  if (seekTimeout) clearTimeout(seekTimeout)
+  seekTimeout = setTimeout(() => {
+    a.currentTime = time
+    seekTimeout = null
+  }, 150)
+}
+
 function safePlay(a: HTMLAudioElement) {
   a.play().catch((err) => {
     if (err.name !== 'AbortError') {
@@ -170,8 +180,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   seek: (time) => {
+    set({ currentTime: time })
     const a = getAudio()
-    if (a) a.currentTime = time
+    if (a) debouncedSeek(a, time)
   },
 
   setAdjacentSongs: (previous, next) => {
