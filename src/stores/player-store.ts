@@ -54,10 +54,17 @@ function getAudio(): HTMLAudioElement | null {
     audio.addEventListener('durationchange', () => {
       usePlayerStore.setState({ duration: audio!.duration || 0 })
     })
+    let bufferingTimeout: ReturnType<typeof setTimeout> | null = null
     audio.addEventListener('waiting', () => {
-      usePlayerStore.setState({ isBuffering: true })
+      bufferingTimeout = setTimeout(() => {
+        usePlayerStore.setState({ isBuffering: true })
+      }, 150)
     })
     audio.addEventListener('canplay', () => {
+      if (bufferingTimeout) {
+        clearTimeout(bufferingTimeout)
+        bufferingTimeout = null
+      }
       usePlayerStore.setState({ isBuffering: false })
     })
     audio.addEventListener('error', () => {
