@@ -25,22 +25,12 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
   const playPrevious = usePlayerStore(s => s.playPrevious)
   const playNext = usePlayerStore(s => s.playNext)
   const seek = usePlayerStore(s => s.seek)
+  const hasStartedPlaying = usePlayerStore(s => s.hasStartedPlaying)
   const currentSong = usePlayerStore(s => s.currentSong)
   useMediaSession({ currentSong, playPrevious, playNext, togglePlayPause })
 
   const hasPrevious = _previousSong !== null
   const hasNext = _nextSong !== null
-
-  // Sticky: once the song starts playing, keep waveform mounted. Reset on song change.
-  const waveformReady = useRef(false)
-  const lastSongId = useRef<number | null>(null)
-  if (currentSong && currentSong.id !== lastSongId.current) {
-    lastSongId.current = currentSong.id
-    waveformReady.current = false
-  }
-  if (isPlaying && !isBuffering) {
-    waveformReady.current = true
-  }
 
   if (!currentSong) return null
 
@@ -85,7 +75,7 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
         <Waveform
           showTime
           url={getSongAudioUrl(currentSong.id)}
-          readyToLoadWaveform={isPlaying && !isBuffering}
+          readyToLoadWaveform={hasStartedPlaying}
           currentTime={currentTime}
           duration={duration}
           onSeek={seek}

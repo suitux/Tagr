@@ -12,14 +12,13 @@ export function ExpandedPlayerWaveform({ songId }: ExpandedPlayerWaveformProps) 
   const currentTime = usePlayerStore(s => s.currentTime)
   const duration = usePlayerStore(s => s.duration)
   const seek = usePlayerStore(s => s.seek)
-  const isPlaying = usePlayerStore(s => s.isPlaying)
-  const isBuffering = usePlayerStore(s => s.isBuffering)
+  const hasStartedPlaying = usePlayerStore(s => s.hasStartedPlaying)
 
   return (
     <Waveform
       showTime
       url={getSongAudioUrl(songId)}
-      readyToLoadWaveform={isPlaying && !isBuffering}
+      readyToLoadWaveform={hasStartedPlaying}
       currentTime={currentTime}
       duration={duration}
       onSeek={seek}

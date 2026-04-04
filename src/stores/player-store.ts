@@ -75,7 +75,7 @@ function getAudio(): HTMLAudioElement | null {
         clearTimeout(bufferingTimeout)
         bufferingTimeout = null
       }
-      usePlayerStore.setState({ isBuffering: false })
+      usePlayerStore.setState({ isBuffering: false, hasStartedPlaying: true })
     })
     audio.addEventListener('error', () => {
       usePlayerStore.setState({ isPlaying: false, isBuffering: false })
@@ -99,6 +99,7 @@ interface PlayerState {
   currentSong: Song | null
   isPlaying: boolean
   isBuffering: boolean
+  hasStartedPlaying: boolean
   currentTime: number
   duration: number
   _previousSong: Song | null
@@ -123,6 +124,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   currentSong: null,
   isPlaying: false,
   isBuffering: false,
+  hasStartedPlaying: false,
   currentTime: 0,
   duration: 0,
   _previousSong: null,
@@ -134,7 +136,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   queueFilters: undefined,
 
   _playDirect: (song) => {
-    set({ currentSong: song, isBuffering: true })
+    set({ currentSong: song, isBuffering: true, hasStartedPlaying: false })
     const a = getAudio()
     if (a) {
       a.pause()
@@ -148,6 +150,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     set({
       currentSong: song,
       isBuffering: true,
+      hasStartedPlaying: false,
       queueFolder: folder,
       queueSearch: search || undefined,
       queueSorting: sorting,
