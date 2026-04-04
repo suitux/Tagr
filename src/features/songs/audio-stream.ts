@@ -1,7 +1,27 @@
 import fs from 'fs'
 import path from 'path'
+import { Readable } from 'stream'
 import { NextResponse } from 'next/server'
 import { MIME_TYPES } from '@/features/songs/domain'
+
+function nodeStreamToWeb(nodeStream: Readable): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      nodeStream.on('data', (chunk: Buffer) => {
+        controller.enqueue(new Uint8Array(chunk))
+      })
+      nodeStream.on('end', () => {
+        controller.close()
+      })
+      nodeStream.on('error', (err) => {
+        controller.error(err)
+      })
+    },
+    cancel() {
+      nodeStream.destroy()
+    }
+  })
+}
 
 export function streamAudioFile(filePath: string, rangeHeader: string | null): NextResponse {
   if (!fs.existsSync(filePath)) {
@@ -29,8 +49,7 @@ export function streamAudioFile(filePath: string, rangeHeader: string | null): N
     const chunkSize = end - start + 1
     const stream = fs.createReadStream(filePath, { start, end })
 
-    // @ts-expect-error Node ReadStream is compatible with Web ReadableStream for NextResponse
-    return new NextResponse(stream, {
+    return new NextResponse(nodeStreamToWeb(stream), {
       status: 206,
       headers: {
         'Content-Range': `bytes ${start}-${end}/${fileSize}`,
@@ -44,8 +63,7 @@ export function streamAudioFile(filePath: string, rangeHeader: string | null): N
 
   const stream = fs.createReadStream(filePath)
 
-  // @ts-expect-error Node ReadStream is compatible with Web ReadableStream for NextResponse
-  return new NextResponse(stream, {
+  return new NextResponse(nodeStreamToWeb(stream), {
     headers: {
       'Content-Length': String(fileSize),
       'Content-Type': contentType,
