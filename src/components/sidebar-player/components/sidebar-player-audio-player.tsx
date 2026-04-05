@@ -1,11 +1,9 @@
 'use client'
 
 import { Loader2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import { useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Waveform } from '@/components/waveform/waveform'
 import { useMediaSession } from '@/features/player/hooks/use-media-session'
-import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
 import { cn } from '@/lib/utils'
 import { usePlayerStore } from '@/stores/player-store'
 
@@ -25,7 +23,6 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
   const playPrevious = usePlayerStore(s => s.playPrevious)
   const playNext = usePlayerStore(s => s.playNext)
   const seek = usePlayerStore(s => s.seek)
-  const hasStartedPlaying = usePlayerStore(s => s.hasStartedPlaying)
   const currentSong = usePlayerStore(s => s.currentSong)
   useMediaSession({ currentSong, playPrevious, playNext, togglePlayPause })
 
@@ -74,8 +71,7 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
       <div className={cn('flex items-center gap-2', expanded ? 'w-full' : 'flex-1')}>
         <Waveform
           showTime
-          url={getSongAudioUrl(currentSong.id)}
-          readyToLoadWaveform={hasStartedPlaying}
+          songId={currentSong.id}
           currentTime={currentTime}
           duration={duration}
           onSeek={seek}

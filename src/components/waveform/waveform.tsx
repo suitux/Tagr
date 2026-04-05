@@ -3,47 +3,62 @@
 import WaveSurfer from 'wavesurfer.js'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { Slider } from '@/components/ui/slider'
+import { useSongPeaks } from '@/features/songs/hooks/use-song-peaks'
 import { formatTimeSeconds } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
 
-interface WaveformProps {
-  url: string
+interface WaveformBaseProps {
   currentTime: number
   duration: number
   onSeek: (time: number) => void
   showTime?: boolean
   disabled?: boolean
-  audioRef?: RefObject<HTMLAudioElement | null>
-  readyToLoadWaveform?: boolean
 }
 
-export function Waveform({
-  url,
-  currentTime,
-  duration,
-  onSeek,
-  showTime = false,
-  disabled = false,
-  audioRef,
-  readyToLoadWaveform = true
-}: WaveformProps) {
+interface WaveformWithPeaks extends WaveformBaseProps {
+  songId: number
+  url?: never
+  audioRef?: never
+}
+
+interface WaveformWithUrl extends WaveformBaseProps {
+  url: string
+  songId?: never
+  audioRef?: RefObject<HTMLAudioElement | null>
+}
+
+type WaveformProps = WaveformWithPeaks | WaveformWithUrl
+
+export function Waveform(props: WaveformProps) {
+  const { currentTime, duration, onSeek, showTime = false, disabled = false } = props
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
   const onSeekRef = useRef(onSeek)
   const [loading, setLoading] = useState(true)
 
-  // Create/destroy wavesurfer when url changes
-  useEffect(() => {
-    if (!containerRef.current || !readyToLoadWaveform) return
+  const songId = 'songId' in props ? props.songId : undefined
+  const url = 'url' in props ? props.url : undefined
+  const audioRef = 'audioRef' in props ? props.audioRef : undefined
 
-    const styles = getComputedStyle(containerRef.current)
+  const { data: peaks } = useSongPeaks(songId)
+
+  useEffect(() => {
+    onSeekRef.current = onSeek
+  })
+
+  // Create WaveSurfer — either from peaks or from url
+  useEffect(() => {
+    if (!containerRef.current) return
+    // If using peaks mode, wait until peaks are loaded
+    if (songId !== undefined && !peaks) return
+
+    const container = containerRef.current
+    const styles = getComputedStyle(container)
     const primaryColor = styles.getPropertyValue('--primary').trim()
     const mutedFg = styles.getPropertyValue('--muted-foreground').trim()
 
-    setLoading(true)
-
     const ws = WaveSurfer.create({
-      container: containerRef.current,
+      container,
       height: 24,
       barWidth: 2,
       barGap: 1,
@@ -53,15 +68,16 @@ export function Waveform({
       progressColor: primaryColor,
       interact: true,
       dragToSeek: true,
-      url
+      ...(peaks
+        ? { peaks: [peaks], duration }
+        : { url: url! })
     })
 
-    // Mute wavesurfer's internal audio — we only use it for the waveform visual
-    ws.setVolume(0)
+    if (!peaks) {
+      ws.setVolume(0)
+    }
 
     ws.on('ready', () => setLoading(false))
-
-    // Forward click/drag-to-seek to the real player
     ws.on('interaction', (newTime: number) => {
       onSeekRef.current(newTime)
     })
@@ -71,8 +87,9 @@ export function Waveform({
     return () => {
       ws.destroy()
       wsRef.current = null
+      setLoading(true)
     }
-  }, [url, readyToLoadWaveform])
+  }, [url, songId, peaks, duration])
 
   // Sync visual progress
   useEffect(() => {
@@ -82,16 +99,18 @@ export function Waveform({
     ws.seekTo(progress)
   }, [currentTime, duration])
 
+  const isLoading = songId !== undefined ? loading && !peaks : loading
+
   return (
     <div className='flex items-center gap-2 flex-1'>
-      {audioRef && <audio ref={audioRef} preload='metadata' src={url} />}
+      {audioRef && url && <audio ref={audioRef} preload='metadata' src={url} />}
       {showTime && (
         <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
           {formatTimeSeconds(currentTime)}
         </span>
       )}
       <div className='relative flex-1'>
-        {(loading || !readyToLoadWaveform) && (
+        {isLoading && (
           <Slider
             value={[duration > 0 ? (currentTime / duration) * 100 : 0]}
             max={100}
@@ -103,7 +122,7 @@ export function Waveform({
         )}
         <div
           ref={containerRef}
-          className={cn(loading ? 'invisible' : 'cursor-pointer', disabled && 'pointer-events-none opacity-50')}
+          className={cn(isLoading ? 'invisible' : 'cursor-pointer', disabled && 'pointer-events-none opacity-50')}
         />
       </div>
       {showTime && (
