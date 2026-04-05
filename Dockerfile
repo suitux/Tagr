@@ -23,6 +23,9 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/src/generated ./src/generated
 COPY . .
 
+# node-web-audio-api requires ALSA
+RUN apk add --no-cache alsa-lib
+
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
 
@@ -39,7 +42,8 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Install su-exec for lightweight user switching (LSIO pattern)
-RUN apk add --no-cache su-exec sqlite
+# alsa-lib is required by node-web-audio-api for audio decoding
+RUN apk add --no-cache su-exec sqlite alsa-lib
 
 # Create data and music directories (ownership set at runtime by entrypoint)
 RUN mkdir -p /data /music
