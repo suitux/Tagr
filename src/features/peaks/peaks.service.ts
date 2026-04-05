@@ -1,7 +1,7 @@
 import { readFile } from 'fs/promises'
 import { OfflineAudioContext } from 'node-web-audio-api'
 
-const NUM_SAMPLES = 8000
+const NUM_SAMPLES = 800
 
 export async function computePeaks(filePath: string): Promise<number[]> {
   const fileBuffer = await readFile(filePath)
