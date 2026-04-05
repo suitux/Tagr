@@ -1,6 +1,6 @@
 # syntax=docker.io/docker/dockerfile:1
 
-FROM node:22-alpine AS base
+FROM node:22-slim AS base
 
 # Install pnpm
 RUN corepack enable && corepack prepare pnpm@latest --activate
@@ -23,8 +23,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/src/generated ./src/generated
 COPY . .
 
-# node-web-audio-api ships glibc binaries; Alpine needs gcompat + ALSA
-RUN apk add --no-cache alsa-lib gcompat
+# node-web-audio-api requires ALSA
+RUN apt-get update && apt-get install -y --no-install-recommends libasound2t64 && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -41,9 +41,8 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Install su-exec for lightweight user switching (LSIO pattern)
-# alsa-lib + gcompat required by node-web-audio-api (glibc native binary on Alpine)
-RUN apk add --no-cache su-exec sqlite alsa-lib gcompat
+# Runtime dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends gosu sqlite3 libasound2t64 && rm -rf /var/lib/apt/lists/*
 
 # Create data and music directories (ownership set at runtime by entrypoint)
 RUN mkdir -p /data /music
