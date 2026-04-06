@@ -2,6 +2,8 @@ import type { Song as PrismaSong, SongMetadata } from '@/generated/prisma/client
 
 export type Song = PrismaSong
 
+export const ALL_SONGS_FOLDER_ID = '__all__'
+
 export type SongWithMetadata = Song & {
   metadata: SongMetadata[]
 }

@@ -26,17 +26,7 @@ type FilesResponse = FilesSuccessResponse | FilesErrorResponse
 export async function GET(request: Request, { params }: RouteParams): Promise<NextResponse<FilesResponse>> {
   const { path } = await params
 
-  if (!path || path.length === 0) {
-    return NextResponse.json(
-      {
-        success: false,
-        error: 'Folder path is required. Use /api/folders/songs/path/to/folder'
-      },
-      { status: 400 }
-    )
-  }
-
-  const folderPath = '/' + path.map(segment => decodeURIComponent(segment)).join('/')
+  const folderPath = !!path?.length ? '/' + path.map(segment => decodeURIComponent(segment)).join('/') : null
   const { searchParams } = new URL(request.url)
   const search = getSearchParam(searchParams, 'search', 'string', '') || undefined
   const sortFieldParam = getSearchParam(searchParams, 'sortField', 'string', 'title') as SongSortField
@@ -61,7 +51,7 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
 
     return NextResponse.json({
       success: true,
-      folderPath,
+      folderPath: folderPath ?? 'all',
       totalFiles,
       files: songs
     })

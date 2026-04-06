@@ -30,6 +30,7 @@
     "totalFolders": "{count} folders",
     "totalFiles": "{count, plural, =0 {No files} one {# file} other {# files}}",
     "totalSubfolders": "{count, plural, =0 {No subfolders} one {# subfolder} other {# subfolders}}",
+    "allSongs": "All Songs",
     "selectFolder": "Select a folder",
     "selectFolderDescription": "Choose a folder from the left panel to view its music files",
     "browseFolders": "Browse folders",

@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
 import { useSongsList } from '@/features/songs/hooks/use-songs-list'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useHomeStore } from '@/stores/home-store'
@@ -21,7 +22,8 @@ export function MainContentHeader() {
   const setSearch = useHomeStore(s => s.setSearch)
   const setFolderSheetOpen = useMobileNavStore(s => s.setFolderSheetOpen)
   const { totalSongs } = useSongsList()
-  const folderName = selectedFolderId?.split('/').pop() || selectedFolderId
+  const isAll = selectedFolderId === ALL_SONGS_FOLDER_ID
+  const folderName = isAll ? tFolders('allSongs') : selectedFolderId?.split('/').pop() || selectedFolderId
 
   return (
     <>
@@ -40,7 +42,7 @@ export function MainContentHeader() {
             </Button>
             <div>
               <h1 className='text-xl md:text-2xl font-bold text-foreground'>{folderName}</h1>
-              <p className='text-sm text-muted-foreground mt-1 truncate max-w-lg'>{selectedFolderId}</p>
+              {!isAll && <p className='text-sm text-muted-foreground mt-1 truncate max-w-lg'>{selectedFolderId}</p>}
             </div>
           </div>
           <Badge variant='secondary' className='gap-1.5'>

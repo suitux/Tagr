@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
-import type { Song, SongColumnFilters, SongSortDirection, SongSortField } from '../domain'
+import { ALL_SONGS_FOLDER_ID, Song, SongColumnFilters, SongSortDirection, SongSortField } from '../domain'
 
 const PAGE_SIZE = 50
 
@@ -31,12 +31,15 @@ async function fetchSongsByFolder(
   limit?: number,
   offset?: number
 ): Promise<SongsResponse> {
-  const pathWithoutLeadingSlash = folderPath.startsWith('/') ? folderPath.slice(1) : folderPath
+  const isAll = folderPath === ALL_SONGS_FOLDER_ID
 
-  const encodedPath = pathWithoutLeadingSlash
-    .split('/')
-    .map(segment => encodeURIComponent(segment))
-    .join('/')
+  const encodedPath = isAll
+    ? ''
+    : folderPath
+        .replace(/^\//, '')
+        .split('/')
+        .map(segment => encodeURIComponent(segment))
+        .join('/')
 
   const params: Record<string, string | number | undefined> = {
     search,
@@ -65,7 +68,12 @@ export const getUseSongsByFolderQueryKey = (
   filters?: SongColumnFilters
 ) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort, filters]
 
-export function useSongsByFolder(folderPath: string | undefined, search?: string, sorting?: SongsSortParams, filters?: SongColumnFilters) {
+export function useSongsByFolder(
+  folderPath: string | undefined,
+  search?: string,
+  sorting?: SongsSortParams,
+  filters?: SongColumnFilters
+) {
   return useInfiniteQuery({
     queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting, filters),
     queryFn: ({ pageParam = 0 }) => fetchSongsByFolder(folderPath!, search, sorting, filters, PAGE_SIZE, pageParam),

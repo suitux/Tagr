@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getAdjacentSongs } from '@/features/metadata/metadata-scan.service'
 import { Song, SongColumnFilters, SongSortDirection, SongSortField } from '@/features/songs/domain'
+import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
 import { getSearchParam } from '@/lib/api/search-params'
 
 interface RouteParams {
@@ -31,11 +32,8 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   }
 
   const { searchParams } = new URL(request.url)
-  const folderPath = getSearchParam(searchParams, 'folderPath', 'string')
-
-  if (!folderPath) {
-    return NextResponse.json({ success: false, error: 'folderPath is required' }, { status: 400 })
-  }
+  const folderPathParam = getSearchParam(searchParams, 'folderPath', 'string')
+  const folderPath = folderPathParam && folderPathParam !== ALL_SONGS_FOLDER_ID ? folderPathParam : null
 
   const search = getSearchParam(searchParams, 'search', 'string', '') || undefined
   const sortFieldParam = getSearchParam(searchParams, 'sortField', 'string', 'title') as SongSortField | ''

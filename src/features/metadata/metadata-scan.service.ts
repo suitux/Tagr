@@ -451,7 +451,7 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
 }
 
 export async function getSongsByFolder(
-  folderPath: string,
+  folderPath: string | null,
   search?: string,
   sortField?: SongSortField,
   sort?: SongSortDirection,
@@ -466,7 +466,7 @@ export async function getSongsByFolder(
 
   return prisma.song.findMany({
     where: {
-      folderPath,
+      ...(folderPath && { folderPath }),
       ...(search && {
         OR: [
           { title: { contains: search } },
@@ -488,7 +488,7 @@ export async function getSongsByFolder(
 }
 
 export async function countSongsByFolder(
-  folderPath: string,
+  folderPath: string | null,
   search?: string,
   filters?: SongColumnFilters
 ): Promise<number> {
@@ -496,7 +496,7 @@ export async function countSongsByFolder(
 
   return prisma.song.count({
     where: {
-      folderPath,
+      ...(folderPath && { folderPath }),
       ...(search && {
         OR: [
           { title: { contains: search } },
@@ -516,7 +516,7 @@ export async function countSongsByFolder(
 
 export async function getAdjacentSongs(
   songId: number,
-  folderPath: string,
+  folderPath: string | null,
   search?: string,
   sortField?: SongSortField,
   sort?: SongSortDirection,
@@ -527,7 +527,7 @@ export async function getAdjacentSongs(
   const columnFilterConditions = buildColumnFiltersWhere(filters)
 
   const where = {
-    folderPath,
+    ...(folderPath && { folderPath }),
     ...(search && {
       OR: [
         { title: { contains: search } },
