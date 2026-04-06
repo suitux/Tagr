@@ -1,20 +1,10 @@
 'use client'
 
-import {
-  AlertCircleIcon,
-  ChevronRightIcon,
-  FolderIcon,
-  FolderOpenIcon,
-  FoldersIcon,
-  Loader2Icon,
-  MusicIcon
-} from 'lucide-react'
-import { useState, useLayoutEffect } from 'react'
-import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/button'
+import { AlertCircleIcon, FolderIcon, FolderOpenIcon, Loader2Icon } from 'lucide-react'
+import { useState } from 'react'
 import { FolderContent, Subfolder } from '@/features/folders/domain'
 import { useFolders } from '@/features/folders/hooks/use-folders'
-import { cn } from '@/lib/utils'
+import { ListItem } from './list-item'
 
 interface FolderListItemProps {
   folder: FolderContent
@@ -31,97 +21,44 @@ export function FolderListItem({
   selectedFolderId,
   depth = 0
 }: FolderListItemProps) {
-  const t = useTranslations('folders')
   const shouldAutoExpand = selectedFolderId ? selectedFolderId.startsWith(folder.folder + '/') : false
   const [isExpanded, setIsExpanded] = useState(shouldAutoExpand)
   const folderName = folder.folder.split('/').pop() || folder.folder
   const hasError = !!folder.error
-  const fileCount = folder.totalFiles
-  const subfolderCount = folder.totalSubfolders
-  const hasSubfolders = subfolderCount > 0
+  const hasSubfolders = folder.totalSubfolders > 0
 
   const handleExpand = () => {
     setIsExpanded(!isExpanded)
   }
 
-  const handleExpandClick = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    handleExpand()
+  const handleFolderSelect = (folderPath: string) => {
+    onFolderSelect?.(folderPath)
+    if (!isExpanded) handleExpand()
   }
 
-  const handleFolderSelect = (folder: string) => {
-    onFolderSelect?.(folder)
-
-    if (!isExpanded) {
-      handleExpand()
-    }
-  }
+  const folderIcon = hasError ? (
+    <AlertCircleIcon className='w-5 h-5 text-destructive' />
+  ) : isExpanded || isSelected ? (
+    <FolderOpenIcon className='w-5 h-5' />
+  ) : (
+    <FolderIcon className='w-5 h-5' />
+  )
 
   return (
     <div>
-      <Button
-        variant={isSelected ? 'secondary' : 'ghost'}
+      <ListItem
+        isSelected={isSelected}
+        isExpanded={isExpanded}
+        hasExpandButton={hasSubfolders}
+        onToggleExpand={handleExpand}
         onClick={() => handleFolderSelect(folder.folder)}
-        className={cn(
-          'w-full justify-start gap-2 h-auto px-3 py-2.5 cursor-pointer',
-          isSelected && 'bg-accent shadow-sm',
-          hasError && 'opacity-70'
-        )}
-        style={{ paddingLeft: `${12 + depth * 16}px` }}>
-        {/* Expand/Collapse Button */}
-        {hasSubfolders ? (
-          <span
-            onClick={handleExpandClick}
-            className='flex items-center justify-center w-5 h-5 rounded hover:bg-muted-foreground/20 transition-colors'>
-            <ChevronRightIcon
-              className={cn(
-                'w-4 h-4 text-muted-foreground transition-transform duration-200',
-                isExpanded && 'rotate-90'
-              )}
-            />
-          </span>
-        ) : (
-          <div className='w-5 h-5' />
-        )}
-
-        <div
-          className={cn(
-            'flex items-center justify-center w-9 h-9 rounded-lg transition-colors',
-            isSelected ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-          )}>
-          {hasError ? (
-            <AlertCircleIcon className='w-5 h-5 text-destructive' />
-          ) : isExpanded || isSelected ? (
-            <FolderOpenIcon className='w-5 h-5' />
-          ) : (
-            <FolderIcon className='w-5 h-5' />
-          )}
-        </div>
-
-        <div className='flex-1 min-w-0 text-left'>
-          <p className={cn('text-sm font-medium truncate', isSelected ? 'text-foreground' : 'text-foreground/80')}>
-            {folderName}
-          </p>
-          <div className='flex items-center gap-3 mt-0.5'>
-            <div className='flex items-center gap-1.5'>
-              <MusicIcon className='w-3 h-3 text-muted-foreground' />
-              <span className='text-xs text-muted-foreground'>
-                {fileCount} {t('file', { count: fileCount })}
-              </span>
-            </div>
-            {subfolderCount > 0 && (
-              <div className='flex items-center gap-1.5'>
-                <FoldersIcon className='w-3 h-3 text-muted-foreground' />
-                <span className='text-xs text-muted-foreground'>
-                  {subfolderCount} {t('subfolder', { count: subfolderCount })}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
-
-        {isSelected && <div className='w-1.5 h-8 bg-primary rounded-full' />}
-      </Button>
+        icon={folderIcon}
+        label={folderName}
+        fileCount={folder.totalFiles}
+        subfolderCount={folder.totalSubfolders}
+        depth={depth}
+        className={hasError ? 'opacity-70' : undefined}
+      />
 
       {/* Subfolders */}
       {isExpanded && hasSubfolders && (
