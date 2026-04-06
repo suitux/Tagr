@@ -32,13 +32,13 @@ if [ -f "$DB_PATH" ]; then
   HAS_MIGRATIONS_TABLE=$(sqlite3 "$DB_PATH" "SELECT name FROM sqlite_master WHERE type='table' AND name='_prisma_migrations';" 2>/dev/null || true)
   if [ -z "$HAS_MIGRATIONS_TABLE" ]; then
     echo "Existing database detected without migration history. Baselining..."
-    gosu "$USER_NAME" npx prisma migrate resolve --applied "20260223143441_init" --config ./prisma.config.ts
+    su-exec "$USER_NAME" npx prisma migrate resolve --applied "20260223143441_init" --config ./prisma.config.ts
   fi
 fi
 
 # Apply pending database migrations on startup
 echo "Running prisma migrate deploy..."
-gosu "$USER_NAME" npx prisma migrate deploy --config ./prisma.config.ts
+su-exec "$USER_NAME" npx prisma migrate deploy --config ./prisma.config.ts
 
 # Start Next.js server
-exec gosu "$USER_NAME" node server.js
+exec su-exec "$USER_NAME" node server.js
