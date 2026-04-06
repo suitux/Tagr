@@ -1,7 +1,7 @@
 'use client'
 
-import { Loader2, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { PlayButton } from '@/components/play-button'
+import { SkipButton } from '@/components/skip-button'
 import { Waveform } from '@/components/waveform/waveform'
 import { useMediaSession } from '@/features/player/hooks/use-media-session'
 import { cn } from '@/lib/utils'
@@ -30,41 +30,19 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
 
   if (!currentSong) return null
 
+  const buttonSize = expanded ? 'md' : 'sm'
+
   return (
     <div className={cn('flex items-center', expanded ? 'flex-col gap-3' : 'gap-1')}>
       <div className={cn('flex items-center', expanded ? 'justify-center gap-2' : 'gap-0.5')}>
-        <Button
-          variant='ghost'
-          size='icon'
-          className={cn(expanded ? 'h-9 w-9' : 'h-7 w-7')}
-          onClick={playPrevious}
-          disabled={!hasPrevious || isAdjacentLoading}>
-          <SkipBack className={cn(expanded ? 'h-4 w-4' : 'h-3.5 w-3.5')} />
-        </Button>
-        <Button
-          variant='ghost'
-          size='icon'
-          className={cn('relative', expanded ? 'h-10 w-10' : 'h-7 w-7')}
-          onClick={togglePlayPause}>
-          {isPlaying ? (
-            <Pause className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
-          ) : (
-            <Play className={cn(expanded ? 'h-5 w-5' : 'h-3.5 w-3.5')} />
-          )}
-          {isBuffering && (
-            <Loader2
-              className={cn('absolute animate-spin text-muted-foreground', expanded ? 'h-12 w-12' : 'h-8 w-8')}
-            />
-          )}
-        </Button>
-        <Button
-          variant='ghost'
-          size='icon'
-          className={cn(expanded ? 'h-9 w-9' : 'h-7 w-7')}
-          onClick={playNext}
-          disabled={!hasNext || isAdjacentLoading}>
-          <SkipForward className={cn(expanded ? 'h-4 w-4' : 'h-3.5 w-3.5')} />
-        </Button>
+        <SkipButton
+          direction='back'
+          size={buttonSize}
+          onSkip={playPrevious}
+          disabled={!hasPrevious || isAdjacentLoading}
+        />
+        <PlayButton isPlaying={isPlaying} isBuffering={isBuffering} onToggle={togglePlayPause} size={buttonSize} />
+        <SkipButton direction='forward' size={buttonSize} onSkip={playNext} disabled={!hasNext || isAdjacentLoading} />
       </div>
 
       <div className={cn('flex items-center gap-2', expanded ? 'w-full' : 'flex-1')}>

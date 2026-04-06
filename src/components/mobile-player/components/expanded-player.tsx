@@ -1,7 +1,8 @@
 'use client'
 
-import { ChevronDown, Loader2, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { ChevronDown, MusicIcon } from 'lucide-react'
+import { PlayButton } from '@/components/play-button'
+import { SkipButton } from '@/components/skip-button'
 import { Image } from '@/components/ui/image'
 import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
@@ -69,26 +70,9 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
         </div>
 
         <div className='flex items-center gap-3'>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-10 w-10'
-            onClick={playPrevious}
-            disabled={!_previousSong || isAdjacentLoading}>
-            <SkipBack className='h-5 w-5' />
-          </Button>
-          <Button variant='ghost' size='icon' className='relative h-12 w-12' onClick={togglePlayPause}>
-            {isPlaying ? <Pause className='h-6 w-6' /> : <Play className='h-6 w-6' />}
-            {isBuffering && <Loader2 className='absolute h-14 w-14 animate-spin text-muted-foreground' />}
-          </Button>
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-10 w-10'
-            onClick={playNext}
-            disabled={!_nextSong || isAdjacentLoading}>
-            <SkipForward className='h-5 w-5' />
-          </Button>
+          <SkipButton direction='back' size='lg' onSkip={playPrevious} disabled={!_previousSong || isAdjacentLoading} />
+          <PlayButton isPlaying={isPlaying} isBuffering={isBuffering} onToggle={togglePlayPause} size='lg' />
+          <SkipButton direction='forward' size='lg' onSkip={playNext} disabled={!_nextSong || isAdjacentLoading} />
         </div>
       </div>
     </div>

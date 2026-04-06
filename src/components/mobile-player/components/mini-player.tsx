@@ -1,7 +1,8 @@
 'use client'
 
-import { Loader2, MusicIcon, Pause, Play, SkipBack, SkipForward } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { MusicIcon } from 'lucide-react'
+import { PlayButton } from '@/components/play-button'
+import { SkipButton } from '@/components/skip-button'
 import { Image } from '@/components/ui/image'
 import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
@@ -48,16 +49,9 @@ export function MiniPlayer({ song, expanded, onExpand }: MiniPlayerProps) {
       </button>
 
       <div className='flex items-center gap-1'>
-        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playPrevious} disabled={!_previousSong || isAdjacentLoading}>
-          <SkipBack className='h-4 w-4' />
-        </Button>
-        <Button variant='ghost' size='icon' className='relative h-9 w-9' onClick={togglePlayPause}>
-          {isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
-          {isBuffering && <Loader2 className='absolute h-10 w-10 animate-spin text-muted-foreground' />}
-        </Button>
-        <Button variant='ghost' size='icon' className='h-9 w-9' onClick={playNext} disabled={!_nextSong || isAdjacentLoading}>
-          <SkipForward className='h-4 w-4' />
-        </Button>
+        <SkipButton direction='back' onSkip={playPrevious} disabled={!_previousSong || isAdjacentLoading} />
+        <PlayButton isPlaying={isPlaying} isBuffering={isBuffering} onToggle={togglePlayPause} />
+        <SkipButton direction='forward' onSkip={playNext} disabled={!_nextSong || isAdjacentLoading} />
       </div>
     </div>
   )
