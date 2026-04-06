@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { DetailPanelRow } from './detail-panel-row'
 
 const { mockSession } = vi.hoisted(() => ({
   mockSession: { data: null as { user: { role: string } } | null }
@@ -15,22 +16,11 @@ vi.mock('@/features/songs/hooks/use-update-song', () => ({
   useUpdateSong: () => ({ mutate: mockUpdateSong, isPending: false })
 }))
 
-import { DetailPanelRow } from './detail-panel-row'
-
-const icon = <span data-testid="icon">🎵</span>
+const icon = <span data-testid='icon'>🎵</span>
 
 function renderRow(role: string, props: Record<string, unknown> = {}) {
   mockSession.data = { user: { role } }
-  return render(
-    <DetailPanelRow
-      icon={icon}
-      label="Title"
-      value="Test Song"
-      fieldName="title"
-      songId={1}
-      {...props}
-    />
-  )
+  return render(<DetailPanelRow icon={icon} label='Title' value='Test Song' fieldName='title' songId={1} {...props} />)
 }
 
 beforeEach(() => {
@@ -80,10 +70,7 @@ describe('DetailPanelRow - role-based editing', () => {
       // Submit via Enter
       await user.keyboard('{Enter}')
 
-      expect(mockUpdateSong).toHaveBeenCalledWith(
-        { id: 1, metadata: { title: 'New Title' } },
-        expect.any(Object)
-      )
+      expect(mockUpdateSong).toHaveBeenCalledWith({ id: 1, metadata: { title: 'New Title' } }, expect.any(Object))
     })
   })
 
@@ -96,13 +83,13 @@ describe('DetailPanelRow - role-based editing', () => {
       expect(container.querySelector('.lucide-trash')).toBeInTheDocument()
     })
 
-    it('listener also sees delete button on extra metadata', () => {
+    it('listener does not see delete button on extra metadata', () => {
       const { container } = renderRow('listener', {
         fieldName: 'CUSTOM_TAG',
         isExtraMetadata: true
       })
       // Delete button for extra metadata is always visible regardless of role
-      expect(container.querySelector('.lucide-trash')).toBeInTheDocument()
+      expect(container.querySelector('.lucide-trash')).not.toBeInTheDocument()
     })
   })
 
