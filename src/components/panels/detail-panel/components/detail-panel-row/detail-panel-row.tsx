@@ -1,14 +1,14 @@
 'use client'
 
 import { PencilIcon, TrashIcon } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import type { UserRole } from '@/features/users/domain'
-import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { HTMLInputTypeAttribute, useState } from 'react'
+import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { cn } from '@/lib/utils'
 import { DatePickerEdit } from './components/date-picker-edit'
 import { ExpandableText } from './components/expandable-text'
@@ -45,7 +45,8 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
   const [isEditing, setIsEditing] = useState(false)
   const { mutate: updateSong, isPending } = useUpdateSong()
 
-  const canEdit = isTaggerOrAbove && (isExtraMetadata ? songId !== undefined : songId !== undefined && fieldName !== undefined)
+  const canEdit =
+    isTaggerOrAbove && (isExtraMetadata ? songId !== undefined : songId !== undefined && fieldName !== undefined)
 
   const handleSave = (saveValue: string | number | boolean | null) => {
     if (!songId || !fieldName) return
@@ -131,7 +132,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
               <PencilIcon className='w-3 h-3' />
             </Button>
           )}
-          {isExtraMetadata && (
+          {canEdit && isExtraMetadata && (
             <Button
               variant='ghost'
               size='icon'
