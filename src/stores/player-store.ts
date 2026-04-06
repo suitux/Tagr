@@ -38,7 +38,7 @@ const listeners = {
   }
 }
 
-function getAudio(): HTMLAudioElement | null {
+export function getAudio(): HTMLAudioElement | null {
   if (!audio && typeof window !== 'undefined') {
     audio = new Audio()
     audio.preload = 'auto'
@@ -47,16 +47,6 @@ function getAudio(): HTMLAudioElement | null {
     }
   }
   return audio
-}
-
-let seekTimeout: ReturnType<typeof setTimeout> | null = null
-
-function debouncedSeek(a: HTMLAudioElement, time: number) {
-  if (seekTimeout) clearTimeout(seekTimeout)
-  seekTimeout = setTimeout(() => {
-    a.currentTime = time
-    seekTimeout = null
-  }, 150)
 }
 
 function safePlay(a: HTMLAudioElement) {
@@ -162,7 +152,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   seek: time => {
     set({ currentTime: time })
     const a = getAudio()
-    if (a) debouncedSeek(a, time)
+    if (a) a.currentTime = time
   },
 
   setAdjacentSongs: (previous, next) => {

@@ -6,6 +6,7 @@ import { Slider } from '@/components/ui/slider'
 import { useSongPeaks } from '@/features/songs/hooks/use-song-peaks'
 import { formatTimeSeconds } from '@/lib/formatters'
 import { cn } from '@/lib/utils'
+import { getAudio } from '@/stores/player-store'
 
 interface WaveformBaseProps {
   currentTime: number
@@ -33,7 +34,6 @@ export function Waveform(props: WaveformProps) {
   const { currentTime, duration, onSeek, showTime = false, disabled = false } = props
   const containerRef = useRef<HTMLDivElement>(null)
   const wsRef = useRef<WaveSurfer | null>(null)
-  const onSeekRef = useRef(onSeek)
   const [loading, setLoading] = useState(true)
 
   const songId = 'songId' in props ? props.songId : undefined
@@ -41,10 +41,6 @@ export function Waveform(props: WaveformProps) {
   const audioRef = 'audioRef' in props ? props.audioRef : undefined
 
   const { data: peaks } = useSongPeaks(songId)
-
-  useEffect(() => {
-    onSeekRef.current = onSeek
-  })
 
   // Create WaveSurfer — either from peaks or from url
   useEffect(() => {
@@ -57,6 +53,8 @@ export function Waveform(props: WaveformProps) {
     const primaryColor = styles.getPropertyValue('--primary').trim()
     const mutedFg = styles.getPropertyValue('--muted-foreground').trim()
 
+    const mediaEl = songId ? getAudio() : undefined
+
     const ws = WaveSurfer.create({
       container,
       height: 24,
@@ -68,17 +66,15 @@ export function Waveform(props: WaveformProps) {
       progressColor: primaryColor,
       interact: true,
       dragToSeek: true,
-      ...(peaks ? { peaks: [peaks], duration } : { url: url! })
+      ...(peaks ? { peaks: [peaks], duration, ...(mediaEl ? { media: mediaEl } : {}) } : { url: url! })
     })
 
-    if (!peaks) {
+    if (!peaks && !mediaEl) {
       ws.setVolume(0)
     }
 
     ws.on('ready', () => setLoading(false))
-    ws.on('interaction', (newTime: number) => {
-      onSeekRef.current(newTime)
-    })
+    ws.on('interaction', onSeek)
 
     wsRef.current = ws
 
@@ -87,15 +83,7 @@ export function Waveform(props: WaveformProps) {
       wsRef.current = null
       setLoading(true)
     }
-  }, [url, songId, peaks, duration])
-
-  // Sync visual progress
-  useEffect(() => {
-    const ws = wsRef.current
-    if (!ws || duration <= 0) return
-    const progress = Math.min(1, Math.max(0, currentTime / duration))
-    ws.seekTo(progress)
-  }, [currentTime, duration])
+  }, [url, songId, peaks, duration, onSeek])
 
   const isLoading = songId !== undefined ? loading && !peaks : loading
 
