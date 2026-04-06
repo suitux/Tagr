@@ -74,7 +74,10 @@ export function Waveform(props: WaveformProps) {
     }
 
     ws.on('ready', () => setLoading(false))
-    ws.on('interaction', onSeek)
+
+    if (!songId) {
+      ws.on('interaction', onSeek)
+    }
 
     wsRef.current = ws
 
@@ -83,7 +86,7 @@ export function Waveform(props: WaveformProps) {
       wsRef.current = null
       setLoading(true)
     }
-  }, [url, songId, peaks, duration, onSeek])
+  }, [url, songId, peaks, duration])
 
   const isLoading = songId !== undefined ? loading && !peaks : loading
 
