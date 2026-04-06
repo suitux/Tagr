@@ -15,6 +15,7 @@ export async function computePeaks(filePath: string): Promise<number[]> {
   const samplesPerBucket = Math.floor(channelData.length / NUM_SAMPLES)
   const peaks: number[] = new Array(NUM_SAMPLES)
 
+  let max = 0
   for (let i = 0; i < NUM_SAMPLES; i++) {
     const start = i * samplesPerBucket
     const end = Math.min(start + samplesPerBucket, channelData.length)
@@ -22,9 +23,15 @@ export async function computePeaks(filePath: string): Promise<number[]> {
     for (let j = start; j < end; j++) {
       sumSquares += channelData[j] * channelData[j]
     }
-    const rms = Math.sqrt(sumSquares / (end - start))
-    // Round to 3 decimal places to keep JSON compact
-    peaks[i] = Math.round(rms * 1000) / 1000
+    peaks[i] = Math.sqrt(sumSquares / (end - start))
+    if (peaks[i] > max) max = peaks[i]
+  }
+
+  // Normalize to 0–1 range
+  if (max > 0) {
+    for (let i = 0; i < NUM_SAMPLES; i++) {
+      peaks[i] = Math.round((peaks[i] / max) * 1000) / 1000
+    }
   }
 
   return peaks
