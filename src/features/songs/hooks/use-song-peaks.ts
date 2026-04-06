@@ -9,7 +9,7 @@ interface PeaksResponse {
   duration: number
 }
 
-async function fetchPeaks(songId: number): Promise<number[]> {
+async function fetchPeaks(songId: number): Promise<PeaksResponse['peaks']> {
   const response = await api.get<PeaksResponse>(`/songs/${songId}/peaks`)
   return response.data.peaks
 }

@@ -17,9 +17,6 @@ const listeners = {
   timeupdate: () => {
     if (audio) usePlayerStore.setState({ currentTime: audio.currentTime })
   },
-  durationchange: () => {
-    if (audio) usePlayerStore.setState({ duration: audio.duration || 0 })
-  },
   waiting: () => {
     bufferingTimeout = setTimeout(() => {
       usePlayerStore.setState({ isBuffering: true })
@@ -84,7 +81,6 @@ interface PlayerState {
   isBuffering: boolean
   hasStartedPlaying: boolean
   currentTime: number
-  duration: number
   _previousSong: Song | null
   _nextSong: Song | null
   isAdjacentLoading: boolean
@@ -109,7 +105,6 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   isBuffering: false,
   hasStartedPlaying: false,
   currentTime: 0,
-  duration: 0,
   _previousSong: null,
   _nextSong: null,
   isAdjacentLoading: false,

@@ -9,16 +9,10 @@ interface ExpandedPlayerWaveformProps {
 
 export function ExpandedPlayerWaveform({ songId }: ExpandedPlayerWaveformProps) {
   const currentTime = usePlayerStore(s => s.currentTime)
-  const duration = usePlayerStore(s => s.duration)
+  const currentSong = usePlayerStore(s => s.currentSong)
   const seek = usePlayerStore(s => s.seek)
 
   return (
-    <Waveform
-      showTime
-      songId={songId}
-      currentTime={currentTime}
-      duration={duration}
-      onSeek={seek}
-    />
+    <Waveform showTime songId={songId} currentTime={currentTime} duration={currentSong?.duration ?? 0} onSeek={seek} />
   )
 }

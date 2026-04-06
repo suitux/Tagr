@@ -16,7 +16,6 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
   const isBuffering = usePlayerStore(s => s.isBuffering)
   const isAdjacentLoading = usePlayerStore(s => s.isAdjacentLoading)
   const currentTime = usePlayerStore(s => s.currentTime)
-  const duration = usePlayerStore(s => s.duration)
   const _previousSong = usePlayerStore(s => s._previousSong)
   const _nextSong = usePlayerStore(s => s._nextSong)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
@@ -73,7 +72,7 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
           showTime
           songId={currentSong.id}
           currentTime={currentTime}
-          duration={duration}
+          duration={currentSong.duration ?? 0}
           onSeek={seek}
         />
       </div>
