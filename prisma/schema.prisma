@@ -64,6 +64,7 @@ model Song {
   playCount  Int?      @default(0) @map("play_count")
 
   // Audio info
+  peaks         String?
   duration      Float?
   bitrate       Int?
   sampleRate    Int?    @map("sample_rate")

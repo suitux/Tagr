@@ -19,14 +19,26 @@ export async function GET(_request: Request, { params }: RouteParams) {
   try {
     const song = await prisma.song.findUnique({
       where: { id: songId },
-      select: { filePath: true, duration: true }
+      select: { filePath: true, duration: true, peaks: true }
     })
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }
 
+    if (song.peaks) {
+      return NextResponse.json(
+        { success: true, peaks: JSON.parse(song.peaks), duration: song.duration },
+        { headers: { 'Cache-Control': 'public, max-age=31536000, immutable' } }
+      )
+    }
+
     const peaks = await computePeaks(song.filePath)
+
+    await prisma.song.update({
+      where: { id: songId },
+      data: { peaks: JSON.stringify(peaks) }
+    })
 
     return NextResponse.json(
       { success: true, peaks, duration: song.duration },
