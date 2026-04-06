@@ -4,7 +4,9 @@ import { defineConfig } from 'vitest/config'
 export default defineConfig({
   test: {
     globals: true,
-    silent: true
+    silent: true,
+    environment: 'happy-dom',
+    setupFiles: ['./vitest.setup.ts']
   },
   resolve: {
     alias: {
