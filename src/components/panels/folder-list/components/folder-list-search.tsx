@@ -5,11 +5,10 @@ import { useTranslations } from 'next-intl'
 import { InputGroup, InputGroupAddon, InputGroupInput, InputGroupText } from '@/components/ui/input-group'
 
 interface FolderListSearchProps {
-  value: string
   onChange: (value: string) => void
 }
 
-export function FolderListSearch({ value, onChange }: FolderListSearchProps) {
+export function FolderListSearch({ onChange }: FolderListSearchProps) {
   const t = useTranslations('folders')
 
   return (
@@ -23,8 +22,8 @@ export function FolderListSearch({ value, onChange }: FolderListSearchProps) {
         <InputGroupInput
           type='text'
           placeholder={t('searchPlaceholder')}
-          value={value}
           onChange={e => onChange(e.target.value)}
+          debounceMs={300}
         />
       </InputGroup>
     </div>

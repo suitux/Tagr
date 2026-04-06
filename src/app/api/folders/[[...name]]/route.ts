@@ -1,6 +1,11 @@
 import { getTranslations } from 'next-intl/server'
 import { NextResponse } from 'next/server'
-import { getRootFolders, buildGetFoldersJsonResponse, readMusicFolder } from '@/app/api/folders/[[...name]]/helpers'
+import {
+  getRootFolders,
+  buildGetFoldersJsonResponse,
+  readMusicFolder,
+  searchFoldersRecursive
+} from '@/app/api/folders/[[...name]]/helpers'
 import { getMusicFolders } from '@/features/songs/song-file-helpers'
 
 interface RouteParams {
@@ -22,6 +27,13 @@ export async function GET(request: Request, { params }: RouteParams) {
 
   if (folderPath) {
     return buildGetFoldersJsonResponse([await readMusicFolder(folderPath, t)])
+  }
+
+  const { searchParams } = new URL(request.url)
+  const search = searchParams.get('search')
+
+  if (search) {
+    return buildGetFoldersJsonResponse(await searchFoldersRecursive(folders, search))
   }
 
   return buildGetFoldersJsonResponse(await getRootFolders(folders, t))

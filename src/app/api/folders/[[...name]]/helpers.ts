@@ -38,6 +38,49 @@ export async function getRootFolders(folders: string[], t: TFunction) {
   return Promise.all(root.subfolders.map(sub => readMusicFolder(sub.path, t)))
 }
 
+export async function searchFoldersRecursive(rootFolders: string[], query: string): Promise<FolderContent[]> {
+  const results: FolderContent[] = []
+  const lowerQuery = query.toLowerCase()
+
+  async function walk(dirPath: string): Promise<void> {
+    try {
+      const entries = await fs.readdir(dirPath, { withFileTypes: true })
+      const subfolders: Subfolder[] = []
+      let totalFiles = 0
+
+      for (const entry of entries) {
+        if (entry.isDirectory()) {
+          subfolders.push({ name: entry.name, path: path.join(dirPath, entry.name) })
+        } else if (entry.isFile() && isMusicFile(entry.name)) {
+          totalFiles++
+        }
+      }
+
+      const folderName = path.basename(dirPath)
+      if (folderName.toLowerCase().includes(lowerQuery)) {
+        results.push({
+          folder: dirPath,
+          totalFiles,
+          totalSubfolders: subfolders.length,
+          subfolders: subfolders.sort((a, b) => a.name.localeCompare(b.name))
+        })
+      }
+
+      for (const sub of subfolders) {
+        await walk(sub.path)
+      }
+    } catch {
+      // Skip inaccessible directories
+    }
+  }
+
+  for (const root of rootFolders) {
+    await walk(root)
+  }
+
+  return results
+}
+
 export async function readMusicFolder(folderPath: string, t: TFunction): Promise<FolderContent> {
   try {
     const stats = await fs.stat(folderPath)

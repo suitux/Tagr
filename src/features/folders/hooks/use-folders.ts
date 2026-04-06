@@ -14,7 +14,7 @@ export interface FoldersResponse {
   folders: FolderContent[]
 }
 
-async function fetchFolders(folderPath?: string): Promise<FoldersResponse> {
+async function fetchFolders(folderPath?: string, search?: string): Promise<FoldersResponse> {
   if (folderPath) {
     const pathWithoutLeadingSlash = folderPath.startsWith('/') ? folderPath.slice(1) : folderPath
     const encodedPath = pathWithoutLeadingSlash
@@ -25,13 +25,13 @@ async function fetchFolders(folderPath?: string): Promise<FoldersResponse> {
     return data
   }
 
-  const { data } = await api.get<FoldersResponse>('/folders')
+  const { data } = await api.get<FoldersResponse>('/folders', { params: search ? { search } : undefined })
   return data
 }
 
-export function useFolders(folderPath?: string) {
+export function useFolders(folderPath?: string, search?: string) {
   return useQuery({
-    queryKey: folderPath ? ['folders', folderPath] : ['folders'],
-    queryFn: () => fetchFolders(folderPath)
+    queryKey: folderPath ? ['folders', folderPath] : ['folders', { search }],
+    queryFn: () => fetchFolders(folderPath, search)
   })
 }

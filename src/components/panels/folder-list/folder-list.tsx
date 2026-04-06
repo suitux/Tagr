@@ -8,8 +8,8 @@ import { useFolders } from '@/features/folders/hooks/use-folders'
 import { AllFoldersListItem } from './components/all-folders-list-item'
 import { FolderListEmptyState } from './components/folder-list-empty-state'
 import { FolderListErrorState } from './components/folder-list-error-state'
-import { FolderListItem } from './components/folder-list-item'
 import { FolderListHeader } from './components/folder-list-header'
+import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
 
@@ -19,17 +19,14 @@ interface FolderListProps {
 }
 
 export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps) {
-  const { data, isLoading, error } = useFolders()
-  const [searchQuery, setSearchQuery] = useState('')
+  const [search, setSearch] = useState('')
   const [isExpanded, setIsExpanded] = useState(true)
 
-  const filteredFolders =
-    data?.folders.filter(folder => {
-      const folderName = folder.folder.toLowerCase()
-      return folderName.includes(searchQuery.toLowerCase())
-    }) ?? []
+  const hasSearch = search.length > 0
+  const { data, isLoading, error } = useFolders(undefined, hasSearch ? search : undefined)
+  const folders = data?.folders ?? []
 
-  if (isLoading) {
+  if (isLoading && !hasSearch) {
     return <FolderListLoadingState />
   }
 
@@ -41,25 +38,27 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
     <div className='flex flex-col h-full'>
       <FolderListHeader />
 
-      <FolderListSearch value={searchQuery} onChange={setSearchQuery} />
+      <FolderListSearch onChange={setSearch} />
 
       <Separator />
 
       <ScrollArea className='flex-1 min-h-0'>
         <div className='p-2'>
-          <AllFoldersListItem
-            isExpanded={isExpanded}
-            onToggleExpand={() => setIsExpanded(!isExpanded)}
-            selectedFolderId={selectedFolderId}
-            onFolderSelect={onFolderSelect}
-          />
+          {!hasSearch && (
+            <AllFoldersListItem
+              isExpanded={isExpanded}
+              onToggleExpand={() => setIsExpanded(!isExpanded)}
+              selectedFolderId={selectedFolderId}
+              onFolderSelect={onFolderSelect}
+            />
+          )}
 
-          {isExpanded &&
-            (filteredFolders.length === 0 ? (
-              <FolderListEmptyState hasSearchQuery={!!searchQuery} />
+          {(!hasSearch ? isExpanded : true) &&
+            (folders.length === 0 ? (
+              <FolderListEmptyState hasSearchQuery={hasSearch} />
             ) : (
               <div className='space-y-1 mt-1'>
-                {filteredFolders.map(folder => (
+                {folders.map(folder => (
                   <FolderListItem
                     key={folder.folder}
                     folder={folder}
