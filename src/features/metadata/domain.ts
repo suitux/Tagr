@@ -259,6 +259,7 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'COVER ART (BACK)',
     // Opus
     'TRACKTOTAL',
+    'TOTALTRACKS',
     'ORGANIZATION',
     'DISCTOTAL',
     // TXXX subtags
