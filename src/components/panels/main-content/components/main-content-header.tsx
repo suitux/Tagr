@@ -23,7 +23,7 @@ export function MainContentHeader() {
   const setFolderSheetOpen = useMobileNavStore(s => s.setFolderSheetOpen)
   const { totalSongs } = useSongsList()
   const isAll = selectedFolderId === ALL_SONGS_FOLDER_ID
-  const folderName = isAll ? tFolders('allSongs') : selectedFolderId?.split('/').pop() || selectedFolderId
+  const folderName = isAll ? tFolders('allFolders') : selectedFolderId?.split('/').pop() || selectedFolderId
 
   return (
     <>
