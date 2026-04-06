@@ -1,16 +1,19 @@
-import { readFile } from 'fs/promises'
-import { OfflineAudioContext } from 'node-web-audio-api'
+import { execFile } from 'child_process'
 
 const NUM_SAMPLES = 800
 
-export async function computePeaks(filePath: string): Promise<number[]> {
-  const fileBuffer = await readFile(filePath)
-  const arrayBuffer = fileBuffer.buffer.slice(fileBuffer.byteOffset, fileBuffer.byteOffset + fileBuffer.byteLength)
+function decodeWithFfmpeg(filePath: string): Promise<Float32Array> {
+  return new Promise((resolve, reject) => {
+    const args = ['-i', filePath, '-f', 'f32le', '-ac', '1', '-ar', '44100', '-']
+    execFile('ffmpeg', args, { encoding: 'buffer', maxBuffer: 200 * 1024 * 1024 }, (err, stdout) => {
+      if (err) return reject(err)
+      resolve(new Float32Array(stdout.buffer, stdout.byteOffset, stdout.byteLength / 4))
+    })
+  })
+}
 
-  // Decode audio to PCM using OfflineAudioContext
-  const ctx = new OfflineAudioContext(1, 1, 44100)
-  const audioBuffer = await ctx.decodeAudioData(arrayBuffer)
-  const channelData = audioBuffer.getChannelData(0)
+export async function computePeaks(filePath: string): Promise<number[]> {
+  const channelData = await decodeWithFfmpeg(filePath)
 
   const samplesPerBucket = Math.floor(channelData.length / NUM_SAMPLES)
   const peaks: number[] = new Array(NUM_SAMPLES)

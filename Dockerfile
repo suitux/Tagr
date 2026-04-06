@@ -23,8 +23,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY --from=deps /app/src/generated ./src/generated
 COPY . .
 
-# node-web-audio-api requires ALSA
-RUN apt-get update && apt-get install -y --no-install-recommends libasound2 && rm -rf /var/lib/apt/lists/*
+# ffmpeg for decoding audio to compute waveform peaks
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Set environment variables for build
 ENV NEXT_TELEMETRY_DISABLED=1
@@ -42,7 +42,7 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Runtime dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends gosu sqlite3 libasound2 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends gosu sqlite3 ffmpeg && rm -rf /var/lib/apt/lists/*
 
 # Create data and music directories (ownership set at runtime by entrypoint)
 RUN mkdir -p /data /music
