@@ -84,7 +84,7 @@ function isMappedNativeTag(tagId: string, value: string): boolean {
 async function extractMetadata(filePath: string): Promise<SongCreateInput | null> {
   try {
     const stats = await fs.stat(filePath)
-    const metadata = await musicMetadata.parseFile(filePath)
+    const metadata = await musicMetadata.parseFile(filePath, { duration: true })
     const { common, format } = metadata
 
     const additionalMetadata: MetadataInput[] = []
