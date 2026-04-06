@@ -68,9 +68,7 @@ export function Waveform(props: WaveformProps) {
       progressColor: primaryColor,
       interact: true,
       dragToSeek: true,
-      ...(peaks
-        ? { peaks: [peaks], duration }
-        : { url: url! })
+      ...(peaks ? { peaks: [peaks], duration } : { url: url! })
     })
 
     if (!peaks) {
@@ -102,7 +100,7 @@ export function Waveform(props: WaveformProps) {
   const isLoading = songId !== undefined ? loading && !peaks : loading
 
   return (
-    <div className='flex items-center gap-2 flex-1'>
+    <div className='flex items-center gap-2 flex-1 h-[32px]'>
       {audioRef && url && <audio ref={audioRef} preload='metadata' src={url} />}
       {showTime && (
         <span className='text-[10px] text-muted-foreground tabular-nums w-8 text-right'>
