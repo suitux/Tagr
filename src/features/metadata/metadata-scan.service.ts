@@ -390,6 +390,40 @@ export async function getDistinctValues(field: SongSortField): Promise<string[]>
     .sort((a, b) => a.localeCompare(b))
 }
 
+async function getMetadataSortedSongIds(
+  where: Record<string, unknown>,
+  metaKey: string,
+  sort: SongSortDirection,
+  skip?: number,
+  take?: number
+): Promise<number[]> {
+  // First, get the filtered song IDs using Prisma (preserves all filter logic)
+  const filteredSongs = await prisma.song.findMany({
+    where,
+    select: { id: true }
+  })
+
+  if (filteredSongs.length === 0) return []
+
+  const ids = filteredSongs.map(s => s.id)
+  const placeholders = ids.map(() => '?').join(',')
+  const direction = sort === 'desc' ? 'DESC' : 'ASC'
+
+  // Use raw SQL to sort by metadata value via LEFT JOIN
+  const query = `
+    SELECT s.id FROM songs s
+    LEFT JOIN song_metadata sm ON sm.song_id = s.id AND sm.key LIKE ?
+    WHERE s.id IN (${placeholders})
+    ORDER BY sm.value ${direction}
+    LIMIT ? OFFSET ?
+  `
+
+  const keyPattern = `%:${metaKey}`
+  const params = [keyPattern, ...ids, take ?? 50, skip ?? 0]
+  const rows = await prisma.$queryRawUnsafe<{ id: number }[]>(query, ...params)
+  return rows.map(r => r.id)
+}
+
 function hasMetadataFilters(filters?: SongColumnFilters): boolean {
   if (!filters) return false
   return Object.keys(filters).some(k => isMetadataColumnId(k))
@@ -493,36 +527,54 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
 export async function getSongsByFolder(
   folderPath: string | null,
   search?: string,
-  sortField?: SongSortField,
+  sortField?: ColumnField,
   sort?: SongSortDirection,
   skip?: number,
   take?: number,
   filters?: SongColumnFilters,
   metadataKeys?: string[]
 ): Promise<Song[]> {
-  const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
-
-  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
   const columnFilterConditions = buildColumnFiltersWhere(filters)
   const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
+  const isMetadataSort = sortField && isMetadataColumnId(sortField)
+
+  const where = {
+    ...(folderPath && { folderPath }),
+    ...(search && {
+      OR: [
+        { title: { contains: search } },
+        { artist: { contains: search } },
+        { publisher: { contains: search } },
+        { album: { contains: search } },
+        { fileName: { contains: search } },
+        { comment: { contains: search } }
+      ]
+    }),
+    ...(columnFilterConditions.length > 0 && {
+      AND: columnFilterConditions
+    })
+  }
+
+  if (isMetadataSort) {
+    const metaKey = getMetadataKeyFromColumnId(sortField)
+    const songIds = await getMetadataSortedSongIds(where, metaKey, sort ?? 'asc', skip, take)
+    if (songIds.length === 0) return []
+
+    const songs = await prisma.song.findMany({
+      where: { id: { in: songIds } },
+      ...(includeMetadata && { include: { metadata: true } })
+    })
+
+    const idOrder = new Map(songIds.map((id, i) => [id, i]))
+    songs.sort((a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0))
+    return songs
+  }
+
+  const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
+  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
 
   return prisma.song.findMany({
-    where: {
-      ...(folderPath && { folderPath }),
-      ...(search && {
-        OR: [
-          { title: { contains: search } },
-          { artist: { contains: search } },
-          { publisher: { contains: search } },
-          { album: { contains: search } },
-          { fileName: { contains: search } },
-          { comment: { contains: search } }
-        ]
-      }),
-      ...(columnFilterConditions.length > 0 && {
-        AND: columnFilterConditions
-      })
-    },
+    where,
     ...(includeMetadata && { include: { metadata: true } }),
     orderBy,
     skip,

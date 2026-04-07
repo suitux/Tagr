@@ -47,8 +47,7 @@ export function useSongColumns(metadataKeys: string[] = []): ColumnDef<Song>[] {
           <SortableHeader column={column} label={key} enableColumnFilter={true} />
         ),
         cell: ({ getValue }: { getValue: () => unknown }) => textCell(getValue() as string),
-        size: 140,
-        enableSorting: false
+        size: 140
       })),
     [metadataKeys]
   )

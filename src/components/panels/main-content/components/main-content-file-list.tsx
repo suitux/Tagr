@@ -6,8 +6,7 @@ import useColumnVisibility from '@/components/panels/main-content/components/col
 import { DataTable } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
-import { isMetadataColumnId, Song, SongSortField } from '@/features/songs/domain'
-import { getMetadataKeyFromColumnId } from '@/features/songs/domain'
+import { type ColumnField, getMetadataKeyFromColumnId, isMetadataColumnId, Song } from '@/features/songs/domain'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { useSongsList } from '@/features/songs/hooks/use-songs-list'
 import { useSelectedSong } from '@/hooks/use-selected-song'
@@ -57,7 +56,7 @@ export function MainContentFileList() {
         clearSorting()
       } else {
         const { id, desc } = newSorting[0]
-        setSorting(id as SongSortField, desc ? 'desc' : 'asc')
+        setSorting(id as ColumnField, desc ? 'desc' : 'asc')
       }
     },
     [tableSorting, setSorting, clearSorting]

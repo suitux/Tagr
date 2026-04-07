@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { ColumnField, SongColumnFilters, SongSortDirection, SongSortField } from '@/features/songs/domain'
+import type { ColumnField, SongColumnFilters, SongSortDirection } from '@/features/songs/domain'
 import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 
 export interface ScanSummaryResult {
@@ -18,7 +18,7 @@ interface HomeState {
   scanSummaryOpen: boolean
 
   setSearch: (value: string) => void
-  setSorting: (sortField: SongSortField, sort: SongSortDirection) => void
+  setSorting: (sortField: ColumnField, sort: SongSortDirection) => void
   clearSorting: () => void
   setColumnFilter: (field: ColumnField, value: string) => void
   setAllColumnFilters: (filters: SongColumnFilters) => void

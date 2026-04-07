@@ -1,6 +1,6 @@
 import { api } from '@/lib/axios'
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
-import { ALL_SONGS_FOLDER_ID, Song, SongColumnFilters, SongSortDirection, SongSortField } from '../domain'
+import { ALL_SONGS_FOLDER_ID, ColumnField, Song, SongColumnFilters, SongSortDirection } from '../domain'
 
 const PAGE_SIZE = 50
 
@@ -19,7 +19,7 @@ interface SongsErrorResponse {
 type SongsResponse = SongsSuccessResponse | SongsErrorResponse
 
 export interface SongsSortParams {
-  sortField?: SongSortField
+  sortField?: ColumnField
   sort?: SongSortDirection
 }
 
