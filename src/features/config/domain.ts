@@ -1,9 +1,9 @@
-import { SongSortField } from '@/features/songs/domain'
+import { ColumnField } from '@/features/songs/domain'
 
 export type ConfigKey = 'columnVisibility' | 'dismissedVersion' | 'starPromptDismissed'
 
 export type ColumnVisibilityState = {
-  [key in SongSortField]: boolean
+  [key in ColumnField]: boolean
 }
 
 export const DEFAULT_VISIBLE_COLUMNS: ColumnVisibilityState = {

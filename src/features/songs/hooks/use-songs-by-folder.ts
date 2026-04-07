@@ -29,7 +29,8 @@ async function fetchSongsByFolder(
   sorting?: SongsSortParams,
   filters?: SongColumnFilters,
   limit?: number,
-  offset?: number
+  offset?: number,
+  metadataKeys?: string[]
 ): Promise<SongsResponse> {
   const isAll = folderPath === ALL_SONGS_FOLDER_ID
 
@@ -45,7 +46,8 @@ async function fetchSongsByFolder(
     search,
     ...sorting,
     limit,
-    offset
+    offset,
+    ...(metadataKeys && metadataKeys.length > 0 && { metadataKeys: metadataKeys.join(',') })
   }
 
   if (filters) {
@@ -65,18 +67,23 @@ export const getUseSongsByFolderQueryKey = (
   folderPath: string | undefined,
   search?: string,
   sorting?: SongsSortParams,
-  filters?: SongColumnFilters
-) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort, filters]
+  filters?: SongColumnFilters,
+  metadataKeys?: string[]
+) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort, filters, metadataKeys]
 
-export function useSongsByFolder(
-  folderPath: string | undefined,
-  search?: string,
-  sorting?: SongsSortParams,
+interface UseSongsByFolderParams {
+  folderPath: string | undefined
+  search?: string
+  sorting?: SongsSortParams
   filters?: SongColumnFilters
-) {
+  metadataKeys?: string[]
+}
+
+export function useSongsByFolder({ folderPath, search, sorting, filters, metadataKeys }: UseSongsByFolderParams) {
   return useInfiniteQuery({
-    queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting, filters),
-    queryFn: ({ pageParam = 0 }) => fetchSongsByFolder(folderPath!, search, sorting, filters, PAGE_SIZE, pageParam),
+    queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting, filters, metadataKeys),
+    queryFn: ({ pageParam = 0 }) =>
+      fetchSongsByFolder(folderPath!, search, sorting, filters, PAGE_SIZE, pageParam, metadataKeys),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       if (!lastPage.success) return undefined

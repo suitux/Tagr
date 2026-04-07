@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
+import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import type { UserRole } from '@/features/users/domain'
 import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import type { SongMetadata } from '@/generated/prisma/client'
@@ -16,11 +17,6 @@ import { AddCustomTagForm } from './components/add-custom-tag-form'
 interface DetailPanelCustomMetadataSectionProps {
   songId: number
   metadata: SongMetadata[]
-}
-
-function stripKeyPrefix(key: string): string {
-  const parts = key.split(':')
-  return parts[parts.length - 1].toUpperCase()
 }
 
 function deduplicateMetadata(metadata: SongMetadata[]): { key: string; value: string | null }[] {

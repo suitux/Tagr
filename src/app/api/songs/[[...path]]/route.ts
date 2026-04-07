@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getSongsByFolder, countSongsByFolder, PAGE_SIZE } from '@/features/metadata/metadata-scan.service'
-import { Song, SongColumnFilters, SongSortField, SongSortDirection } from '@/features/songs/domain'
+import { ColumnField, Song, SongColumnFilters, SongSortField, SongSortDirection } from '@/features/songs/domain'
 import { getSearchParam } from '@/lib/api/search-params'
 
 interface RouteParams {
@@ -34,10 +34,13 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   const limit = getSearchParam(searchParams, 'limit', 'number', PAGE_SIZE)
   const offset = getSearchParam(searchParams, 'offset', 'number', 0)
 
+  const metadataKeysParam = getSearchParam(searchParams, 'metadataKeys', 'string', '') || undefined
+  const metadataKeys = metadataKeysParam ? metadataKeysParam.split(',').filter(Boolean) : undefined
+
   const filters: SongColumnFilters = {}
   for (const [key, value] of searchParams.entries()) {
     if (key.startsWith('filter.') && value) {
-      const field = key.slice(7) as SongSortField
+      const field = key.slice(7) as ColumnField
       filters[field] = value
     }
   }
@@ -45,7 +48,7 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
 
   try {
     const [songs, totalFiles] = await Promise.all([
-      getSongsByFolder(folderPath, search, sortFieldParam, sortParam, offset, limit, hasFilters ? filters : undefined),
+      getSongsByFolder(folderPath, search, sortFieldParam, sortParam, offset, limit, hasFilters ? filters : undefined, metadataKeys),
       countSongsByFolder(folderPath, search, hasFilters ? filters : undefined)
     ])
 

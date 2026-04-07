@@ -12,16 +12,21 @@ import {
 import { ScanMode } from '@/features/scan/domain'
 import {
   BOOLEAN_SONG_FIELDS,
+  ColumnField,
   DATE_SONG_FIELDS,
   DURATION_SONG_FIELDS,
+  METADATA_COLUMN_PREFIX,
   MULTI_VALUE_SEPARATOR,
   NUMERIC_SONG_FIELDS,
   SELECT_SONG_FIELDS,
   Song,
   SongColumnFilters,
   SongSortDirection,
-  SongSortField
+  SongSortField,
+  getMetadataKeyFromColumnId,
+  isMetadataColumnId
 } from '@/features/songs/domain'
+import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { parseDate } from '@/lib/date'
@@ -385,12 +390,47 @@ export async function getDistinctValues(field: SongSortField): Promise<string[]>
     .sort((a, b) => a.localeCompare(b))
 }
 
+function hasMetadataFilters(filters?: SongColumnFilters): boolean {
+  if (!filters) return false
+  return Object.keys(filters).some(k => isMetadataColumnId(k))
+}
+
+export async function getDistinctMetadataKeys(): Promise<string[]> {
+  const rows = await prisma.songMetadata.findMany({
+    distinct: ['key'],
+    select: { key: true }
+  })
+  const keys = [...new Set(rows.map(r => stripKeyPrefix(r.key)))].sort()
+  return keys
+}
+
 function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, unknown>[] {
   if (!filters) return []
   const conditions: Record<string, unknown>[] = []
 
   for (const [field, value] of Object.entries(filters)) {
     if (!value) continue
+    const columnField = field as ColumnField
+
+    if (isMetadataColumnId(columnField)) {
+      const metaKey = getMetadataKeyFromColumnId(columnField)
+      const values = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      const metaConditions = values.map(v => ({
+        metadata: {
+          some: {
+            key: { endsWith: `:${metaKey}` },
+            value: { contains: v }
+          }
+        }
+      }))
+      if (metaConditions.length === 1) {
+        conditions.push(metaConditions[0])
+      } else if (metaConditions.length > 1) {
+        conditions.push({ OR: metaConditions })
+      }
+      continue
+    }
+
     const songField = field as SongSortField
 
     if (DATE_SONG_FIELDS.has(songField)) {
@@ -457,12 +497,14 @@ export async function getSongsByFolder(
   sort?: SongSortDirection,
   skip?: number,
   take?: number,
-  filters?: SongColumnFilters
+  filters?: SongColumnFilters,
+  metadataKeys?: string[]
 ): Promise<Song[]> {
   const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
 
   const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
   const columnFilterConditions = buildColumnFiltersWhere(filters)
+  const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
 
   return prisma.song.findMany({
     where: {
@@ -481,6 +523,7 @@ export async function getSongsByFolder(
         AND: columnFilterConditions
       })
     },
+    ...(includeMetadata && { include: { metadata: true } }),
     orderBy,
     skip,
     take

@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { ColumnVisibilityState } from '@/features/config/domain'
-import { SongSortField } from '@/features/songs/domain'
+import { ColumnField, getMetadataKeyFromColumnId, isMetadataColumnId } from '@/features/songs/domain'
 import type { ColumnDef } from '@tanstack/react-table'
 
 interface ColumnSelectorProps<TData> {
@@ -37,7 +37,7 @@ function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityCh
 
     return hideableColumns.filter(col => {
       const id = col.id ?? (col as { accessorKey?: string }).accessorKey ?? ''
-      const label = t(id as Parameters<typeof t>[0])
+      const label = isMetadataColumnId(id) ? getMetadataKeyFromColumnId(id) : t(id as Parameters<typeof t>[0])
       return label.toLowerCase().includes(query) || id.toLowerCase().includes(query)
     })
   }, [hideableColumns, search, t])
@@ -68,14 +68,15 @@ function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityCh
         <DropdownMenuSeparator />
         <div className='max-h-64 overflow-y-auto'>
           {filteredColumns.map(col => {
-            const id = col.id as SongSortField
+            const id = col.id as ColumnField
+            const label = isMetadataColumnId(id) ? getMetadataKeyFromColumnId(id) : t(id as Parameters<typeof t>[0])
             return (
               <DropdownMenuCheckboxItem
                 key={id}
                 checked={columnVisibility?.[id]}
                 onCheckedChange={value => onColumnVisibilityChange({ ...columnVisibility, [id]: value })}
                 onSelect={e => e.preventDefault()}>
-                {t(id as Parameters<typeof t>[0])}
+                {label}
               </DropdownMenuCheckboxItem>
             )
           })}

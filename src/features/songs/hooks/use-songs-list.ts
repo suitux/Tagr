@@ -4,7 +4,11 @@ import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useHomeStore } from '@/stores/home-store'
 import { useSongsByFolder } from './use-songs-by-folder'
 
-export function useSongsList() {
+interface UseSongsListParams {
+  metadataKeys?: string[]
+}
+
+export function useSongsList(params?: UseSongsListParams) {
   const { selectedFolderId } = useSelectedFolder()
   const search = useHomeStore(s => s.search)
   const sorting = useHomeStore(s => s.sorting)
@@ -13,12 +17,13 @@ export function useSongsList() {
   const activeFilterEntries = Object.entries(columnFilters).filter(([, v]) => v)
   const activeFilters = activeFilterEntries.length > 0 ? Object.fromEntries(activeFilterEntries) : undefined
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder(
-    selectedFolderId ?? undefined,
-    search || undefined,
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder({
+    folderPath: selectedFolderId,
+    search,
     sorting,
-    activeFilters
-  )
+    filters: activeFilters,
+    metadataKeys: params?.metadataKeys
+  })
 
   const songs = data?.pages.flatMap(page => (page.success ? page.files : [])) ?? []
   const totalSongs = (data?.pages[0]?.success === true && data?.pages[0]?.totalFiles) || null
