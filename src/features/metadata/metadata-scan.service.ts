@@ -390,6 +390,31 @@ export async function getDistinctValues(field: SongSortField): Promise<string[]>
     .sort((a, b) => a.localeCompare(b))
 }
 
+async function sortIdsByMetadataValue(
+  ids: number[],
+  metaKey: string,
+  sort: SongSortDirection,
+  limit?: number,
+  offset?: number
+): Promise<number[]> {
+  const placeholders = ids.map(() => '?').join(',')
+  const direction = sort === 'desc' ? 'DESC' : 'ASC'
+  const escapedKey = metaKey.replace(/%/g, '\\%').replace(/_/g, '\\_')
+  const hasLimit = limit != null && offset != null
+
+  const query = `
+    SELECT s.id FROM songs s
+    LEFT JOIN song_metadata sm ON sm.song_id = s.id AND sm.key LIKE ?
+    WHERE s.id IN (${placeholders})
+    ORDER BY sm.value ${direction}
+    ${hasLimit ? 'LIMIT ? OFFSET ?' : ''}
+  `
+
+  const params = [`%:${escapedKey}`, ...ids, ...(hasLimit ? [limit, offset] : [])]
+  const rows = await prisma.$queryRawUnsafe<{ id: number }[]>(query, ...params)
+  return rows.map(r => r.id)
+}
+
 async function getMetadataSortedSongIds(
   where: Record<string, unknown>,
   metaKey: string,
@@ -397,7 +422,6 @@ async function getMetadataSortedSongIds(
   skip?: number,
   take?: number
 ): Promise<number[]> {
-  // First, get the filtered song IDs using Prisma (preserves all filter logic)
   const filteredSongs = await prisma.song.findMany({
     where,
     select: { id: true }
@@ -405,23 +429,7 @@ async function getMetadataSortedSongIds(
 
   if (filteredSongs.length === 0) return []
 
-  const ids = filteredSongs.map(s => s.id)
-  const placeholders = ids.map(() => '?').join(',')
-  const direction = sort === 'desc' ? 'DESC' : 'ASC'
-
-  // Use raw SQL to sort by metadata value via LEFT JOIN
-  const query = `
-    SELECT s.id FROM songs s
-    LEFT JOIN song_metadata sm ON sm.song_id = s.id AND sm.key LIKE ?
-    WHERE s.id IN (${placeholders})
-    ORDER BY sm.value ${direction}
-    LIMIT ? OFFSET ?
-  `
-
-  const keyPattern = `%:${metaKey}`
-  const params = [keyPattern, ...ids, take ?? 50, skip ?? 0]
-  const rows = await prisma.$queryRawUnsafe<{ id: number }[]>(query, ...params)
-  return rows.map(r => r.id)
+  return sortIdsByMetadataValue(filteredSongs.map(s => s.id), metaKey, sort, take ?? 50, skip ?? 0)
 }
 
 function hasMetadataFilters(filters?: SongColumnFilters): boolean {
@@ -613,13 +621,12 @@ export async function getAdjacentSongs(
   songId: number,
   folderPath: string | null,
   search?: string,
-  sortField?: SongSortField,
+  sortField?: ColumnField,
   sort?: SongSortDirection,
   filters?: SongColumnFilters
 ): Promise<{ previous: Song | null; next: Song | null }> {
-  const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
-  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
   const columnFilterConditions = buildColumnFiltersWhere(filters)
+  const isMetadataSort = sortField && isMetadataColumnId(sortField)
 
   const where = {
     ...(folderPath && { folderPath }),
@@ -638,12 +645,20 @@ export async function getAdjacentSongs(
     })
   }
 
-  // Get all IDs in order to find position of current song
-  const orderedIds = await prisma.song.findMany({
-    where,
-    orderBy,
-    select: { id: true }
-  })
+  let orderedIds: { id: number }[]
+
+  if (isMetadataSort) {
+    const metaKey = getMetadataKeyFromColumnId(sortField)
+    const filteredSongs = await prisma.song.findMany({ where, select: { id: true } })
+    if (filteredSongs.length === 0) return { previous: null, next: null }
+
+    const sortedIds = await sortIdsByMetadataValue(filteredSongs.map(s => s.id), metaKey, sort ?? 'asc')
+    orderedIds = sortedIds.map(id => ({ id }))
+  } else {
+    const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
+    const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+    orderedIds = await prisma.song.findMany({ where, orderBy, select: { id: true } })
+  }
 
   const currentIndex = orderedIds.findIndex(s => s.id === songId)
   if (currentIndex === -1) {
