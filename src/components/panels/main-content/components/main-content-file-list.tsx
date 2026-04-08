@@ -2,6 +2,7 @@
 
 import { LoaderCircle } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
+import { useTranslations } from 'next-intl'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
 import { DataTable } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
@@ -10,6 +11,7 @@ import { type ColumnField, getMetadataKeyFromColumnId, isMetadataColumnId, Song 
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { useSongsList } from '@/features/songs/hooks/use-songs-list'
 import { useSelectedSong } from '@/hooks/use-selected-song'
+import { cn } from '@/lib/utils'
 import { useHomeStore } from '@/stores/home-store'
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns } from './columns/columns'
@@ -19,6 +21,7 @@ import { MainContentNoFilterResults } from './main-content-no-filter-results'
 import { SavedFiltersDropdown } from './saved-filters-dropdown'
 
 export function MainContentFileList() {
+  const tCommon = useTranslations('common')
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
   const sorting = useHomeStore(s => s.sorting)
   const setSorting = useHomeStore(s => s.setSorting)
@@ -35,7 +38,7 @@ export function MainContentFileList() {
     .map(e => getMetadataKeyFromColumnId(e[0]))
   const activeColumnsCount = Object.values(columnVisibility || {}).filter(Boolean).length
 
-  const { songs, isLoadingSongs, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsList({
+  const { songs, isLoadingSongs, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsList({
     metadataKeys: activeExtraMetadataColumns
   })
   const { mutate: updateConfig } = useUpdateConfig({ parser: genericJsonObjectParser })
@@ -74,14 +77,21 @@ export function MainContentFileList() {
 
   return (
     <div className='pt-4 px-2 md:px-4 flex flex-col overflow-hidden flex-1'>
-      <div className='flex justify-end gap-2 mb-2'>
-        <SavedFiltersDropdown />
-        <ColumnSelector
-          columns={columns}
-          columnVisibility={columnVisibility!}
-          onColumnVisibilityChange={setColumnVisibility}
-        />
+      <div className='flex justify-between mb-2'>
+        <div className={cn('flex items-center justify-center py-1.5 gap-2', { invisible: !isRefetching })}>
+          <LoaderCircle className='h-4 w-4 animate-spin text-muted-foreground' />
+          {tCommon('loading')}
+        </div>
+        <div className={'flex gap-2'}>
+          <SavedFiltersDropdown />
+          <ColumnSelector
+            columns={columns}
+            columnVisibility={columnVisibility!}
+            onColumnVisibilityChange={setColumnVisibility}
+          />
+        </div>
       </div>
+
       <DataTable
         columns={columns}
         data={songs}

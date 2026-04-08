@@ -17,7 +17,7 @@ export function useSongsList(params?: UseSongsListParams) {
   const activeFilterEntries = Object.entries(columnFilters).filter(([, v]) => v)
   const activeFilters = activeFilterEntries.length > 0 ? Object.fromEntries(activeFilterEntries) : undefined
 
-  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder({
+  const { data, isLoading, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsByFolder({
     folderPath: selectedFolderId,
     search,
     sorting,
@@ -32,6 +32,7 @@ export function useSongsList(params?: UseSongsListParams) {
     songs,
     totalSongs,
     isLoadingSongs: isLoading,
+    isRefetching: isRefetching,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage
