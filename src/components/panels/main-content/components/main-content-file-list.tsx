@@ -10,6 +10,7 @@ import { genericJsonObjectParser } from '@/features/config/parsers'
 import { type ColumnField, getMetadataKeyFromColumnId, isMetadataColumnId, Song } from '@/features/songs/domain'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { useSongsList } from '@/features/songs/hooks/use-songs-list'
+import { useDelayedLoading } from '@/hooks/use-delayed-loading'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
 import { useHomeStore } from '@/stores/home-store'
@@ -38,9 +39,19 @@ export function MainContentFileList() {
     .map(e => getMetadataKeyFromColumnId(e[0]))
   const activeColumnsCount = Object.values(columnVisibility || {}).filter(Boolean).length
 
-  const { songs, isLoadingSongs, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsList({
+  const {
+    songs,
+    isLoadingSongs,
+    isRefetching: isRefetchingSongs,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage
+  } = useSongsList({
     metadataKeys: activeExtraMetadataColumns
   })
+
+  const showLoading = useDelayedLoading(isRefetchingSongs)
+
   const { mutate: updateConfig } = useUpdateConfig({ parser: genericJsonObjectParser })
 
   const setColumnVisibility = (value: VisibilityState) => {
@@ -78,7 +89,7 @@ export function MainContentFileList() {
   return (
     <div className='pt-4 px-2 md:px-4 flex flex-col overflow-hidden flex-1'>
       <div className='flex justify-between mb-2'>
-        <div className={cn('flex items-center justify-center py-1.5 gap-2', { invisible: !isRefetching })}>
+        <div className={cn('flex items-center justify-center py-1.5 gap-2', { invisible: !showLoading })}>
           <LoaderCircle className='h-4 w-4 animate-spin text-muted-foreground' />
           {tCommon('loading')}
         </div>
