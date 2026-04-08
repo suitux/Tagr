@@ -191,7 +191,9 @@
     "emptyValue": "—"
   },
   "columns": {
-    "toggleColumns": "Columns"
+    "toggleColumns": "Columns",
+    "genericTags": "Generic Tags",
+    "customTags": "Custom Tags"
   },
   "previewCard": {
     "play": "Play",
