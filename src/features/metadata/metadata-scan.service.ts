@@ -578,7 +578,7 @@ export async function getSongsByFolder(
     return songs
   }
 
-  const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
+  const defaultOrder = [{ title: 'asc' as const }]
   const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
 
   return prisma.song.findMany({
@@ -655,7 +655,7 @@ export async function getAdjacentSongs(
     const sortedIds = await sortIdsByMetadataValue(filteredSongs.map(s => s.id), metaKey, sort ?? 'asc')
     orderedIds = sortedIds.map(id => ({ id }))
   } else {
-    const defaultOrder = [{ trackNumber: 'asc' as const }, { fileName: 'asc' as const }]
+    const defaultOrder = [{ title: 'asc' as const }]
     const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
     orderedIds = await prisma.song.findMany({ where, orderBy, select: { id: true } })
   }
