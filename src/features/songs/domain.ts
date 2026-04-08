@@ -52,9 +52,22 @@ export type SongSortField =
   | 'playCount'
 export type SongSortDirection = 'asc' | 'desc'
 
-export type SongColumnFilters = Partial<Record<SongSortField, string>>
+export const METADATA_COLUMN_PREFIX = 'meta:'
 
-export const NUMERIC_SONG_FIELDS: Set<SongSortField> = new Set([
+export type MetadataColumnId = `meta:${string}`
+export type ColumnField = SongSortField | MetadataColumnId
+
+export function isMetadataColumnId(id: ColumnField | string): id is MetadataColumnId {
+  return id.startsWith(METADATA_COLUMN_PREFIX)
+}
+
+export function getMetadataKeyFromColumnId(id: MetadataColumnId | string): string {
+  return id.slice(METADATA_COLUMN_PREFIX.length)
+}
+
+export type SongColumnFilters = Partial<Record<ColumnField, string>>
+
+export const NUMERIC_SONG_FIELDS: Set<ColumnField> = new Set([
   'trackNumber',
   'trackTotal',
   'discNumber',
@@ -70,11 +83,11 @@ export const NUMERIC_SONG_FIELDS: Set<SongSortField> = new Set([
   'fileSize'
 ])
 
-export const DURATION_SONG_FIELDS: Set<SongSortField> = new Set(['duration'])
+export const DURATION_SONG_FIELDS: Set<ColumnField> = new Set(['duration'])
 
-export const BOOLEAN_SONG_FIELDS: Set<SongSortField> = new Set(['compilation'])
+export const BOOLEAN_SONG_FIELDS: Set<ColumnField> = new Set(['compilation'])
 
-export const SELECT_SONG_FIELDS: Set<SongSortField> = new Set([
+export const SELECT_SONG_FIELDS: Set<ColumnField> = new Set([
   'genre',
   'publisher',
   'albumArtist',
@@ -84,7 +97,7 @@ export const SELECT_SONG_FIELDS: Set<SongSortField> = new Set([
   'encoder'
 ])
 
-export const DATE_SONG_FIELDS: Set<SongSortField> = new Set([
+export const DATE_SONG_FIELDS: Set<ColumnField> = new Set([
   'dateAdded',
   'lastPlayed',
   'modifiedAt',

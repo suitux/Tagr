@@ -2,6 +2,7 @@ import { ArrowDown, ArrowUp, ArrowUpDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
   BOOLEAN_SONG_FIELDS,
+  type ColumnField,
   DATE_SONG_FIELDS,
   DURATION_SONG_FIELDS,
   SELECT_SONG_FIELDS,
@@ -31,7 +32,7 @@ export function SortableHeader<TData>({
   enableColumnFilter = true
 }: SortableHeaderProps<TData>) {
   const sorted = column.getIsSorted()
-  const field = column.id as SongSortField
+  const field = column.id as ColumnField
   const isDateField = DATE_SONG_FIELDS.has(field)
   const isDurationField = DURATION_SONG_FIELDS.has(field)
   const isBooleanField = BOOLEAN_SONG_FIELDS.has(field)
@@ -58,13 +59,13 @@ export function SortableHeader<TData>({
       </Button>
       {enableColumnFilter &&
         (isDateField ? (
-          <DateFilterInput field={field} />
+          <DateFilterInput field={field as SongSortField} />
         ) : isDurationField ? (
-          <DurationFilterInput field={field} />
+          <DurationFilterInput field={field as SongSortField} />
         ) : isBooleanField ? (
-          <BooleanFilterInput field={field} />
+          <BooleanFilterInput field={field as SongSortField} />
         ) : isSelectField ? (
-          <SelectFilterInput field={field} />
+          <SelectFilterInput field={field as SongSortField} />
         ) : (
           <TagFilterInput field={field} />
         ))}

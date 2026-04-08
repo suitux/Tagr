@@ -1,11 +1,13 @@
 'use client'
 
 import { ClockIcon } from 'lucide-react'
+import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import NameCell from '@/components/panels/main-content/components/columns/components/name-cell'
-import { ColumnVisibilityState } from '@/features/config/domain'
 import type { Song } from '@/features/songs/domain'
-import type { ColumnDef } from '@tanstack/react-table'
+import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
+import type { SongMetadata } from '@/generated/prisma/client'
+import type { Column, ColumnDef } from '@tanstack/react-table'
 import { formatDate, formatDuration, formatFileSize } from '../../utils'
 import { SortableHeader } from './components/sortable-header'
 
@@ -28,8 +30,27 @@ const dateCell = (value: Date | null | undefined) => (
   </div>
 )
 
-export function useSongColumns(): ColumnDef<Song>[] {
+export function useSongColumns(metadataKeys: string[] = []): ColumnDef<Song>[] {
   const t = useTranslations('fields')
+
+  const metadataColumns: ColumnDef<Song>[] = useMemo(
+    () =>
+      metadataKeys.map(key => ({
+        id: `meta:${key}` as string,
+        accessorFn: (song: Song) => {
+          const meta = (song as Song & { metadata?: SongMetadata[] }).metadata
+          if (!meta) return ''
+          const entry = meta.find(m => stripKeyPrefix(m.key) === key)
+          return entry?.value ?? ''
+        },
+        header: ({ column }: { column: Column<Song> }) => (
+          <SortableHeader column={column} label={key} enableColumnFilter={true} />
+        ),
+        cell: ({ getValue }: { getValue: () => unknown }) => textCell(getValue() as string),
+        size: 140
+      })),
+    [metadataKeys]
+  )
 
   return [
     // --- Name (always visible, not hideable) ---
@@ -324,6 +345,7 @@ export function useSongColumns(): ColumnDef<Song>[] {
       header: ({ column }) => <SortableHeader column={column} label={t('fileName')} />,
       cell: ({ row }) => textCell(row.original.fileName),
       size: 200
-    }
+    },
+    ...metadataColumns
   ]
 }

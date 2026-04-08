@@ -6,7 +6,8 @@ import useColumnVisibility from '@/components/panels/main-content/components/col
 import { DataTable } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
-import type { Song, SongSortField } from '@/features/songs/domain'
+import { type ColumnField, getMetadataKeyFromColumnId, isMetadataColumnId, Song } from '@/features/songs/domain'
+import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { useSongsList } from '@/features/songs/hooks/use-songs-list'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useHomeStore } from '@/stores/home-store'
@@ -19,16 +20,24 @@ import { SavedFiltersDropdown } from './saved-filters-dropdown'
 
 export function MainContentFileList() {
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
-  const { songs, isLoadingSongs, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsList()
   const sorting = useHomeStore(s => s.sorting)
   const setSorting = useHomeStore(s => s.setSorting)
   const clearSorting = useHomeStore(s => s.clearSorting)
   const columnFilters = useHomeStore(s => s.columnFilters)
   const search = useHomeStore(s => s.search)
   const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
-  const columns = useSongColumns()
+  const { data: metadataKeys = [] } = useMetadataKeys()
+  const columns = useSongColumns(metadataKeys)
+  const { data: columnVisibility } = useColumnVisibility({ columns })
 
-  const { data: columnVisibility } = useColumnVisibility()
+  const activeExtraMetadataColumns = Object.entries(columnVisibility || {})
+    .filter(e => e[1] && isMetadataColumnId(e[0]))
+    .map(e => getMetadataKeyFromColumnId(e[0]))
+  const activeColumnsCount = Object.values(columnVisibility || {}).filter(Boolean).length
+
+  const { songs, isLoadingSongs, fetchNextPage, hasNextPage, isFetchingNextPage } = useSongsList({
+    metadataKeys: activeExtraMetadataColumns
+  })
   const { mutate: updateConfig } = useUpdateConfig({ parser: genericJsonObjectParser })
 
   const setColumnVisibility = (value: VisibilityState) => {
@@ -47,7 +56,7 @@ export function MainContentFileList() {
         clearSorting()
       } else {
         const { id, desc } = newSorting[0]
-        setSorting(id as SongSortField, desc ? 'desc' : 'asc')
+        setSorting(id as ColumnField, desc ? 'desc' : 'asc')
       }
     },
     [tableSorting, setSorting, clearSorting]
@@ -88,7 +97,7 @@ export function MainContentFileList() {
           setColumnVisibility(value as VisibilityState)
         }}
         onScrollEnd={handleScrollEnd}
-        EmptyStateComponent={MainContentNoFilterResults}
+        EmptyStateComponent={() => <MainContentNoFilterResults activeColumnsCount={activeColumnsCount} />}
       />
       {isFetchingNextPage && (
         <div className='flex items-center justify-center py-3'>

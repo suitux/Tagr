@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { InputGroup, InputGroupAddon, InputGroupInput } from '@/components/ui/input-group'
 import { ColumnVisibilityState } from '@/features/config/domain'
-import { SongSortField } from '@/features/songs/domain'
+import { ColumnField, getMetadataKeyFromColumnId, isMetadataColumnId } from '@/features/songs/domain'
 import type { ColumnDef } from '@tanstack/react-table'
 
 interface ColumnSelectorProps<TData> {
@@ -31,16 +31,39 @@ function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityCh
 
   const hideableColumns = columns.filter(col => col.enableHiding !== false)
 
-  const filteredColumns = useMemo(() => {
-    if (!search) return hideableColumns
-    const query = search.toLowerCase()
+  const { standardColumns, metadataColumns } = useMemo(() => {
+    const standard: typeof hideableColumns = []
+    const metadata: typeof hideableColumns = []
+    for (const col of hideableColumns) {
+      const id = col.id ?? (col as { accessorKey?: string }).accessorKey ?? ''
+      if (isMetadataColumnId(id)) {
+        metadata.push(col)
+      } else {
+        standard.push(col)
+      }
+    }
+    return { standardColumns: standard, metadataColumns: metadata }
+  }, [hideableColumns])
 
-    return hideableColumns.filter(col => {
+  const filteredStandard = useMemo(() => {
+    if (!search) return standardColumns
+    const query = search.toLowerCase()
+    return standardColumns.filter(col => {
       const id = col.id ?? (col as { accessorKey?: string }).accessorKey ?? ''
       const label = t(id as Parameters<typeof t>[0])
       return label.toLowerCase().includes(query) || id.toLowerCase().includes(query)
     })
-  }, [hideableColumns, search, t])
+  }, [standardColumns, search, t])
+
+  const filteredMetadata = useMemo(() => {
+    if (!search) return metadataColumns
+    const query = search.toLowerCase()
+    return metadataColumns.filter(col => {
+      const id = col.id ?? ''
+      const label = isMetadataColumnId(id) ? getMetadataKeyFromColumnId(id) : id
+      return label.toLowerCase().includes(query) || id.toLowerCase().includes(query)
+    })
+  }, [metadataColumns, search])
 
   return (
     <DropdownMenu onOpenChange={open => !open && setSearch('')}>
@@ -67,18 +90,42 @@ function ColumnSelector<TData>({ columns, columnVisibility, onColumnVisibilityCh
         </div>
         <DropdownMenuSeparator />
         <div className='max-h-64 overflow-y-auto'>
-          {filteredColumns.map(col => {
-            const id = col.id as SongSortField
-            return (
-              <DropdownMenuCheckboxItem
-                key={id}
-                checked={columnVisibility?.[id]}
-                onCheckedChange={value => onColumnVisibilityChange({ ...columnVisibility, [id]: value })}
-                onSelect={e => e.preventDefault()}>
-                {t(id as Parameters<typeof t>[0])}
-              </DropdownMenuCheckboxItem>
-            )
-          })}
+          {filteredStandard.length > 0 && (
+            <>
+              <DropdownMenuLabel className='text-xs text-muted-foreground'>{tColumns('genericTags')}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {filteredStandard.map(col => {
+                const id = col.id as ColumnField
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={id}
+                    checked={columnVisibility?.[id]}
+                    onCheckedChange={value => onColumnVisibilityChange({ ...columnVisibility, [id]: value })}
+                    onSelect={e => e.preventDefault()}>
+                    {t(id as Parameters<typeof t>[0])}
+                  </DropdownMenuCheckboxItem>
+                )
+              })}
+            </>
+          )}
+          {filteredMetadata.length > 0 && (
+            <>
+              <DropdownMenuLabel className='text-xs text-muted-foreground'>{tColumns('customTags')}</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              {filteredMetadata.map(col => {
+                const id = col.id as ColumnField
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={id}
+                    checked={columnVisibility?.[id]}
+                    onCheckedChange={value => onColumnVisibilityChange({ ...columnVisibility, [id]: value })}
+                    onSelect={e => e.preventDefault()}>
+                    {getMetadataKeyFromColumnId(id)}
+                  </DropdownMenuCheckboxItem>
+                )
+              })}
+            </>
+          )}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
