@@ -12,13 +12,21 @@ import { FolderListHeader } from './components/folder-list-header'
 import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
+import { SmartPlaylistsSection } from './components/smart-playlists/smart-playlists-section'
 
 interface FolderListProps {
   onFolderSelect?: (folderId: string | null) => void
   selectedFolderId?: string | null
+  onPlaylistSelect?: (playlistId: number | null) => void
+  selectedPlaylistId?: number | null
 }
 
-export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps) {
+export function FolderList({
+  onFolderSelect,
+  selectedFolderId,
+  onPlaylistSelect,
+  selectedPlaylistId
+}: FolderListProps) {
   const [search, setSearch] = useState('')
   const [isExpanded, setIsExpanded] = useState(true)
 
@@ -44,6 +52,13 @@ export function FolderList({ onFolderSelect, selectedFolderId }: FolderListProps
 
       <ScrollArea className='flex-1 min-h-0'>
         <div className='p-2'>
+          {!hasSearch && onPlaylistSelect && (
+            <SmartPlaylistsSection
+              selectedPlaylistId={selectedPlaylistId ?? null}
+              onPlaylistSelect={onPlaylistSelect}
+            />
+          )}
+
           {!hasSearch && (
             <AllFoldersListItem
               isExpanded={isExpanded}

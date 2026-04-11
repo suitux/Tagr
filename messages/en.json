@@ -349,5 +349,53 @@
     "userDeleted": "User deleted",
     "cancel": "Cancel",
     "save": "Save"
+  },
+  "smartPlaylists": {
+    "title": "Smart Playlists",
+    "newPlaylist": "New smart playlist",
+    "publicHeader": "Public Smart Playlists",
+    "publicBadge": "Public",
+    "empty": "No smart playlists yet",
+    "confirmDelete": "Delete smart playlist \"{name}\"?",
+    "viewing": {
+      "label": "Smart Playlist"
+    },
+    "create": {
+      "title": "Create smart playlist",
+      "description": "Define rules to automatically include songs that match any field.",
+      "name": "Name",
+      "namePlaceholder": "My smart playlist",
+      "isPublic": "Make this playlist visible to other users",
+      "matchLabel": "Match",
+      "matchAll": "Match all rules (AND)",
+      "matchAny": "Match any rule (OR)",
+      "rulesLabel": "Rules",
+      "addRule": "Add rule",
+      "standardFields": "Song fields",
+      "customFields": "Custom metadata",
+      "valuePlaceholder": "Value"
+    },
+    "edit": {
+      "title": "Edit smart playlist"
+    },
+    "operators": {
+      "equals": "equals",
+      "notEquals": "not equals",
+      "contains": "contains",
+      "notContains": "does not contain",
+      "startsWith": "starts with",
+      "endsWith": "ends with",
+      "isEmpty": "is empty",
+      "isNotEmpty": "is not empty",
+      "gt": "greater than",
+      "gte": "greater than or equal",
+      "lt": "less than",
+      "lte": "less than or equal",
+      "before": "before",
+      "after": "after",
+      "on": "on",
+      "isTrue": "is true",
+      "isFalse": "is false"
+    }
   }
 }

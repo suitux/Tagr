@@ -26,6 +26,8 @@ import {
   getMetadataKeyFromColumnId,
   isMetadataColumnId
 } from '@/features/songs/domain'
+import { buildSmartPlaylistWhere, rulesUseMetadata } from '@/features/smart-playlists/smart-playlist-query.service'
+import type { SmartPlaylistRules } from '@/features/smart-playlists/domain'
 import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
@@ -726,4 +728,81 @@ export async function rescanSongFileAndSaveIntoDb(songId: number) {
       pictures: true
     }
   })
+}
+
+function buildPlaylistWhereClause(
+  rules: SmartPlaylistRules,
+  search?: string,
+  filters?: SongColumnFilters
+): Record<string, unknown> {
+  const playlistCondition = buildSmartPlaylistWhere(rules)
+  const columnFilterConditions = buildColumnFiltersWhere(filters)
+  const andConditions: Record<string, unknown>[] = []
+  if (playlistCondition) andConditions.push(playlistCondition)
+  for (const c of columnFilterConditions) andConditions.push(c)
+
+  return {
+    ...(search && {
+      OR: [
+        { title: { contains: search } },
+        { artist: { contains: search } },
+        { publisher: { contains: search } },
+        { album: { contains: search } },
+        { fileName: { contains: search } },
+        { comment: { contains: search } }
+      ]
+    }),
+    ...(andConditions.length > 0 && { AND: andConditions })
+  }
+}
+
+export async function getSongsByPlaylist(
+  rules: SmartPlaylistRules,
+  search?: string,
+  sortField?: ColumnField,
+  sort?: SongSortDirection,
+  skip?: number,
+  take?: number,
+  filters?: SongColumnFilters,
+  metadataKeys?: string[]
+): Promise<Song[]> {
+  const where = buildPlaylistWhereClause(rules, search, filters)
+  const includeMetadata =
+    (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters) || rulesUseMetadata(rules)
+  const isMetadataSort = sortField && isMetadataColumnId(sortField)
+
+  if (isMetadataSort) {
+    const metaKey = getMetadataKeyFromColumnId(sortField)
+    const songIds = await getMetadataSortedSongIds(where, metaKey, sort ?? 'asc', skip, take)
+    if (songIds.length === 0) return []
+
+    const songs = await prisma.song.findMany({
+      where: { id: { in: songIds } },
+      ...(includeMetadata && { include: { metadata: true } })
+    })
+
+    const idOrder = new Map(songIds.map((id, i) => [id, i]))
+    songs.sort((a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0))
+    return songs
+  }
+
+  const defaultOrder = [{ title: 'asc' as const }]
+  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+
+  return prisma.song.findMany({
+    where,
+    ...(includeMetadata && { include: { metadata: true } }),
+    orderBy,
+    skip,
+    take
+  })
+}
+
+export async function countSongsByPlaylist(
+  rules: SmartPlaylistRules,
+  search?: string,
+  filters?: SongColumnFilters
+): Promise<number> {
+  const where = buildPlaylistWhereClause(rules, search, filters)
+  return prisma.song.count({ where })
 }
