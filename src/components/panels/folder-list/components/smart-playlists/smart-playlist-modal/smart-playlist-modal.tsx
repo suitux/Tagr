@@ -27,9 +27,10 @@ interface SmartPlaylistModalProps {
   onOpenChange: (open: boolean) => void
   playlist?: SmartPlaylist
   duplicateFrom?: SmartPlaylist
+  onCreated?: (playlistId: number) => void
 }
 
-export function SmartPlaylistModal({ open, onOpenChange, playlist, duplicateFrom }: SmartPlaylistModalProps) {
+export function SmartPlaylistModal({ open, onOpenChange, playlist, duplicateFrom, onCreated }: SmartPlaylistModalProps) {
   const t = useTranslations('smartPlaylists')
   const tCommon = useTranslations('common')
   const { data: metadataKeys = [] } = useMetadataKeys()
@@ -71,7 +72,12 @@ export function SmartPlaylistModal({ open, onOpenChange, playlist, duplicateFrom
     } else {
       create(
         { name: data.name.trim(), rules: payload, isPublic: data.isPublic },
-        { onSuccess: () => onOpenChange(false) }
+        {
+          onSuccess: (playlist) => {
+            onOpenChange(false)
+            onCreated?.(playlist.id)
+          }
+        }
       )
     }
   }

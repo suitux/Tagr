@@ -31,6 +31,7 @@ export function SmartPlaylistsSection({ selectedPlaylistId, onPlaylistSelect }: 
       playlist={playlist}
       isSelected={selectedPlaylistId === playlist.id}
       onSelect={() => onPlaylistSelect(playlist.id)}
+      onCreated={onPlaylistSelect}
     />
   )
 
@@ -75,7 +76,7 @@ export function SmartPlaylistsSection({ selectedPlaylistId, onPlaylistSelect }: 
         )}
       </ListItemGroup>
 
-      {createOpen && <SmartPlaylistModal open={createOpen} onOpenChange={setCreateOpen} />}
+      {createOpen && <SmartPlaylistModal open={createOpen} onOpenChange={setCreateOpen} onCreated={onPlaylistSelect} />}
     </>
   )
 }

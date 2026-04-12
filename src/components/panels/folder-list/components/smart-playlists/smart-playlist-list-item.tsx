@@ -15,9 +15,10 @@ interface SmartPlaylistListItemProps {
   playlist: SmartPlaylist
   isSelected: boolean
   onSelect: () => void
+  onCreated?: (playlistId: number) => void
 }
 
-export function SmartPlaylistListItem({ playlist, isSelected, onSelect }: SmartPlaylistListItemProps) {
+export function SmartPlaylistListItem({ playlist, isSelected, onSelect, onCreated }: SmartPlaylistListItemProps) {
   const t = useTranslations('smartPlaylists')
   const tCommon = useTranslations('common')
   const [editOpen, setEditOpen] = useState(false)
@@ -88,6 +89,7 @@ export function SmartPlaylistListItem({ playlist, isSelected, onSelect }: SmartP
           open={duplicateOpen}
           onOpenChange={setDuplicateOpen}
           duplicateFrom={playlist}
+          onCreated={onCreated}
         />
       )}
     </>
