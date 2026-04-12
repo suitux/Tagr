@@ -1,6 +1,6 @@
 'use client'
 
-import { FolderIcon, InfoIcon, MusicIcon } from 'lucide-react'
+import { InfoIcon, LayoutListIcon, MusicIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useSelectedSong } from '@/hooks/use-selected-song'
@@ -27,8 +27,8 @@ export function MobileBottomNav({ hasDetail }: MobileBottomNavProps) {
           setFolderSheetOpen(true)
           setSelectedSongId(null)
         }}>
-        <FolderIcon className='w-5 h-5' />
-        <span className='text-[10px]'>{t('folders')}</span>
+        <LayoutListIcon className='w-5 h-5' />
+        <span className='text-[10px]'>{t('library')}</span>
       </Button>
       <Button
         variant='ghost'
