@@ -631,9 +631,11 @@ export async function getAdjacentSongs(
   const columnFilterConditions = buildColumnFiltersWhere(filters)
   const isMetadataSort = sortField && isMetadataColumnId(sortField)
 
-  const where = {
-    ...(folderPath && { folderPath }),
-    ...(search && {
+  const conditions: Record<string, unknown>[] = []
+
+  if (folderPath) conditions.push({ folderPath })
+  if (search) {
+    conditions.push({
       OR: [
         { title: { contains: search } },
         { artist: { contains: search } },
@@ -642,12 +644,12 @@ export async function getAdjacentSongs(
         { fileName: { contains: search } },
         { comment: { contains: search } }
       ]
-    }),
-    ...(columnFilterConditions.length > 0 && {
-      AND: columnFilterConditions
-    }),
-    ...extraWhere
+    })
   }
+  if (columnFilterConditions.length > 0) conditions.push(...columnFilterConditions)
+  if (extraWhere) conditions.push(extraWhere)
+
+  const where = conditions.length > 0 ? { AND: conditions } : {}
 
   let orderedIds: { id: number }[]
 
