@@ -16,6 +16,7 @@
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
+    "duplicate": "Duplicate",
     "search": "Search",
     "logout": "Log out",
     "unknown": "Unknown",
@@ -358,6 +359,7 @@
     "publicBadge": "Public",
     "empty": "No smart playlists yet",
     "confirmDelete": "Delete smart playlist \"{name}\"?",
+    "copy": "copy",
     "viewing": {
       "label": "Smart Playlist"
     },

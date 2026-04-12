@@ -26,24 +26,26 @@ interface SmartPlaylistModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   playlist?: SmartPlaylist
+  duplicateFrom?: SmartPlaylist
 }
 
-export function SmartPlaylistModal({ open, onOpenChange, playlist }: SmartPlaylistModalProps) {
+export function SmartPlaylistModal({ open, onOpenChange, playlist, duplicateFrom }: SmartPlaylistModalProps) {
   const t = useTranslations('smartPlaylists')
   const tCommon = useTranslations('common')
   const { data: metadataKeys = [] } = useMetadataKeys()
 
   const isEdit = !!playlist
+  const source = playlist ?? duplicateFrom
 
   const form = useForm<SmartPlaylistFormData>({
     resolver: zodResolver(smartPlaylistFormSchema),
     mode: 'onChange',
     defaultValues: {
-      name: playlist?.name ?? '',
-      isPublic: playlist?.isPublic ?? false,
-      match: playlist?.rules.match ?? 'all',
-      rules: !!playlist?.rules.rules.length
-        ? playlist.rules.rules
+      name: duplicateFrom ? `${duplicateFrom.name} (${t('copy')})` : (source?.name ?? ''),
+      isPublic: source?.isPublic ?? false,
+      match: source?.rules.match ?? 'all',
+      rules: source?.rules.rules.length
+        ? source.rules.rules
         : [{ field: 'title', operator: 'contains', value: '' }]
     }
   })

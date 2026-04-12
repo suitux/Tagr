@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import type { SmartPlaylist } from '@/features/smart-playlists/domain'
 import { useDeleteSmartPlaylist } from '@/features/smart-playlists/hooks/use-delete-smart-playlist'
+import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { cn } from '@/lib/utils'
 import { SmartPlaylistModal } from './smart-playlist-modal/smart-playlist-modal'
 
@@ -20,7 +21,9 @@ export function SmartPlaylistListItem({ playlist, isSelected, onSelect }: SmartP
   const t = useTranslations('smartPlaylists')
   const tCommon = useTranslations('common')
   const [editOpen, setEditOpen] = useState(false)
+  const [duplicateOpen, setDuplicateOpen] = useState(false)
   const { mutate: deletePlaylist } = useDeleteSmartPlaylist()
+  const { confirm } = useAlertDialog()
 
   return (
     <>
@@ -51,12 +54,20 @@ export function SmartPlaylistListItem({ playlist, isSelected, onSelect }: SmartP
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' onClick={e => e.stopPropagation()}>
               <DropdownMenuItem onClick={() => setEditOpen(true)}>{tCommon('edit')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDuplicateOpen(true)}>{tCommon('duplicate')}</DropdownMenuItem>
               <DropdownMenuItem
                 variant='destructive'
                 onClick={() => {
-                  if (confirm(t('confirmDelete', { name: playlist.name }))) {
-                    deletePlaylist(playlist.id)
-                  }
+                  confirm({
+                    title: tCommon('delete'),
+                    description: t('confirmDelete', { name: playlist.name }),
+                    cancel: { label: tCommon('cancel') },
+                    action: {
+                      label: tCommon('delete'),
+                      variant: 'destructive',
+                      onClick: () => deletePlaylist(playlist.id)
+                    }
+                  })
                 }}>
                 {tCommon('delete')}
               </DropdownMenuItem>
@@ -65,6 +76,13 @@ export function SmartPlaylistListItem({ playlist, isSelected, onSelect }: SmartP
         )}
       </div>
       {editOpen && <SmartPlaylistModal open={editOpen} onOpenChange={setEditOpen} playlist={playlist} />}
+      {duplicateOpen && (
+        <SmartPlaylistModal
+          open={duplicateOpen}
+          onOpenChange={setDuplicateOpen}
+          duplicateFrom={playlist}
+        />
+      )}
     </>
   )
 }
