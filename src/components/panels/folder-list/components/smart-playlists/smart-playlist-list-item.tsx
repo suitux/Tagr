@@ -1,6 +1,6 @@
 'use client'
 
-import { MoreVerticalIcon, SparklesIcon } from 'lucide-react'
+import { CopyIcon, MoreVerticalIcon, PencilIcon, SparklesIcon, TrashIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
@@ -53,8 +53,14 @@ export function SmartPlaylistListItem({ playlist, isSelected, onSelect }: SmartP
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end' onClick={e => e.stopPropagation()}>
-              <DropdownMenuItem onClick={() => setEditOpen(true)}>{tCommon('edit')}</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setDuplicateOpen(true)}>{tCommon('duplicate')}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                <PencilIcon />
+                {tCommon('edit')}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setDuplicateOpen(true)}>
+                <CopyIcon />
+                {tCommon('duplicate')}
+              </DropdownMenuItem>
               <DropdownMenuItem
                 variant='destructive'
                 onClick={() => {
@@ -69,6 +75,7 @@ export function SmartPlaylistListItem({ playlist, isSelected, onSelect }: SmartP
                     }
                   })
                 }}>
+                <TrashIcon />
                 {tCommon('delete')}
               </DropdownMenuItem>
             </DropdownMenuContent>
