@@ -168,3 +168,17 @@ model User {
 
   @@map("users")
 }
+
+model SmartPlaylist {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  name      String
+  rules     String
+  isPublic  Boolean  @default(false) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("smart_playlists")
+}

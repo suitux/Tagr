@@ -1,12 +1,15 @@
+'use client'
+
+import type { Song, SongColumnFilters } from '@/features/songs/domain'
+import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 import { api } from '@/lib/axios'
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
-import { ALL_SONGS_FOLDER_ID, ColumnField, Song, SongColumnFilters, SongSortDirection } from '../domain'
 
 const PAGE_SIZE = 50
 
-export interface SongsSuccessResponse {
+interface SongsSuccessResponse {
   success: true
-  folderPath: string
+  playlistId: number
   totalFiles: number
   files: Song[]
 }
@@ -18,13 +21,8 @@ interface SongsErrorResponse {
 
 type SongsResponse = SongsSuccessResponse | SongsErrorResponse
 
-export interface SongsSortParams {
-  sortField?: ColumnField
-  sort?: SongSortDirection
-}
-
-async function fetchSongsByFolder(
-  folderPath: string,
+async function fetchPlaylistSongs(
+  playlistId: number,
   search?: string,
   sorting?: SongsSortParams,
   filters?: SongColumnFilters,
@@ -32,16 +30,6 @@ async function fetchSongsByFolder(
   offset?: number,
   metadataKeys?: string[]
 ): Promise<SongsResponse> {
-  const isAll = folderPath === ALL_SONGS_FOLDER_ID
-
-  const encodedPath = isAll
-    ? ''
-    : folderPath
-        .replace(/^\//, '')
-        .split('/')
-        .map(segment => encodeURIComponent(segment))
-        .join('/')
-
   const params: Record<string, string | number | undefined> = {
     search,
     ...sorting,
@@ -49,48 +37,49 @@ async function fetchSongsByFolder(
     offset,
     ...(metadataKeys && metadataKeys.length > 0 && { metadataKeys: metadataKeys.join(',') })
   }
-
   if (filters) {
     for (const [field, value] of Object.entries(filters)) {
       if (value) params[`filter.${field}`] = value
     }
   }
-
-  const { data } = await api.get<SongsResponse>(`/songs/${encodedPath}`, {
-    params
-  })
-
+  const { data } = await api.get<SongsResponse>(`/smart-playlists/${playlistId}/songs`, { params })
   return data
 }
 
-export const getUseSongsByFolderQueryKey = (
-  folderPath?: string | null,
+export const getSmartPlaylistSongsQueryKey = (
+  playlistId: number | null,
   search?: string,
   sorting?: SongsSortParams,
   filters?: SongColumnFilters,
   metadataKeys?: string[]
-) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort, filters, metadataKeys]
+) => ['smart-playlists', playlistId, 'songs', search, sorting?.sortField, sorting?.sort, filters, metadataKeys]
 
-interface UseSongsByFolderParams {
-  folderPath?: string | null
+interface UseSmartPlaylistSongsParams {
+  playlistId: number | null
   search?: string
   sorting?: SongsSortParams
   filters?: SongColumnFilters
   metadataKeys?: string[]
 }
 
-export function useSongsByFolder({ folderPath, search, sorting, filters, metadataKeys }: UseSongsByFolderParams) {
+export function useSmartPlaylistSongs({
+  playlistId,
+  search,
+  sorting,
+  filters,
+  metadataKeys
+}: UseSmartPlaylistSongsParams) {
   return useInfiniteQuery({
-    queryKey: getUseSongsByFolderQueryKey(folderPath, search, sorting, filters, metadataKeys),
+    queryKey: getSmartPlaylistSongsQueryKey(playlistId, search, sorting, filters, metadataKeys),
     queryFn: ({ pageParam = 0 }) =>
-      fetchSongsByFolder(folderPath!, search, sorting, filters, PAGE_SIZE, pageParam, metadataKeys),
+      fetchPlaylistSongs(playlistId!, search, sorting, filters, PAGE_SIZE, pageParam, metadataKeys),
     initialPageParam: 0,
     getNextPageParam: (lastPage, _allPages, lastPageParam) => {
       if (!lastPage.success) return undefined
       const nextOffset = lastPageParam + lastPage.files.length
       return nextOffset < lastPage.totalFiles ? nextOffset : undefined
     },
-    enabled: !!folderPath,
+    enabled: playlistId != null,
     placeholderData: keepPreviousData
   })
 }

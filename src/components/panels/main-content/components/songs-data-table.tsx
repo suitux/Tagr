@@ -7,9 +7,8 @@ import useColumnVisibility from '@/components/panels/main-content/components/col
 import { DataTable } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
-import { type ColumnField, getMetadataKeyFromColumnId, isMetadataColumnId, Song } from '@/features/songs/domain'
+import { type ColumnField, Song } from '@/features/songs/domain'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
-import { useSongsList } from '@/features/songs/hooks/use-songs-list'
 import { useDelayedLoading } from '@/hooks/use-delayed-loading'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
@@ -21,7 +20,25 @@ import ColumnSelector from './main-content-file-list-column-selector'
 import { MainContentNoFilterResults } from './main-content-no-filter-results'
 import { SavedFiltersDropdown } from './saved-filters-dropdown'
 
-export function MainContentFileList() {
+export interface SongsDataTableProps {
+  songs: Song[]
+  isLoadingSongs: boolean
+  isRefetching: boolean
+  fetchNextPage: () => unknown
+  hasNextPage: boolean
+  isFetchingNextPage: boolean
+  showSavedFiltersDropdown?: boolean
+}
+
+export function SongsDataTable({
+  songs,
+  isLoadingSongs,
+  isRefetching,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage,
+  showSavedFiltersDropdown = true
+}: SongsDataTableProps) {
   const tCommon = useTranslations('common')
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
   const sorting = useHomeStore(s => s.sorting)
@@ -30,27 +47,14 @@ export function MainContentFileList() {
   const columnFilters = useHomeStore(s => s.columnFilters)
   const search = useHomeStore(s => s.search)
   const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
+
   const { data: metadataKeys = [] } = useMetadataKeys()
   const columns = useSongColumns(metadataKeys)
   const { data: columnVisibility } = useColumnVisibility({ columns })
 
-  const activeExtraMetadataColumns = Object.entries(columnVisibility || {})
-    .filter(e => e[1] && isMetadataColumnId(e[0]))
-    .map(e => getMetadataKeyFromColumnId(e[0]))
   const activeColumnsCount = Object.values(columnVisibility || {}).filter(Boolean).length
 
-  const {
-    songs,
-    isLoadingSongs,
-    isRefetching: isRefetchingSongs,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage
-  } = useSongsList({
-    metadataKeys: activeExtraMetadataColumns
-  })
-
-  const showLoading = useDelayedLoading(isRefetchingSongs)
+  const showLoading = useDelayedLoading(isRefetching)
 
   const { mutate: updateConfig } = useUpdateConfig({ parser: genericJsonObjectParser })
 
@@ -78,7 +82,7 @@ export function MainContentFileList() {
 
   const handleScrollEnd = useCallback(() => {
     if (hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
+      void fetchNextPage()
     }
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
@@ -94,7 +98,7 @@ export function MainContentFileList() {
           {tCommon('loading')}
         </div>
         <div className={'flex gap-2'}>
-          <SavedFiltersDropdown />
+          {showSavedFiltersDropdown && <SavedFiltersDropdown />}
           <ColumnSelector
             columns={columns}
             columnVisibility={columnVisibility!}

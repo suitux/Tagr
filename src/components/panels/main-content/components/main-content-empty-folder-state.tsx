@@ -1,6 +1,6 @@
 'use client'
 
-import { FolderOpenIcon } from 'lucide-react'
+import { LayoutListIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,13 +17,13 @@ export function MainContentEmptyFolderState() {
       <Card className='max-w-sm w-full'>
         <CardHeader className='text-center'>
           <div className='mx-auto w-20 h-20 rounded-2xl bg-muted/50 flex items-center justify-center mb-4'>
-            <FolderOpenIcon className='w-10 h-10 text-muted-foreground/50' />
+            <LayoutListIcon className='w-10 h-10 text-muted-foreground/50' />
           </div>
           <CardTitle>{tFolders('selectFolder')}</CardTitle>
           <CardDescription>{tFolders('selectFolderDescription')}</CardDescription>
           {breakpoint === 'mobile' && (
             <Button variant='outline' className='mt-4' onClick={() => setFolderSheetOpen(true)}>
-              <FolderOpenIcon className='h-4 w-4' />
+              <LayoutListIcon className='h-4 w-4' />
               {tFolders('browseFolders')}
             </Button>
           )}
