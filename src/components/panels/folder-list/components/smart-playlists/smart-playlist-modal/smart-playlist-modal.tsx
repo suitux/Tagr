@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useForm, FormProvider, Controller } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -14,15 +14,12 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  operatorNeedsValue,
-  type SmartPlaylist,
-  type SmartPlaylistRule,
-  type SmartPlaylistRules
-} from '@/features/smart-playlists/domain'
+import type { SmartPlaylist, SmartPlaylistRules } from '@/features/smart-playlists/domain'
 import { useCreateSmartPlaylist } from '@/features/smart-playlists/hooks/use-create-smart-playlist'
 import { useUpdateSmartPlaylist } from '@/features/smart-playlists/hooks/use-update-smart-playlist'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { smartPlaylistFormSchema, type SmartPlaylistFormData } from './schema'
 import { SmartPlaylistRulesEditor } from './smart-playlist-rules-editor'
 
 interface SmartPlaylistModalProps {
@@ -31,87 +28,99 @@ interface SmartPlaylistModalProps {
   playlist?: SmartPlaylist
 }
 
-function emptyRule(): SmartPlaylistRule {
-  return { field: 'title', operator: 'contains', value: '' }
-}
-
-function ruleIsComplete(rule: SmartPlaylistRule): boolean {
-  return !operatorNeedsValue(rule.operator) || rule.value.trim().length > 0
-}
-
 export function SmartPlaylistModal({ open, onOpenChange, playlist }: SmartPlaylistModalProps) {
   const t = useTranslations('smartPlaylists')
   const tCommon = useTranslations('common')
   const { data: metadataKeys = [] } = useMetadataKeys()
 
   const isEdit = !!playlist
-  const [name, setName] = useState(() => playlist?.name ?? '')
-  const [isPublic, setIsPublic] = useState(() => playlist?.isPublic ?? false)
-  const [match, setMatch] = useState<'all' | 'any'>(() => playlist?.rules.match ?? 'all')
-  const [rules, setRules] = useState<SmartPlaylistRule[]>(() =>
-    playlist && playlist.rules.rules.length > 0 ? playlist.rules.rules : [emptyRule()]
-  )
+
+  const form = useForm<SmartPlaylistFormData>({
+    resolver: zodResolver(smartPlaylistFormSchema),
+    mode: 'onChange',
+    defaultValues: {
+      name: playlist?.name ?? '',
+      isPublic: playlist?.isPublic ?? false,
+      match: playlist?.rules.match ?? 'all',
+      rules: !!playlist?.rules.rules.length
+        ? playlist.rules.rules
+        : [{ field: 'title', operator: 'contains', value: '' }]
+    }
+  })
 
   const { mutate: create, isPending: isCreating } = useCreateSmartPlaylist()
   const { mutate: update, isPending: isUpdating } = useUpdateSmartPlaylist()
   const isSaving = isCreating || isUpdating
 
-  const allRulesComplete = useMemo(() => rules.length > 0 && rules.every(ruleIsComplete), [rules])
-  const canSave = name.trim().length > 0 && allRulesComplete && !isSaving
-
-  function handleSave() {
-    const payload: SmartPlaylistRules = { match, rules }
+  function onValid(data: SmartPlaylistFormData) {
+    const payload: SmartPlaylistRules = {
+      match: data.match,
+      rules: data.rules.map(r => ({
+        field: r.field as SmartPlaylistRules['rules'][number]['field'],
+        operator: r.operator as SmartPlaylistRules['rules'][number]['operator'],
+        value: r.value
+      }))
+    }
     if (isEdit && playlist) {
-      update({ id: playlist.id, name: name.trim(), rules: payload, isPublic }, { onSuccess: () => onOpenChange(false) })
+      update(
+        { id: playlist.id, name: data.name.trim(), rules: payload, isPublic: data.isPublic },
+        { onSuccess: () => onOpenChange(false) }
+      )
     } else {
-      create({ name: name.trim(), rules: payload, isPublic }, { onSuccess: () => onOpenChange(false) })
+      create(
+        { name: data.name.trim(), rules: payload, isPublic: data.isPublic },
+        { onSuccess: () => onOpenChange(false) }
+      )
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className='max-w-2xl'>
-        <DialogHeader>
-          <DialogTitle>{isEdit ? t('edit.title') : t('create.title')}</DialogTitle>
-          <DialogDescription>{t('create.description')}</DialogDescription>
-        </DialogHeader>
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onValid)}>
+            <DialogHeader>
+              <DialogTitle>{isEdit ? t('edit.title') : t('create.title')}</DialogTitle>
+              <DialogDescription>{t('create.description')}</DialogDescription>
+            </DialogHeader>
 
-        <div className='space-y-4'>
-          <div className='space-y-2'>
-            <Label htmlFor='smart-playlist-name'>{t('create.name')}</Label>
-            <Input
-              id='smart-playlist-name'
-              value={name}
-              onChange={e => setName(e.target.value)}
-              placeholder={t('create.namePlaceholder')}
-              autoFocus
-            />
-          </div>
+            <div className='space-y-4 py-4'>
+              <div className='space-y-2'>
+                <Label htmlFor='smart-playlist-name'>{t('create.name')}</Label>
+                <Input
+                  id='smart-playlist-name'
+                  {...form.register('name')}
+                  placeholder={t('create.namePlaceholder')}
+                  autoFocus
+                />
+              </div>
 
-          <div className='flex items-center gap-2'>
-            <Checkbox id='smart-playlist-public' checked={isPublic} onCheckedChange={v => setIsPublic(Boolean(v))} />
-            <Label htmlFor='smart-playlist-public' className='cursor-pointer'>
-              {t('create.isPublic')}
-            </Label>
-          </div>
+              <div className='flex items-center gap-2'>
+                <Controller
+                  render={({ field: { value, onChange } }) => {
+                    return <Checkbox id='smart-playlist-public' checked={value} onCheckedChange={onChange} />
+                  }}
+                  name={'isPublic'}
+                />
 
-          <SmartPlaylistRulesEditor
-            match={match}
-            onMatchChange={setMatch}
-            rules={rules}
-            onRulesChange={setRules}
-            metadataKeys={metadataKeys}
-          />
-        </div>
+                <Label htmlFor='smart-playlist-public' className='cursor-pointer'>
+                  {t('create.isPublic')}
+                </Label>
+              </div>
 
-        <DialogFooter>
-          <Button variant='ghost' onClick={() => onOpenChange(false)} disabled={isSaving}>
-            {tCommon('cancel')}
-          </Button>
-          <Button onClick={handleSave} disabled={!canSave}>
-            {tCommon('save')}
-          </Button>
-        </DialogFooter>
+              <SmartPlaylistRulesEditor control={form.control} metadataKeys={metadataKeys} />
+            </div>
+
+            <DialogFooter>
+              <Button type='button' variant='ghost' onClick={() => onOpenChange(false)} disabled={isSaving}>
+                {tCommon('cancel')}
+              </Button>
+              <Button type='submit' disabled={!form.formState.isValid || isSaving}>
+                {tCommon('save')}
+              </Button>
+            </DialogFooter>
+          </form>
+        </FormProvider>
       </DialogContent>
     </Dialog>
   )

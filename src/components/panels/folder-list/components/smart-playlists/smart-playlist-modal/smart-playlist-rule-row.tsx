@@ -1,6 +1,7 @@
 'use client'
 
 import { Trash2Icon } from 'lucide-react'
+import { type Control, Controller, useFormContext, useWatch } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -18,34 +19,38 @@ import {
   getSmartlistFieldType,
   getOperatorsForField,
   operatorNeedsValue,
-  type SmartPlaylistOperator,
-  type SmartPlaylistRule
+  type SmartPlaylistOperator
 } from '@/features/smart-playlists/domain'
 import { type ColumnField, METADATA_COLUMN_PREFIX } from '@/features/songs/domain'
 import { SONG_FIELD_OPTIONS } from './constants'
+import type { SmartPlaylistFormData } from './schema'
 
 interface SmartPlaylistRuleRowProps {
-  rule: SmartPlaylistRule
-  metadataKeys: string[]
+  index: number
+  control: Control<SmartPlaylistFormData>
   canDelete: boolean
-  onUpdate: (patch: Partial<SmartPlaylistRule>) => void
+  metadataKeys: string[]
   onRemove: () => void
 }
 
-export function SmartPlaylistRuleRow({ rule, metadataKeys, canDelete, onUpdate, onRemove }: SmartPlaylistRuleRowProps) {
+export function SmartPlaylistRuleRow({ index, control, canDelete, metadataKeys, onRemove }: SmartPlaylistRuleRowProps) {
   const t = useTranslations('smartPlaylists')
   const tFields = useTranslations('fields')
+  const { setValue } = useFormContext<SmartPlaylistFormData>()
 
-  const type = getSmartlistFieldType(rule.field)
-  const ops = getOperatorsForField(rule.field)
-  const showValue = operatorNeedsValue(rule.operator)
+  const field = useWatch({ control, name: `rules.${index}.field` })
+  const operator = useWatch({ control, name: `rules.${index}.operator` })
 
-  const fieldLabel = (field: ColumnField): string => {
-    if (field.startsWith(METADATA_COLUMN_PREFIX)) return field.slice(METADATA_COLUMN_PREFIX.length)
+  const fieldType = getSmartlistFieldType(field as ColumnField)
+  const ops = getOperatorsForField(field as ColumnField)
+  const showValue = operatorNeedsValue(operator as SmartPlaylistOperator)
+
+  const fieldLabel = (f: ColumnField): string => {
+    if (f.startsWith(METADATA_COLUMN_PREFIX)) return f.slice(METADATA_COLUMN_PREFIX.length)
     try {
-      return tFields(field as never)
+      return tFields(f as never)
     } catch {
-      return field
+      return f
     }
   }
 
@@ -53,60 +58,85 @@ export function SmartPlaylistRuleRow({ rule, metadataKeys, canDelete, onUpdate, 
 
   return (
     <div className='grid grid-cols-[1fr_1fr_1fr_auto] gap-2 items-center'>
-      <Select value={rule.field} onValueChange={v => onUpdate({ field: v as ColumnField })}>
-        <SelectTrigger className='w-full'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>{t('create.standardFields')}</SelectLabel>
-            {SONG_FIELD_OPTIONS.map(f => (
-              <SelectItem key={f} value={f}>
-                {fieldLabel(f)}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-          {metadataKeys.length > 0 && (
-            <>
-              <SelectSeparator />
+      <Controller
+        control={control}
+        name={`rules.${index}.field`}
+        render={({ field: { value, onChange } }) => (
+          <Select
+            value={value}
+            onValueChange={newField => {
+              onChange(newField)
+              const newOps = getOperatorsForField(newField as ColumnField)
+              if (!newOps.includes(operator as SmartPlaylistOperator)) {
+                setValue(`rules.${index}.operator`, newOps[0])
+              }
+              if (getSmartlistFieldType(newField as ColumnField) === 'boolean') {
+                setValue(`rules.${index}.value`, '')
+              }
+            }}>
+            <SelectTrigger className='w-full'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
               <SelectGroup>
-                <SelectLabel>{t('create.customFields')}</SelectLabel>
-                {metadataKeys.map(k => (
-                  <SelectItem key={k} value={`${METADATA_COLUMN_PREFIX}${k}`}>
-                    {k}
+                <SelectLabel>{t('create.standardFields')}</SelectLabel>
+                {SONG_FIELD_OPTIONS.map(f => (
+                  <SelectItem key={f} value={f}>
+                    {fieldLabel(f)}
                   </SelectItem>
                 ))}
               </SelectGroup>
-            </>
-          )}
-        </SelectContent>
-      </Select>
+              {metadataKeys.length > 0 && (
+                <>
+                  <SelectSeparator />
+                  <SelectGroup>
+                    <SelectLabel>{t('create.customFields')}</SelectLabel>
+                    {metadataKeys.map(k => (
+                      <SelectItem key={k} value={`${METADATA_COLUMN_PREFIX}${k}`}>
+                        {k}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </>
+              )}
+            </SelectContent>
+          </Select>
+        )}
+      />
 
-      <Select value={rule.operator} onValueChange={v => onUpdate({ operator: v as SmartPlaylistOperator })}>
-        <SelectTrigger className='w-full'>
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          {ops.map(op => (
-            <SelectItem key={op} value={op}>
-              {operatorLabel(op)}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
+      <Controller
+        control={control}
+        name={`rules.${index}.operator`}
+        render={({ field: { value, onChange } }) => (
+          <Select value={value} onValueChange={onChange}>
+            <SelectTrigger className='w-full'>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {ops.map(op => (
+                <SelectItem key={op} value={op}>
+                  {operatorLabel(op)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
 
       {showValue ? (
-        type === 'number' ? (
-          <Input type='number' value={rule.value} onChange={e => onUpdate({ value: e.target.value })} />
-        ) : type === 'date' ? (
-          <Input type='date' value={rule.value} onChange={e => onUpdate({ value: e.target.value })} />
-        ) : (
-          <Input
-            value={rule.value}
-            onChange={e => onUpdate({ value: e.target.value })}
-            placeholder={t('create.valuePlaceholder')}
-          />
-        )
+        <Controller
+          control={control}
+          name={`rules.${index}.value`}
+          render={({ field: { value, onChange } }) =>
+            fieldType === 'number' ? (
+              <Input type='number' value={value} onChange={e => onChange(e.target.value)} />
+            ) : fieldType === 'date' ? (
+              <Input type='date' value={value} onChange={e => onChange(e.target.value)} />
+            ) : (
+              <Input value={value} onChange={e => onChange(e.target.value)} placeholder={t('create.valuePlaceholder')} />
+            )
+          }
+        />
       ) : (
         <div />
       )}
