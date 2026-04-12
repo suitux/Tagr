@@ -1,6 +1,8 @@
 'use client'
 
+import { FolderIcon } from 'lucide-react'
 import { useState } from 'react'
+import { useTranslations } from 'next-intl'
 import { SidebarPlayer } from '@/components/sidebar-player/sidebar-player'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
@@ -12,6 +14,7 @@ import { FolderListHeader } from './components/folder-list-header'
 import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
+import { ListItemGroup } from './components/list-item-group'
 import { SmartPlaylistsSection } from './components/smart-playlists/smart-playlists-section'
 
 interface FolderListProps {
@@ -27,6 +30,7 @@ export function FolderList({
   onPlaylistSelect,
   selectedPlaylistId
 }: FolderListProps) {
+  const t = useTranslations('navigation')
   const [search, setSearch] = useState('')
   const [isExpanded, setIsExpanded] = useState(true)
 
@@ -59,31 +63,31 @@ export function FolderList({
             />
           )}
 
-          {!hasSearch && (
-            <AllFoldersListItem
-              isExpanded={isExpanded}
-              onToggleExpand={() => setIsExpanded(!isExpanded)}
-              selectedFolderId={selectedFolderId}
-              onFolderSelect={onFolderSelect}
-            />
-          )}
-
-          {(!hasSearch ? isExpanded : true) &&
-            (folders.length === 0 ? (
+          <ListItemGroup
+            icon={<FolderIcon className='w-4 h-4 text-muted-foreground' />}
+            label={t('folders')}
+            isExpanded={hasSearch || isExpanded}
+            onToggleExpand={() => setIsExpanded(!isExpanded)}>
+            {!hasSearch && (
+              <AllFoldersListItem
+                selectedFolderId={selectedFolderId}
+                onFolderSelect={onFolderSelect}
+              />
+            )}
+            {folders.length === 0 ? (
               <FolderListEmptyState hasSearchQuery={hasSearch} />
             ) : (
-              <div className='space-y-1 mt-1'>
-                {folders.map(folder => (
-                  <FolderListItem
-                    key={folder.folder}
-                    folder={folder}
-                    isSelected={selectedFolderId === folder.folder}
-                    onFolderSelect={onFolderSelect}
-                    selectedFolderId={selectedFolderId}
-                  />
-                ))}
-              </div>
-            ))}
+              folders.map(folder => (
+                <FolderListItem
+                  key={folder.folder}
+                  folder={folder}
+                  isSelected={selectedFolderId === folder.folder}
+                  onFolderSelect={onFolderSelect}
+                  selectedFolderId={selectedFolderId}
+                />
+              ))
+            )}
+          </ListItemGroup>
         </div>
       </ScrollArea>
 

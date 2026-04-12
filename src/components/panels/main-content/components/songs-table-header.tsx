@@ -1,13 +1,12 @@
 'use client'
 
 import { FolderIcon, SparklesIcon } from 'lucide-react'
-import type { ComponentType, ReactNode } from 'react'
-import { Image } from '@/components/ui/image'
+import type { ReactNode } from 'react'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 
-interface Props {
+interface SongTableHeaderProps {
   title?: string
   mobileTitle?: string
   variant?: 'folder' | 'smart-playlist'
@@ -27,7 +26,7 @@ export function SongsTableHeader({
   onSearchChange,
   searchPlaceholder,
   searchKey
-}: Props) {
+}: SongTableHeaderProps) {
   const setFolderSheetOpen = useMobileNavStore(s => s.setFolderSheetOpen)
 
   return (
