@@ -8,7 +8,7 @@ import type { SmartPlaylist } from '@/features/smart-playlists/domain'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { ListItemGroup } from '../list-item-group'
 import { SmartPlaylistListItem } from './smart-playlist-list-item'
-import { SmartPlaylistModal } from './smart-playlist-modal'
+import { SmartPlaylistModal } from './smart-playlist-modal/smart-playlist-modal'
 
 interface SmartPlaylistsSectionProps {
   selectedPlaylistId: number | null

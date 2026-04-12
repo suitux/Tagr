@@ -8,7 +8,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import type { SmartPlaylist } from '@/features/smart-playlists/domain'
 import { useDeleteSmartPlaylist } from '@/features/smart-playlists/hooks/use-delete-smart-playlist'
 import { cn } from '@/lib/utils'
-import { SmartPlaylistModal } from './smart-playlist-modal'
+import { SmartPlaylistModal } from './smart-playlist-modal/smart-playlist-modal'
 
 interface SmartPlaylistListItemProps {
   playlist: SmartPlaylist

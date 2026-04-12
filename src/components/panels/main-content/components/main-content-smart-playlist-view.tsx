@@ -1,9 +1,9 @@
 'use client'
 
-import { MusicIcon, SparklesIcon } from 'lucide-react'
+import { MusicIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { SmartPlaylistModal } from '@/components/panels/folder-list/components/smart-playlists/smart-playlist-modal'
+import { SmartPlaylistModal } from '@/components/panels/folder-list/components/smart-playlists/smart-playlist-modal/smart-playlist-modal'
 import { Badge } from '@/components/ui/badge'
 import { useSmartPlaylistSongs } from '@/features/smart-playlists/hooks/use-smart-playlist-songs'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
