@@ -1,8 +1,11 @@
 import { NextResponse } from 'next/server'
 import { getAdjacentSongs } from '@/features/metadata/metadata-scan.service'
-import { ColumnField, Song, SongColumnFilters, SongSortDirection } from '@/features/songs/domain'
+import { parseSmartListRules } from '@/features/smart-playlists/helpers'
+import { buildSmartPlaylistWhere } from '@/features/smart-playlists/smart-playlist-query.service'
+import { ColumnField, Song, SongSortDirection } from '@/features/songs/domain'
 import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
 import { getSongFiltersFromSearchParams } from '@/features/songs/filters-helpers'
+import { prisma } from '@/infrastructure/prisma/dbClient'
 import { getSearchParam } from '@/lib/api/search-params'
 
 interface RouteParams {
@@ -36,11 +39,23 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   const folderPathParam = getSearchParam(searchParams, 'folderPath', 'string')
   const folderPath = folderPathParam && folderPathParam !== ALL_SONGS_FOLDER_ID ? folderPathParam : null
 
+  const smartPlaylistIdParam = getSearchParam(searchParams, 'smartPlaylistId', 'number')
+
   const search = getSearchParam(searchParams, 'search', 'string', '') || undefined
   const sortFieldParam = getSearchParam(searchParams, 'sortField', 'string', 'title') as ColumnField | ''
   const sortParam = getSearchParam(searchParams, 'sort', 'string', 'asc') as SongSortDirection | ''
 
   const { filters, hasFilters } = getSongFiltersFromSearchParams(searchParams)
+
+  let extraWhere: Record<string, unknown> | undefined
+
+  if (smartPlaylistIdParam) {
+    const playlist = await prisma.smartPlaylist.findUnique({ where: { id: smartPlaylistIdParam } })
+    if (playlist) {
+      const rules = parseSmartListRules(playlist.rules)
+      extraWhere = buildSmartPlaylistWhere(rules) ?? undefined
+    }
+  }
 
   try {
     const { previous, next } = await getAdjacentSongs(
@@ -49,7 +64,8 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
       search,
       sortFieldParam || undefined,
       sortParam || undefined,
-      hasFilters ? filters : undefined
+      hasFilters ? filters : undefined,
+      extraWhere
     )
 
     return NextResponse.json({ success: true, previous, next })

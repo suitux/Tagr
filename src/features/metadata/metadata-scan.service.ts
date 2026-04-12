@@ -625,7 +625,8 @@ export async function getAdjacentSongs(
   search?: string,
   sortField?: ColumnField,
   sort?: SongSortDirection,
-  filters?: SongColumnFilters
+  filters?: SongColumnFilters,
+  extraWhere?: Record<string, unknown>
 ): Promise<{ previous: Song | null; next: Song | null }> {
   const columnFilterConditions = buildColumnFiltersWhere(filters)
   const isMetadataSort = sortField && isMetadataColumnId(sortField)
@@ -644,7 +645,8 @@ export async function getAdjacentSongs(
     }),
     ...(columnFilterConditions.length > 0 && {
       AND: columnFilterConditions
-    })
+    }),
+    ...extraWhere
   }
 
   let orderedIds: { id: number }[]

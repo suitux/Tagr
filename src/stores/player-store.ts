@@ -60,6 +60,7 @@ function safePlay(a: HTMLAudioElement) {
 
 interface QueueContext {
   folder: string | null
+  smartPlaylistId?: number | null
   search: string
   sorting: SongsSortParams
   columnFilters: SongColumnFilters
@@ -75,6 +76,7 @@ interface PlayerState {
   _nextSong: Song | null
   isAdjacentLoading: boolean
   queueFolder: string | null
+  queueSmartPlaylistId: number | null
   queueSearch: string | undefined
   queueSorting: SongsSortParams | undefined
   queueFilters: SongColumnFilters | undefined
@@ -99,6 +101,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   _nextSong: null,
   isAdjacentLoading: false,
   queueFolder: null,
+  queueSmartPlaylistId: null,
   queueSearch: undefined,
   queueSorting: undefined,
   queueFilters: undefined,
@@ -113,13 +116,14 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     }
   },
 
-  play: (song, { folder, search, sorting, columnFilters }) => {
+  play: (song, { folder, smartPlaylistId, search, sorting, columnFilters }) => {
     const activeFilters = Object.entries(columnFilters).filter(([, v]) => v)
     set({
       currentSong: song,
       isBuffering: true,
       hasStartedPlaying: false,
       queueFolder: folder,
+      queueSmartPlaylistId: smartPlaylistId ?? null,
       queueSearch: search || undefined,
       queueSorting: sorting,
       queueFilters: activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined

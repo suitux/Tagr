@@ -9,6 +9,7 @@ import { usePlayerStore } from '@/stores/player-store'
 export function usePlayerAdjacentSync() {
   const currentSong = usePlayerStore(s => s.currentSong)
   const queueFolder = usePlayerStore(s => s.queueFolder)
+  const queueSmartPlaylistId = usePlayerStore(s => s.queueSmartPlaylistId)
   const queueSearch = usePlayerStore(s => s.queueSearch)
   const queueSorting = usePlayerStore(s => s.queueSorting)
   const queueFilters = usePlayerStore(s => s.queueFilters)
@@ -20,7 +21,8 @@ export function usePlayerAdjacentSync() {
     queueFolder,
     queueSearch,
     queueSorting,
-    queueFilters
+    queueFilters,
+    queueSmartPlaylistId
   )
 
   useEffect(() => {

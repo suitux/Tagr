@@ -3,6 +3,7 @@ import { getExtensionVariant } from '@/components/panels/main-content/utils'
 import { Badge } from '@/components/ui/badge'
 import { Image } from '@/components/ui/image'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
+import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useHomeStore } from '@/stores/home-store'
 import type { Song } from '@/features/songs/domain'
@@ -13,6 +14,7 @@ const NameCell = function NameCell({ song }: { song: Song }) {
   const displayName = song.title || song.fileName
   const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
   const { selectedFolderId } = useSelectedFolder()
+  const { selectedPlaylistId } = useSelectedPlaylist()
   const { setSelectedSongId } = useSelectedSong()
   const search = useHomeStore(s => s.search)
   const sorting = useHomeStore(s => s.sorting)
@@ -29,7 +31,7 @@ const NameCell = function NameCell({ song }: { song: Song }) {
     if (isCurrent) {
       togglePlayPause()
     } else {
-      play(song, { folder: selectedFolderId, search, sorting, columnFilters })
+      play(song, { folder: selectedFolderId, smartPlaylistId: selectedPlaylistId, search, sorting, columnFilters })
     }
   }
 

@@ -1,10 +1,8 @@
 'use client'
 
 import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon, Share2Icon } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import type { UserRole } from '@/features/users/domain'
-import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { toast } from 'sonner'
+import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
@@ -15,7 +13,10 @@ import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch
 import type { Song } from '@/features/songs/domain'
 import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
+import type { UserRole } from '@/features/users/domain'
+import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
+import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { cn } from '@/lib/utils'
 import { useHomeStore } from '@/stores/home-store'
@@ -66,6 +67,7 @@ export function DetailPanelPreviewCard({
   const downloadCover = useDownloadCover(song)
   const { confirm } = useAlertDialog()
   const isCurrent = currentSong?.id === song.id
+  const { selectedPlaylistId } = useSelectedPlaylist()
 
   const isUploading = isPending || isFetchingCover
 
@@ -80,7 +82,7 @@ export function DetailPanelPreviewCard({
     if (isCurrent) {
       togglePlayPause()
     } else {
-      play(song, { folder: selectedFolderId, search, sorting, columnFilters })
+      play(song, { folder: selectedFolderId, smartPlaylistId: selectedPlaylistId, search, sorting, columnFilters })
     }
   }
 
