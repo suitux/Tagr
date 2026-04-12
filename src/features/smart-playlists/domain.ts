@@ -99,25 +99,3 @@ export function getOperatorsForField(field: ColumnField): SmartPlaylistOperator[
 export function operatorNeedsValue(operator: SmartPlaylistOperator): boolean {
   return operator !== 'isEmpty' && operator !== 'isNotEmpty' && operator !== 'isTrue' && operator !== 'isFalse'
 }
-
-export function isValidRules(value: unknown): value is SmartPlaylistRules {
-  if (!value || typeof value !== 'object') return false
-  const v = value as { match?: unknown; rules?: unknown }
-  if (v.match !== 'all' && v.match !== 'any') return false
-  if (!Array.isArray(v.rules)) return false
-  return v.rules.every(r => {
-    if (!r || typeof r !== 'object') return false
-    const rule = r as { field?: unknown; operator?: unknown; value?: unknown }
-    return typeof rule.field === 'string' && typeof rule.operator === 'string' && typeof rule.value === 'string'
-  })
-}
-
-export function parseRules(raw: string): SmartPlaylistRules {
-  try {
-    const parsed = JSON.parse(raw)
-    if (isValidRules(parsed)) return parsed
-  } catch {
-    // fallthrough
-  }
-  return { match: 'all', rules: [] }
-}

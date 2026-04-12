@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import type { SmartPlaylistFormData } from '@/features/smart-playlists/rules-schema'
 import { SmartPlaylistRuleRow } from './smart-playlist-rule-row'
-import type { SmartPlaylistFormData } from './schema'
 
 interface SmartPlaylistRulesEditorProps {
   control: Control<SmartPlaylistFormData>

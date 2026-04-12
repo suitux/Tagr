@@ -21,9 +21,9 @@ import {
   operatorNeedsValue,
   type SmartPlaylistOperator
 } from '@/features/smart-playlists/domain'
+import type { SmartPlaylistFormData } from '@/features/smart-playlists/rules-schema'
 import { type ColumnField, METADATA_COLUMN_PREFIX } from '@/features/songs/domain'
 import { SONG_FIELD_OPTIONS } from './constants'
-import type { SmartPlaylistFormData } from './schema'
 
 interface SmartPlaylistRuleRowProps {
   index: number
@@ -133,7 +133,11 @@ export function SmartPlaylistRuleRow({ index, control, canDelete, metadataKeys, 
             ) : fieldType === 'date' ? (
               <Input type='date' value={value} onChange={e => onChange(e.target.value)} />
             ) : (
-              <Input value={value} onChange={e => onChange(e.target.value)} placeholder={t('create.valuePlaceholder')} />
+              <Input
+                value={value}
+                onChange={e => onChange(e.target.value)}
+                placeholder={t('create.valuePlaceholder')}
+              />
             )
           }
         />

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createSmartPlaylistObject } from '@/app/api/smart-playlists/helpers'
 import { auth } from '@/auth'
-import { isValidRules, type SmartPlaylist } from '@/features/smart-playlists/domain'
+import type { SmartPlaylist } from '@/features/smart-playlists/domain'
+import { smartPlaylistRulesSchema } from '@/features/smart-playlists/rules-schema'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface ListResponse {
@@ -67,11 +68,9 @@ export async function POST(request: Request): Promise<NextResponse<CreateRespons
     if (!name || typeof name !== 'string' || !name.trim()) {
       return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 })
     }
-    if (!isValidRules(rules)) {
+    const rulesResult = smartPlaylistRulesSchema.safeParse(rules)
+    if (!rulesResult.success) {
       return NextResponse.json({ success: false, error: 'Invalid rules' }, { status: 400 })
-    }
-    if (rules.rules.length === 0) {
-      return NextResponse.json({ success: false, error: 'At least one rule is required' }, { status: 400 })
     }
 
     const created = await prisma.smartPlaylist.create({

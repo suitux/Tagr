@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import { countSongsByPlaylist, getSongsByPlaylist, PAGE_SIZE } from '@/features/metadata/metadata-scan.service'
-import { parseRules } from '@/features/smart-playlists/domain'
-import { ColumnField, Song, SongColumnFilters, SongSortDirection } from '@/features/songs/domain'
+import { parseSmartListRules } from '@/features/smart-playlists/helpers'
+import { ColumnField, Song, SongSortDirection } from '@/features/songs/domain'
 import { getSongFiltersFromSearchParams } from '@/features/songs/filters-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { getSearchParam } from '@/lib/api/search-params'
@@ -45,7 +45,7 @@ export async function GET(
     return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
   }
 
-  const rules = parseRules(playlist.rules)
+  const rules = parseSmartListRules(playlist.rules)
 
   const { searchParams } = new URL(request.url)
   const search = getSearchParam(searchParams, 'search', 'string', '') || undefined

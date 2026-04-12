@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
+import { createSmartPlaylistObject } from '@/app/api/smart-playlists/helpers'
 import { auth } from '@/auth'
-import { isValidRules, parseRules, type SmartPlaylist } from '@/features/smart-playlists/domain'
+import { parseSmartListRules, type SmartPlaylist } from '@/features/smart-playlists/domain'
+import { smartPlaylistRulesSchema } from '@/features/smart-playlists/rules-schema'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface GetResponse {
@@ -20,30 +22,6 @@ interface DeleteResponse {
 interface ErrorResponse {
   success: false
   error: string
-}
-
-function toDTO(
-  row: {
-    id: number
-    userId: string
-    name: string
-    rules: string
-    isPublic: boolean
-    createdAt: Date
-    updatedAt: Date
-  },
-  currentUserId: string
-): SmartPlaylist {
-  return {
-    id: row.id,
-    name: row.name,
-    isPublic: row.isPublic,
-    ownerId: row.userId,
-    isOwner: row.userId === currentUserId,
-    rules: parseRules(row.rules),
-    createdAt: row.createdAt.toISOString(),
-    updatedAt: row.updatedAt.toISOString()
-  }
 }
 
 export async function GET(
@@ -70,7 +48,7 @@ export async function GET(
     if (playlist.userId !== userId && !playlist.isPublic) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
-    return NextResponse.json({ success: true, playlist: toDTO(playlist, userId) })
+    return NextResponse.json({ success: true, playlist: createSmartPlaylistObject(playlist, userId) })
   } catch (error) {
     console.error('Error fetching smart playlist:', error)
     return NextResponse.json(
@@ -117,11 +95,9 @@ export async function PATCH(
       data.name = name.trim()
     }
     if (rules !== undefined) {
-      if (!isValidRules(rules)) {
+      const rulesResult = smartPlaylistRulesSchema.safeParse(rules)
+      if (!rulesResult.success) {
         return NextResponse.json({ success: false, error: 'Invalid rules' }, { status: 400 })
-      }
-      if (rules.rules.length === 0) {
-        return NextResponse.json({ success: false, error: 'At least one rule is required' }, { status: 400 })
       }
       data.rules = JSON.stringify(rules)
     }
@@ -130,7 +106,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.smartPlaylist.update({ where: { id: numericId }, data })
-    return NextResponse.json({ success: true, playlist: toDTO(updated, userId) })
+    return NextResponse.json({ success: true, playlist: createSmartPlaylistObject(updated, userId) })
   } catch (error) {
     console.error('Error updating smart playlist:', error)
     return NextResponse.json(

@@ -17,9 +17,9 @@ import { Label } from '@/components/ui/label'
 import type { SmartPlaylist, SmartPlaylistRules } from '@/features/smart-playlists/domain'
 import { useCreateSmartPlaylist } from '@/features/smart-playlists/hooks/use-create-smart-playlist'
 import { useUpdateSmartPlaylist } from '@/features/smart-playlists/hooks/use-update-smart-playlist'
+import { smartPlaylistFormSchema, type SmartPlaylistFormData } from '@/features/smart-playlists/rules-schema'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { smartPlaylistFormSchema, type SmartPlaylistFormData } from './schema'
 import { SmartPlaylistRulesEditor } from './smart-playlist-rules-editor'
 
 interface SmartPlaylistModalProps {

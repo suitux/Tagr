@@ -1,4 +1,5 @@
-import { parseRules, SmartPlaylist } from '@/features/smart-playlists/domain'
+import { SmartPlaylist } from '@/features/smart-playlists/domain'
+import { parseSmartListRules } from '@/features/smart-playlists/helpers'
 
 export function createSmartPlaylistObject(
   row: {
@@ -18,7 +19,7 @@ export function createSmartPlaylistObject(
     isPublic: row.isPublic,
     ownerId: row.userId,
     isOwner: row.userId === currentUserId,
-    rules: parseRules(row.rules),
+    rules: parseSmartListRules(row.rules),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString()
   }
