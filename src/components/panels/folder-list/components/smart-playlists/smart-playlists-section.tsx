@@ -4,6 +4,7 @@ import { PlusIcon, SparklesIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { SmartPlaylist } from '@/features/smart-playlists/domain'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { ListItemGroup } from '../list-item-group'
@@ -41,14 +42,19 @@ export function SmartPlaylistsSection({ selectedPlaylistId, onPlaylistSelect }: 
         isExpanded={isExpanded}
         onToggleExpand={() => setIsExpanded(v => !v)}
         action={
-          <Button
-            variant='ghost'
-            size='icon'
-            className='h-7 w-7'
-            onClick={() => setCreateOpen(true)}
-            aria-label={t('newPlaylist')}>
-            <PlusIcon className='w-4 h-4' />
-          </Button>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant='ghost'
+                size='icon'
+                className='h-7 w-7'
+                onClick={() => setCreateOpen(true)}
+                aria-label={t('newPlaylist')}>
+                <PlusIcon className='w-4 h-4' />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>{t('newPlaylist')}</TooltipContent>
+          </Tooltip>
         }>
         {privatePlaylists.length === 0 && publicPlaylists.length === 0 ? (
           <p className='text-xs text-muted-foreground px-4 py-2'>{t('empty')}</p>
