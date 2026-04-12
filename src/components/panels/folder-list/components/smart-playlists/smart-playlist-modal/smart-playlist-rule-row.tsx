@@ -22,7 +22,12 @@ import {
   type SmartPlaylistOperator
 } from '@/features/smart-playlists/domain'
 import type { SmartPlaylistFormData } from '@/features/smart-playlists/rules-schema'
-import { type ColumnField, METADATA_COLUMN_PREFIX } from '@/features/songs/domain'
+import {
+  type ColumnField,
+  getMetadataKeyFromColumnId,
+  isMetadataColumnId,
+  METADATA_COLUMN_PREFIX
+} from '@/features/songs/domain'
 import { SONG_FIELD_OPTIONS } from './constants'
 
 interface SmartPlaylistRuleRowProps {
@@ -46,9 +51,9 @@ export function SmartPlaylistRuleRow({ index, control, canDelete, metadataKeys, 
   const showValue = operatorNeedsValue(operator as SmartPlaylistOperator)
 
   const fieldLabel = (f: ColumnField): string => {
-    if (f.startsWith(METADATA_COLUMN_PREFIX)) return f.slice(METADATA_COLUMN_PREFIX.length)
+    if (isMetadataColumnId(f)) return getMetadataKeyFromColumnId(f)
     try {
-      return tFields(f as never)
+      return tFields(f)
     } catch {
       return f
     }
