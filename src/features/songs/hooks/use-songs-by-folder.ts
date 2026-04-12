@@ -64,7 +64,7 @@ async function fetchSongsByFolder(
 }
 
 export const getUseSongsByFolderQueryKey = (
-  folderPath: string | undefined,
+  folderPath?: string | null,
   search?: string,
   sorting?: SongsSortParams,
   filters?: SongColumnFilters,
@@ -72,7 +72,7 @@ export const getUseSongsByFolderQueryKey = (
 ) => ['songs', 'folder', folderPath, search, sorting?.sortField, sorting?.sort, filters, metadataKeys]
 
 interface UseSongsByFolderParams {
-  folderPath: string | undefined
+  folderPath?: string | null
   search?: string
   sorting?: SongsSortParams
   filters?: SongColumnFilters

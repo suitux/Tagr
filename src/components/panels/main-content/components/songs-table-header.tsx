@@ -7,14 +7,14 @@ import { Separator } from '@/components/ui/separator'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 
 interface SongTableHeaderProps {
-  title?: string
-  mobileTitle?: string
+  title?: string | null
+  mobileTitle?: string | null
   variant?: 'folder' | 'smart-playlist'
   badges?: ReactNode
   searchValue: string
   onSearchChange: (value: string) => void
   searchPlaceholder: string
-  searchKey?: string | number
+  searchKey?: string | number | null
 }
 
 export function SongsTableHeader({

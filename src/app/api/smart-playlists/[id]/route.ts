@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createSmartPlaylistObject } from '@/app/api/smart-playlists/helpers'
 import { auth } from '@/auth'
-import { parseSmartListRules, type SmartPlaylist } from '@/features/smart-playlists/domain'
+import { type SmartPlaylist } from '@/features/smart-playlists/domain'
 import { smartPlaylistRulesSchema } from '@/features/smart-playlists/rules-schema'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
