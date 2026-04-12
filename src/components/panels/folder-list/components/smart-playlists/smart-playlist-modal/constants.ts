@@ -32,6 +32,7 @@ export const SONG_FIELD_OPTIONS: ColumnField[] = [
   'encoder',
   'extension',
   'fileName',
+  'folderPath',
   'fileSize',
   'createdAt',
   'modifiedAt',

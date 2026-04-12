@@ -346,6 +346,13 @@ export function useSongColumns(metadataKeys: string[] = []): ColumnDef<Song>[] {
       cell: ({ row }) => textCell(row.original.fileName),
       size: 200
     },
+    {
+      id: 'folderPath',
+      accessorKey: 'folderPath',
+      header: ({ column }) => <SortableHeader column={column} label={t('folderPath')} />,
+      cell: ({ row }) => textCell(row.original.folderPath),
+      size: 250
+    },
     ...metadataColumns
   ]
 }

@@ -43,6 +43,7 @@ export type SongSortField =
   | 'bitsPerSample'
   | 'encoder'
   | 'fileName'
+  | 'folderPath'
   | 'fileSize'
   | 'extension'
   | 'createdAt'
