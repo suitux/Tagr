@@ -44,26 +44,28 @@ export function useUpdateSong() {
   return useMutation({
     mutationFn: updateSong,
     onSuccess: updatedSong => {
-      queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
-        {
-          predicate: ({ queryKey }) => {
-            return queryKey[0] === 'songs' && queryKey[1] === 'folder'
-          }
-        },
-        oldData => {
-          if (!oldData) return oldData
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map(page => {
-              if (!page.success) return page
-              return {
-                ...page,
-                files: page.files.map(song => (song.id === updatedSong.id ? updatedSong : song))
-              }
-            })
-          }
+      const updateSongInPages = (oldData: InfiniteData<SongsResponse, number> | undefined) => {
+        if (!oldData) return oldData
+        return {
+          ...oldData,
+          pages: oldData.pages.map(page => {
+            if (!page.success) return page
+            return {
+              ...page,
+              files: page.files.map(song => (song.id === updatedSong.id ? updatedSong : song))
+            }
+          })
         }
+      }
+
+      queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
+        { predicate: ({ queryKey }) => queryKey[0] === 'songs' && queryKey[1] === 'folder' },
+        updateSongInPages
+      )
+
+      queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
+        { predicate: ({ queryKey }) => queryKey[0] === 'smart-playlists' && queryKey[2] === 'songs' },
+        updateSongInPages
       )
 
       queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
