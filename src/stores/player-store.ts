@@ -82,6 +82,7 @@ interface PlayerState {
   queueSorting: SongsSortParams | undefined
   queueFilters: SongColumnFilters | undefined
   shuffle: boolean
+  shuffleTick: number
   repeat: boolean
 
   _playDirect: (song: Song) => void
@@ -111,10 +112,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   queueSorting: undefined,
   queueFilters: undefined,
   shuffle: false,
+  shuffleTick: 0,
   repeat: false,
 
   _playDirect: song => {
-    set({ currentSong: song, isBuffering: true, hasStartedPlaying: false })
+    set(state => ({
+      currentSong: song,
+      isBuffering: true,
+      hasStartedPlaying: false,
+      shuffleTick: state.shuffleTick + 1
+    }))
     const a = getAudio()
     if (a) {
       a.pause()
@@ -125,7 +132,7 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   play: (song, { folder, smartPlaylistId, search, sorting, columnFilters }) => {
     const activeFilters = Object.entries(columnFilters).filter(([, v]) => v)
-    set({
+    set(state => ({
       currentSong: song,
       isBuffering: true,
       hasStartedPlaying: false,
@@ -133,8 +140,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       queueSmartPlaylistId: smartPlaylistId ?? null,
       queueSearch: search || undefined,
       queueSorting: sorting,
-      queueFilters: activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined
-    })
+      queueFilters: activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined,
+      shuffleTick: state.shuffleTick + 1
+    }))
     const a = getAudio()
     if (a) {
       a.pause()

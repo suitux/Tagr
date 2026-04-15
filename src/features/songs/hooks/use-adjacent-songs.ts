@@ -50,7 +50,8 @@ export function useAdjacentSongs(
   sorting?: SongsSortParams,
   filters?: SongColumnFilters,
   smartPlaylistId?: number | null,
-  shuffle?: boolean
+  shuffle?: boolean,
+  shuffleTick?: number
 ) {
   return useQuery({
     queryKey: [
@@ -63,9 +64,11 @@ export function useAdjacentSongs(
       sorting?.sort,
       filters,
       smartPlaylistId,
-      shuffle
+      shuffle,
+      shuffle ? shuffleTick : undefined
     ],
     queryFn: () => fetchAdjacentSongs(songId!, folderPath!, search, sorting, filters, smartPlaylistId, shuffle),
-    enabled: !!songId && (!!folderPath || !!smartPlaylistId)
+    enabled: !!songId && (!!folderPath || !!smartPlaylistId),
+    gcTime: shuffle ? 0 : undefined
   })
 }
