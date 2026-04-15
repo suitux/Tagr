@@ -619,15 +619,27 @@ export async function countSongsByFolder(
   })
 }
 
-export async function getAdjacentSongs(
-  songId: number,
-  folderPath: string | null,
-  search?: string,
-  sortField?: ColumnField,
-  sort?: SongSortDirection,
-  filters?: SongColumnFilters,
+interface GetAdjacentSongsParams {
+  songId: number
+  folderPath: string | null
+  search?: string
+  sortField?: ColumnField
+  sort?: SongSortDirection
+  filters?: SongColumnFilters
   extraWhere?: Record<string, unknown>
-): Promise<{ previous: Song | null; next: Song | null }> {
+  shuffle?: boolean
+}
+
+export async function getAdjacentSongs({
+  songId,
+  folderPath,
+  search,
+  sortField,
+  sort,
+  filters,
+  extraWhere,
+  shuffle
+}: GetAdjacentSongsParams): Promise<{ previous: Song | null; next: Song | null }> {
   const columnFilterConditions = buildColumnFiltersWhere(filters)
   const isMetadataSort = sortField && isMetadataColumnId(sortField)
 
@@ -672,7 +684,12 @@ export async function getAdjacentSongs(
   }
 
   const prevId = currentIndex > 0 ? orderedIds[currentIndex - 1].id : null
-  const nextId = currentIndex < orderedIds.length - 1 ? orderedIds[currentIndex + 1].id : null
+  let nextId = currentIndex < orderedIds.length - 1 ? orderedIds[currentIndex + 1].id : null
+
+  if (shuffle && orderedIds.length > 1) {
+    const candidates = orderedIds.filter(s => s.id !== songId)
+    nextId = candidates[Math.floor(Math.random() * candidates.length)].id
+  }
 
   const [previous, next] = await Promise.all([
     prevId !== null ? prisma.song.findUnique({ where: { id: prevId } }) : null,

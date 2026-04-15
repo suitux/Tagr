@@ -13,6 +13,7 @@ export function usePlayerAdjacentSync() {
   const queueSearch = usePlayerStore(s => s.queueSearch)
   const queueSorting = usePlayerStore(s => s.queueSorting)
   const queueFilters = usePlayerStore(s => s.queueFilters)
+  const shuffle = usePlayerStore(s => s.shuffle)
   const setAdjacentSongs = usePlayerStore(s => s.setAdjacentSongs)
   const setAdjacentLoading = usePlayerStore(s => s.setAdjacentLoading)
 
@@ -22,7 +23,8 @@ export function usePlayerAdjacentSync() {
     queueSearch,
     queueSorting,
     queueFilters,
-    queueSmartPlaylistId
+    queueSmartPlaylistId,
+    shuffle
   )
 
   useEffect(() => {

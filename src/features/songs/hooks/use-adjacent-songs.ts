@@ -15,7 +15,8 @@ async function fetchAdjacentSongs(
   search?: string,
   sorting?: SongsSortParams,
   filters?: SongColumnFilters,
-  smartPlaylistId?: number | null
+  smartPlaylistId?: number | null,
+  shuffle?: boolean
 ): Promise<{ previous: Song | null; next: Song | null }> {
   const params: Record<string, string | number | undefined> = {
     folderPath,
@@ -25,6 +26,10 @@ async function fetchAdjacentSongs(
 
   if (smartPlaylistId) {
     params.smartPlaylistId = smartPlaylistId
+  }
+
+  if (shuffle) {
+    params.shuffle = 'true'
   }
 
   if (filters) {
@@ -44,11 +49,23 @@ export function useAdjacentSongs(
   search?: string,
   sorting?: SongsSortParams,
   filters?: SongColumnFilters,
-  smartPlaylistId?: number | null
+  smartPlaylistId?: number | null,
+  shuffle?: boolean
 ) {
   return useQuery({
-    queryKey: ['songs', 'adjacent', songId, folderPath, search, sorting?.sortField, sorting?.sort, filters, smartPlaylistId],
-    queryFn: () => fetchAdjacentSongs(songId!, folderPath!, search, sorting, filters, smartPlaylistId),
+    queryKey: [
+      'songs',
+      'adjacent',
+      songId,
+      folderPath,
+      search,
+      sorting?.sortField,
+      sorting?.sort,
+      filters,
+      smartPlaylistId,
+      shuffle
+    ],
+    queryFn: () => fetchAdjacentSongs(songId!, folderPath!, search, sorting, filters, smartPlaylistId, shuffle),
     enabled: !!songId && (!!folderPath || !!smartPlaylistId)
   })
 }

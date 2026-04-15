@@ -1,9 +1,11 @@
 'use client'
 
-import { ChevronDown, MusicIcon } from 'lucide-react'
+import { ChevronDown, MusicIcon, RepeatIcon, ShuffleIcon } from 'lucide-react'
 import { PlayButton } from '@/components/play-button'
 import { SkipButton } from '@/components/skip-button'
+import { Button } from '@/components/ui/button'
 import { Image } from '@/components/ui/image'
+import { cn } from '@/lib/utils'
 import type { Song } from '@/features/songs/domain'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { ExpandedPlayerWaveform } from './expanded-player-waveform'
@@ -26,6 +28,10 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
   const playNext = usePlayerStore(s => s.playNext)
   const _previousSong = usePlayerStore(s => s._previousSong)
   const _nextSong = usePlayerStore(s => s._nextSong)
+  const shuffle = usePlayerStore(s => s.shuffle)
+  const toggleShuffle = usePlayerStore(s => s.toggleShuffle)
+  const repeat = usePlayerStore(s => s.repeat)
+  const toggleRepeat = usePlayerStore(s => s.toggleRepeat)
   const { setSelectedSongId } = useSelectedSong()
 
   const pictureUrl = getSongPictureUrl(song.id, song.modifiedAt)
@@ -70,9 +76,31 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
         </div>
 
         <div className='flex items-center gap-3'>
+          <Button
+            variant='ghost'
+            size='icon'
+            className={cn(
+              'h-7 w-7 text-muted-foreground/70 hover:text-foreground',
+              shuffle && 'text-primary hover:text-primary'
+            )}
+            onClick={toggleShuffle}
+            aria-pressed={shuffle}>
+            <ShuffleIcon className='h-3.5 w-3.5' />
+          </Button>
           <SkipButton direction='back' size='lg' onSkip={playPrevious} disabled={!_previousSong || isAdjacentLoading} />
           <PlayButton isPlaying={isPlaying} isBuffering={isBuffering} onToggle={togglePlayPause} size='lg' />
           <SkipButton direction='forward' size='lg' onSkip={playNext} disabled={!_nextSong || isAdjacentLoading} />
+          <Button
+            variant='ghost'
+            size='icon'
+            className={cn(
+              'h-7 w-7 text-muted-foreground/70 hover:text-foreground',
+              repeat && 'text-primary hover:text-primary'
+            )}
+            onClick={toggleRepeat}
+            aria-pressed={repeat}>
+            <RepeatIcon className='h-3.5 w-3.5' />
+          </Button>
         </div>
       </div>
     </div>

@@ -42,6 +42,7 @@ export function getAudio(): HTMLAudioElement | null {
   if (!audio && typeof window !== 'undefined') {
     audio = new Audio()
     audio.preload = 'auto'
+    audio.loop = usePlayerStore.getState().repeat
     for (const [event, handler] of Object.entries(listeners)) {
       audio.addEventListener(event, handler)
     }
@@ -80,6 +81,8 @@ interface PlayerState {
   queueSearch: string | undefined
   queueSorting: SongsSortParams | undefined
   queueFilters: SongColumnFilters | undefined
+  shuffle: boolean
+  repeat: boolean
 
   _playDirect: (song: Song) => void
   play: (song: Song, queueContext: QueueContext) => void
@@ -89,6 +92,8 @@ interface PlayerState {
   seek: (time: number) => void
   setAdjacentSongs: (previous: Song | null, next: Song | null) => void
   setAdjacentLoading: (loading: boolean) => void
+  toggleShuffle: () => void
+  toggleRepeat: () => void
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -105,6 +110,8 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   queueSearch: undefined,
   queueSorting: undefined,
   queueFilters: undefined,
+  shuffle: false,
+  repeat: false,
 
   _playDirect: song => {
     set({ currentSong: song, isBuffering: true, hasStartedPlaying: false })
@@ -165,5 +172,16 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   setAdjacentLoading: loading => {
     set({ isAdjacentLoading: loading })
+  },
+
+  toggleShuffle: () => {
+    set(state => ({ shuffle: !state.shuffle }))
+  },
+
+  toggleRepeat: () => {
+    const next = !get().repeat
+    set({ repeat: next })
+    const a = getAudio()
+    if (a) a.loop = next
   }
 }))

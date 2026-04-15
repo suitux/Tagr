@@ -42,8 +42,10 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   const smartPlaylistIdParam = getSearchParam(searchParams, 'smartPlaylistId', 'number')
 
   const search = getSearchParam(searchParams, 'search', 'string', '') || undefined
-  const sortFieldParam = getSearchParam(searchParams, 'sortField', 'string', 'title') as ColumnField | ''
-  const sortParam = getSearchParam(searchParams, 'sort', 'string', 'asc') as SongSortDirection | ''
+  const sortFieldParam = getSearchParam(searchParams, 'sortField', 'string', 'title') as ColumnField
+  const sortParam = getSearchParam(searchParams, 'sort', 'string', 'asc') as SongSortDirection
+
+  const shuffle = getSearchParam(searchParams, 'shuffle', 'boolean')
 
   const { filters, hasFilters } = getSongFiltersFromSearchParams(searchParams)
 
@@ -58,15 +60,16 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   }
 
   try {
-    const { previous, next } = await getAdjacentSongs(
+    const { previous, next } = await getAdjacentSongs({
       songId,
       folderPath,
       search,
-      sortFieldParam || undefined,
-      sortParam || undefined,
-      hasFilters ? filters : undefined,
-      extraWhere
-    )
+      sortField: sortFieldParam,
+      sort: sortParam,
+      filters: hasFilters ? filters : undefined,
+      extraWhere,
+      shuffle
+    })
 
     return NextResponse.json({ success: true, previous, next })
   } catch (error) {
