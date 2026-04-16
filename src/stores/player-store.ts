@@ -7,12 +7,13 @@ let audio: HTMLAudioElement | null = null
 
 let bufferingTimeout: ReturnType<typeof setTimeout> | null = null
 
+const MAX_HISTORY = 100
+
 const listeners = {
   play: () => usePlayerStore.setState({ isPlaying: true }),
   pause: () => usePlayerStore.setState({ isPlaying: false }),
   ended: () => {
-    const { _nextSong, _playDirect } = usePlayerStore.getState()
-    if (_nextSong) _playDirect(_nextSong)
+    usePlayerStore.getState().playNext()
   },
   timeupdate: () => {
     if (audio) usePlayerStore.setState({ currentTime: audio.currentTime })
@@ -59,6 +60,20 @@ function safePlay(a: HTMLAudioElement) {
   })
 }
 
+function pushToHistory(
+  history: Song[],
+  index: number,
+  song: Song
+): { _shuffleHistory: Song[]; _shuffleHistoryIndex: number } {
+  const truncated = history.slice(0, index + 1)
+  truncated.push(song)
+  if (truncated.length > MAX_HISTORY) {
+    const drop = truncated.length - MAX_HISTORY
+    return { _shuffleHistory: truncated.slice(drop), _shuffleHistoryIndex: truncated.length - drop - 1 }
+  }
+  return { _shuffleHistory: truncated, _shuffleHistoryIndex: truncated.length - 1 }
+}
+
 interface QueueContext {
   folder: string | null
   smartPlaylistId?: number | null
@@ -84,8 +99,10 @@ interface PlayerState {
   shuffle: boolean
   shuffleTick: number
   repeat: boolean
+  _shuffleHistory: Song[]
+  _shuffleHistoryIndex: number
 
-  _playDirect: (song: Song) => void
+  _playDirect: (song: Song, opts?: { fromHistory?: boolean }) => void
   play: (song: Song, queueContext: QueueContext) => void
   togglePlayPause: () => void
   playNext: () => void
@@ -114,14 +131,23 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   shuffle: false,
   shuffleTick: 0,
   repeat: false,
+  _shuffleHistory: [],
+  _shuffleHistoryIndex: -1,
 
-  _playDirect: song => {
-    set(state => ({
-      currentSong: song,
-      isBuffering: true,
-      hasStartedPlaying: false,
-      shuffleTick: state.shuffleTick + 1
-    }))
+  _playDirect: (song, opts) => {
+    set(state => {
+      const historyUpdate =
+        state.shuffle && !opts?.fromHistory
+          ? pushToHistory(state._shuffleHistory, state._shuffleHistoryIndex, song)
+          : {}
+      return {
+        currentSong: song,
+        isBuffering: true,
+        hasStartedPlaying: false,
+        shuffleTick: state.shuffleTick + 1,
+        ...historyUpdate
+      }
+    })
     const a = getAudio()
     if (a) {
       a.pause()
@@ -141,7 +167,9 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
       queueSearch: search || undefined,
       queueSorting: sorting,
       queueFilters: activeFilters.length > 0 ? (Object.fromEntries(activeFilters) as SongColumnFilters) : undefined,
-      shuffleTick: state.shuffleTick + 1
+      shuffleTick: state.shuffleTick + 1,
+      _shuffleHistory: [song],
+      _shuffleHistoryIndex: 0
     }))
     const a = getAudio()
     if (a) {
@@ -159,12 +187,34 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   playNext: () => {
-    const { _nextSong, _playDirect } = get()
+    const state = get()
+    if (state.shuffle) {
+      const { _shuffleHistory, _shuffleHistoryIndex } = state
+      if (_shuffleHistoryIndex < _shuffleHistory.length - 1) {
+        const nextIndex = _shuffleHistoryIndex + 1
+        const song = _shuffleHistory[nextIndex]
+        set({ _shuffleHistoryIndex: nextIndex })
+        state._playDirect(song, { fromHistory: true })
+        return
+      }
+    }
+    const { _nextSong, _playDirect } = state
     if (_nextSong) _playDirect(_nextSong)
   },
 
   playPrevious: () => {
-    const { _previousSong, _playDirect } = get()
+    const state = get()
+    if (state.shuffle) {
+      const { _shuffleHistory, _shuffleHistoryIndex } = state
+      if (_shuffleHistoryIndex > 0) {
+        const prevIndex = _shuffleHistoryIndex - 1
+        const song = _shuffleHistory[prevIndex]
+        set({ _shuffleHistoryIndex: prevIndex })
+        state._playDirect(song, { fromHistory: true })
+      }
+      return
+    }
+    const { _previousSong, _playDirect } = state
     if (_previousSong) _playDirect(_previousSong)
   },
 
@@ -183,7 +233,21 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
   },
 
   toggleShuffle: () => {
-    set(state => ({ shuffle: !state.shuffle }))
+    set(state => {
+      const newShuffle = !state.shuffle
+      if (newShuffle && state.currentSong) {
+        return {
+          shuffle: true,
+          _shuffleHistory: [state.currentSong],
+          _shuffleHistoryIndex: 0
+        }
+      }
+      return {
+        shuffle: newShuffle,
+        _shuffleHistory: [],
+        _shuffleHistoryIndex: -1
+      }
+    })
   },
 
   toggleRepeat: () => {

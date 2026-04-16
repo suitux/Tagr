@@ -15,6 +15,8 @@ export function usePlayerAdjacentSync() {
   const queueFilters = usePlayerStore(s => s.queueFilters)
   const shuffle = usePlayerStore(s => s.shuffle)
   const shuffleTick = usePlayerStore(s => s.shuffleTick)
+  const shuffleHistoryIndex = usePlayerStore(s => s._shuffleHistoryIndex)
+  const shuffleHistory = usePlayerStore(s => s._shuffleHistory)
   const setAdjacentSongs = usePlayerStore(s => s.setAdjacentSongs)
   const setAdjacentLoading = usePlayerStore(s => s.setAdjacentLoading)
 
@@ -30,8 +32,17 @@ export function usePlayerAdjacentSync() {
   )
 
   useEffect(() => {
-    setAdjacentSongs(data?.previous ?? null, data?.next ?? null)
-  }, [data, setAdjacentSongs])
+    if (shuffle) {
+      const midHistory = shuffleHistoryIndex < shuffleHistory.length - 1
+      const historyPrev = shuffleHistoryIndex > 0 ? shuffleHistory[shuffleHistoryIndex - 1] : null
+      setAdjacentSongs(
+        historyPrev,
+        midHistory ? shuffleHistory[shuffleHistoryIndex + 1] : (data?.next ?? null)
+      )
+    } else {
+      setAdjacentSongs(data?.previous ?? null, data?.next ?? null)
+    }
+  }, [data, setAdjacentSongs, shuffle, shuffleHistory, shuffleHistoryIndex])
 
   useEffect(() => {
     setAdjacentLoading(isPending)
