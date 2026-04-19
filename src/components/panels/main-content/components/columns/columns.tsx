@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import NameCell from '@/components/panels/main-content/components/columns/components/name-cell'
 import type { Song } from '@/features/songs/domain'
-import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
+import { joinMultiValue, stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import type { SongMetadata } from '@/generated/prisma/client'
 import type { Column, ColumnDef } from '@tanstack/react-table'
 import { formatDate, formatDuration, formatFileSize } from '../../utils'
@@ -40,8 +40,8 @@ export function useSongColumns(metadataKeys: string[] = []): ColumnDef<Song>[] {
         accessorFn: (song: Song) => {
           const meta = (song as Song & { metadata?: SongMetadata[] }).metadata
           if (!meta) return ''
-          const entry = meta.find(m => stripKeyPrefix(m.key) === key)
-          return entry?.value ?? ''
+          const entries = meta.filter(m => stripKeyPrefix(m.key) === key)
+          return joinMultiValue(entries.map(e => e.value)) ?? ''
         },
         header: ({ column }: { column: Column<Song> }) => (
           <SortableHeader column={column} label={key} enableColumnFilter={true} />
