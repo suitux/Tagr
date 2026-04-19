@@ -46,11 +46,11 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
           size='icon'
           className={cn(
             'h-6 w-6 text-muted-foreground/70 hover:text-foreground',
-            shuffle && 'text-primary hover:text-primary'
+            repeat && 'text-primary hover:text-primary'
           )}
-          onClick={toggleShuffle}
-          aria-pressed={shuffle}>
-          <ShuffleIcon className='h-3 w-3' />
+          onClick={toggleRepeat}
+          aria-pressed={repeat}>
+          <RepeatIcon className='h-3 w-3' />
         </Button>
         <SkipButton
           direction='back'
@@ -65,11 +65,11 @@ export function SidebarPlayerAudioPlayer({ expanded }: SidebarPlayerAudioPlayerP
           size='icon'
           className={cn(
             'h-6 w-6 text-muted-foreground/70 hover:text-foreground',
-            repeat && 'text-primary hover:text-primary'
+            shuffle && 'text-primary hover:text-primary'
           )}
-          onClick={toggleRepeat}
-          aria-pressed={repeat}>
-          <RepeatIcon className='h-3 w-3' />
+          onClick={toggleShuffle}
+          aria-pressed={shuffle}>
+          <ShuffleIcon className='h-3 w-3' />
         </Button>
       </div>
 

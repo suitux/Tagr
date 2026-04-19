@@ -81,11 +81,11 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
             size='icon'
             className={cn(
               'h-7 w-7 text-muted-foreground/70 hover:text-foreground',
-              shuffle && 'text-primary hover:text-primary'
+              repeat && 'text-primary hover:text-primary'
             )}
-            onClick={toggleShuffle}
-            aria-pressed={shuffle}>
-            <ShuffleIcon className='h-3.5 w-3.5' />
+            onClick={toggleRepeat}
+            aria-pressed={repeat}>
+            <RepeatIcon className='h-3.5 w-3.5' />
           </Button>
           <SkipButton direction='back' size='lg' onSkip={playPrevious} disabled={!_previousSong || isAdjacentLoading} />
           <PlayButton isPlaying={isPlaying} isBuffering={isBuffering} onToggle={togglePlayPause} size='lg' />
@@ -95,11 +95,11 @@ export function ExpandedPlayer({ song, expanded, onCollapse }: ExpandedPlayerPro
             size='icon'
             className={cn(
               'h-7 w-7 text-muted-foreground/70 hover:text-foreground',
-              repeat && 'text-primary hover:text-primary'
+              shuffle && 'text-primary hover:text-primary'
             )}
-            onClick={toggleRepeat}
-            aria-pressed={repeat}>
-            <RepeatIcon className='h-3.5 w-3.5' />
+            onClick={toggleShuffle}
+            aria-pressed={shuffle}>
+            <ShuffleIcon className='h-3.5 w-3.5' />
           </Button>
         </div>
       </div>
