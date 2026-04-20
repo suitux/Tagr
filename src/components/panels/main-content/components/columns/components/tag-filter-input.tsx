@@ -6,8 +6,8 @@ import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { InputGroup, InputGroupAddon, InputGroupButton, InputGroupInput } from '@/components/ui/input-group'
+import { FILTERS_MULTI_VALUE_SEPARATOR, type ColumnField } from '@/features/songs/domain'
 import { useHomeStore } from '@/stores/home-store'
-import { MULTI_VALUE_SEPARATOR, type ColumnField } from '@/features/songs/domain'
 
 let focusedTagFilterField: ColumnField | null = null
 
@@ -19,7 +19,7 @@ export function TagFilterInput({ field }: { field: ColumnField }) {
   const [inputValue, setInputValue] = useState('')
 
   const raw = columnFilters[field] ?? ''
-  const tags = raw ? raw.split(MULTI_VALUE_SEPARATOR) : []
+  const tags = raw ? raw.split(FILTERS_MULTI_VALUE_SEPARATOR) : []
 
   useLayoutEffect(() => {
     if (focusedTagFilterField === field) {
@@ -31,13 +31,13 @@ export function TagFilterInput({ field }: { field: ColumnField }) {
     const trimmed = value.trim()
     if (!trimmed || tags.includes(trimmed)) return
     const next = [...tags, trimmed]
-    setColumnFilter(field, next.join(MULTI_VALUE_SEPARATOR))
+    setColumnFilter(field, next.join(FILTERS_MULTI_VALUE_SEPARATOR))
     setInputValue('')
   }
 
   const removeTag = (index: number) => {
     const next = tags.filter((_, i) => i !== index)
-    setColumnFilter(field, next.join(MULTI_VALUE_SEPARATOR))
+    setColumnFilter(field, next.join(FILTERS_MULTI_VALUE_SEPARATOR))
   }
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

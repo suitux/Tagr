@@ -14,9 +14,9 @@ import {
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { useHomeStore } from '@/stores/home-store'
-import { MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
+import { FILTERS_MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
 import { useDistinctValues } from '@/features/songs/hooks/use-distinct-values'
+import { useHomeStore } from '@/stores/home-store'
 
 export function SelectFilterInput({ field }: { field: SongSortField }) {
   const columnFilters = useHomeStore(s => s.columnFilters)
@@ -27,11 +27,11 @@ export function SelectFilterInput({ field }: { field: SongSortField }) {
   const searchRef = useRef<HTMLInputElement>(null)
 
   const raw = columnFilters[field] ?? ''
-  const selected = raw ? raw.split(MULTI_VALUE_SEPARATOR) : []
+  const selected = raw ? raw.split(FILTERS_MULTI_VALUE_SEPARATOR) : []
 
   const toggle = (value: string) => {
     const next = selected.includes(value) ? selected.filter(v => v !== value) : [...selected, value]
-    setColumnFilter(field, next.join(MULTI_VALUE_SEPARATOR))
+    setColumnFilter(field, next.join(FILTERS_MULTI_VALUE_SEPARATOR))
   }
 
   const clearAll = () => setColumnFilter(field, '')

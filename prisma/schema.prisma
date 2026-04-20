@@ -107,7 +107,7 @@ model SongMetadata {
 
   song Song @relation(fields: [songId], references: [id], onDelete: Cascade)
 
-  @@unique([songId, key])
+  @@index([songId, key])
   @@map("song_metadata")
 }
 

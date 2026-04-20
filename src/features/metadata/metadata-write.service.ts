@@ -16,6 +16,7 @@ import {
   Id3v2PopularimeterFrame
 } from 'node-taglib-sharp'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
+import { joinMultiValue, splitMultiValue } from '@/features/songs/metadata-helpers'
 
 interface TagContext {
   file: ReturnType<typeof File.createFromPath>
@@ -75,7 +76,8 @@ const ASF_NATIVE_FIELD_MAP: Record<string, string> = {
 function writeToNonId3v2(ctx: TagContext, key: string, value: string | undefined) {
   if (ctx.xiph) {
     if (value) {
-      ctx.xiph.setFieldAsStrings(key.toUpperCase(), value)
+      const values = splitMultiValue(value)
+      ctx.xiph.setFieldAsStrings(key.toUpperCase(), ...values)
     } else {
       ctx.xiph.removeField(key.toUpperCase())
     }
@@ -140,8 +142,8 @@ function writeConvenienceFields(ctx: TagContext, metadata: SongMetadataUpdate) {
   const { tag } = ctx
 
   if (metadata.title !== undefined) tag.title = metadata.title
-  if (metadata.artist !== undefined) tag.performers = metadata.artist ? [metadata.artist] : []
-  if (metadata.sortArtist !== undefined) tag.performersSort = metadata.sortArtist ? [metadata.sortArtist] : []
+  if (metadata.artist !== undefined) tag.performers = splitMultiValue(metadata.artist)
+  if (metadata.sortArtist !== undefined) tag.performersSort = splitMultiValue(metadata.sortArtist)
   if (metadata.album !== undefined) tag.album = metadata.album
   if (metadata.sortAlbum !== undefined) tag.albumSort = metadata.sortAlbum
   if (metadata.trackNumber !== undefined) tag.track = metadata.trackNumber
@@ -150,11 +152,10 @@ function writeConvenienceFields(ctx: TagContext, metadata: SongMetadataUpdate) {
   if (metadata.discTotal !== undefined) tag.discCount = metadata.discTotal
   if (metadata.year !== undefined) tag.year = metadata.year
   if (metadata.bpm !== undefined) tag.beatsPerMinute = metadata.bpm
-  if (metadata.genre !== undefined) tag.genres = metadata.genre ? [metadata.genre] : []
-  if (metadata.albumArtist !== undefined) tag.albumArtists = metadata.albumArtist ? [metadata.albumArtist] : []
-  if (metadata.sortAlbumArtist !== undefined)
-    tag.albumArtistsSort = metadata.sortAlbumArtist ? [metadata.sortAlbumArtist] : []
-  if (metadata.composer !== undefined) tag.composers = metadata.composer ? [metadata.composer] : []
+  if (metadata.genre !== undefined) tag.genres = splitMultiValue(metadata.genre)
+  if (metadata.albumArtist !== undefined) tag.albumArtists = splitMultiValue(metadata.albumArtist)
+  if (metadata.sortAlbumArtist !== undefined) tag.albumArtistsSort = splitMultiValue(metadata.sortAlbumArtist)
+  if (metadata.composer !== undefined) tag.composers = splitMultiValue(metadata.composer)
   if (metadata.conductor !== undefined) tag.conductor = metadata.conductor
   if (metadata.comment !== undefined) tag.comment = metadata.comment
   if (metadata.grouping !== undefined) tag.grouping = metadata.grouping
@@ -232,9 +233,33 @@ function writeNativeFields(ctx: TagContext, metadata: SongMetadataUpdate) {
 // --- Custom key-value metadata ---
 
 function writeCustomTags(ctx: TagContext, customMetadata: { key: string; value: string | null }[]) {
+  // Group by key to support multi-value tags (e.g. FLAC Vorbis comments)
+  const grouped = new Map<string, string[]>()
   for (const { key, value } of customMetadata) {
     const upperKey = key.toUpperCase()
-    writeToAllNativeTags(ctx, upperKey, value ?? undefined)
+    const arr = grouped.get(upperKey) ?? []
+    if (value !== null) arr.push(value)
+    grouped.set(upperKey, arr)
+  }
+
+  for (const [upperKey, values] of grouped) {
+    if (values.length === 0) {
+      writeToAllNativeTags(ctx, upperKey, undefined)
+    } else if (ctx.xiph && values.length > 1) {
+      // Xiph (FLAC/OGG) natively supports multi-value per field
+      ctx.xiph.setFieldAsStrings(upperKey, ...values)
+      // Write joined value to other formats that don't support multi-value
+      const joined = joinMultiValue(values)!
+      if (ctx.id3v2) setId3v2Txxx(ctx.id3v2, upperKey, joined)
+      if (ctx.apple) ctx.apple.setItunesStrings('com.apple.iTunes', upperKey, joined)
+      if (ctx.asf) {
+        const descriptor = ASF_NATIVE_FIELD_MAP[upperKey] ?? upperKey
+        ctx.asf.setDescriptorString(joined, descriptor)
+      }
+      if (ctx.ape) ctx.ape.setStringValue(upperKey, joined)
+    } else {
+      writeToAllNativeTags(ctx, upperKey, values[0])
+    }
   }
 }
 

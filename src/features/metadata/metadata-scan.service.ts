@@ -10,13 +10,15 @@ import {
   SongCreateInput
 } from '@/features/metadata/domain'
 import { ScanMode } from '@/features/scan/domain'
+import type { SmartPlaylistRules } from '@/features/smart-playlists/domain'
+import { buildSmartPlaylistWhere, rulesUseMetadata } from '@/features/smart-playlists/smart-playlist-query.service'
 import {
   BOOLEAN_SONG_FIELDS,
   ColumnField,
   DATE_SONG_FIELDS,
   DURATION_SONG_FIELDS,
   METADATA_COLUMN_PREFIX,
-  MULTI_VALUE_SEPARATOR,
+  FILTERS_MULTI_VALUE_SEPARATOR,
   NUMERIC_SONG_FIELDS,
   SELECT_SONG_FIELDS,
   Song,
@@ -26,9 +28,7 @@ import {
   getMetadataKeyFromColumnId,
   isMetadataColumnId
 } from '@/features/songs/domain'
-import { buildSmartPlaylistWhere, rulesUseMetadata } from '@/features/smart-playlists/smart-playlist-query.service'
-import type { SmartPlaylistRules } from '@/features/smart-playlists/domain'
-import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
+import { FIELD_MULTI_VALUE_SEPARATOR, joinMultiValue, stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { parseDate } from '@/lib/date'
@@ -142,7 +142,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
 
       // Metadata principal
       title: common.title || null,
-      artist: common.artist || null,
+      artist: joinMultiValue(common.artists ?? []) || common.artist || null,
       sortArtist: common.artistsort || null,
       album: common.album || null,
       sortAlbum: common.albumsort || null,
@@ -152,16 +152,16 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       discTotal: common.disk?.of || null,
       year: common.year || null,
       bpm: common.bpm || null,
-      genre: common.genre?.[0] || null,
-      albumArtist: common.albumartist || null,
+      genre: joinMultiValue(common.genre ?? []) || null,
+      albumArtist: joinMultiValue(common.albumartists ?? []) || common.albumartist || null,
       sortAlbumArtist: common.albumartistsort || null,
-      composer: common.composer?.[0] || null,
-      conductor: common.conductor?.[0] || null,
+      composer: joinMultiValue(common.composer ?? []) || null,
+      conductor: joinMultiValue(common.conductor ?? []) || null,
       comment: common.comment?.[0]?.text || null,
       grouping: common.grouping || null,
-      publisher: common.label?.[0] || getNativeTagValue(metadata.native, 'PUBLISHER') || null,
-      catalogNumber: common.catalognumber?.[0] || null,
-      lyricist: common.lyricist?.[0] || null,
+      publisher: joinMultiValue(common.label ?? []) || getNativeTagValue(metadata.native, 'PUBLISHER') || null,
+      catalogNumber: joinMultiValue(common.catalognumber ?? []) || null,
+      lyricist: joinMultiValue(common.lyricist ?? []) || null,
       barcode: common.barcode || null,
       work:
         common.work ||
@@ -408,7 +408,8 @@ async function sortIdsByMetadataValue(
     SELECT s.id FROM songs s
     LEFT JOIN song_metadata sm ON sm.song_id = s.id AND sm.key LIKE ?
     WHERE s.id IN (${placeholders})
-    ORDER BY sm.value ${direction}
+    GROUP BY s.id
+    ORDER BY GROUP_CONCAT(sm.value, ${FIELD_MULTI_VALUE_SEPARATOR}) ${direction}
     ${hasLimit ? 'LIMIT ? OFFSET ?' : ''}
   `
 
@@ -431,7 +432,13 @@ async function getMetadataSortedSongIds(
 
   if (filteredSongs.length === 0) return []
 
-  return sortIdsByMetadataValue(filteredSongs.map(s => s.id), metaKey, sort, take ?? 50, skip ?? 0)
+  return sortIdsByMetadataValue(
+    filteredSongs.map(s => s.id),
+    metaKey,
+    sort,
+    take ?? 50,
+    skip ?? 0
+  )
 }
 
 function hasMetadataFilters(filters?: SongColumnFilters): boolean {
@@ -458,7 +465,7 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
 
     if (isMetadataColumnId(columnField)) {
       const metaKey = getMetadataKeyFromColumnId(columnField)
-      const values = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      const values = value.split(FILTERS_MULTI_VALUE_SEPARATOR).filter(Boolean)
       const metaConditions = values.map(v => ({
         metadata: {
           some: {
@@ -488,7 +495,7 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
     } else if (BOOLEAN_SONG_FIELDS.has(songField)) {
       conditions.push({ [field]: { equals: value === 'true' || value === '1' } })
     } else if (DURATION_SONG_FIELDS.has(songField)) {
-      const ranges = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      const ranges = value.split(FILTERS_MULTI_VALUE_SEPARATOR).filter(Boolean)
       const rangeConditions: Record<string, unknown>[] = []
       for (const range of ranges) {
         const [minStr, maxStr] = range.split('..')
@@ -506,7 +513,7 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
       }
     } else if (NUMERIC_SONG_FIELDS.has(songField)) {
       const nums = value
-        .split(MULTI_VALUE_SEPARATOR)
+        .split(FILTERS_MULTI_VALUE_SEPARATOR)
         .map(Number)
         .filter(n => !Number.isNaN(n))
       if (nums.length === 1) {
@@ -515,14 +522,14 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
         conditions.push({ [field]: { in: nums } })
       }
     } else if (SELECT_SONG_FIELDS.has(songField)) {
-      const values = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      const values = value.split(FILTERS_MULTI_VALUE_SEPARATOR).filter(Boolean)
       if (values.length === 1) {
         conditions.push({ [field]: { equals: values[0] } })
       } else if (values.length > 1) {
         conditions.push({ [field]: { in: values } })
       }
     } else {
-      const values = value.split(MULTI_VALUE_SEPARATOR).filter(Boolean)
+      const values = value.split(FILTERS_MULTI_VALUE_SEPARATOR).filter(Boolean)
       if (values.length === 1) {
         conditions.push({ [field]: { contains: values[0] } })
       } else if (values.length > 1) {
@@ -670,7 +677,11 @@ export async function getAdjacentSongs({
     const filteredSongs = await prisma.song.findMany({ where, select: { id: true } })
     if (filteredSongs.length === 0) return { previous: null, next: null }
 
-    const sortedIds = await sortIdsByMetadataValue(filteredSongs.map(s => s.id), metaKey, sort ?? 'asc')
+    const sortedIds = await sortIdsByMetadataValue(
+      filteredSongs.map(s => s.id),
+      metaKey,
+      sort ?? 'asc'
+    )
     orderedIds = sortedIds.map(id => ({ id }))
   } else {
     const defaultOrder = [{ title: 'asc' as const }]

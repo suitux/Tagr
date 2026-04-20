@@ -1,5 +1,6 @@
 import { HISTORY_TRACKABLE_FIELDS, PICTURE_FIELD } from '@/features/history/consts'
 import { BOOLEAN_SONG_FIELDS, NUMERIC_SONG_FIELDS } from '@/features/songs/domain'
+import { joinMultiValue } from '@/features/songs/metadata-helpers'
 import { Song, SongMetadata } from '@/generated/prisma/client'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { formatDate, ISO_DATE_FORMAT } from '@/lib/date'
@@ -56,20 +57,32 @@ export async function recordCustomMetadataChanges(
 ) {
   const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null; changedBy?: string }[] = []
 
+  // Group incoming changes by key to support multi-value
+  const incomingByKey = new Map<string, (string | null)[]>()
   for (const { key, value } of customMetadata) {
     const upperKey = key.toUpperCase()
+    const arr = incomingByKey.get(upperKey) ?? []
+    arr.push(value)
+    incomingByKey.set(upperKey, arr)
+  }
+
+  for (const [upperKey, newValues] of incomingByKey) {
     const historyField = `customMetadata:${upperKey}`
 
-    // Find existing value by matching the stripped key
-    const existing = existingMetadata.find(m => stripMetadataKeyPrefix(m.key) === upperKey)
-    const oldValue = existing?.value ?? null
+    // Collect all existing values for this key
+    const existingValues = existingMetadata
+      .filter(m => stripMetadataKeyPrefix(m.key) === upperKey)
+      .map(m => m.value)
 
-    if (oldValue !== value) {
+    const oldSerialized = joinMultiValue(existingValues)
+    const newSerialized = joinMultiValue(newValues)
+
+    if (oldSerialized !== newSerialized) {
       entries.push({
         songId,
         field: historyField,
-        oldValue,
-        newValue: value,
+        oldValue: oldSerialized,
+        newValue: newSerialized,
         changedBy
       })
     }

@@ -12,8 +12,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { FILTERS_MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
 import { useHomeStore } from '@/stores/home-store'
-import { MULTI_VALUE_SEPARATOR, type SongSortField } from '@/features/songs/domain'
 import { formatDuration } from '../../../utils'
 
 interface DurationRange {
@@ -50,18 +50,16 @@ export function DurationFilterInput({ field }: { field: SongSortField }) {
   const tFiles = useTranslations('files')
 
   const raw = columnFilters[field] ?? ''
-  const selected = raw ? raw.split(MULTI_VALUE_SEPARATOR) : []
+  const selected = raw ? raw.split(FILTERS_MULTI_VALUE_SEPARATOR) : []
 
   const toggle = (value: string) => {
     const next = selected.includes(value) ? selected.filter(v => v !== value) : [...selected, value]
-    setColumnFilter(field, next.join(MULTI_VALUE_SEPARATOR))
+    setColumnFilter(field, next.join(FILTERS_MULTI_VALUE_SEPARATOR))
   }
 
   const clearAll = () => setColumnFilter(field, '')
 
-  const selectedLabels = selected
-    .map(v => DURATION_RANGES.find(r => r.value === v)?.label)
-    .filter(Boolean)
+  const selectedLabels = selected.map(v => DURATION_RANGES.find(r => r.value === v)?.label).filter(Boolean)
 
   const label = selectedLabels.length === 0 ? tFiles('selectFilterAll') : selectedLabels.join(', ')
 

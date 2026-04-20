@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
-import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
+import { joinMultiValue, stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import type { UserRole } from '@/features/users/domain'
 import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import type { SongMetadata } from '@/generated/prisma/client'
@@ -19,15 +19,18 @@ interface DetailPanelCustomMetadataSectionProps {
   metadata: SongMetadata[]
 }
 
-function deduplicateMetadata(metadata: SongMetadata[]): { key: string; value: string | null }[] {
-  const seen = new Map<string, string | null>()
+function groupMetadata(metadata: SongMetadata[]): { key: string; value: string | null }[] {
+  const groups = new Map<string, (string | null)[]>()
   for (const m of metadata) {
     const stripped = stripKeyPrefix(m.key)
-    if (!seen.has(stripped)) {
-      seen.set(stripped, m.value)
-    }
+    const arr = groups.get(stripped) ?? []
+    arr.push(m.value)
+    groups.set(stripped, arr)
   }
-  return Array.from(seen.entries()).map(([key, value]) => ({ key, value }))
+  return Array.from(groups.entries()).map(([key, values]) => ({
+    key,
+    value: joinMultiValue(values)
+  }))
 }
 
 export function DetailPanelCustomMetadataSection({ songId, metadata }: DetailPanelCustomMetadataSectionProps) {
@@ -35,7 +38,7 @@ export function DetailPanelCustomMetadataSection({ songId, metadata }: DetailPan
   const { data: session } = useSession()
   const [isAdding, setIsAdding] = useState(false)
 
-  const entries = deduplicateMetadata(metadata)
+  const entries = groupMetadata(metadata)
 
   return (
     <div className='space-y-3'>
