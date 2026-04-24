@@ -20,6 +20,7 @@ concurrency:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
+  FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
 jobs:
   build-and-push:
@@ -70,9 +71,9 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Deploy to Fly.io
-        if: ${{ github.event_name == 'push' && secrets.FLY_API_TOKEN != '' }}
+        if: ${{ github.event_name == 'push' && env.FLY_API_TOKEN != '' }}
         uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --image ${{ env.REGISTRY }}/${IMAGE_NAME,,}:${{ steps.meta.outputs.version }}
-        if: ${{ github.event_name == 'push' && secrets.FLY_API_TOKEN != '' }}
+        if: ${{ github.event_name == 'push' && env.FLY_API_TOKEN != '' }}
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_API_TOKEN: ${{ env.FLY_API_TOKEN }}
