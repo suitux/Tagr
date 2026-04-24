@@ -178,6 +178,8 @@ volumes:
 docker compose up -d
 ```
 
+Published images on GHCR are multi-arch and include `linux/amd64` and `linux/arm64`.
+
 ### 5. Open your browser
 
 Navigate to [http://localhost:3000](http://localhost:3000), log in with your credentials, and hit the **scan** button to index your library.
