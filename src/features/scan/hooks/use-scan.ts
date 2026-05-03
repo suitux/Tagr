@@ -14,9 +14,58 @@ interface ScanResponse {
   result?: ScanSummaryResult
 }
 
+interface ScanStartResponse {
+  success: boolean
+  error?: string
+  job?: {
+    id: string
+    status: 'running' | 'completed' | 'failed'
+  }
+}
+
+interface ScanStatusResponse {
+  success: boolean
+  error?: string
+  job?: {
+    id: string
+    status: 'running' | 'completed' | 'failed'
+    error?: string
+    result?: ScanSummaryResult
+  }
+}
+
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
 async function scanDatabase(mode?: ScanMode): Promise<ScanResponse> {
-  const { data } = await api.get<ScanResponse>('/scan', { params: { mode } })
-  return data
+  const start = await api.post<ScanStartResponse>('/scan/start', { mode })
+
+  if (!start.data.success || !start.data.job?.id) {
+    throw new Error(start.data.error || 'Failed to start scan')
+  }
+
+  const jobId = start.data.job.id
+
+  while (true) {
+    await sleep(1000)
+    const status = await api.get<ScanStatusResponse>(`/scan/status/${jobId}`)
+
+    if (!status.data.success || !status.data.job) {
+      throw new Error(status.data.error || 'Failed to read scan status')
+    }
+
+    if (status.data.job.status === 'running') continue
+
+    if (status.data.job.status === 'failed') {
+      throw new Error(status.data.job.error || 'Scan failed')
+    }
+
+    return {
+      success: true,
+      result: status.data.job.result
+    }
+  }
 }
 
 export function useScan() {

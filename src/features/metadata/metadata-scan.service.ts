@@ -17,7 +17,6 @@ import {
   ColumnField,
   DATE_SONG_FIELDS,
   DURATION_SONG_FIELDS,
-  METADATA_COLUMN_PREFIX,
   FILTERS_MULTI_VALUE_SEPARATOR,
   NUMERIC_SONG_FIELDS,
   SELECT_SONG_FIELDS,
@@ -32,6 +31,8 @@ import { FIELD_MULTI_VALUE_SEPARATOR, joinMultiValue, stripKeyPrefix } from '@/f
 import { isMusicFile } from '@/features/songs/song-file-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { parseDate } from '@/lib/date'
+
+const SCAN_FILE_BATCH_SIZE = 100
 
 async function getAllMusicFiles(folderPath: string): Promise<string[]> {
   const files: string[] = []
@@ -123,7 +124,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       }
     }
 
-    // Extraer imágenes
+    // Extract embedded pictures
     const pictures: PictureInput[] = (common.picture || []).map(pic => ({
       type: pic.type || null,
       format: pic.format,
@@ -140,7 +141,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       createdAt: stats.birthtime,
       modifiedAt: stats.mtime,
 
-      // Metadata principal
+      // Primary metadata
       title: common.title || null,
       artist: joinMultiValue(common.artists ?? []) || common.artist || null,
       sortArtist: common.artistsort || null,
@@ -193,7 +194,7 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       lossless: format.lossless || false,
       encoder: common.encodedby || null,
 
-      // Relaciones
+      // Relations
       metadata: additionalMetadata.length > 0 ? additionalMetadata : undefined,
       pictures: pictures.length > 0 ? pictures : undefined
     }
@@ -233,96 +234,104 @@ export async function scanFolderAndUpdateDatabase(
     existingMap = new Map(existingSongs.map(s => [s.filePath, s.modifiedAt!]))
   }
 
-  for (let i = 0; i < files.length; i++) {
-    const filePath = files[i]
+  for (let start = 0; start < files.length; start += SCAN_FILE_BATCH_SIZE) {
+    const batchFiles = files.slice(start, start + SCAN_FILE_BATCH_SIZE)
 
-    onProgress?.({
-      current: i + 1,
-      total,
-      currentFile: filePath
-    })
+    for (let batchIndex = 0; batchIndex < batchFiles.length; batchIndex++) {
+      const i = start + batchIndex
+      const filePath = batchFiles[batchIndex]
 
-    // In quick mode, skip files that haven't changed
-    if (existingMap) {
-      try {
-        const stats = await fs.stat(filePath)
-        const existingModified = existingMap.get(filePath)
-        if (existingModified && existingModified.getTime() === stats.mtime.getTime()) {
-          result.skippedFiles.push(filePath)
-          continue
+      onProgress?.({
+        current: i + 1,
+        total,
+        currentFile: filePath
+      })
+
+      // In quick mode, skip files that haven't changed
+      if (existingMap) {
+        try {
+          const stats = await fs.stat(filePath)
+          const existingModified = existingMap.get(filePath)
+          if (existingModified && existingModified.getTime() === stats.mtime.getTime()) {
+            result.skippedFiles.push(filePath)
+            continue
+          }
+        } catch {
+          // If we can't stat the file, proceed with scanning it
         }
-      } catch {
-        // If we can't stat the file, proceed with scanning it
+      }
+
+      const songData = await extractMetadata(filePath)
+
+      if (!songData) {
+        result.errors.push({ path: filePath, error: 'Failed to extract metadata' })
+        continue
+      }
+
+      try {
+        // Check whether the song already exists
+        const existing = await prisma.song.findUnique({
+          where: { filePath }
+        })
+
+        const { metadata, pictures, ...songFields } = songData
+
+        if (existing) {
+          // Update: delete existing metadata and pictures first
+          await prisma.songMetadata.deleteMany({ where: { songId: existing.id } })
+          await prisma.songPicture.deleteMany({ where: { songId: existing.id } })
+
+          // Update song
+          await prisma.song.update({
+            where: { filePath },
+            data: {
+              ...songFields,
+              scannedAt: new Date(),
+              ...(metadata && {
+                metadata: {
+                  create: metadata
+                }
+              }),
+              ...(pictures && {
+                pictures: {
+                  create: pictures
+                }
+              })
+            }
+          })
+          result.updatedFiles.push(filePath)
+        } else {
+          // Create a new song
+          await prisma.song.create({
+            data: {
+              ...songFields,
+              ...(metadata && {
+                metadata: {
+                  create: metadata
+                }
+              }),
+              ...(pictures && {
+                pictures: {
+                  create: pictures
+                }
+              })
+            }
+          })
+          result.addedFiles.push(filePath)
+        }
+      } catch (error) {
+        result.errors.push({
+          path: filePath,
+          error: error instanceof Error ? error.message : 'Unknown database error'
+        })
       }
     }
 
-    const songData = await extractMetadata(filePath)
-
-    if (!songData) {
-      result.errors.push({ path: filePath, error: 'Failed to extract metadata' })
-      continue
-    }
-
-    try {
-      // Verificar si ya existe
-      const existing = await prisma.song.findUnique({
-        where: { filePath }
-      })
-
-      const { metadata, pictures, ...songFields } = songData
-
-      if (existing) {
-        // Actualizar: primero eliminar metadata y pictures existentes
-        await prisma.songMetadata.deleteMany({ where: { songId: existing.id } })
-        await prisma.songPicture.deleteMany({ where: { songId: existing.id } })
-
-        // Actualizar song
-        await prisma.song.update({
-          where: { filePath },
-          data: {
-            ...songFields,
-            scannedAt: new Date(),
-            ...(metadata && {
-              metadata: {
-                create: metadata
-              }
-            }),
-            ...(pictures && {
-              pictures: {
-                create: pictures
-              }
-            })
-          }
-        })
-        result.updatedFiles.push(filePath)
-      } else {
-        // Crear nuevo
-        await prisma.song.create({
-          data: {
-            ...songFields,
-            ...(metadata && {
-              metadata: {
-                create: metadata
-              }
-            }),
-            ...(pictures && {
-              pictures: {
-                create: pictures
-              }
-            })
-          }
-        })
-        result.addedFiles.push(filePath)
-      }
-    } catch (error) {
-      result.errors.push({
-        path: filePath,
-        error: error instanceof Error ? error.message : 'Unknown database error'
-      })
-    }
+    // Yield between batches so long scans don't monopolize the event loop.
+    await new Promise<void>(resolve => setImmediate(resolve))
   }
 
-  // Eliminar canciones que ya no existen en el sistema de archivos
+  // Delete songs that no longer exist on disk
   const existingPaths = new Set(files)
   const songsInDb = await prisma.song.findMany({
     where: folderPathFilter,
