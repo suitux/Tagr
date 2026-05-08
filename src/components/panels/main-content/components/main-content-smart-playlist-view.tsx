@@ -78,6 +78,7 @@ export function MainContentSmartPlaylistView({ playlistId }: Props) {
 
       <SongsDataTable
         songs={songs}
+        totalSongs={totalSongs}
         isLoadingSongs={isLoading}
         isRefetching={isRefetching}
         fetchNextPage={fetchNextPage}

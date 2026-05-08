@@ -47,6 +47,7 @@ export function MainContentFileListView() {
       />
       <SongsDataTable
         songs={songs}
+        totalSongs={totalSongs}
         isLoadingSongs={isLoadingSongs}
         isRefetching={isRefetching}
         fetchNextPage={fetchNextPage}

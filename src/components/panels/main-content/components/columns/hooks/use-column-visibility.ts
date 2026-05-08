@@ -22,7 +22,9 @@ const useColumnVisibility = ({ columns }: UseColumnVisibilityParams) => {
     for (const col of columns) {
       const id = col.id
       if (id && !(id in result)) {
-        result[id as ColumnField] = false
+        // Non-hideable columns must default to visible; otherwise dynamically
+        // added columns (e.g. the bulk-select column) appear hidden.
+        result[id as ColumnField] = col.enableHiding === false
       }
     }
     return result

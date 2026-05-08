@@ -838,3 +838,50 @@ export async function countSongsByPlaylist(
   const where = buildPlaylistWhereClause(rules, search, filters)
   return prisma.song.count({ where })
 }
+
+export async function getSongIdsByFolder(
+  folderPath: string | null,
+  search?: string,
+  filters?: SongColumnFilters,
+  limit?: number
+): Promise<number[]> {
+  const columnFilterConditions = buildColumnFiltersWhere(filters)
+  const where = {
+    ...(folderPath && { folderPath }),
+    ...(search && {
+      OR: [
+        { title: { contains: search } },
+        { artist: { contains: search } },
+        { publisher: { contains: search } },
+        { album: { contains: search } },
+        { fileName: { contains: search } },
+        { comment: { contains: search } }
+      ]
+    }),
+    ...(columnFilterConditions.length > 0 && {
+      AND: columnFilterConditions
+    })
+  }
+
+  const rows = await prisma.song.findMany({
+    where,
+    select: { id: true },
+    ...(limit && { take: limit })
+  })
+  return rows.map(r => r.id)
+}
+
+export async function getSongIdsByPlaylist(
+  rules: SmartPlaylistRules,
+  search?: string,
+  filters?: SongColumnFilters,
+  limit?: number
+): Promise<number[]> {
+  const where = buildPlaylistWhereClause(rules, search, filters)
+  const rows = await prisma.song.findMany({
+    where,
+    select: { id: true },
+    ...(limit && { take: limit })
+  })
+  return rows.map(r => r.id)
+}

@@ -9,6 +9,7 @@ import { StarPromptDialog } from '@/components/star-prompt-dialog'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
 import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 
 export function HomeClientPage() {
@@ -22,6 +23,7 @@ export function HomeClientPage() {
     setSelectedPlaylistId(null)
     setSelectedSongId(null)
     setFolderSheetOpen(false)
+    useBulkSelectionStore.getState().clear()
   }
 
   const handlePlaylistSelect = (playlistId: number | null) => {
@@ -29,6 +31,7 @@ export function HomeClientPage() {
     setSelectedFolderId(null)
     setSelectedSongId(null)
     setFolderSheetOpen(false)
+    useBulkSelectionStore.getState().clear()
   }
 
   return (

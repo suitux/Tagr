@@ -401,5 +401,55 @@
       "isTrue": "is true",
       "isFalse": "is false"
     }
+  },
+  "bulkEdit": {
+    "selectAllButton": "Select all songs",
+    "contextMenu": {
+      "selectSong": "Select song",
+      "selectAllFolder": "Select entire folder",
+      "selectAllPlaylist": "Select entire smart playlist",
+      "clearSelection": "Clear selection"
+    },
+    "actionBar": {
+      "selectedCount": "{count, plural, one {# song selected} other {# songs selected}}",
+      "wholeFolder": "(whole folder)",
+      "wholePlaylist": "(whole playlist)",
+      "edit": "Edit",
+      "fetchCovers": "Get covers from MusicBrainz",
+      "cancel": "Cancel selection"
+    },
+    "edit": {
+      "title": "Bulk edit",
+      "description": "Touched fields will be applied to every selected song. Untouched fields stay unchanged.",
+      "variousPlaceholder": "(various)",
+      "partialSampleNote": "Showing common values from {loaded} loaded songs out of {total}. Untouched fields will stay unchanged on every selected song.",
+      "noFieldsTouched": "Edit at least one field before continuing.",
+      "next": "Continue",
+      "sections": {
+        "music": "Music",
+        "track": "Track",
+        "misc": "Misc"
+      }
+    },
+    "cover": {
+      "title": "Get covers from MusicBrainz",
+      "description": "Each selected song looks up its own MusicBrainz release and writes the cover. The operation is rate-limited to one request per second.",
+      "estimate": "Estimated time: ~{duration} for {count, plural, one {# song} other {# songs}}.",
+      "warning": "Existing cover art will be overwritten."
+    },
+    "confirm": {
+      "affecting": "{count, plural, one {# song affected} other {# songs affected}}",
+      "applyToCount": "Apply to {count, plural, one {# song} other {# songs}}",
+      "context": {
+        "explicit": "{count, plural, one {# song selected} other {# songs selected}}",
+        "folder": "Folder {name}",
+        "playlist": "Smart playlist {name}"
+      }
+    },
+    "result": {
+      "success": "{count, plural, one {# song updated} other {# songs updated}}",
+      "partial": "{ok} updated, {failed} failed",
+      "allFailed": "All {count} songs failed"
+    }
   }
 }
