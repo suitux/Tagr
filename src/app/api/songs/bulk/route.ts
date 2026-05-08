@@ -8,6 +8,7 @@ import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 import { requireRole } from '@/lib/api/auth-guard'
+import { ndjsonStreamResponse, type NdjsonEvent } from '@/lib/ndjson-stream'
 
 interface BulkUpdateBody {
   target: BulkTarget
@@ -15,24 +16,11 @@ interface BulkUpdateBody {
   customMetadata?: { key: string; value: string | null }[]
 }
 
-type ResultEntry =
+export type BulkUpdateResult =
   | { songId: number; ok: true; song: SongWithMetadata }
   | { songId: number; ok: false; error: string }
 
-interface BulkUpdateSuccessResponse {
-  success: true
-  resolvedCount: number
-  results: ResultEntry[]
-}
-
-interface BulkUpdateErrorResponse {
-  success: false
-  error: string
-}
-
-type BulkUpdateResponse = BulkUpdateSuccessResponse | BulkUpdateErrorResponse
-
-export async function PATCH(request: Request): Promise<NextResponse<BulkUpdateResponse>> {
+export async function PATCH(request: Request): Promise<Response> {
   const guard = await requireRole('tagger')
   if (!guard.authorized) return guard.response
 
@@ -67,39 +55,39 @@ export async function PATCH(request: Request): Promise<NextResponse<BulkUpdateRe
   }
 
   const changedBy = guard.session.user?.name ?? undefined
-  const results: ResultEntry[] = []
 
-  for (const songId of songIds) {
-    try {
-      const song = await prisma.song.findUnique({ where: { id: songId }, include: { metadata: true } })
-      if (!song) {
-        results.push({ songId, ok: false, error: 'Song not found' })
-        continue
+  return ndjsonStreamResponse<BulkUpdateResult>(async function* () {
+    yield { type: 'start', total: songIds.length } satisfies NdjsonEvent<BulkUpdateResult>
+
+    for (let i = 0; i < songIds.length; i++) {
+      const songId = songIds[i]
+      let entry: BulkUpdateResult
+      try {
+        const song = await prisma.song.findUnique({ where: { id: songId }, include: { metadata: true } })
+        if (!song) {
+          entry = { songId, ok: false, error: 'Song not found' }
+        } else {
+          if (hasStandardFields) {
+            await recordChanges(song, standardFields as Record<string, unknown>, changedBy)
+          }
+          if (hasCustom) {
+            await recordCustomMetadataChanges(songId, song.metadata, customMetadata!, changedBy)
+          }
+          await writeMetadataToFile(song.filePath, {
+            ...standardFields,
+            ...(hasCustom && { customMetadata })
+          })
+          const updated = await rescanSongFileAndSaveIntoDb(songId)
+          entry = { songId, ok: true, song: updated }
+        }
+      } catch (e) {
+        console.error(`Bulk update failed for song ${songId}:`, e)
+        entry = { songId, ok: false, error: e instanceof Error ? e.message : 'Unknown error' }
       }
 
-      if (hasStandardFields) {
-        await recordChanges(song, standardFields as Record<string, unknown>, changedBy)
-      }
-      if (hasCustom) {
-        await recordCustomMetadataChanges(songId, song.metadata, customMetadata!, changedBy)
-      }
-
-      await writeMetadataToFile(song.filePath, {
-        ...standardFields,
-        ...(hasCustom && { customMetadata })
-      })
-
-      const updated = await rescanSongFileAndSaveIntoDb(songId)
-      results.push({ songId, ok: true, song: updated })
-    } catch (e) {
-      console.error(`Bulk update failed for song ${songId}:`, e)
-      results.push({
-        songId,
-        ok: false,
-        error: e instanceof Error ? e.message : 'Unknown error'
-      })
+      yield { type: 'result', index: i, result: entry }
     }
-  }
 
-  return NextResponse.json({ success: true, resolvedCount: songIds.length, results })
+    yield { type: 'done', resolvedCount: songIds.length }
+  })
 }

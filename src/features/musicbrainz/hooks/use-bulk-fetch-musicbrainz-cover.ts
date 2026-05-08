@@ -5,37 +5,64 @@ import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
 import { getSongQueryKey } from '@/features/songs/hooks/use-song'
 import { type SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
+import { readNdjsonStream } from '@/lib/ndjson-stream'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
-import { api } from '@/lib/axios'
 import { type InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
 
-interface BulkCoverParams {
-  target: BulkTarget
-}
-
-type ResultEntry =
+type BulkCoverResult =
   | { songId: number; ok: true; song: SongWithMetadata }
   | { songId: number; ok: false; error: string }
 
-interface BulkCoverSuccessResponse {
-  success: true
+export interface BulkProgress {
+  completed: number
+  total: number
+  lastResult?: BulkCoverResult
+}
+
+interface BulkCoverParams {
+  target: BulkTarget
+  onProgress?: (progress: BulkProgress) => void
+}
+
+interface BulkCoverResponse {
   resolvedCount: number
-  results: ResultEntry[]
+  results: BulkCoverResult[]
 }
 
-interface BulkCoverErrorResponse {
-  success: false
-  error: string
-}
+async function bulkFetchCover(params: BulkCoverParams): Promise<BulkCoverResponse> {
+  const { onProgress, ...payload } = params
 
-type BulkCoverResponse = BulkCoverSuccessResponse | BulkCoverErrorResponse
+  const response = await fetch('/api/songs/bulk/musicbrainz/fetch-cover', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload)
+  })
 
-async function bulkFetchCover(params: BulkCoverParams): Promise<BulkCoverSuccessResponse> {
-  const response = await api.post<BulkCoverResponse>('/songs/bulk/musicbrainz/fetch-cover', params)
-  if (!response.data.success) {
-    throw new Error(response.data.error)
+  if (!response.ok) {
+    const data = await response.json().catch(() => null)
+    throw new Error(data?.error ?? `Request failed with status ${response.status}`)
   }
-  return response.data
+
+  const results: BulkCoverResult[] = []
+  let total = 0
+  let resolvedCount = 0
+
+  for await (const event of readNdjsonStream<BulkCoverResult>(response)) {
+    if (event.type === 'start') {
+      total = event.total
+      onProgress?.({ completed: 0, total })
+    } else if (event.type === 'result') {
+      results.push(event.result)
+      onProgress?.({ completed: results.length, total, lastResult: event.result })
+    } else if (event.type === 'done') {
+      resolvedCount = event.resolvedCount
+    } else if (event.type === 'error') {
+      throw new Error(event.error)
+    }
+  }
+
+  return { resolvedCount, results }
 }
 
 type SongsResponse = SongsSuccessResponse | { success: false; error: string }

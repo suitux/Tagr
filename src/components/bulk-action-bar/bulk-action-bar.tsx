@@ -32,6 +32,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const [editOpen, setEditOpen] = useState(false)
   const [confirmKind, setConfirmKind] = useState<'edit' | 'cover' | null>(null)
   const [pendingPatch, setPendingPatch] = useState<Partial<SongMetadataUpdate> | null>(null)
+  const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
 
   const updateMutation = useBulkUpdateSongs()
   const coverMutation = useBulkFetchMusicBrainzCover()
@@ -58,6 +59,11 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     setEditOpen(false)
     setConfirmKind(null)
     setPendingPatch(null)
+    setProgress(null)
+  }
+
+  const handleProgress = (p: { completed: number; total: number }) => {
+    setProgress({ completed: p.completed, total: p.total })
   }
 
   const reportResults = (results: { ok: boolean }[]) => {
@@ -75,7 +81,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const runBulkEdit = async (target: ReturnType<typeof buildBulkTargetFromSelection>, patch: Partial<SongMetadataUpdate>) => {
     if (!target) return
     try {
-      const result = await updateMutation.mutateAsync({ target, metadata: patch })
+      const result = await updateMutation.mutateAsync({ target, metadata: patch, onProgress: handleProgress })
       reportResults(result.results)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Bulk update failed')
@@ -87,7 +93,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const runBulkCover = async (target: ReturnType<typeof buildBulkTargetFromSelection>) => {
     if (!target) return
     try {
-      const result = await coverMutation.mutateAsync({ target })
+      const result = await coverMutation.mutateAsync({ target, onProgress: handleProgress })
       reportResults(result.results)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Bulk cover fetch failed')
@@ -153,6 +159,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
         changes={confirmChanges}
         warning={confirmWarning}
         busy={busy}
+        progress={progress}
       />
     </>
   )

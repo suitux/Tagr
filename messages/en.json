@@ -437,6 +437,9 @@
       "estimate": "Estimated time: ~{duration} for {count, plural, one {# song} other {# songs}}.",
       "warning": "Existing cover art will be overwritten."
     },
+    "progress": {
+      "label": "Processing {completed} / {total}"
+    },
     "confirm": {
       "affecting": "{count, plural, one {# song affected} other {# songs affected}}",
       "applyToCount": "Apply to {count, plural, one {# song} other {# songs}}",

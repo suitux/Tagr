@@ -7,39 +7,66 @@ import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
 import { getSongQueryKey } from '@/features/songs/hooks/use-song'
 import { type SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
+import { readNdjsonStream } from '@/lib/ndjson-stream'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
-import { api } from '@/lib/axios'
 import { type InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
+
+type BulkUpdateResult =
+  | { songId: number; ok: true; song: SongWithMetadata }
+  | { songId: number; ok: false; error: string }
+
+export interface BulkProgress {
+  completed: number
+  total: number
+  lastResult?: BulkUpdateResult
+}
 
 interface BulkUpdateParams {
   target: BulkTarget
   metadata?: Partial<SongMetadataUpdate>
   customMetadata?: { key: string; value: string | null }[]
+  onProgress?: (progress: BulkProgress) => void
 }
 
-type ResultEntry =
-  | { songId: number; ok: true; song: SongWithMetadata }
-  | { songId: number; ok: false; error: string }
-
-interface BulkUpdateSuccessResponse {
-  success: true
+interface BulkUpdateResponse {
   resolvedCount: number
-  results: ResultEntry[]
+  results: BulkUpdateResult[]
 }
 
-interface BulkUpdateErrorResponse {
-  success: false
-  error: string
-}
+async function bulkUpdate(params: BulkUpdateParams): Promise<BulkUpdateResponse> {
+  const { onProgress, ...payload } = params
 
-type BulkUpdateResponse = BulkUpdateSuccessResponse | BulkUpdateErrorResponse
+  const response = await fetch('/api/songs/bulk', {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify(payload)
+  })
 
-async function bulkUpdate(params: BulkUpdateParams): Promise<BulkUpdateSuccessResponse> {
-  const response = await api.patch<BulkUpdateResponse>('/songs/bulk', params)
-  if (!response.data.success) {
-    throw new Error(response.data.error)
+  if (!response.ok) {
+    const data = await response.json().catch(() => null)
+    throw new Error(data?.error ?? `Request failed with status ${response.status}`)
   }
-  return response.data
+
+  const results: BulkUpdateResult[] = []
+  let total = 0
+  let resolvedCount = 0
+
+  for await (const event of readNdjsonStream<BulkUpdateResult>(response)) {
+    if (event.type === 'start') {
+      total = event.total
+      onProgress?.({ completed: 0, total })
+    } else if (event.type === 'result') {
+      results.push(event.result)
+      onProgress?.({ completed: results.length, total, lastResult: event.result })
+    } else if (event.type === 'done') {
+      resolvedCount = event.resolvedCount
+    } else if (event.type === 'error') {
+      throw new Error(event.error)
+    }
+  }
+
+  return { resolvedCount, results }
 }
 
 type SongsResponse = SongsSuccessResponse | { success: false; error: string }
@@ -88,9 +115,6 @@ export function useBulkUpdateSongs() {
         incrementEditCount()
       }
 
-      // For "all-in-context" mode, the server may have updated rows that
-      // weren't loaded into the paginated cache. Invalidate the appropriate
-      // list query so it refetches.
       if (variables.target.mode === 'all-in-context') {
         if (variables.target.context.type === 'folder') {
           void queryClient.invalidateQueries({

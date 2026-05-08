@@ -16,6 +16,7 @@ interface BulkConfirmModalProps {
   changes: ReactNode
   warning?: string
   busy?: boolean
+  progress?: { completed: number; total: number } | null
 }
 
 export function BulkConfirmModal({
@@ -27,10 +28,14 @@ export function BulkConfirmModal({
   contextLabel,
   changes,
   warning,
-  busy = false
+  busy = false,
+  progress
 }: BulkConfirmModalProps) {
   const tCommon = useTranslations('common')
   const tBulk = useTranslations('bulkEdit')
+
+  const showProgress = busy && progress && progress.total > 0
+  const pct = showProgress ? Math.min(100, Math.round((progress!.completed / progress!.total) * 100)) : 0
 
   return (
     <Dialog open={open} onOpenChange={busy ? undefined : onOpenChange}>
@@ -48,6 +53,20 @@ export function BulkConfirmModal({
             <p className='text-xs text-destructive border border-destructive/30 bg-destructive/5 rounded-md px-2.5 py-2'>
               {warning}
             </p>
+          )}
+          {showProgress && (
+            <div className='space-y-1.5'>
+              <div className='flex items-center justify-between text-xs text-muted-foreground'>
+                <span>{tBulk('progress.label', { completed: progress!.completed, total: progress!.total })}</span>
+                <span>{pct}%</span>
+              </div>
+              <div className='h-2 w-full overflow-hidden rounded-full bg-muted'>
+                <div
+                  className='h-full bg-primary transition-[width] duration-150 ease-out'
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+            </div>
           )}
         </div>
 
