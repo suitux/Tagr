@@ -1,5 +1,6 @@
 'use client'
 
+import { CheckSquareIcon, FolderCheckIcon, ListChecksIcon, XIcon } from 'lucide-react'
 import { useMemo, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import {
@@ -54,21 +55,29 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
     selectAllInContext(context, totalSongs)
   }
 
-  const allLabel =
-    selectedPlaylistId !== null ? tBulk('contextMenu.selectAllPlaylist') : tBulk('contextMenu.selectAllFolder')
+  const isPlaylist = selectedPlaylistId !== null
+  const allLabel = isPlaylist ? tBulk('contextMenu.selectAllPlaylist') : tBulk('contextMenu.selectAllFolder')
+  const AllIcon = isPlaylist ? ListChecksIcon : FolderCheckIcon
 
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
       <ContextMenuContent>
-        <ContextMenuItem onSelect={() => toggle(row.id)}>{tBulk('contextMenu.selectSong')}</ContextMenuItem>
+        <ContextMenuItem onSelect={() => toggle(row.id)}>
+          <CheckSquareIcon />
+          {tBulk('contextMenu.selectSong')}
+        </ContextMenuItem>
         <ContextMenuItem onSelect={handleSelectAll} disabled={totalSongs === null || totalSongs === 0}>
+          <AllIcon />
           {allLabel}
         </ContextMenuItem>
         {isActive && (
           <>
             <ContextMenuSeparator />
-            <ContextMenuItem onSelect={() => clear()}>{tBulk('contextMenu.clearSelection')}</ContextMenuItem>
+            <ContextMenuItem onSelect={() => clear()}>
+              <XIcon />
+              {tBulk('contextMenu.clearSelection')}
+            </ContextMenuItem>
           </>
         )}
       </ContextMenuContent>
