@@ -23,7 +23,7 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
 
   const pictureUrl = getSongPictureUrl(currentSong.id, updatedSong?.modifiedAt)
 
-  const handleSongTitleClick = () => {
+  const handleSongClick = () => {
     setSelectedSongId(currentSong.id)
   }
 
@@ -47,7 +47,7 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
         </div>
 
         <div className={cn('min-w-0 flex-1', expanded && 'hidden')}>
-          <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongTitleClick}>
+          <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongClick}>
             {currentSong.title || currentSong.fileName}
           </p>
           {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
@@ -63,7 +63,9 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
       </div>
 
       <div className={cn('flex justify-center', !expanded && 'hidden')}>
-        <div className='w-full max-w-64 aspect-square rounded-lg bg-muted overflow-hidden flex items-center justify-center'>
+        <div
+          className='w-full max-w-64 aspect-square rounded-lg bg-muted overflow-hidden flex items-center justify-center cursor-pointer'
+          onClick={handleSongClick}>
           <Image
             src={pictureUrl}
             alt=''
@@ -77,7 +79,7 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
       </div>
 
       <div className={cn('text-center space-y-0.5', !expanded && 'hidden')}>
-        <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongTitleClick}>
+        <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongClick}>
           {currentSong.title || currentSong.fileName}
         </p>
         {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
