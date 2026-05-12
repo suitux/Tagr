@@ -12,6 +12,7 @@ import { genericJsonObjectParser } from '@/features/config/parsers'
 import { type ColumnField, Song } from '@/features/songs/domain'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { useDelayedLoading } from '@/hooks/use-delayed-loading'
+import { useKeyPress } from '@/hooks/use-key-press'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
 import { useBulkSelectionStore, useIsSelectionActive } from '@/stores/bulk-selection-store'
@@ -65,6 +66,9 @@ export function SongsDataTable({
   const { data: metadataKeys = [] } = useMetadataKeys()
   const selectionActive = useIsSelectionActive()
   const toggleSelection = useBulkSelectionStore(s => s.toggle)
+  const clearSelection = useBulkSelectionStore(s => s.clear)
+  useKeyPress('Escape', clearSelection, { enabled: selectionActive })
+
   const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs })
   const { data: columnVisibility } = useColumnVisibility({ columns })
 
