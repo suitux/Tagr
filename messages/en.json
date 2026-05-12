@@ -435,7 +435,7 @@
       "title": "Get covers from MusicBrainz",
       "description": "Each selected song looks up its own MusicBrainz release and writes the cover. The operation is rate-limited to one request per second.",
       "estimate": "Estimated time: ~{duration} for {count, plural, one {# song} other {# songs}}.",
-      "warning": "Existing cover art will be overwritten."
+      "warning": "Existing cover art will be overwritten, but can be restored from the history if needed."
     },
     "progress": {
       "label": "Processing {completed} / {total}"
