@@ -49,7 +49,9 @@ export function SelectAllHeaderCheckbox({ totalSongs }: SelectAllHeaderCheckboxP
   }
 
   return (
-    <div className='flex items-center justify-center' onClick={e => e.stopPropagation()}>
+    <div
+      className='flex items-center justify-center animate-in fade-in zoom-in-75 slide-in-from-left-2 duration-200'
+      onClick={e => e.stopPropagation()}>
       <Checkbox checked={checked} onCheckedChange={handleClick} aria-label={tBulk('selectAllButton')} />
     </div>
   )

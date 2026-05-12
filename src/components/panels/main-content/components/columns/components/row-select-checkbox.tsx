@@ -15,7 +15,7 @@ export function RowSelectCheckbox({ songId }: RowSelectCheckboxProps) {
 
   return (
     <div
-      className='flex items-center justify-center'
+      className='flex items-center justify-center animate-in fade-in zoom-in-75 slide-in-from-left-2 duration-200'
       onClick={e => {
         e.stopPropagation()
       }}>
