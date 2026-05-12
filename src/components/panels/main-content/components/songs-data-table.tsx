@@ -1,10 +1,11 @@
 'use client'
 
-import { LoaderCircle } from 'lucide-react'
+import { FilterXIcon, LoaderCircle } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { BulkActionBar } from '@/components/bulk-action-bar/bulk-action-bar'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
+import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
@@ -14,7 +15,7 @@ import { useDelayedLoading } from '@/hooks/use-delayed-loading'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
 import { useBulkSelectionStore, useIsSelectionActive } from '@/stores/bulk-selection-store'
-import { useHomeStore } from '@/stores/home-store'
+import { useHomeStore, useIsAnyFilterActive } from '@/stores/home-store'
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
@@ -50,9 +51,16 @@ export function SongsDataTable({
   const sorting = useHomeStore(s => s.sorting)
   const setSorting = useHomeStore(s => s.setSorting)
   const clearSorting = useHomeStore(s => s.clearSorting)
-  const columnFilters = useHomeStore(s => s.columnFilters)
-  const search = useHomeStore(s => s.search)
-  const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
+  const clearColumnFilters = useHomeStore(s => s.clearColumnFilters)
+  const setSearch = useHomeStore(s => s.setSearch)
+  const isAnyFilterActive = useIsAnyFilterActive()
+
+  const tFiles = useTranslations('files')
+
+  const handleClearFilters = () => {
+    clearColumnFilters()
+    setSearch('')
+  }
 
   const { data: metadataKeys = [] } = useMetadataKeys()
   const selectionActive = useIsSelectionActive()
@@ -110,9 +118,17 @@ export function SongsDataTable({
   return (
     <div className='pt-4 px-2 md:px-4 flex flex-col overflow-hidden flex-1'>
       <div className='flex justify-between mb-2'>
-        <div className={cn('flex items-center justify-center py-1.5 gap-2', { invisible: !showLoading })}>
-          <LoaderCircle className='h-4 w-4 animate-spin text-muted-foreground' />
-          {tCommon('loading')}
+        <div className={'flex items-center gap-4'}>
+          {isAnyFilterActive && (
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              <FilterXIcon />
+              {tFiles('clearFilters')}
+            </Button>
+          )}
+          <div className={cn('flex items-center justify-center py-1.5 gap-2', { invisible: !showLoading })}>
+            <LoaderCircle className='h-4 w-4 animate-spin text-muted-foreground' />
+            {tCommon('loading')}
+          </div>
         </div>
         <div className={'flex gap-2'}>
           <SelectAllSongsButton totalSongs={totalSongs} />

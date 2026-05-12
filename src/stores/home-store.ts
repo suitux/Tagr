@@ -43,3 +43,7 @@ export const useHomeStore = create<HomeState>(set => ({
   setScanLastResult: result => set({ scanLastResult: result }),
   setScanSummaryOpen: open => set({ scanSummaryOpen: open })
 }))
+
+export function useIsAnyFilterActive(): boolean {
+  return useHomeStore(s => s.search.length > 0 || Object.values(s.columnFilters).some(v => !!v))
+}

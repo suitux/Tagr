@@ -7,17 +7,19 @@ import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
+import { useHomeStore } from '@/stores/home-store'
 import { usePlayerStore } from '@/stores/player-store'
 
-interface SidebarPlayerImageProps {
+interface SidebarPlayerImageWithSongProps {
   expanded: boolean
   onToggleExpanded: () => void
 }
 
-export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayerImageProps) {
+export function SidebarPlayerImageWithSong({ expanded, onToggleExpanded }: SidebarPlayerImageWithSongProps) {
   const currentSong = usePlayerStore(s => s.currentSong)
   const { setSelectedSongId, selectedSongId } = useSelectedSong()
   const { data: updatedSong } = useSong(selectedSongId ?? undefined)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
 
   if (!currentSong) return null
 
@@ -25,6 +27,14 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
 
   const handleSongClick = () => {
     setSelectedSongId(currentSong.id)
+  }
+
+  const handleArtistClick = () => {
+    if (currentSong.artist) setColumnFilter('artist', currentSong.artist)
+  }
+
+  const handleAlbumClick = () => {
+    if (currentSong.album) setColumnFilter('album', currentSong.album)
   }
 
   return (
@@ -50,7 +60,13 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
           <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongClick}>
             {currentSong.title || currentSong.fileName}
           </p>
-          {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
+          {currentSong.artist && (
+            <p
+              className='text-xs text-muted-foreground truncate cursor-pointer hover:underline'
+              onClick={handleArtistClick}>
+              {currentSong.artist}
+            </p>
+          )}
         </div>
 
         <Button
@@ -82,8 +98,20 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
         <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongClick}>
           {currentSong.title || currentSong.fileName}
         </p>
-        {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
-        {currentSong.album && <p className='text-xs text-muted-foreground/70 truncate'>{currentSong.album}</p>}
+        {currentSong.artist && (
+          <p
+            className='text-xs text-muted-foreground truncate cursor-pointer hover:underline'
+            onClick={handleArtistClick}>
+            {currentSong.artist}
+          </p>
+        )}
+        {currentSong.album && (
+          <p
+            className='text-xs text-muted-foreground/70 truncate cursor-pointer hover:underline'
+            onClick={handleAlbumClick}>
+            {currentSong.album}
+          </p>
+        )}
       </div>
     </>
   )

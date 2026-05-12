@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { useHomeStore } from '@/stores/home-store'
+import { useHomeStore, useIsAnyFilterActive } from '@/stores/home-store'
 import { useCreateSavedFilter } from '@/features/saved-filters/hooks/use-create-saved-filter'
 import { useDeleteSavedFilter } from '@/features/saved-filters/hooks/use-delete-saved-filter'
 import { useSavedFilters } from '@/features/saved-filters/hooks/use-saved-filters'
@@ -15,8 +15,7 @@ export function SavedFiltersDropdown() {
   const t = useTranslations('savedFilters')
   const columnFilters = useHomeStore(s => s.columnFilters)
   const setAllColumnFilters = useHomeStore(s => s.setAllColumnFilters)
-  const search = useHomeStore(s => s.search)
-  const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
+  const isAnyFilterActive = useIsAnyFilterActive()
   const { data: savedFilters } = useSavedFilters()
   const { mutate: createFilter, isPending: isCreating } = useCreateSavedFilter()
   const { mutate: deleteFilter } = useDeleteSavedFilter()
