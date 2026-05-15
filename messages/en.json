@@ -71,9 +71,12 @@
   },
   "scanSummary": {
     "title": "Scan summary",
-    "totalFiles": "{count, plural, one {# file processed} other {# files processed}}",
+    "totalFiles": "{count, plural, one {# file processed} other {# files processed}}"
+  },
+  "summary": {
     "added": "Added",
     "updated": "Updated",
+    "cover": "Updated",
     "deleted": "Deleted",
     "skipped": "Skipped",
     "errors": "Errors",
@@ -452,7 +455,13 @@
     "result": {
       "success": "{count, plural, one {# song updated} other {# songs updated}}",
       "partial": "{ok} updated, {failed} failed",
-      "allFailed": "All {count} songs failed"
+      "allFailed": "All {count} songs failed",
+      "viewDetails": "Details"
     }
+  },
+  "bulkSummary": {
+    "titleEdit": "Bulk edit summary",
+    "titleCover": "Cover fetch summary",
+    "totalFiles": "{count, plural, one {# song processed} other {# songs processed}}"
   }
 }

@@ -10,12 +10,22 @@ export interface ScanSummaryResult {
   errors: Array<{ path: string; error: string }>
 }
 
+export type BulkSummaryKind = 'edit' | 'cover'
+
+export interface BulkSummaryResult {
+  kind: BulkSummaryKind
+  updated: { count: number; files: string[] }
+  failed: { count: number; errors: Array<{ path: string; error: string }> }
+}
+
 interface HomeState {
   search: string
   sorting: SongsSortParams
   columnFilters: SongColumnFilters
   scanLastResult: ScanSummaryResult | null
   scanSummaryOpen: boolean
+  bulkLastResult: BulkSummaryResult | null
+  bulkSummaryOpen: boolean
 
   setSearch: (value: string) => void
   setSorting: (sortField: ColumnField, sort: SongSortDirection) => void
@@ -25,6 +35,8 @@ interface HomeState {
   clearColumnFilters: () => void
   setScanLastResult: (result: ScanSummaryResult) => void
   setScanSummaryOpen: (open: boolean) => void
+  setBulkLastResult: (result: BulkSummaryResult) => void
+  setBulkSummaryOpen: (open: boolean) => void
 }
 
 export const useHomeStore = create<HomeState>(set => ({
@@ -33,6 +45,8 @@ export const useHomeStore = create<HomeState>(set => ({
   columnFilters: {},
   scanLastResult: null,
   scanSummaryOpen: false,
+  bulkLastResult: null,
+  bulkSummaryOpen: false,
 
   setSearch: value => set({ search: value }),
   setSorting: (sortField, sort) => set({ sorting: { sortField, sort } }),
@@ -41,7 +55,9 @@ export const useHomeStore = create<HomeState>(set => ({
   setAllColumnFilters: filters => set({ columnFilters: filters }),
   clearColumnFilters: () => set({ columnFilters: {} }),
   setScanLastResult: result => set({ scanLastResult: result }),
-  setScanSummaryOpen: open => set({ scanSummaryOpen: open })
+  setScanSummaryOpen: open => set({ scanSummaryOpen: open }),
+  setBulkLastResult: result => set({ bulkLastResult: result }),
+  setBulkSummaryOpen: open => set({ bulkSummaryOpen: open })
 }))
 
 export function useIsAnyFilterActive(): boolean {

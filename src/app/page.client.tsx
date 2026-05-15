@@ -4,6 +4,7 @@ import { ResponsiveLayout } from '@/components/layout/responsive-layout'
 import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
 import { FolderList } from '@/components/panels/folder-list/folder-list'
 import { MainContent } from '@/components/panels/main-content/main-content'
+import { BulkSummaryModal } from '@/components/bulk-summary-modal'
 import { ScanSummaryModal } from '@/components/scan-summary-modal'
 import { StarPromptDialog } from '@/components/star-prompt-dialog'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
@@ -37,6 +38,7 @@ export function HomeClientPage() {
   return (
     <>
       <ScanSummaryModal />
+      <BulkSummaryModal />
       <StarPromptDialog />
       <ResponsiveLayout
         sidebar={

@@ -12,6 +12,7 @@ import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpe
 import { type Song } from '@/features/songs/domain'
 import { useBulkUpdateSongs } from '@/features/songs/hooks/use-bulk-update-songs'
 import { useBulkSelectionStore, useSelectionCount, useSelectionState } from '@/stores/bulk-selection-store'
+import { type BulkSummaryKind, useHomeStore } from '@/stores/home-store'
 import { BulkActionBarPill } from './bulk-action-bar-pill'
 import { CoverSummary } from './cover-summary'
 import { buildContextLabel, filterLoadedBySelection } from './helpers'
@@ -28,6 +29,8 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const selection = useSelectionState()
   const count = useSelectionCount()
   const clear = useBulkSelectionStore(s => s.clear)
+  const setBulkLastResult = useHomeStore(s => s.setBulkLastResult)
+  const setBulkSummaryOpen = useHomeStore(s => s.setBulkSummaryOpen)
 
   const [editOpen, setEditOpen] = useState(false)
   const [confirmKind, setConfirmKind] = useState<'edit' | 'cover' | null>(null)
@@ -66,15 +69,43 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     setProgress({ completed: p.completed, total: p.total })
   }
 
-  const reportResults = (results: { ok: boolean }[]) => {
-    const ok = results.filter(r => r.ok).length
-    const fail = results.length - ok
+  type BulkResultItem =
+    | { songId: number; ok: true; song: Song }
+    | { songId: number; ok: false; error: string }
+
+  const buildPath = (song: Song) => `${song.folderPath}/${song.fileName}`
+
+  const findLoadedPath = (songId: number) => {
+    const found = loadedSongs.find(s => s.id === songId)
+    return found ? buildPath(found) : String(songId)
+  }
+
+  const reportResults = (kind: BulkSummaryKind, results: BulkResultItem[]) => {
+    const okResults = results.filter((r): r is Extract<BulkResultItem, { ok: true }> => r.ok)
+    const failResults = results.filter((r): r is Extract<BulkResultItem, { ok: false }> => !r.ok)
+    const ok = okResults.length
+    const fail = failResults.length
+
+    setBulkLastResult({
+      kind,
+      updated: { count: ok, files: okResults.map(r => buildPath(r.song)) },
+      failed: {
+        count: fail,
+        errors: failResults.map(r => ({ path: findLoadedPath(r.songId), error: r.error }))
+      }
+    })
+
+    const toastAction = {
+      label: tBulk('result.viewDetails'),
+      onClick: () => setBulkSummaryOpen(true)
+    }
+
     if (fail === 0) {
-      toast.success(tBulk('result.success', { count: ok }))
+      toast.success(tBulk('result.success', { count: ok }), { action: toastAction, duration: 30000 })
     } else if (ok === 0) {
-      toast.error(tBulk('result.allFailed', { count: results.length }))
+      toast.error(tBulk('result.allFailed', { count: results.length }), { action: toastAction, duration: 30000 })
     } else {
-      toast.warning(tBulk('result.partial', { ok, failed: fail }))
+      toast.warning(tBulk('result.partial', { ok, failed: fail }), { action: toastAction, duration: 30000 })
     }
   }
 
@@ -82,7 +113,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     if (!target) return
     try {
       const result = await updateMutation.mutateAsync({ target, metadata: patch, onProgress: handleProgress })
-      reportResults(result.results)
+      reportResults('edit', result.results)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Bulk update failed')
     } finally {
@@ -94,7 +125,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     if (!target) return
     try {
       const result = await coverMutation.mutateAsync({ target, onProgress: handleProgress })
-      reportResults(result.results)
+      reportResults('cover', result.results)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Bulk cover fetch failed')
     } finally {
