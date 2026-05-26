@@ -1,7 +1,7 @@
 name: "Tagr"
 website_url: "https://github.com/suitux/Tagr"
 source_code_url: "https://github.com/suitux/Tagr"
-description: "Web app for browsing, playing, and editing music file metadata with a three-panel UI."
+description: "Music file metadata editor with three-panel UI for browsing and playing."
 licenses:
   - MIT
 platforms:
@@ -9,4 +9,5 @@ platforms:
   - Docker
 tags:
   - Media Management
+depends_3rdparty: true
 demo_url: "https://tagr-demo.fly.dev/"
