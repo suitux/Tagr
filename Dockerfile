@@ -13,6 +13,7 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
 COPY prisma ./prisma
+RUN pnpm approve-builds
 RUN pnpm install --frozen-lockfile
 RUN pnpm run prisma-generate-client
 
