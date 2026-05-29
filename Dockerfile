@@ -3,7 +3,7 @@
 FROM node:22-alpine AS base
 
 # Install pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+RUN corepack enable && corepack prepare pnpm@10.11.0 --activate
 
 # Install dependencies only when needed
 FROM base AS deps
@@ -13,7 +13,6 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 COPY patches ./patches
 COPY prisma ./prisma
-RUN pnpm approve-builds
 RUN pnpm install --frozen-lockfile
 RUN pnpm run prisma-generate-client
 
