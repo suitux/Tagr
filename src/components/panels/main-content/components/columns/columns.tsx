@@ -4,6 +4,8 @@ import { ClockIcon } from 'lucide-react'
 import { useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import NameCell from '@/components/panels/main-content/components/columns/components/name-cell'
+import { RowSelectCheckbox } from '@/components/panels/main-content/components/columns/components/row-select-checkbox'
+import { SelectAllHeaderCheckbox } from '@/components/panels/main-content/components/columns/components/select-all-header-checkbox'
 import type { Song } from '@/features/songs/domain'
 import { joinMultiValue, stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import type { SongMetadata } from '@/generated/prisma/client'
@@ -30,8 +32,14 @@ const dateCell = (value: Date | null | undefined) => (
   </div>
 )
 
-export function useSongColumns(metadataKeys: string[] = []): ColumnDef<Song>[] {
+interface UseSongColumnsOptions {
+  selectionActive?: boolean
+  totalSongs?: number | null
+}
+
+export function useSongColumns(metadataKeys: string[] = [], options: UseSongColumnsOptions = {}): ColumnDef<Song>[] {
   const t = useTranslations('fields')
+  const { selectionActive = false, totalSongs = null } = options
 
   const metadataColumns: ColumnDef<Song>[] = useMemo(
     () =>
@@ -52,7 +60,18 @@ export function useSongColumns(metadataKeys: string[] = []): ColumnDef<Song>[] {
     [metadataKeys]
   )
 
+  const selectColumn: ColumnDef<Song> = {
+    id: '__select',
+    size: 36,
+    enableHiding: false,
+    enableResizing: false,
+    enableSorting: false,
+    header: () => <SelectAllHeaderCheckbox totalSongs={totalSongs} />,
+    cell: ({ row }) => <RowSelectCheckbox songId={row.original.id} />
+  }
+
   return [
+    ...(selectionActive ? [selectColumn] : []),
     // --- Name (always visible, not hideable) ---
     {
       id: 'title',

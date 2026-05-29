@@ -121,3 +121,5 @@ export const MIME_TYPES: Record<string, string> = {
   '.wma': 'audio/x-ms-wma',
   '.aiff': 'audio/aiff'
 }
+
+export const RESTART_SONG_THRESHOLD_S = 3

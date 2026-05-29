@@ -1,4 +1,4 @@
-import { format, isSameDay, isValid, parse, parseISO } from 'date-fns'
+import { format, formatDuration, intervalToDuration, isSameDay, isValid, parse, parseISO } from 'date-fns'
 
 export const ISO_DATE_FORMAT = 'yyyy-MM-dd'
 export const DISPLAY_DATE_FORMAT = 'MMM d'
@@ -30,6 +30,12 @@ export function parseDate(value: string | number | null | undefined): Date | und
 
 export function parseIsoDate(value: string): Date {
   return parse(value, ISO_DATE_FORMAT, new Date())
+}
+
+export function formatSecondsAsDuration(seconds: number): string {
+  if (!Number.isFinite(seconds) || seconds <= 0) return formatDuration({ seconds: 0 })
+  const duration = intervalToDuration({ start: 0, end: Math.round(seconds) * 1000 })
+  return formatDuration(duration)
 }
 
 export { isSameDay } from 'date-fns'

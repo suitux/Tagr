@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useCallback, useRef, useState } from 'react'
+import { ComponentType, ReactNode, useCallback, useRef, useState } from 'react'
 import { type TableComponents, TableVirtuoso, type TableVirtuosoHandle } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -28,12 +28,14 @@ interface DataTableProps<TData, TValue> {
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>
   onScrollEnd?: () => void
   EmptyStateComponent?: () => ReactNode
+  RowWrapper?: ComponentType<{ row: TData; children: ReactNode }>
 }
 
 interface VirtuosoContext<TData> {
   rows: Row<TData>[]
   selectedRowId?: string | null
   onRowClick?: (row: TData) => void
+  RowWrapper?: ComponentType<{ row: TData; children: ReactNode }>
 }
 
 export function DataTable<TData, TValue>({
@@ -47,7 +49,8 @@ export function DataTable<TData, TValue>({
   columnVisibility,
   onColumnVisibilityChange,
   onScrollEnd,
-  EmptyStateComponent
+  EmptyStateComponent,
+  RowWrapper
 }: DataTableProps<TData, TValue>) {
   const virtuosoRef = useRef<TableVirtuosoHandle>(null)
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
@@ -104,8 +107,9 @@ export function DataTable<TData, TValue>({
     TableRow: ({ context, ...props }) => {
       const index = props['data-item-index']
       const row = context?.rows[index]
+      const Wrapper = context?.RowWrapper
 
-      return (
+      const tableRow = (
         <TableRow
           {...props}
           data-state={row.id === context?.selectedRowId ? 'selected' : undefined}
@@ -113,6 +117,11 @@ export function DataTable<TData, TValue>({
           onClick={() => context?.onRowClick?.(row.original)}
         />
       )
+
+      if (Wrapper && row) {
+        return <Wrapper row={row.original}>{tableRow}</Wrapper>
+      }
+      return tableRow
     },
     EmptyPlaceholder: EmptyStateComponent ? () => <EmptyStateComponent /> : undefined
   }
@@ -128,7 +137,7 @@ export function DataTable<TData, TValue>({
         endReached={onScrollEnd}
         increaseViewportBy={200}
         fixedHeaderContent={fixedHeaderContent}
-        context={{ rows, selectedRowId, onRowClick }}
+        context={{ rows, selectedRowId, onRowClick, RowWrapper }}
         className={showEmptyState ? 'flex-none' : 'flex-1'}
         itemContent={(index, _data, context) => {
           const row = context.rows[index]

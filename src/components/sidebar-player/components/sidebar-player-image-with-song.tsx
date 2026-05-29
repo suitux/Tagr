@@ -7,24 +7,34 @@ import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
+import { useHomeStore } from '@/stores/home-store'
 import { usePlayerStore } from '@/stores/player-store'
 
-interface SidebarPlayerImageProps {
+interface SidebarPlayerImageWithSongProps {
   expanded: boolean
   onToggleExpanded: () => void
 }
 
-export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayerImageProps) {
+export function SidebarPlayerImageWithSong({ expanded, onToggleExpanded }: SidebarPlayerImageWithSongProps) {
   const currentSong = usePlayerStore(s => s.currentSong)
   const { setSelectedSongId, selectedSongId } = useSelectedSong()
   const { data: updatedSong } = useSong(selectedSongId ?? undefined)
+  const setColumnFilter = useHomeStore(s => s.setColumnFilter)
 
   if (!currentSong) return null
 
   const pictureUrl = getSongPictureUrl(currentSong.id, updatedSong?.modifiedAt)
 
-  const handleSongTitleClick = () => {
+  const handleSongClick = () => {
     setSelectedSongId(currentSong.id)
+  }
+
+  const handleArtistClick = () => {
+    if (currentSong.artist) setColumnFilter('artist', currentSong.artist)
+  }
+
+  const handleAlbumClick = () => {
+    if (currentSong.album) setColumnFilter('album', currentSong.album)
   }
 
   return (
@@ -47,10 +57,16 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
         </div>
 
         <div className={cn('min-w-0 flex-1', expanded && 'hidden')}>
-          <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongTitleClick}>
+          <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongClick}>
             {currentSong.title || currentSong.fileName}
           </p>
-          {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
+          {currentSong.artist && (
+            <p
+              className='text-xs text-muted-foreground truncate cursor-pointer hover:underline'
+              onClick={handleArtistClick}>
+              {currentSong.artist}
+            </p>
+          )}
         </div>
 
         <Button
@@ -63,7 +79,9 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
       </div>
 
       <div className={cn('flex justify-center', !expanded && 'hidden')}>
-        <div className='w-full max-w-64 aspect-square rounded-lg bg-muted overflow-hidden flex items-center justify-center'>
+        <div
+          className='w-full max-w-64 aspect-square rounded-lg bg-muted overflow-hidden flex items-center justify-center cursor-pointer'
+          onClick={handleSongClick}>
           <Image
             src={pictureUrl}
             alt=''
@@ -77,11 +95,23 @@ export function SidebarPlayerImage({ expanded, onToggleExpanded }: SidebarPlayer
       </div>
 
       <div className={cn('text-center space-y-0.5', !expanded && 'hidden')}>
-        <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongTitleClick}>
+        <p className='text-sm font-medium truncate cursor-pointer hover:underline' onClick={handleSongClick}>
           {currentSong.title || currentSong.fileName}
         </p>
-        {currentSong.artist && <p className='text-xs text-muted-foreground truncate'>{currentSong.artist}</p>}
-        {currentSong.album && <p className='text-xs text-muted-foreground/70 truncate'>{currentSong.album}</p>}
+        {currentSong.artist && (
+          <p
+            className='text-xs text-muted-foreground truncate cursor-pointer hover:underline'
+            onClick={handleArtistClick}>
+            {currentSong.artist}
+          </p>
+        )}
+        {currentSong.album && (
+          <p
+            className='text-xs text-muted-foreground/70 truncate cursor-pointer hover:underline'
+            onClick={handleAlbumClick}>
+            {currentSong.album}
+          </p>
+        )}
       </div>
     </>
   )

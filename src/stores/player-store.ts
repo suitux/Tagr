@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { Song, SongColumnFilters } from '@/features/songs/domain'
+import { RESTART_SONG_THRESHOLD_S, Song, SongColumnFilters } from '@/features/songs/domain'
 import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
 import { getSongAudioUrl } from '@/features/songs/song-file-helpers'
 
@@ -204,6 +204,10 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
 
   playPrevious: () => {
     const state = get()
+    if (state.currentSong && state.currentTime > RESTART_SONG_THRESHOLD_S) {
+      state.seek(0)
+      return
+    }
     if (state.shuffle) {
       const { _shuffleHistory, _shuffleHistoryIndex } = state
       if (_shuffleHistoryIndex > 0) {

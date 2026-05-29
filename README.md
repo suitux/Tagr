@@ -263,4 +263,4 @@ Browser (React Query) --> Next.js API Routes --> Prisma --> SQLite
 
 ## License
 
-MIT
+[AGPL-3.0-only](LICENSE)

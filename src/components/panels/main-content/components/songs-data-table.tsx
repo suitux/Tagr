@@ -1,27 +1,34 @@
 'use client'
 
-import { LoaderCircle } from 'lucide-react'
+import { FilterXIcon, LoaderCircle } from 'lucide-react'
 import { useCallback, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
+import { BulkActionBar } from '@/components/bulk-action-bar/bulk-action-bar'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
+import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
 import { type ColumnField, Song } from '@/features/songs/domain'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { useDelayedLoading } from '@/hooks/use-delayed-loading'
+import { useKeyPress } from '@/hooks/use-key-press'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
-import { useHomeStore } from '@/stores/home-store'
+import { useBulkSelectionStore, useIsSelectionActive } from '@/stores/bulk-selection-store'
+import { useHomeStore, useIsAnyFilterActive } from '@/stores/home-store'
 import type { SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
 import ColumnSelector from './main-content-file-list-column-selector'
 import { MainContentNoFilterResults } from './main-content-no-filter-results'
 import { SavedFiltersDropdown } from './saved-filters-dropdown'
+import { SelectAllSongsButton } from './select-all-songs-button'
+import { SongRowContextMenu } from './song-row-context-menu'
 
 export interface SongsDataTableProps {
   songs: Song[]
+  totalSongs: number | null
   isLoadingSongs: boolean
   isRefetching: boolean
   fetchNextPage: () => unknown
@@ -32,6 +39,7 @@ export interface SongsDataTableProps {
 
 export function SongsDataTable({
   songs,
+  totalSongs,
   isLoadingSongs,
   isRefetching,
   fetchNextPage,
@@ -44,13 +52,34 @@ export function SongsDataTable({
   const sorting = useHomeStore(s => s.sorting)
   const setSorting = useHomeStore(s => s.setSorting)
   const clearSorting = useHomeStore(s => s.clearSorting)
-  const columnFilters = useHomeStore(s => s.columnFilters)
-  const search = useHomeStore(s => s.search)
-  const isAnyFilterActive = Object.values(columnFilters).some(value => value) || search.length > 0
+  const clearColumnFilters = useHomeStore(s => s.clearColumnFilters)
+  const setSearch = useHomeStore(s => s.setSearch)
+  const isAnyFilterActive = useIsAnyFilterActive()
+
+  const tFiles = useTranslations('files')
+
+  const handleClearFilters = () => {
+    clearColumnFilters()
+    setSearch('')
+  }
 
   const { data: metadataKeys = [] } = useMetadataKeys()
-  const columns = useSongColumns(metadataKeys)
+  const selectionActive = useIsSelectionActive()
+  const toggleSelection = useBulkSelectionStore(s => s.toggle)
+  const clearSelection = useBulkSelectionStore(s => s.clear)
+  useKeyPress('Escape', clearSelection, { enabled: selectionActive })
+
+  const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs })
   const { data: columnVisibility } = useColumnVisibility({ columns })
+
+  const SongRowWrapper = useCallback(
+    ({ row, children }: { row: Song; children: React.ReactNode }) => (
+      <SongRowContextMenu row={row} totalSongs={totalSongs}>
+        {children}
+      </SongRowContextMenu>
+    ),
+    [totalSongs]
+  )
 
   const activeColumnsCount = Object.values(columnVisibility || {}).filter(Boolean).length
 
@@ -93,11 +122,20 @@ export function SongsDataTable({
   return (
     <div className='pt-4 px-2 md:px-4 flex flex-col overflow-hidden flex-1'>
       <div className='flex justify-between mb-2'>
-        <div className={cn('flex items-center justify-center py-1.5 gap-2', { invisible: !showLoading })}>
-          <LoaderCircle className='h-4 w-4 animate-spin text-muted-foreground' />
-          {tCommon('loading')}
+        <div className={'flex items-center gap-4'}>
+          {isAnyFilterActive && (
+            <Button variant='outline' size='sm' onClick={handleClearFilters}>
+              <FilterXIcon />
+              {tFiles('clearFilters')}
+            </Button>
+          )}
+          <div className={cn('flex items-center justify-center py-1.5 gap-2', { invisible: !showLoading })}>
+            <LoaderCircle className='h-4 w-4 animate-spin text-muted-foreground' />
+            {tCommon('loading')}
+          </div>
         </div>
         <div className={'flex gap-2'}>
+          <SelectAllSongsButton totalSongs={totalSongs} />
           {showSavedFiltersDropdown && <SavedFiltersDropdown />}
           <ColumnSelector
             columns={columns}
@@ -113,6 +151,10 @@ export function SongsDataTable({
         getRowId={(song: Song) => String(song.id)}
         selectedRowId={selectedSongId != null ? String(selectedSongId) : null}
         onRowClick={(song: Song) => {
+          if (selectionActive) {
+            toggleSelection(song.id)
+            return
+          }
           setSelectedSongId?.(song.id)
         }}
         sorting={tableSorting}
@@ -123,12 +165,14 @@ export function SongsDataTable({
         }}
         onScrollEnd={handleScrollEnd}
         EmptyStateComponent={() => <MainContentNoFilterResults activeColumnsCount={activeColumnsCount} />}
+        RowWrapper={SongRowWrapper}
       />
       {isFetchingNextPage && (
         <div className='flex items-center justify-center py-3'>
           <LoaderCircle className='h-5 w-5 animate-spin text-muted-foreground' />
         </div>
       )}
+      <BulkActionBar loadedSongs={songs} />
     </div>
   )
 }
