@@ -2,15 +2,15 @@ import { auth } from '@/auth'
 import { WelcomeScanState } from '@/components/welcome-scan-state'
 import { DEFAULT_VISIBLE_COLUMNS } from '@/features/config/domain'
 import { getConfigQueryKey } from '@/features/config/hooks/use-config'
-import { getConfigValue } from '@/features/config/service'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { getConfigValue } from '@/features/config/config.repository'
+import { countSongs } from '@/features/songs/songs.repository'
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
 import { HomeClientPage } from './page.client'
 
 export const dynamic = 'force-dynamic'
 
 export default async function Home() {
-  const songCount = await prisma.song.count()
+  const songCount = await countSongs()
   const session = await auth()
 
   if (songCount === 0) {

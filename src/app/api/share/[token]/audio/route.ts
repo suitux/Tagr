@@ -1,7 +1,7 @@
 import path from 'path'
 import { NextResponse } from 'next/server'
+import { findSharedLinkWithSongFile } from '@/features/share/share.repository'
 import { streamAudioFile } from '@/features/songs/audio-stream'
-import { prisma } from '@/infrastructure/prisma/dbClient'
 
 interface RouteParams {
   params: Promise<{ token: string }>
@@ -11,10 +11,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   const { token } = await params
 
   try {
-    const sharedLink = await prisma.sharedLink.findUnique({
-      where: { token },
-      include: { song: { select: { filePath: true, fileName: true } } }
-    })
+    const sharedLink = await findSharedLinkWithSongFile(token)
 
     if (!sharedLink) {
       return NextResponse.json({ success: false, error: 'Share link not found' }, { status: 404 })

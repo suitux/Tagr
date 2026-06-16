@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
 import { auth } from '@/auth'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSharedLinkWithSong, findSharedLinkWithSongTags } from '@/features/share/share.repository'
 import { SharePageClient } from './share-page-client'
 
 interface PageProps {
@@ -13,10 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { token } = await params
   const t = await getTranslations('share.metadata')
 
-  const sharedLink = await prisma.sharedLink.findUnique({
-    where: { token },
-    include: { song: { select: { title: true, artist: true, album: true } } }
-  })
+  const sharedLink = await findSharedLinkWithSongTags(token)
 
   if (!sharedLink || new Date() > sharedLink.expiresAt) {
     return { title: t('fallbackTitle') }
@@ -45,14 +42,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function SharePage({ params }: PageProps) {
   const { token } = await params
 
-  const sharedLink = await prisma.sharedLink.findUnique({
-    where: { token },
-    include: {
-      song: {
-        include: { metadata: true }
-      }
-    }
-  })
+  const sharedLink = await findSharedLinkWithSong(token)
 
   if (!sharedLink) {
     return <SharePageClient error='notFound' token={token} />

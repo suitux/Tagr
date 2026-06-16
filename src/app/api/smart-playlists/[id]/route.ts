@@ -3,7 +3,7 @@ import { createSmartPlaylistObject } from '@/app/api/smart-playlists/helpers'
 import { auth } from '@/auth'
 import { type SmartPlaylist } from '@/features/smart-playlists/domain'
 import { smartPlaylistRulesSchema } from '@/features/smart-playlists/rules-schema'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { deleteSmartPlaylist, findSmartPlaylistById, updateSmartPlaylist } from '@/features/smart-playlists/smart-playlists.repository'
 
 interface GetResponse {
   success: true
@@ -41,7 +41,7 @@ export async function GET(
   }
 
   try {
-    const playlist = await prisma.smartPlaylist.findUnique({ where: { id: numericId } })
+    const playlist = await findSmartPlaylistById(numericId)
     if (!playlist) {
       return NextResponse.json({ success: false, error: 'Playlist not found' }, { status: 404 })
     }
@@ -75,7 +75,7 @@ export async function PATCH(
   }
 
   try {
-    const existing = await prisma.smartPlaylist.findUnique({ where: { id: numericId } })
+    const existing = await findSmartPlaylistById(numericId)
     if (!existing) {
       return NextResponse.json({ success: false, error: 'Playlist not found' }, { status: 404 })
     }
@@ -105,7 +105,7 @@ export async function PATCH(
       data.isPublic = Boolean(isPublic)
     }
 
-    const updated = await prisma.smartPlaylist.update({ where: { id: numericId }, data })
+    const updated = await updateSmartPlaylist(numericId, data)
     return NextResponse.json({ success: true, playlist: createSmartPlaylistObject(updated, userId) })
   } catch (error) {
     console.error('Error updating smart playlist:', error)
@@ -133,14 +133,14 @@ export async function DELETE(
   }
 
   try {
-    const existing = await prisma.smartPlaylist.findUnique({ where: { id: numericId } })
+    const existing = await findSmartPlaylistById(numericId)
     if (!existing) {
       return NextResponse.json({ success: false, error: 'Playlist not found' }, { status: 404 })
     }
     if (existing.userId !== userId) {
       return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 })
     }
-    await prisma.smartPlaylist.delete({ where: { id: numericId } })
+    await deleteSmartPlaylist(numericId)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting smart playlist:', error)

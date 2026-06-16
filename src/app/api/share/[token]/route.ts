@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSharedLinkWithSong } from '@/features/share/share.repository'
 
 interface RouteParams {
   params: Promise<{ token: string }>
@@ -9,14 +9,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   const { token } = await params
 
   try {
-    const sharedLink = await prisma.sharedLink.findUnique({
-      where: { token },
-      include: {
-        song: {
-          include: { metadata: true }
-        }
-      }
-    })
+    const sharedLink = await findSharedLinkWithSong(token)
 
     if (!sharedLink) {
       return NextResponse.json({ success: false, error: 'Share link not found' }, { status: 404 })

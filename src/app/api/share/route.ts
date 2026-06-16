@@ -1,6 +1,7 @@
 import crypto from 'crypto'
 import { NextResponse } from 'next/server'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { createSharedLink, deleteExpiredSharedLinks } from '@/features/share/share.repository'
+import { findSongById } from '@/features/songs/songs.repository'
 
 const MIN_EXPIRES = 300 // 5 minutes
 const MAX_EXPIRES = 2592000 // 30 days
@@ -18,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: `expiresInSeconds must be between ${MIN_EXPIRES} and ${MAX_EXPIRES}` }, { status: 400 })
     }
 
-    const song = await prisma.song.findUnique({ where: { id: songId } })
+    const song = await findSongById(songId)
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }
@@ -26,14 +27,10 @@ export async function POST(request: Request) {
     const token = crypto.randomUUID()
     const expiresAt = new Date(Date.now() + expiresInSeconds * 1000)
 
-    const sharedLink = await prisma.sharedLink.create({
-      data: { token, songId, expiresAt }
-    })
+    const sharedLink = await createSharedLink(token, songId, expiresAt)
 
     // Opportunistic cleanup of expired links
-    prisma.sharedLink.deleteMany({
-      where: { expiresAt: { lt: new Date() } }
-    }).catch(() => {})
+    deleteExpiredSharedLinks().catch(() => {})
 
     return NextResponse.json({
       success: true,

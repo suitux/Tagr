@@ -1,22 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextResponse } from 'next/server'
 
-const { mockRequireRole, mockPrisma } = vi.hoisted(() => ({
+const { mockRequireRole, mockUpdateUser, mockDeleteUser } = vi.hoisted(() => ({
   mockRequireRole: vi.fn(),
-  mockPrisma: {
-    user: {
-      update: vi.fn(),
-      delete: vi.fn()
-    }
-  }
+  mockUpdateUser: vi.fn(),
+  mockDeleteUser: vi.fn()
 }))
 
 vi.mock('@/lib/api/auth-guard', () => ({
   requireRole: (...args: unknown[]) => mockRequireRole(...args)
 }))
 
-vi.mock('@/infrastructure/prisma/dbClient', () => ({
-  prisma: mockPrisma
+vi.mock('@/features/users/users.repository', () => ({
+  updateUser: (...args: unknown[]) => mockUpdateUser(...args),
+  deleteUser: (...args: unknown[]) => mockDeleteUser(...args)
 }))
 
 vi.mock('bcryptjs', () => ({
@@ -102,50 +99,42 @@ describe('PATCH /api/users/[id]', () => {
   it('updates username only', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
     const updated = { id: 1, username: 'renamed', role: 'tagger', createdAt: new Date(), updatedAt: new Date() }
-    mockPrisma.user.update.mockResolvedValue(updated)
+    mockUpdateUser.mockResolvedValue(updated)
 
     const res = await PATCH(makeRequest({ username: 'renamed' }), makeParams('1'))
     const body = await res.json()
 
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
-    expect(mockPrisma.user.update).toHaveBeenCalledWith({
-      where: { id: 1 },
-      data: { username: 'renamed' },
-      select: { id: true, username: true, role: true, createdAt: true, updatedAt: true }
-    })
+    expect(mockUpdateUser).toHaveBeenCalledWith(1, { username: 'renamed' })
   })
 
   it('updates password with hash', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
     const updated = { id: 1, username: 'user', role: 'tagger', createdAt: new Date(), updatedAt: new Date() }
-    mockPrisma.user.update.mockResolvedValue(updated)
+    mockUpdateUser.mockResolvedValue(updated)
 
     const res = await PATCH(makeRequest({ password: 'newpass' }), makeParams('1'))
 
     expect(res.status).toBe(200)
-    expect(mockPrisma.user.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { password: 'hashed_newpass' } })
-    )
+    expect(mockUpdateUser).toHaveBeenCalledWith(1, { password: 'hashed_newpass' })
   })
 
   it('updates role only', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
     const updated = { id: 1, username: 'user', role: 'listener', createdAt: new Date(), updatedAt: new Date() }
-    mockPrisma.user.update.mockResolvedValue(updated)
+    mockUpdateUser.mockResolvedValue(updated)
 
     const res = await PATCH(makeRequest({ role: 'listener' }), makeParams('1'))
 
     expect(res.status).toBe(200)
-    expect(mockPrisma.user.update).toHaveBeenCalledWith(
-      expect.objectContaining({ data: { role: 'listener' } })
-    )
+    expect(mockUpdateUser).toHaveBeenCalledWith(1, { role: 'listener' })
   })
 
   it('updates multiple fields at once', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
     const updated = { id: 2, username: 'newname', role: 'listener', createdAt: new Date(), updatedAt: new Date() }
-    mockPrisma.user.update.mockResolvedValue(updated)
+    mockUpdateUser.mockResolvedValue(updated)
 
     const res = await PATCH(
       makeRequest({ username: 'newname', password: 'pw', role: 'listener' }),
@@ -153,16 +142,16 @@ describe('PATCH /api/users/[id]', () => {
     )
 
     expect(res.status).toBe(200)
-    expect(mockPrisma.user.update).toHaveBeenCalledWith({
-      where: { id: 2 },
-      data: { username: 'newname', password: 'hashed_pw', role: 'listener' },
-      select: { id: true, username: true, role: true, createdAt: true, updatedAt: true }
+    expect(mockUpdateUser).toHaveBeenCalledWith(2, {
+      username: 'newname',
+      password: 'hashed_pw',
+      role: 'listener'
     })
   })
 
   it('returns 409 on duplicate username', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
-    mockPrisma.user.update.mockRejectedValue(new Error('Unique constraint failed on the fields: (`username`)'))
+    mockUpdateUser.mockRejectedValue(new Error('Unique constraint failed on the fields: (`username`)'))
 
     const res = await PATCH(makeRequest({ username: 'taken' }), makeParams('1'))
     const body = await res.json()
@@ -173,7 +162,7 @@ describe('PATCH /api/users/[id]', () => {
 
   it('returns 500 on unexpected error', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
-    mockPrisma.user.update.mockRejectedValue(new Error('Disk full'))
+    mockUpdateUser.mockRejectedValue(new Error('Disk full'))
 
     const res = await PATCH(makeRequest({ username: 'new' }), makeParams('1'))
     const body = await res.json()
@@ -205,7 +194,7 @@ describe('DELETE /api/users/[id]', () => {
 
   it('deletes user and returns success', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
-    mockPrisma.user.delete.mockResolvedValue({})
+    mockDeleteUser.mockResolvedValue(undefined)
 
     const req = new Request('http://localhost/api/users/5', { method: 'DELETE' })
     const res = await DELETE(req, makeParams('5'))
@@ -213,12 +202,12 @@ describe('DELETE /api/users/[id]', () => {
 
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
-    expect(mockPrisma.user.delete).toHaveBeenCalledWith({ where: { id: 5 } })
+    expect(mockDeleteUser).toHaveBeenCalledWith(5)
   })
 
   it('returns 500 on database error', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
-    mockPrisma.user.delete.mockRejectedValue(new Error('Record not found'))
+    mockDeleteUser.mockRejectedValue(new Error('Record not found'))
 
     const req = new Request('http://localhost/api/users/99', { method: 'DELETE' })
     const res = await DELETE(req, makeParams('99'))

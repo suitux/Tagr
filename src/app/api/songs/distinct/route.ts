@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getDistinctValues } from '@/features/metadata/metadata-scan.service'
 import { SELECT_SONG_FIELDS, type SongSortField } from '@/features/songs/domain'
+import { getDistinctValues } from '@/features/songs/song-query.repository'
 import { getSearchParam } from '@/lib/api/search-params'
 
 interface DistinctResponse {

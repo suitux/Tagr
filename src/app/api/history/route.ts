@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SongChangeHistoryEntry } from '@/features/history/domain'
-import { Prisma } from '@/generated/prisma/client'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { listHistory } from '@/features/history/history.repository'
 import { getSearchParam } from '@/lib/api/search-params'
 
 interface HistorySuccessResponse {
@@ -25,28 +24,9 @@ export async function GET(request: NextRequest): Promise<NextResponse<HistoryRes
     const search = getSearchParam(searchParams, 'search', 'string')
     const songId = getSearchParam(searchParams, 'songId', 'number')
 
-    const where: Prisma.SongChangeHistoryWhereInput = {}
-    if (songId) where.songId = songId
-    if (search) {
-      where.song = { OR: [{ title: { contains: search } }, { artist: { contains: search } }] }
-    }
-
     const cursorId = cursor ? parseInt(cursor, 10) : null
 
-    const entries = await prisma.songChangeHistory.findMany({
-      take: limit + 1,
-      ...(cursorId && {
-        cursor: { id: cursorId },
-        skip: 1
-      }),
-      orderBy: { id: 'desc' },
-      where,
-      include: {
-        song: {
-          select: { title: true, artist: true }
-        }
-      }
-    })
+    const entries = await listHistory({ limit, cursorId, search: search ?? undefined, songId: songId ?? undefined })
 
     const hasMore = entries.length > limit
     const results = hasMore ? entries.slice(0, limit) : entries

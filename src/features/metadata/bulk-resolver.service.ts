@@ -1,8 +1,8 @@
-import { getSongIdsByFolder, getSongIdsByPlaylist } from '@/features/metadata/metadata-scan.service'
+import { getSongIdsByFolder, getSongIdsByPlaylist } from '@/features/songs/song-query.repository'
 import { parseSmartListRules } from '@/features/smart-playlists/helpers'
 import { BULK_RESOLVE_LIMIT, type BulkTarget } from '@/features/songs/bulk-target'
+import { findSmartPlaylistById } from '@/features/smart-playlists/smart-playlists.repository'
 import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
-import { prisma } from '@/infrastructure/prisma/dbClient'
 
 export class BulkResolveError extends Error {
   constructor(
@@ -40,7 +40,7 @@ export async function resolveBulkTargetIds(target: BulkTarget, options?: Resolve
     const folderPath = target.context.folderPath === ALL_SONGS_FOLDER_ID ? null : target.context.folderPath
     ids = await getSongIdsByFolder(folderPath, target.search, target.filters, BULK_RESOLVE_LIMIT + 1)
   } else if (target.context.type === 'smart-playlist') {
-    const playlist = await prisma.smartPlaylist.findUnique({ where: { id: target.context.playlistId } })
+    const playlist = await findSmartPlaylistById(target.context.playlistId)
     if (!playlist) throw new BulkResolveError('Playlist not found', 404)
 
     if (options?.userId !== undefined && playlist.userId !== options.userId && !playlist.isPublic) {

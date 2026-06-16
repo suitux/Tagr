@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { getConfigValue, upsertConfigValue } from '@/features/config/service'
+import { getConfigValue, upsertConfigValue } from '@/features/config/config.repository'
 import { requireRole } from '@/lib/api/auth-guard'
 
 interface ConfigSuccessResponse {

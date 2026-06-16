@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs'
 import { NextResponse } from 'next/server'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { createUser, listUsers } from '@/features/users/users.repository'
 import { requireRole } from '@/lib/api/auth-guard'
 
 const VALID_ROLES = ['tagger', 'listener']
@@ -10,10 +10,7 @@ export async function GET() {
   if (!guard.authorized) return guard.response
 
   try {
-    const users = await prisma.user.findMany({
-      select: { id: true, username: true, role: true, createdAt: true, updatedAt: true },
-      orderBy: { createdAt: 'desc' }
-    })
+    const users = await listUsers()
 
     return NextResponse.json({ success: true, users })
   } catch (error) {
@@ -43,10 +40,7 @@ export async function POST(request: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12)
 
-    const user = await prisma.user.create({
-      data: { username, password: hashedPassword, role },
-      select: { id: true, username: true, role: true, createdAt: true, updatedAt: true }
-    })
+    const user = await createUser({ username, password: hashedPassword, role })
 
     return NextResponse.json({ success: true, user }, { status: 201 })
   } catch (error) {

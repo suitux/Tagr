@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
-import { getSongsByFolder, countSongsByFolder, PAGE_SIZE } from '@/features/metadata/metadata-scan.service'
 import { ColumnField, Song, SongColumnFilters, SongSortDirection } from '@/features/songs/domain'
+import { getSongsByFolder, countSongsByFolder, PAGE_SIZE } from '@/features/songs/song-query.repository'
 import { getSongFiltersFromSearchParams } from '@/features/songs/filters-helpers'
 import { getSearchParam } from '@/lib/api/search-params'
 

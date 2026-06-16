@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getDistinctMetadataKeys } from '@/features/metadata/metadata-scan.service'
+import { getDistinctMetadataKeys } from '@/features/songs/song-query.repository'
 
 interface MetadataKeysResponse {
   keys: string[]
