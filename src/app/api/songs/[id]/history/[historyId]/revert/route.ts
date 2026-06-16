@@ -7,11 +7,12 @@ import {
   deserialize,
   deserializePicture
 } from '@/features/history/history.service'
+import { findHistoryEntryById } from '@/features/history/history.repository'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writeMetadataToFile, writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { SongWithMetadata } from '@/features/songs/domain'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSongWithMetadata } from '@/features/songs/songs.repository'
 import { requireRole } from '@/lib/api/auth-guard'
 
 interface RouteParams {
@@ -46,18 +47,13 @@ export async function POST(_request: Request, { params }: RouteParams): Promise<
   }
 
   try {
-    const entry = await prisma.songChangeHistory.findUnique({
-      where: { id: changeId }
-    })
+    const entry = await findHistoryEntryById(changeId)
 
     if (!entry || entry.songId !== songId) {
       return NextResponse.json({ success: false, error: 'History entry not found' }, { status: 404 })
     }
 
-    const song = await prisma.song.findUnique({
-      where: { id: songId },
-      include: { metadata: true }
-    })
+    const song = await findSongWithMetadata(songId)
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
     }

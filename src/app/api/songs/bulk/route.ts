@@ -6,7 +6,7 @@ import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.s
 import { writeMetadataToFile } from '@/features/metadata/metadata-write.service'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSongWithMetadata } from '@/features/songs/songs.repository'
 import { requireRole } from '@/lib/api/auth-guard'
 import { ndjsonStreamResponse, type NdjsonEvent } from '@/lib/ndjson-stream'
 
@@ -63,7 +63,7 @@ export async function PATCH(request: Request): Promise<Response> {
       const songId = songIds[i]
       let entry: BulkUpdateResult
       try {
-        const song = await prisma.song.findUnique({ where: { id: songId }, include: { metadata: true } })
+        const song = await findSongWithMetadata(songId)
         if (!song) {
           entry = { songId, ok: false, error: 'Song not found' }
         } else {

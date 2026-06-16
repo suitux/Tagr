@@ -6,7 +6,7 @@ import { writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { fetchCoverArt, searchReleaseId } from '@/features/musicbrainz/musicbrainz.service'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSongById } from '@/features/songs/songs.repository'
 import { requireRole } from '@/lib/api/auth-guard'
 import { ndjsonStreamResponse, type NdjsonEvent } from '@/lib/ndjson-stream'
 
@@ -61,7 +61,7 @@ export async function POST(request: Request): Promise<Response> {
       try {
         if (i > 0) await sleep(MB_RATE_LIMIT_DELAY_MS)
 
-        const song = await prisma.song.findUnique({ where: { id: songId } })
+        const song = await findSongById(songId)
         if (!song) {
           entry = { songId, ok: false, error: 'Song not found' }
         } else {

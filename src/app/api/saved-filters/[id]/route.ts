@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { deleteSavedFilter, findSavedFilterById } from '@/features/saved-filters/saved-filters.repository'
 
 interface SuccessResponse {
   success: true
@@ -29,12 +29,12 @@ export async function DELETE(
   }
 
   try {
-    const filter = await prisma.savedFilter.findUnique({ where: { id: numericId } })
+    const filter = await findSavedFilterById(numericId)
     if (!filter || filter.userId !== userId) {
       return NextResponse.json({ success: false, error: 'Filter not found' }, { status: 404 })
     }
 
-    await prisma.savedFilter.delete({ where: { id: numericId } })
+    await deleteSavedFilter(numericId)
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error deleting saved filter:', error)

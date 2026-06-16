@@ -3,7 +3,7 @@ import { requireRole } from '@/lib/api/auth-guard'
 import { recordPictureChange } from '@/features/history/history.service'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writePictureToFile } from '@/features/metadata/metadata-write.service'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findFirstSongPicture, findSongById } from '@/features/songs/songs.repository'
 
 interface RouteParams {
   params: Promise<{
@@ -30,7 +30,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
       return NextResponse.json({ success: false, error: 'No image file provided' }, { status: 400 })
     }
 
-    const song = await prisma.song.findUnique({ where: { id: songId } })
+    const song = await findSongById(songId)
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
@@ -63,14 +63,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 
   try {
-    const picture = await prisma.songPicture.findFirst({
-      where: { songId },
-      select: {
-        data: true,
-        format: true,
-        type: true
-      }
-    })
+    const picture = await findFirstSongPicture(songId)
 
     if (!picture || !picture.data) {
       return NextResponse.json({ success: false, error: 'No picture found for this song' }, { status: 404 })

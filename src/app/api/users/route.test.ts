@@ -1,22 +1,19 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { NextResponse } from 'next/server'
 
-const { mockRequireRole, mockPrisma } = vi.hoisted(() => ({
+const { mockRequireRole, mockListUsers, mockCreateUser } = vi.hoisted(() => ({
   mockRequireRole: vi.fn(),
-  mockPrisma: {
-    user: {
-      findMany: vi.fn(),
-      create: vi.fn()
-    }
-  }
+  mockListUsers: vi.fn(),
+  mockCreateUser: vi.fn()
 }))
 
 vi.mock('@/lib/api/auth-guard', () => ({
   requireRole: (...args: unknown[]) => mockRequireRole(...args)
 }))
 
-vi.mock('@/infrastructure/prisma/dbClient', () => ({
-  prisma: mockPrisma
+vi.mock('@/features/users/users.repository', () => ({
+  listUsers: (...args: unknown[]) => mockListUsers(...args),
+  createUser: (...args: unknown[]) => mockCreateUser(...args)
 }))
 
 vi.mock('bcryptjs', () => ({
@@ -75,7 +72,7 @@ describe('GET /api/users', () => {
       { id: 1, username: 'user1', role: 'tagger', createdAt: new Date(), updatedAt: new Date() },
       { id: 2, username: 'user2', role: 'listener', createdAt: new Date(), updatedAt: new Date() }
     ]
-    mockPrisma.user.findMany.mockResolvedValue(users)
+    mockListUsers.mockResolvedValue(users)
 
     const res = await GET()
     const body = await res.json()
@@ -83,15 +80,12 @@ describe('GET /api/users', () => {
     expect(res.status).toBe(200)
     expect(body.success).toBe(true)
     expect(body.users).toHaveLength(2)
-    expect(mockPrisma.user.findMany).toHaveBeenCalledWith({
-      select: { id: true, username: true, role: true, createdAt: true, updatedAt: true },
-      orderBy: { createdAt: 'desc' }
-    })
+    expect(mockListUsers).toHaveBeenCalled()
   })
 
   it('returns 500 on database error', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
-    mockPrisma.user.findMany.mockRejectedValue(new Error('DB connection failed'))
+    mockListUsers.mockRejectedValue(new Error('DB connection failed'))
 
     const res = await GET()
     const body = await res.json()
@@ -172,7 +166,7 @@ describe('POST /api/users', () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
 
     const created = { id: 1, username: 'newuser', role: 'tagger', createdAt: new Date(), updatedAt: new Date() }
-    mockPrisma.user.create.mockResolvedValue(created)
+    mockCreateUser.mockResolvedValue(created)
 
     const res = await POST(makeRequest({ username: 'newuser', password: 'secret', role: 'tagger' }))
     const body = await res.json()
@@ -180,15 +174,16 @@ describe('POST /api/users', () => {
     expect(res.status).toBe(201)
     expect(body.success).toBe(true)
     expect(body.user.username).toBe('newuser')
-    expect(mockPrisma.user.create).toHaveBeenCalledWith({
-      data: { username: 'newuser', password: 'hashed_secret', role: 'tagger' },
-      select: { id: true, username: true, role: true, createdAt: true, updatedAt: true }
+    expect(mockCreateUser).toHaveBeenCalledWith({
+      username: 'newuser',
+      password: 'hashed_secret',
+      role: 'tagger'
     })
   })
 
   it('returns 409 on duplicate username', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
-    mockPrisma.user.create.mockRejectedValue(new Error('Unique constraint failed on the fields: (`username`)'))
+    mockCreateUser.mockRejectedValue(new Error('Unique constraint failed on the fields: (`username`)'))
 
     const res = await POST(makeRequest({ username: 'existing', password: 'pass', role: 'tagger' }))
     const body = await res.json()
@@ -199,7 +194,7 @@ describe('POST /api/users', () => {
 
   it('returns 500 on unexpected database error', async () => {
     mockRequireRole.mockResolvedValue(authorizedResponse())
-    mockPrisma.user.create.mockRejectedValue(new Error('Connection timeout'))
+    mockCreateUser.mockRejectedValue(new Error('Connection timeout'))
 
     const res = await POST(makeRequest({ username: 'test', password: 'pass', role: 'tagger' }))
     const body = await res.json()

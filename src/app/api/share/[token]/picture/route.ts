@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSharedLinkWithSongId } from '@/features/share/share.repository'
+import { findFirstSongPicture } from '@/features/songs/songs.repository'
 
 interface RouteParams {
   params: Promise<{ token: string }>
@@ -9,10 +10,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   const { token } = await params
 
   try {
-    const sharedLink = await prisma.sharedLink.findUnique({
-      where: { token },
-      include: { song: { select: { id: true } } }
-    })
+    const sharedLink = await findSharedLinkWithSongId(token)
 
     if (!sharedLink) {
       return NextResponse.json({ success: false, error: 'Share link not found' }, { status: 404 })
@@ -22,10 +20,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
       return NextResponse.json({ success: false, error: 'Share link has expired' }, { status: 410 })
     }
 
-    const picture = await prisma.songPicture.findFirst({
-      where: { songId: sharedLink.song.id },
-      select: { data: true, format: true }
-    })
+    const picture = await findFirstSongPicture(sharedLink.song.id)
 
     if (!picture || !picture.data) {
       return NextResponse.json({ success: false, error: 'No picture found' }, { status: 404 })

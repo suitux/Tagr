@@ -1,8 +1,8 @@
 import { HISTORY_TRACKABLE_FIELDS, PICTURE_FIELD } from '@/features/history/consts'
+import { createHistoryEntries, createHistoryEntry, findLatestPicture, type HistoryEntryInput } from '@/features/history/history.repository'
 import { BOOLEAN_SONG_FIELDS, NUMERIC_SONG_FIELDS } from '@/features/songs/domain'
 import { joinMultiValue } from '@/features/songs/metadata-helpers'
 import { Song, SongMetadata } from '@/generated/prisma/client'
-import { prisma } from '@/infrastructure/prisma/dbClient'
 import { formatDate, ISO_DATE_FORMAT } from '@/lib/date'
 
 function serialize(value: unknown): string | null {
@@ -19,7 +19,7 @@ export function deserialize(field: string, value: string | null): unknown {
 }
 
 export async function recordChanges(song: Song, update: Record<string, unknown>, changedBy?: string) {
-  const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null; changedBy?: string }[] = []
+  const entries: HistoryEntryInput[] = []
 
   for (const [field, newVal] of Object.entries(update)) {
     if (!HISTORY_TRACKABLE_FIELDS.has(field)) continue
@@ -39,9 +39,7 @@ export async function recordChanges(song: Song, update: Record<string, unknown>,
     }
   }
 
-  if (entries.length > 0) {
-    await prisma.songChangeHistory.createMany({ data: entries })
-  }
+  await createHistoryEntries(entries)
 }
 
 export function stripMetadataKeyPrefix(key: string): string {
@@ -55,7 +53,7 @@ export async function recordCustomMetadataChanges(
   customMetadata: { key: string; value: string | null }[],
   changedBy?: string
 ) {
-  const entries: { songId: number; field: string; oldValue: string | null; newValue: string | null; changedBy?: string }[] = []
+  const entries: HistoryEntryInput[] = []
 
   // Group incoming changes by key to support multi-value
   const incomingByKey = new Map<string, (string | null)[]>()
@@ -88,9 +86,7 @@ export async function recordCustomMetadataChanges(
     }
   }
 
-  if (entries.length > 0) {
-    await prisma.songChangeHistory.createMany({ data: entries })
-  }
+  await createHistoryEntries(entries)
 }
 
 function serializePicture(data: Buffer | null, format: string | null): string | null {
@@ -107,22 +103,17 @@ export function deserializePicture(value: string | null): { buffer: Buffer; mime
 }
 
 export async function recordPictureChange(songId: number, newPictureData: string | null, changedBy?: string) {
-  const oldPicture = await prisma.songPicture.findFirst({
-    where: { songId },
-    select: { data: true, format: true }
-  })
+  const oldPicture = await findLatestPicture(songId)
 
   const oldValue = serializePicture(oldPicture?.data ? Buffer.from(oldPicture.data) : null, oldPicture?.format ?? null)
 
   if (oldValue === newPictureData) return
 
-  await prisma.songChangeHistory.create({
-    data: {
-      songId,
-      field: PICTURE_FIELD,
-      oldValue,
-      newValue: newPictureData,
-      changedBy
-    }
+  await createHistoryEntry({
+    songId,
+    field: PICTURE_FIELD,
+    oldValue,
+    newValue: newPictureData,
+    changedBy
   })
 }

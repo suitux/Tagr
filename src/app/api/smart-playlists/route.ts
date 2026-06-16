@@ -3,7 +3,7 @@ import { createSmartPlaylistObject } from '@/app/api/smart-playlists/helpers'
 import { auth } from '@/auth'
 import type { SmartPlaylist } from '@/features/smart-playlists/domain'
 import { smartPlaylistRulesSchema } from '@/features/smart-playlists/rules-schema'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { createSmartPlaylist, listPublicSmartPlaylists, listSmartPlaylistsByUser } from '@/features/smart-playlists/smart-playlists.repository'
 
 interface ListResponse {
   success: true
@@ -30,14 +30,8 @@ export async function GET(): Promise<NextResponse<ListResponse | ErrorResponse>>
 
   try {
     const [own, publicOnes] = await Promise.all([
-      prisma.smartPlaylist.findMany({
-        where: { userId },
-        orderBy: { createdAt: 'desc' }
-      }),
-      prisma.smartPlaylist.findMany({
-        where: { isPublic: true, NOT: { userId } },
-        orderBy: { createdAt: 'desc' }
-      })
+      listSmartPlaylistsByUser(userId),
+      listPublicSmartPlaylists(userId)
     ])
 
     return NextResponse.json({
@@ -73,13 +67,11 @@ export async function POST(request: Request): Promise<NextResponse<CreateRespons
       return NextResponse.json({ success: false, error: 'Invalid rules' }, { status: 400 })
     }
 
-    const created = await prisma.smartPlaylist.create({
-      data: {
-        userId,
-        name: name.trim(),
-        rules: JSON.stringify(rules),
-        isPublic: Boolean(isPublic)
-      }
+    const created = await createSmartPlaylist({
+      userId,
+      name: name.trim(),
+      rules: JSON.stringify(rules),
+      isPublic: Boolean(isPublic)
     })
 
     return NextResponse.json({ success: true, playlist: createSmartPlaylistObject(created, userId) })

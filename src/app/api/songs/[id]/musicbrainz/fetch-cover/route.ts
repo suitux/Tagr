@@ -3,7 +3,7 @@ import { recordPictureChange } from '@/features/history/history.service'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writePictureToFile } from '@/features/metadata/metadata-write.service'
 import { searchReleaseId, fetchCoverArt } from '@/features/musicbrainz/musicbrainz.service'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSongById } from '@/features/songs/songs.repository'
 import { requireRole } from '@/lib/api/auth-guard'
 
 interface RouteParams {
@@ -24,7 +24,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   try {
     const body = (await request.json().catch(() => ({}))) as { releaseId?: string }
 
-    const song = await prisma.song.findUnique({ where: { id: songId } })
+    const song = await findSongById(songId)
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })

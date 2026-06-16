@@ -1,11 +1,11 @@
 import { NextResponse } from 'next/server'
-import { getAdjacentSongs } from '@/features/metadata/metadata-scan.service'
 import { parseSmartListRules } from '@/features/smart-playlists/helpers'
 import { buildSmartPlaylistWhere } from '@/features/smart-playlists/smart-playlist-query.service'
 import { ColumnField, Song, SongSortDirection } from '@/features/songs/domain'
+import { getAdjacentSongs } from '@/features/songs/song-query.repository'
 import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
 import { getSongFiltersFromSearchParams } from '@/features/songs/filters-helpers'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSmartPlaylistById } from '@/features/smart-playlists/smart-playlists.repository'
 import { getSearchParam } from '@/lib/api/search-params'
 
 interface RouteParams {
@@ -52,7 +52,7 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   let extraWhere: Record<string, unknown> | undefined
 
   if (smartPlaylistIdParam) {
-    const playlist = await prisma.smartPlaylist.findUnique({ where: { id: smartPlaylistIdParam } })
+    const playlist = await findSmartPlaylistById(smartPlaylistIdParam)
     if (playlist) {
       const rules = parseSmartListRules(playlist.rules)
       extraWhere = buildSmartPlaylistWhere(rules) ?? undefined

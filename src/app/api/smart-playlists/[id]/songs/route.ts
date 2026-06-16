@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { countSongsByPlaylist, getSongsByPlaylist, PAGE_SIZE } from '@/features/metadata/metadata-scan.service'
 import { parseSmartListRules } from '@/features/smart-playlists/helpers'
 import { ColumnField, Song, SongSortDirection } from '@/features/songs/domain'
 import { getSongFiltersFromSearchParams } from '@/features/songs/filters-helpers'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { countSongsByPlaylist, getSongsByPlaylist, PAGE_SIZE } from '@/features/songs/song-query.repository'
+import { findSmartPlaylistById } from '@/features/smart-playlists/smart-playlists.repository'
 import { getSearchParam } from '@/lib/api/search-params'
 
 interface SongsSuccessResponse {
@@ -37,7 +37,7 @@ export async function GET(
     return NextResponse.json({ success: false, error: 'Invalid playlist ID' }, { status: 400 })
   }
 
-  const playlist = await prisma.smartPlaylist.findUnique({ where: { id: numericId } })
+  const playlist = await findSmartPlaylistById(numericId)
   if (!playlist) {
     return NextResponse.json({ success: false, error: 'Playlist not found' }, { status: 404 })
   }

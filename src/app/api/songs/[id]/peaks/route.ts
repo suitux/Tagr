@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { computePeaks } from '@/features/peaks/peaks.service'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSongForPeaks, updateSongPeaks } from '@/features/songs/songs.repository'
 
 interface RouteParams {
   params: Promise<{
@@ -17,10 +17,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   }
 
   try {
-    const song = await prisma.song.findUnique({
-      where: { id: songId },
-      select: { filePath: true, duration: true, peaks: true }
-    })
+    const song = await findSongForPeaks(songId)
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
@@ -35,10 +32,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
     const peaks = await computePeaks(song.filePath)
 
-    await prisma.song.update({
-      where: { id: songId },
-      data: { peaks: JSON.stringify(peaks) }
-    })
+    await updateSongPeaks(songId, JSON.stringify(peaks))
 
     return NextResponse.json(
       { success: true, peaks, duration: song.duration },

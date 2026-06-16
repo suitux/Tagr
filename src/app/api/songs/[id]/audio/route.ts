@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { streamAudioFile } from '@/features/songs/audio-stream'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findSongFilePath } from '@/features/songs/songs.repository'
 
 interface RouteParams {
   params: Promise<{
@@ -17,10 +17,7 @@ export async function GET(request: Request, { params }: RouteParams) {
   }
 
   try {
-    const song = await prisma.song.findUnique({
-      where: { id: songId },
-      select: { filePath: true }
-    })
+    const song = await findSongFilePath(songId)
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })

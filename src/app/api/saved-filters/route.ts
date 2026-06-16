@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { createSavedFilter, listSavedFiltersByUser } from '@/features/saved-filters/saved-filters.repository'
 
 interface SavedFilterResponse {
   id: number
@@ -31,10 +31,7 @@ export async function GET(): Promise<NextResponse<ListResponse | ErrorResponse>>
   }
 
   try {
-    const filters = await prisma.savedFilter.findMany({
-      where: { userId: session.user.id },
-      orderBy: { createdAt: 'desc' }
-    })
+    const filters = await listSavedFiltersByUser(session.user.id)
 
     return NextResponse.json({
       success: true,
@@ -79,9 +76,7 @@ export async function POST(request: Request): Promise<NextResponse<CreateRespons
       return NextResponse.json({ success: false, error: 'Filters must be valid JSON' }, { status: 400 })
     }
 
-    const filter = await prisma.savedFilter.create({
-      data: { userId, name: name.trim(), filters }
-    })
+    const filter = await createSavedFilter(userId, name.trim(), filters)
 
     return NextResponse.json({
       success: true,

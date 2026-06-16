@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 import NextAuth from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { UserRole } from '@/features/users/domain'
-import { prisma } from '@/infrastructure/prisma/dbClient'
+import { findUserByUsername } from '@/features/users/users.repository'
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -34,7 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
 
         // Check database users (tagger / listener)
-        const user = await prisma.user.findUnique({ where: { username } })
+        const user = await findUserByUsername(username)
         if (!user) return null
 
         const valid = await bcrypt.compare(password, user.password)
