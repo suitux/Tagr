@@ -14,9 +14,59 @@ interface ScanResponse {
   result?: ScanSummaryResult
 }
 
+interface ScanStartResponse {
+  success: boolean
+  error?: string
+  job?: {
+    id: string
+    status: 'running' | 'completed' | 'failed'
+  }
+}
+
+interface ScanStatusResponse {
+  success: boolean
+  error?: string
+  job?: {
+    id: string
+    status: 'running' | 'completed' | 'failed'
+    error?: string
+    result?: ScanSummaryResult
+  }
+}
+
+const SCAN_POLL_INTERVAL_MS = 1000
+
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}
+
+// Scans run as a background job server-side (issue #22): start it, then poll for
+// completion so a long scan can never time out the request/proxy.
 async function scanDatabase(mode?: ScanMode): Promise<ScanResponse> {
-  const { data } = await api.get<ScanResponse>('/scan', { params: { mode } })
-  return data
+  const start = await api.post<ScanStartResponse>('/scan/start', { mode })
+
+  if (!start.data.success || !start.data.job?.id) {
+    throw new Error(start.data.error || 'Failed to start scan')
+  }
+
+  const jobId = start.data.job.id
+
+  for (;;) {
+    await sleep(SCAN_POLL_INTERVAL_MS)
+    const { data } = await api.get<ScanStatusResponse>(`/scan/status/${jobId}`)
+
+    if (!data.success || !data.job) {
+      throw new Error(data.error || 'Failed to read scan status')
+    }
+
+    if (data.job.status === 'running') continue
+
+    if (data.job.status === 'failed') {
+      throw new Error(data.job.error || 'Scan failed')
+    }
+
+    return { success: true, result: data.job.result }
+  }
 }
 
 export function useScan() {

@@ -24,6 +24,10 @@ import {
 } from '@/features/songs/songs.repository'
 import { parseDate } from '@/lib/date'
 
+// Process files in batches so we can periodically yield the event loop and
+// reclaim off-heap memory between batches (issue #22).
+const SCAN_FILE_BATCH_SIZE = 100
+
 async function getAllMusicFiles(folderPath: string): Promise<string[]> {
   const files: string[] = []
 
@@ -114,12 +118,14 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       }
     }
 
-    // Extraer imágenes
+    // Wrap the existing bytes in a Buffer view instead of copying them: a copy
+    // transiently doubles the off-heap footprint of every embedded image and is
+    // a key contributor to the scan memory pressure in issue #22.
     const pictures: PictureInput[] = (common.picture || []).map(pic => ({
       type: pic.type || null,
       format: pic.format,
       description: pic.description || null,
-      data: Buffer.from(pic.data)
+      data: Buffer.from(pic.data.buffer, pic.data.byteOffset, pic.data.byteLength)
     }))
 
     return {
@@ -217,55 +223,70 @@ export async function scanFolderAndUpdateDatabase(
     existingMap = new Map(existingSongs.map(s => [s.filePath, s.modifiedAt!]))
   }
 
-  for (let i = 0; i < files.length; i++) {
-    const filePath = files[i]
+  // Process files in batches. Between batches we yield the event loop and force
+  // a GC pass so the off-heap cover-art buffers from the previous batch are
+  // reclaimed before the next batch loads more. Without this the V8 external
+  // memory pool grows unchecked on large libraries and the process aborts with
+  // SIGSEGV (issue #22).
+  for (let start = 0; start < files.length; start += SCAN_FILE_BATCH_SIZE) {
+    const batchEnd = Math.min(start + SCAN_FILE_BATCH_SIZE, files.length)
 
-    onProgress?.({
-      current: i + 1,
-      total,
-      currentFile: filePath
-    })
+    for (let i = start; i < batchEnd; i++) {
+      const filePath = files[i]
 
-    // In quick mode, skip files that haven't changed
-    if (existingMap) {
-      try {
-        const stats = await fs.stat(filePath)
-        const existingModified = existingMap.get(filePath)
-        if (existingModified && existingModified.getTime() === stats.mtime.getTime()) {
-          result.skippedFiles.push(filePath)
-          continue
-        }
-      } catch {
-        // If we can't stat the file, proceed with scanning it
-      }
-    }
-
-    const songData = await extractMetadata(filePath)
-
-    if (!songData) {
-      result.errors.push({ path: filePath, error: 'Failed to extract metadata' })
-      continue
-    }
-
-    try {
-      // Verificar si ya existe
-      const existing = await findSongByFilePath(filePath)
-
-      const { metadata, pictures, ...songFields } = songData
-
-      if (existing) {
-        await replaceScannedSongByFilePath(filePath, existing.id, songFields, metadata, pictures)
-        result.updatedFiles.push(filePath)
-      } else {
-        await createScannedSong(songFields, metadata, pictures)
-        result.addedFiles.push(filePath)
-      }
-    } catch (error) {
-      result.errors.push({
-        path: filePath,
-        error: error instanceof Error ? error.message : 'Unknown database error'
+      onProgress?.({
+        current: i + 1,
+        total,
+        currentFile: filePath
       })
+
+      // In quick mode, skip files that haven't changed
+      if (existingMap) {
+        try {
+          const stats = await fs.stat(filePath)
+          const existingModified = existingMap.get(filePath)
+          if (existingModified && existingModified.getTime() === stats.mtime.getTime()) {
+            result.skippedFiles.push(filePath)
+            continue
+          }
+        } catch {
+          // If we can't stat the file, proceed with scanning it
+        }
+      }
+
+      const songData = await extractMetadata(filePath)
+
+      if (!songData) {
+        result.errors.push({ path: filePath, error: 'Failed to extract metadata' })
+        continue
+      }
+
+      try {
+        // Verificar si ya existe
+        const existing = await findSongByFilePath(filePath)
+
+        const { metadata, pictures, ...songFields } = songData
+
+        if (existing) {
+          await replaceScannedSongByFilePath(filePath, existing.id, songFields, metadata, pictures)
+          result.updatedFiles.push(filePath)
+        } else {
+          await createScannedSong(songFields, metadata, pictures)
+          result.addedFiles.push(filePath)
+        }
+      } catch (error) {
+        result.errors.push({
+          path: filePath,
+          error: error instanceof Error ? error.message : 'Unknown database error'
+        })
+      }
     }
+
+    // Yield to the event loop, then reclaim off-heap buffers. globalThis.gc is
+    // only defined when Node runs with --expose-gc (set in the Docker image);
+    // the optional call is a harmless no-op otherwise.
+    await new Promise<void>(resolve => setImmediate(resolve))
+    ;(globalThis as { gc?: () => void }).gc?.()
   }
 
   // Eliminar canciones que ya no existen en el sistema de archivos
