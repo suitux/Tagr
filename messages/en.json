@@ -59,6 +59,7 @@
     "appInstalled": "App installed",
     "manageUsers": "Manage users",
     "scanning": "Scanning library...",
+    "scanningProgress": "Scanning library... ({current}/{total})",
     "scanCompleted": "Scan completed",
     "scanFailed": "Scan failed",
     "filesScanned": "files scanned",

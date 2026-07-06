@@ -1,5 +1,5 @@
 import { toast } from 'sonner'
-import { useCallback } from 'react'
+import { useCallback, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { ScanMode } from '@/features/scan/domain'
@@ -23,6 +23,11 @@ interface ScanStartResponse {
   }
 }
 
+interface ScanProgress {
+  current: number
+  total: number
+}
+
 interface ScanStatusResponse {
   success: boolean
   error?: string
@@ -30,6 +35,7 @@ interface ScanStatusResponse {
     id: string
     status: 'running' | 'completed' | 'failed'
     error?: string
+    progress?: ScanProgress
     result?: ScanSummaryResult
   }
 }
@@ -42,7 +48,10 @@ function sleep(ms: number): Promise<void> {
 
 // Scans run as a background job server-side (issue #22): start it, then poll for
 // completion so a long scan can never time out the request/proxy.
-async function scanDatabase(mode?: ScanMode): Promise<ScanResponse> {
+async function scanDatabase(
+  mode?: ScanMode,
+  onProgress?: (progress: ScanProgress) => void
+): Promise<ScanResponse> {
   const start = await api.post<ScanStartResponse>('/scan/start', { mode })
 
   if (!start.data.success || !start.data.job?.id) {
@@ -58,6 +67,8 @@ async function scanDatabase(mode?: ScanMode): Promise<ScanResponse> {
     if (!data.success || !data.job) {
       throw new Error(data.error || 'Failed to read scan status')
     }
+
+    if (data.job.progress) onProgress?.(data.job.progress)
 
     if (data.job.status === 'running') continue
 
@@ -75,11 +86,18 @@ export function useScan() {
   const tCommon = useTranslations('common')
   const { setScanLastResult, setScanSummaryOpen } = useHomeStore()
   const { confirm } = useAlertDialog()
+  const toastIdRef = useRef<string | number | undefined>(undefined)
 
   const mutation = useMutation({
-    mutationFn: ({ mode }: { mode?: ScanMode } = {}) => scanDatabase(mode),
+    mutationFn: ({ mode }: { mode?: ScanMode } = {}) =>
+      scanDatabase(mode, ({ current, total }) => {
+        if (toastIdRef.current === undefined) return
+        toast.loading(t('scanningProgress', { current, total }), { id: toastIdRef.current })
+      }),
     onMutate: () => {
-      return { toastId: toast.loading(t('scanning')) }
+      const toastId = toast.loading(t('scanning'))
+      toastIdRef.current = toastId
+      return { toastId }
     },
     onSuccess: (data, _variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['folders'] })
