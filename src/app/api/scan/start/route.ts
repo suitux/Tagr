@@ -2,22 +2,18 @@ import { NextResponse } from 'next/server'
 import { ScanMode } from '@/features/scan/domain'
 import { startScanJob } from '@/features/scan/scan-job.service'
 import { requireRole } from '@/lib/api/auth-guard'
-import { getSearchParam } from '@/lib/api/search-params'
 
-/**
- * Backward-compatible entry point. Scans now run as background jobs to avoid
- * proxy timeouts and the SIGSEGV crash on large libraries (issue #22); this
- * starts a job and returns its id. Poll GET /api/scan/status/[jobId] for
- * progress and the final result.
- */
-export async function GET(request: Request) {
+interface StartScanRequest {
+  mode?: ScanMode
+}
+
+export async function POST(request: Request) {
   const guard = await requireRole('tagger')
   if (!guard.authorized) return guard.response
 
-  const { searchParams } = new URL(request.url)
-  const mode = getSearchParam(searchParams, 'mode', 'string', 'full') as ScanMode
-
   try {
+    const body = (await request.json().catch(() => ({}))) as StartScanRequest
+    const mode: ScanMode = body.mode === 'quick' ? 'quick' : 'full'
     const job = startScanJob(mode)
 
     return NextResponse.json({

@@ -38,6 +38,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Expose global.gc so the scan loop can force GC of off-heap cover-art buffers
+# between batches, preventing the external-memory SIGSEGV on large libraries (#22).
+ENV NODE_OPTIONS="--expose-gc"
+
 # Runtime dependencies
 RUN apk add --no-cache su-exec sqlite shadow ffmpeg
 
