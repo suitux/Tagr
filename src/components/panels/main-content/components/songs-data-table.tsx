@@ -1,12 +1,12 @@
 'use client'
 
-import { FilterXIcon, LoaderCircle } from 'lucide-react'
-import { useCallback, useMemo } from 'react'
+import { FilterXIcon, GripVerticalIcon, LoaderCircle } from 'lucide-react'
+import { useCallback, useContext, useMemo } from 'react'
 import { useTranslations } from 'next-intl'
 import { BulkActionBar } from '@/components/bulk-action-bar/bulk-action-bar'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
 import { Button } from '@/components/ui/button'
-import { DataTable } from '@/components/ui/data-table'
+import { DataTable, RowDragHandleContext } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
 import { type ColumnField, Song } from '@/features/songs/domain'
@@ -17,7 +17,7 @@ import { useSelectedSong } from '@/hooks/use-selected-song'
 import { cn } from '@/lib/utils'
 import { useBulkSelectionStore, useIsSelectionActive } from '@/stores/bulk-selection-store'
 import { useHomeStore, useIsAnyFilterActive } from '@/stores/home-store'
-import type { SortingState, VisibilityState } from '@tanstack/react-table'
+import type { ColumnDef, SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns } from './columns/columns'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
 import ColumnSelector from './main-content-file-list-column-selector'
@@ -25,6 +25,33 @@ import { MainContentNoFilterResults } from './main-content-no-filter-results'
 import { SavedFiltersDropdown } from './saved-filters-dropdown'
 import { SelectAllSongsButton } from './select-all-songs-button'
 import { SongRowContextMenu } from './song-row-context-menu'
+
+function DragHandleCell() {
+  const ctx = useContext(RowDragHandleContext)
+  if (!ctx) return null
+  return (
+    <button
+      type='button'
+      className='flex items-center justify-center h-full w-full cursor-grab touch-none text-muted-foreground hover:text-foreground'
+      aria-label='Drag to reorder'
+      onClick={e => e.stopPropagation()}
+      {...ctx.attributes}
+      {...ctx.listeners}>
+      <GripVerticalIcon className='w-4 h-4' />
+    </button>
+  )
+}
+
+const DRAG_COLUMN: ColumnDef<Song> = {
+  id: '__drag',
+  header: () => null,
+  cell: () => <DragHandleCell />,
+  size: 20,
+  minSize: 20,
+  enableSorting: false,
+  enableHiding: false,
+  enableResizing: false
+}
 
 export interface SongsDataTableProps {
   songs: Song[]
@@ -75,6 +102,11 @@ export function SongsDataTable({
 
   const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs })
   const { data: columnVisibility } = useColumnVisibility({ columns })
+
+  const tableColumns = useMemo(
+    () => (enableRowReorder ? [DRAG_COLUMN, ...columns] : columns),
+    [enableRowReorder, columns]
+  )
 
   const SongRowWrapper = useCallback(
     ({ row, children }: { row: Song; children: React.ReactNode }) => (
@@ -150,7 +182,7 @@ export function SongsDataTable({
       </div>
 
       <DataTable
-        columns={columns}
+        columns={tableColumns}
         data={songs}
         getRowId={(song: Song) => String(song.id)}
         selectedRowId={selectedSongId != null ? String(selectedSongId) : null}

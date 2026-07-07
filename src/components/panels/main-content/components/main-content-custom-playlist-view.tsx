@@ -1,7 +1,7 @@
 'use client'
 
 import { MusicIcon } from 'lucide-react'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { usePlaylistSongs } from '@/features/playlists/hooks/use-playlist-songs'
@@ -9,6 +9,8 @@ import { usePlaylists } from '@/features/playlists/hooks/use-playlists'
 import { useReorderPlaylistItems } from '@/features/playlists/hooks/use-reorder-playlist-items'
 import { useHomeStore, useIsAnyFilterActive } from '@/stores/home-store'
 import { useActiveCustomMetadataKeys } from './columns/hooks/use-active-custom-metadata-keys'
+import { PlaylistReorderBar } from './playlist-reorder-bar'
+import { PlaylistReorderContext } from './playlist-reorder-context'
 import { SongsDataTable } from './songs-data-table'
 import { SongsTableHeader } from './songs-table-header'
 
@@ -54,8 +56,9 @@ export function MainContentCustomPlaylistView({ playlistId }: Props) {
   const totalSongs = (songsData?.pages[0]?.success === true && songsData.pages[0].totalFiles) || null
 
   // Reordering only makes sense in manual (sortIndex) order, i.e. no column sort/search/filter.
-  const canReorder =
-    playlist?.isOwner === true && !sorting.sortField && !search && !isAnyFilterActive
+  const canReorder = playlist?.isOwner === true && !sorting.sortField && !search && !isAnyFilterActive
+
+  const [isReordering, setIsReordering] = useState(false)
 
   const handleReorder = useCallback(
     (orderedRowIds: string[]) => {
@@ -65,41 +68,44 @@ export function MainContentCustomPlaylistView({ playlistId }: Props) {
   )
 
   return (
-    <div className='flex flex-col h-full'>
-      <SongsTableHeader
-        title={playlist?.name}
-        mobileTitle={playlist?.name}
-        variant={'playlist'}
-        badges={
-          <>
-            <Badge variant='secondary' className='uppercase text-[10px] tracking-wide'>
-              {t('viewing.label')}
-            </Badge>
-            {playlist?.isPublic && <Badge variant='outline'>{t('publicBadge')}</Badge>}
-            <Badge variant='secondary' className='gap-1.5'>
-              <MusicIcon className='w-3.5 h-3.5' />
-              {tFolders('files', { count: totalSongs || '?' })}
-            </Badge>
-          </>
-        }
-        searchKey={playlistId}
-        searchValue={search}
-        onSearchChange={setSearch}
-        searchPlaceholder={tFiles('searchPlaceholder')}
-      />
+    <PlaylistReorderContext.Provider value={{ canReorder, isReordering, setIsReordering }}>
+      <div className='flex flex-col h-full'>
+        <SongsTableHeader
+          title={playlist?.name}
+          mobileTitle={playlist?.name}
+          variant={'playlist'}
+          badges={
+            <>
+              <Badge variant='secondary' className='uppercase text-[10px] tracking-wide'>
+                {t('viewing.label')}
+              </Badge>
+              {playlist?.isPublic && <Badge variant='outline'>{t('publicBadge')}</Badge>}
+              <Badge variant='secondary' className='gap-1.5'>
+                <MusicIcon className='w-3.5 h-3.5' />
+                {tFolders('files', { count: totalSongs || '?' })}
+              </Badge>
+            </>
+          }
+          searchKey={playlistId}
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={tFiles('searchPlaceholder')}
+        />
 
-      <SongsDataTable
-        songs={songs}
-        totalSongs={totalSongs}
-        isLoadingSongs={isLoading}
-        isRefetching={isRefetching}
-        fetchNextPage={fetchNextPage}
-        hasNextPage={hasNextPage}
-        isFetchingNextPage={isFetchingNextPage}
-        showSavedFiltersDropdown={false}
-        enableRowReorder={canReorder}
-        onRowReorder={handleReorder}
-      />
-    </div>
+        <SongsDataTable
+          songs={songs}
+          totalSongs={totalSongs}
+          isLoadingSongs={isLoading}
+          isRefetching={isRefetching}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
+          showSavedFiltersDropdown={false}
+          enableRowReorder={canReorder && isReordering}
+          onRowReorder={handleReorder}
+        />
+        {canReorder && isReordering && <PlaylistReorderBar onDone={() => setIsReordering(false)} />}
+      </div>
+    </PlaylistReorderContext.Provider>
   )
 }

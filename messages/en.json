@@ -489,6 +489,9 @@
     },
     "edit": {
       "title": "Edit playlist"
-    }
+    },
+    "enableReorder": "Reorder songs",
+    "disableReorder": "Done reordering",
+    "reorderHint": "Drag the handles to reorder"
   }
 }

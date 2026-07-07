@@ -2,6 +2,7 @@
 
 import {
   DndContext,
+  type DraggableAttributes,
   type DragEndEvent,
   PointerSensor,
   closestCenter,
@@ -10,7 +11,7 @@ import {
 } from '@dnd-kit/core'
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { ComponentType, ReactNode, useCallback, useRef, useState } from 'react'
+import { ComponentType, ReactNode, createContext, useCallback, useRef, useState } from 'react'
 import { type TableComponents, TableVirtuoso, type TableVirtuosoHandle } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
@@ -53,7 +54,18 @@ interface VirtuosoContext<TData> {
   enableRowReorder?: boolean
 }
 
-/** A virtuoso table row that is draggable/sortable via dnd-kit. Preserves virtuoso row props. */
+/**
+ * Drag listeners/attributes for the current row, provided to descendant cells so a
+ * dedicated drag-handle cell can be the only draggable surface (keeps row click / context menu working).
+ */
+export interface RowDragHandle {
+  attributes: DraggableAttributes
+  listeners: Record<string, (event: unknown) => void> | undefined
+}
+
+export const RowDragHandleContext = createContext<RowDragHandle | null>(null)
+
+/** A virtuoso table row that is sortable via dnd-kit. Drag only fires from a handle cell, not the whole row. */
 function SortableVirtuosoRow({
   id,
   selected,
@@ -67,16 +79,16 @@ function SortableVirtuosoRow({
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
   return (
-    <TableRow
-      {...rowProps}
-      ref={setNodeRef}
-      style={{ ...(rowProps.style as object), transform: CSS.Transform.toString(transform), transition }}
-      data-state={selected ? 'selected' : undefined}
-      className={cn('cursor-grab group', selected && 'bg-accent', isDragging && 'relative z-10 opacity-80')}
-      onClick={onClick}
-      {...attributes}
-      {...listeners}
-    />
+    <RowDragHandleContext.Provider value={{ attributes, listeners: listeners as RowDragHandle['listeners'] }}>
+      <TableRow
+        {...rowProps}
+        ref={setNodeRef}
+        style={{ ...(rowProps.style as object), transform: CSS.Transform.toString(transform), transition }}
+        data-state={selected ? 'selected' : undefined}
+        className={cn('cursor-pointer group', selected && 'bg-accent', isDragging && 'relative z-10 opacity-80')}
+        onClick={onClick}
+      />
+    </RowDragHandleContext.Provider>
   )
 }
 

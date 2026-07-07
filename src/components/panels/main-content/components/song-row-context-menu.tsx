@@ -1,6 +1,15 @@
 'use client'
 
-import { CheckSquareIcon, FolderCheckIcon, ListChecksIcon, ListMusicIcon, ListPlusIcon, PlusIcon, XIcon } from 'lucide-react'
+import {
+  ArrowUpDownIcon,
+  CheckSquareIcon,
+  FolderCheckIcon,
+  ListChecksIcon,
+  ListMusicIcon,
+  ListPlusIcon,
+  PlusIcon,
+  XIcon
+} from 'lucide-react'
 import { useMemo, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { PlaylistModal } from '@/components/panels/folder-list/components/playlists/playlist-modal'
@@ -17,9 +26,9 @@ import {
 import { useAddSongsToPlaylist } from '@/features/playlists/hooks/use-add-songs-to-playlist'
 import { usePlaylists } from '@/features/playlists/hooks/use-playlists'
 import { useRemoveSongFromPlaylist } from '@/features/playlists/hooks/use-remove-song-from-playlist'
-import { type Song } from '@/features/songs/domain'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
+import { type Song } from '@/features/songs/domain'
 import { useSelectedCustomPlaylist } from '@/hooks/use-selected-custom-playlist'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
@@ -30,6 +39,7 @@ import {
   useSelectionState
 } from '@/stores/bulk-selection-store'
 import { useHomeStore } from '@/stores/home-store'
+import { usePlaylistReorder } from './playlist-reorder-context'
 
 interface SongRowContextMenuProps {
   row: Song
@@ -62,6 +72,7 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
   const { mutate: addSongs } = useAddSongsToPlaylist()
   const { mutate: removeSong } = useRemoveSongFromPlaylist()
   const ownedPlaylists = playlistsData?.private ?? []
+  const reorder = usePlaylistReorder()
 
   const [createOpen, setCreateOpen] = useState(false)
 
@@ -77,7 +88,12 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
   const handleSelectAll = () => {
     let context: SelectionContext | null = null
     if (selectedPlaylistId !== null) {
-      context = { type: 'smart-playlist', playlistId: selectedPlaylistId, search: search || undefined, filters: activeFilters }
+      context = {
+        type: 'smart-playlist',
+        playlistId: selectedPlaylistId,
+        search: search || undefined,
+        filters: activeFilters
+      }
     } else if (selectedFolderId) {
       context = { type: 'folder', folderPath: selectedFolderId, search: search || undefined, filters: activeFilters }
     }
@@ -136,6 +152,13 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
               </ContextMenuItem>
             </ContextMenuSubContent>
           </ContextMenuSub>
+
+          {reorder?.canReorder && (
+            <ContextMenuItem onSelect={() => reorder?.setIsReordering(!reorder?.isReordering)}>
+              <ArrowUpDownIcon />
+              {reorder.isReordering ? tPlaylists('disableReorder') : tPlaylists('enableReorder')}
+            </ContextMenuItem>
+          )}
 
           {viewingCustomPlaylist && (
             <ContextMenuItem
