@@ -464,5 +464,31 @@
     "titleEdit": "Bulk edit summary",
     "titleCover": "Cover fetch summary",
     "totalFiles": "{count, plural, one {# song processed} other {# songs processed}}"
+  },
+  "playlists": {
+    "title": "Playlists",
+    "newSmartPlaylist": "New smart playlist",
+    "newPlaylist": "New playlist",
+    "add": "Add playlist",
+    "empty": "No playlists yet",
+    "publicBadge": "Public",
+    "confirmDelete": "Delete playlist \"{name}\"?",
+    "addToPlaylist": "Add to playlist",
+    "newPlaylistInline": "New playlist…",
+    "removeFromPlaylist": "Remove from playlist",
+    "addedToast": "Added {count} song(s) to \"{name}\"",
+    "viewing": {
+      "label": "Playlist"
+    },
+    "create": {
+      "title": "Create playlist",
+      "description": "A manual playlist. Add songs from the song list.",
+      "name": "Name",
+      "namePlaceholder": "My playlist",
+      "isPublic": "Make this playlist visible to other users"
+    },
+    "edit": {
+      "title": "Edit playlist"
+    }
   }
 }

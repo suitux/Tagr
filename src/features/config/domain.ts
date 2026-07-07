@@ -1,6 +1,6 @@
 import { ColumnField } from '@/features/songs/domain'
 
-export type ConfigKey = 'columnVisibility' | 'dismissedVersion' | 'starPromptDismissed'
+export type ConfigKey = 'columnVisibility' | 'dismissedVersion' | 'starPromptDismissed' | 'playlistOrder'
 
 export type ColumnVisibilityState = {
   [key in ColumnField]: boolean

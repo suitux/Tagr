@@ -427,6 +427,106 @@ export async function countSongsByPlaylist(
   return prisma.song.count({ where })
 }
 
+async function getCustomPlaylistOrderedSongIds(playlistId: number): Promise<number[]> {
+  const items = await prisma.playlistItem.findMany({
+    where: { playlistId },
+    orderBy: { sortIndex: 'asc' },
+    select: { songId: true }
+  })
+  return items.map(i => i.songId)
+}
+
+function buildCustomPlaylistWhere(
+  orderedIds: number[],
+  search?: string,
+  filters?: SongColumnFilters
+): Record<string, unknown> {
+  const columnFilterConditions = buildColumnFiltersWhere(filters)
+  return {
+    id: { in: orderedIds },
+    ...(search && {
+      OR: [
+        { title: { contains: search } },
+        { artist: { contains: search } },
+        { publisher: { contains: search } },
+        { album: { contains: search } },
+        { fileName: { contains: search } },
+        { comment: { contains: search } }
+      ]
+    }),
+    ...(columnFilterConditions.length > 0 && { AND: columnFilterConditions })
+  }
+}
+
+export async function getSongsByCustomPlaylist(
+  playlistId: number,
+  search?: string,
+  sortField?: ColumnField,
+  sort?: SongSortDirection,
+  skip?: number,
+  take?: number,
+  filters?: SongColumnFilters,
+  metadataKeys?: string[]
+): Promise<Song[]> {
+  const orderedIds = await getCustomPlaylistOrderedSongIds(playlistId)
+  if (orderedIds.length === 0) return []
+
+  const where = buildCustomPlaylistWhere(orderedIds, search, filters)
+  const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
+  const isMetadataSort = sortField && isMetadataColumnId(sortField)
+
+  if (isMetadataSort) {
+    const metaKey = getMetadataKeyFromColumnId(sortField)
+    const songIds = await getMetadataSortedSongIds(where, metaKey, sort ?? 'asc', skip, take)
+    if (songIds.length === 0) return []
+
+    const songs = await prisma.song.findMany({
+      where: { id: { in: songIds } },
+      ...(includeMetadata && { include: { metadata: true } })
+    })
+    const idOrder = new Map(songIds.map((id, i) => [id, i]))
+    songs.sort((a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0))
+    return songs
+  }
+
+  // Explicit column sort: use normal ordering.
+  if (sortField && sort) {
+    return prisma.song.findMany({
+      where,
+      ...(includeMetadata && { include: { metadata: true } }),
+      orderBy: [{ [sortField]: sort }],
+      skip,
+      take
+    })
+  }
+
+  // Default: preserve manual playlist order (sortIndex).
+  const matching = await prisma.song.findMany({ where, select: { id: true } })
+  const matchingSet = new Set(matching.map(s => s.id))
+  const ordered = orderedIds.filter(id => matchingSet.has(id))
+  const pageIds = ordered.slice(skip ?? 0, (skip ?? 0) + (take ?? ordered.length))
+  if (pageIds.length === 0) return []
+
+  const songs = await prisma.song.findMany({
+    where: { id: { in: pageIds } },
+    ...(includeMetadata && { include: { metadata: true } })
+  })
+  const idOrder = new Map(pageIds.map((id, i) => [id, i]))
+  songs.sort((a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0))
+  return songs
+}
+
+export async function countSongsByCustomPlaylist(
+  playlistId: number,
+  search?: string,
+  filters?: SongColumnFilters
+): Promise<number> {
+  const orderedIds = await getCustomPlaylistOrderedSongIds(playlistId)
+  if (orderedIds.length === 0) return 0
+  const where = buildCustomPlaylistWhere(orderedIds, search, filters)
+  return prisma.song.count({ where })
+}
+
 export async function getSongIdsByFolder(
   folderPath: string | null,
   search?: string,

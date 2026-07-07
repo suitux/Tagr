@@ -15,20 +15,24 @@ import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
 import { ListItemGroup } from './components/list-item-group'
-import { SmartPlaylistsSection } from './components/smart-playlists/smart-playlists-section'
+import { PlaylistsSection } from './components/playlists/playlists-section'
 
 interface FolderListProps {
   onFolderSelect?: (folderId: string | null) => void
   selectedFolderId?: string | null
   onPlaylistSelect?: (playlistId: number | null) => void
   selectedPlaylistId?: number | null
+  onCustomPlaylistSelect?: (playlistId: number | null) => void
+  selectedCustomPlaylistId?: number | null
 }
 
 export function FolderList({
   onFolderSelect,
   selectedFolderId,
   onPlaylistSelect,
-  selectedPlaylistId
+  selectedPlaylistId,
+  onCustomPlaylistSelect,
+  selectedCustomPlaylistId
 }: FolderListProps) {
   const t = useTranslations('navigation')
   const [search, setSearch] = useState('')
@@ -56,10 +60,12 @@ export function FolderList({
 
       <ScrollArea className='flex-1 min-h-0'>
         <div className='p-2'>
-          {!hasSearch && onPlaylistSelect && (
-            <SmartPlaylistsSection
+          {!hasSearch && onPlaylistSelect && onCustomPlaylistSelect && (
+            <PlaylistsSection
               selectedPlaylistId={selectedPlaylistId ?? null}
               onPlaylistSelect={onPlaylistSelect}
+              selectedCustomPlaylistId={selectedCustomPlaylistId ?? null}
+              onCustomPlaylistSelect={onCustomPlaylistSelect}
             />
           )}
 

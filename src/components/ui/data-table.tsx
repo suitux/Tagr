@@ -1,5 +1,15 @@
 'use client'
 
+import {
+  DndContext,
+  type DragEndEvent,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors
+} from '@dnd-kit/core'
+import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { ComponentType, ReactNode, useCallback, useRef, useState } from 'react'
 import { type TableComponents, TableVirtuoso, type TableVirtuosoHandle } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
@@ -29,6 +39,10 @@ interface DataTableProps<TData, TValue> {
   onScrollEnd?: () => void
   EmptyStateComponent?: () => ReactNode
   RowWrapper?: ComponentType<{ row: TData; children: ReactNode }>
+  /** Enables drag-to-reorder of rows. Row ids come from getRowId. */
+  enableRowReorder?: boolean
+  /** Called with the full ordered list of row ids after a drag. */
+  onRowReorder?: (orderedRowIds: string[]) => void
 }
 
 interface VirtuosoContext<TData> {
@@ -36,6 +50,34 @@ interface VirtuosoContext<TData> {
   selectedRowId?: string | null
   onRowClick?: (row: TData) => void
   RowWrapper?: ComponentType<{ row: TData; children: ReactNode }>
+  enableRowReorder?: boolean
+}
+
+/** A virtuoso table row that is draggable/sortable via dnd-kit. Preserves virtuoso row props. */
+function SortableVirtuosoRow({
+  id,
+  selected,
+  onClick,
+  rowProps
+}: {
+  id: string
+  selected: boolean
+  onClick: () => void
+  rowProps: Record<string, unknown>
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
+  return (
+    <TableRow
+      {...rowProps}
+      ref={setNodeRef}
+      style={{ ...(rowProps.style as object), transform: CSS.Transform.toString(transform), transition }}
+      data-state={selected ? 'selected' : undefined}
+      className={cn('cursor-grab group', selected && 'bg-accent', isDragging && 'relative z-10 opacity-80')}
+      onClick={onClick}
+      {...attributes}
+      {...listeners}
+    />
+  )
 }
 
 export function DataTable<TData, TValue>({
@@ -50,10 +92,13 @@ export function DataTable<TData, TValue>({
   onColumnVisibilityChange,
   onScrollEnd,
   EmptyStateComponent,
-  RowWrapper
+  RowWrapper,
+  enableRowReorder,
+  onRowReorder
 }: DataTableProps<TData, TValue>) {
   const virtuosoRef = useRef<TableVirtuosoHandle>(null)
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
+  const reorderSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 6 } }))
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -108,15 +153,24 @@ export function DataTable<TData, TValue>({
       const index = props['data-item-index']
       const row = context?.rows[index]
       const Wrapper = context?.RowWrapper
+      const selected = row?.id === context?.selectedRowId
 
-      const tableRow = (
-        <TableRow
-          {...props}
-          data-state={row.id === context?.selectedRowId ? 'selected' : undefined}
-          className={cn('cursor-pointer group', row.id === context?.selectedRowId && 'bg-accent')}
-          onClick={() => context?.onRowClick?.(row.original)}
-        />
-      )
+      const tableRow =
+        context?.enableRowReorder && row ? (
+          <SortableVirtuosoRow
+            id={row.id}
+            selected={selected}
+            onClick={() => context?.onRowClick?.(row.original)}
+            rowProps={props}
+          />
+        ) : (
+          <TableRow
+            {...props}
+            data-state={selected ? 'selected' : undefined}
+            className={cn('cursor-pointer group', selected && 'bg-accent')}
+            onClick={() => context?.onRowClick?.(row.original)}
+          />
+        )
 
       if (Wrapper && row) {
         return <Wrapper row={row.original}>{tableRow}</Wrapper>
@@ -128,28 +182,50 @@ export function DataTable<TData, TValue>({
 
   const showEmptyState = rows.length === 0 && !!EmptyStateComponent
 
+  const handleReorderDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+    const ids = rows.map(r => r.id)
+    const oldIndex = ids.indexOf(String(active.id))
+    const newIndex = ids.indexOf(String(over.id))
+    if (oldIndex === -1 || newIndex === -1) return
+    onRowReorder?.(arrayMove(ids, oldIndex, newIndex))
+  }
+
+  const virtuoso = (
+    <TableVirtuoso
+      ref={virtuosoRef}
+      totalCount={rows.length}
+      overscan={200}
+      endReached={onScrollEnd}
+      increaseViewportBy={200}
+      fixedHeaderContent={fixedHeaderContent}
+      context={{ rows, selectedRowId, onRowClick, RowWrapper, enableRowReorder }}
+      className={showEmptyState ? 'flex-none' : 'flex-1'}
+      itemContent={(index, _data, context) => {
+        const row = context.rows[index]
+        if (!row) return null
+        return row
+          .getVisibleCells()
+          .map(cell => (
+            <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
+          ))
+      }}
+      components={components}
+    />
+  )
+
   return (
     <div className='flex flex-col h-full'>
-      <TableVirtuoso
-        ref={virtuosoRef}
-        totalCount={rows.length}
-        overscan={200}
-        endReached={onScrollEnd}
-        increaseViewportBy={200}
-        fixedHeaderContent={fixedHeaderContent}
-        context={{ rows, selectedRowId, onRowClick, RowWrapper }}
-        className={showEmptyState ? 'flex-none' : 'flex-1'}
-        itemContent={(index, _data, context) => {
-          const row = context.rows[index]
-          if (!row) return null
-          return row
-            .getVisibleCells()
-            .map(cell => (
-              <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
-            ))
-        }}
-        components={components}
-      />
+      {enableRowReorder ? (
+        <DndContext sensors={reorderSensors} collisionDetection={closestCenter} onDragEnd={handleReorderDragEnd}>
+          <SortableContext items={rows.map(r => r.id)} strategy={verticalListSortingStrategy}>
+            {virtuoso}
+          </SortableContext>
+        </DndContext>
+      ) : (
+        virtuoso
+      )}
     </div>
   )
 }

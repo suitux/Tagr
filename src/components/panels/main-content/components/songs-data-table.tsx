@@ -35,6 +35,8 @@ export interface SongsDataTableProps {
   hasNextPage: boolean
   isFetchingNextPage: boolean
   showSavedFiltersDropdown?: boolean
+  enableRowReorder?: boolean
+  onRowReorder?: (orderedRowIds: string[]) => void
 }
 
 export function SongsDataTable({
@@ -45,7 +47,9 @@ export function SongsDataTable({
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
-  showSavedFiltersDropdown = true
+  showSavedFiltersDropdown = true,
+  enableRowReorder,
+  onRowReorder
 }: SongsDataTableProps) {
   const tCommon = useTranslations('common')
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
@@ -166,6 +170,8 @@ export function SongsDataTable({
         onScrollEnd={handleScrollEnd}
         EmptyStateComponent={() => <MainContentNoFilterResults activeColumnsCount={activeColumnsCount} />}
         RowWrapper={SongRowWrapper}
+        enableRowReorder={enableRowReorder}
+        onRowReorder={onRowReorder}
       />
       {isFetchingNextPage && (
         <div className='flex items-center justify-center py-3'>

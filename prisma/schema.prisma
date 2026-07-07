@@ -79,6 +79,7 @@ model Song {
   pictures      SongPicture[]
   changeHistory SongChangeHistory[]
   sharedLinks   SharedLink[]
+  playlistItems PlaylistItem[]
 
   @@index([folderPath])
   @@map("songs")
@@ -181,4 +182,34 @@ model SmartPlaylist {
   @@index([userId])
   @@index([isPublic])
   @@map("smart_playlists")
+}
+
+model Playlist {
+  id        Int      @id @default(autoincrement())
+  userId    String   @map("user_id")
+  name      String
+  isPublic  Boolean  @default(false) @map("is_public")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  items PlaylistItem[]
+
+  @@index([userId])
+  @@index([isPublic])
+  @@map("playlists")
+}
+
+model PlaylistItem {
+  id         Int      @id @default(autoincrement())
+  playlistId Int      @map("playlist_id")
+  songId     Int      @map("song_id")
+  sortIndex  Int      @map("sort_index")
+  addedAt    DateTime @default(now()) @map("added_at")
+
+  playlist Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  song     Song     @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([playlistId, songId])
+  @@index([playlistId, sortIndex])
+  @@map("playlist_items")
 }
