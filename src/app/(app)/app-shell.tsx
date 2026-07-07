@@ -4,7 +4,6 @@ import { BulkSummaryModal } from '@/components/bulk-summary-modal'
 import { ResponsiveLayout } from '@/components/layout/responsive-layout'
 import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
 import { FolderList } from '@/components/panels/folder-list/folder-list'
-import { MainContent } from '@/components/panels/main-content/main-content'
 import { ScanSummaryModal } from '@/components/scan-summary-modal'
 import { StarPromptDialog } from '@/components/star-prompt-dialog'
 import { useSelectedCustomPlaylist } from '@/hooks/use-selected-custom-playlist'
@@ -14,37 +13,28 @@ import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 
-export function HomeClientPage() {
+export function AppShell({ children }: { children: React.ReactNode }) {
   const { selectedFolderId, setSelectedFolderId } = useSelectedFolder()
   const { selectedPlaylistId, setSelectedPlaylistId } = useSelectedPlaylist()
   const { selectedCustomPlaylistId, setSelectedCustomPlaylistId } = useSelectedCustomPlaylist()
-  const { selectedSongId, setSelectedSongId } = useSelectedSong()
+  const { selectedSongId } = useSelectedSong()
   const setFolderSheetOpen = useMobileNavStore(s => s.setFolderSheetOpen)
   const clearBulkSelect = useBulkSelectionStore(s => s.clear)
 
   const handleFolderSelect = (folderId: string | null) => {
     setSelectedFolderId(folderId)
-    setSelectedPlaylistId(null)
-    setSelectedCustomPlaylistId(null)
-    setSelectedSongId(null)
     setFolderSheetOpen(false)
     clearBulkSelect()
   }
 
   const handlePlaylistSelect = (playlistId: number | null) => {
     setSelectedPlaylistId(playlistId)
-    setSelectedFolderId(null)
-    setSelectedCustomPlaylistId(null)
-    setSelectedSongId(null)
     setFolderSheetOpen(false)
     clearBulkSelect()
   }
 
   const handleCustomPlaylistSelect = (playlistId: number | null) => {
     setSelectedCustomPlaylistId(playlistId)
-    setSelectedFolderId(null)
-    setSelectedPlaylistId(null)
-    setSelectedSongId(null)
     setFolderSheetOpen(false)
     clearBulkSelect()
   }
@@ -65,7 +55,7 @@ export function HomeClientPage() {
             onCustomPlaylistSelect={handleCustomPlaylistSelect}
           />
         }
-        main={<MainContent />}
+        main={children}
         detail={selectedSongId ? <DetailPanel songId={selectedSongId} /> : undefined}
       />
     </>
