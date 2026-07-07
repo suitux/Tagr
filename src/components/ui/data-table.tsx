@@ -227,9 +227,12 @@ export function DataTable<TData, TValue>({
     />
   )
 
+  // Gate the wrapper on the reorder *capability* (onRowReorder present), not on the toggled
+  // `enableRowReorder` flag. Otherwise flipping reorder mode changes the tree and remounts
+  // TableVirtuoso, resetting its scroll to the top.
   return (
     <div className='flex flex-col h-full'>
-      {enableRowReorder ? (
+      {onRowReorder ? (
         <DndContext sensors={reorderSensors} collisionDetection={closestCenter} onDragEnd={handleReorderDragEnd}>
           <SortableContext items={rows.map(r => r.id)} strategy={verticalListSortingStrategy}>
             {virtuoso}
