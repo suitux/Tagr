@@ -4,6 +4,7 @@ import { MusicIcon } from 'lucide-react'
 import { useCallback, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
+import { PLAYLIST_POSITION_FIELD } from '@/features/playlists/domain'
 import { usePlaylistSongs } from '@/features/playlists/hooks/use-playlist-songs'
 import { usePlaylists } from '@/features/playlists/hooks/use-playlists'
 import { useReorderPlaylistItems } from '@/features/playlists/hooks/use-reorder-playlist-items'
@@ -55,8 +56,11 @@ export function MainContentCustomPlaylistView({ playlistId }: Props) {
   const songs = songsData?.pages.flatMap(p => (p.success ? p.files : [])) ?? []
   const totalSongs = (songsData?.pages[0]?.success === true && songsData.pages[0].totalFiles) || null
 
-  // Reordering only makes sense in manual (sortIndex) order, i.e. no column sort/search/filter.
-  const canReorder = playlist?.isOwner === true && !sorting.sortField && !search && !isAnyFilterActive
+  // Reordering only makes sense in manual (sortIndex) order: no search/filter, and either no column
+  // sort or sorting by the position column ascending (which is the manual order).
+  const isManualOrder =
+    !sorting.sortField || (sorting.sortField === PLAYLIST_POSITION_FIELD && sorting.sort === 'asc')
+  const canReorder = playlist?.isOwner === true && isManualOrder && !search && !isAnyFilterActive
 
   const [isReordering, setIsReordering] = useState(false)
 
@@ -101,6 +105,7 @@ export function MainContentCustomPlaylistView({ playlistId }: Props) {
           hasNextPage={hasNextPage}
           isFetchingNextPage={isFetchingNextPage}
           showSavedFiltersDropdown={false}
+          showPositionColumn
           enableRowReorder={canReorder && isReordering}
           onRowReorder={handleReorder}
         />

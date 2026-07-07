@@ -15,3 +15,6 @@ export interface PlaylistListResponse {
 }
 
 export type PlaylistOrderEntry = { type: 'smart' | 'custom'; id: number }
+
+/** Synthetic sort field: orders custom playlist songs by their manual position (sortIndex). */
+export const PLAYLIST_POSITION_FIELD: string = '__position'

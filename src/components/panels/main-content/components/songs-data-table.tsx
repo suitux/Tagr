@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { DataTable, RowDragHandleContext } from '@/components/ui/data-table'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
+import { PLAYLIST_POSITION_FIELD } from '@/features/playlists/domain'
 import { type ColumnField, Song } from '@/features/songs/domain'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
 import { useDelayedLoading } from '@/hooks/use-delayed-loading'
@@ -19,6 +20,7 @@ import { useBulkSelectionStore, useIsSelectionActive } from '@/stores/bulk-selec
 import { useHomeStore, useIsAnyFilterActive } from '@/stores/home-store'
 import type { ColumnDef, SortingState, VisibilityState } from '@tanstack/react-table'
 import { useSongColumns } from './columns/columns'
+import { SortableHeader } from './columns/components/sortable-header'
 import { MainContentEmptyFilesState } from './main-content-empty-files-state'
 import ColumnSelector from './main-content-file-list-column-selector'
 import { MainContentNoFilterResults } from './main-content-no-filter-results'
@@ -53,6 +55,20 @@ const DRAG_COLUMN: ColumnDef<Song> = {
   enableResizing: false
 }
 
+function buildPositionColumn(descending: boolean, total: number | null): ColumnDef<Song> {
+  return {
+    id: PLAYLIST_POSITION_FIELD,
+    header: ({ column }) => <SortableHeader column={column} label='' justify='end' enableColumnFilter={false} />,
+    cell: ({ row }) => {
+      const position = descending && total !== null ? total - row.index : row.index + 1
+      return <span className='block text-right text-sm text-muted-foreground tabular-nums'>{position}</span>
+    },
+    size: 25,
+    enableHiding: false,
+    enableResizing: false
+  }
+}
+
 export interface SongsDataTableProps {
   songs: Song[]
   totalSongs: number | null
@@ -64,6 +80,7 @@ export interface SongsDataTableProps {
   showSavedFiltersDropdown?: boolean
   enableRowReorder?: boolean
   onRowReorder?: (orderedRowIds: string[]) => void
+  showPositionColumn?: boolean
 }
 
 export function SongsDataTable({
@@ -76,7 +93,8 @@ export function SongsDataTable({
   isFetchingNextPage,
   showSavedFiltersDropdown = true,
   enableRowReorder,
-  onRowReorder
+  onRowReorder,
+  showPositionColumn
 }: SongsDataTableProps) {
   const tCommon = useTranslations('common')
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
@@ -103,10 +121,13 @@ export function SongsDataTable({
   const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs })
   const { data: columnVisibility } = useColumnVisibility({ columns })
 
-  const tableColumns = useMemo(
-    () => (enableRowReorder ? [DRAG_COLUMN, ...columns] : columns),
-    [enableRowReorder, columns]
-  )
+  const positionDescending = sorting.sortField === PLAYLIST_POSITION_FIELD && sorting.sort === 'desc'
+  const tableColumns = useMemo(() => {
+    const prefix: ColumnDef<Song>[] = []
+    if (enableRowReorder) prefix.push(DRAG_COLUMN)
+    if (showPositionColumn) prefix.push(buildPositionColumn(positionDescending, totalSongs))
+    return prefix.length > 0 ? [...prefix, ...columns] : columns
+  }, [enableRowReorder, showPositionColumn, positionDescending, totalSongs, columns])
 
   const SongRowWrapper = useCallback(
     ({ row, children }: { row: Song; children: React.ReactNode }) => (

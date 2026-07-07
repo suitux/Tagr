@@ -42,7 +42,7 @@ export function SortableHeader<TData>({
     <div className='flex flex-col gap-1 py-1'>
       <Button
         variant='ghost'
-        className={cn('w-full cursor-pointer', className, {
+        className={cn('w-full cursor-pointer p-0', className, {
           'justify-start': justify === 'start',
           'justify-center': justify === 'center',
           'justify-end': justify === 'end'

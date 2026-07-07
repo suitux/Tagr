@@ -1,3 +1,4 @@
+import { PLAYLIST_POSITION_FIELD } from '@/features/playlists/domain'
 import type { SmartPlaylistRules } from '@/features/smart-playlists/domain'
 import { buildSmartPlaylistWhere, rulesUseMetadata } from '@/features/smart-playlists/smart-playlist-query.service'
 import {
@@ -473,7 +474,8 @@ export async function getSongsByCustomPlaylist(
 
   const where = buildCustomPlaylistWhere(orderedIds, search, filters)
   const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
-  const isMetadataSort = sortField && isMetadataColumnId(sortField)
+  const isPositionSort = sortField === PLAYLIST_POSITION_FIELD
+  const isMetadataSort = sortField && !isPositionSort && isMetadataColumnId(sortField)
 
   if (isMetadataSort) {
     const metaKey = getMetadataKeyFromColumnId(sortField)
@@ -489,8 +491,8 @@ export async function getSongsByCustomPlaylist(
     return songs
   }
 
-  // Explicit column sort: use normal ordering.
-  if (sortField && sort) {
+  // Explicit column sort (not the synthetic position field): use normal ordering.
+  if (sortField && sort && !isPositionSort) {
     return prisma.song.findMany({
       where,
       ...(includeMetadata && { include: { metadata: true } }),
@@ -500,10 +502,11 @@ export async function getSongsByCustomPlaylist(
     })
   }
 
-  // Default: preserve manual playlist order (sortIndex).
+  // Default / position sort: preserve manual playlist order (sortIndex), reversed when position desc.
   const matching = await prisma.song.findMany({ where, select: { id: true } })
   const matchingSet = new Set(matching.map(s => s.id))
   const ordered = orderedIds.filter(id => matchingSet.has(id))
+  if (isPositionSort && sort === 'desc') ordered.reverse()
   const pageIds = ordered.slice(skip ?? 0, (skip ?? 0) + (take ?? ordered.length))
   if (pageIds.length === 0) return []
 
