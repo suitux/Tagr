@@ -82,6 +82,7 @@ Tagr lets you browse, edit, and manage audio file tags from any browser — desk
 | AAC    | Yes       |
 | OGG    | Yes       |
 | M4A    | Yes       |
+| M4B    | Yes       |
 | WMA    | Yes       |
 | AIFF   | Yes       |
 | Opus   | Yes       |
