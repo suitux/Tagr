@@ -244,6 +244,7 @@
     "flac": "Free Lossless Audio Codec",
     "wav": "Waveform Audio",
     "m4a": "MPEG-4 Audio",
+    "m4b": "MPEG-4 Audiobook",
     "ogg": "Ogg Vorbis",
     "aac": "Advanced Audio Coding",
     "unknown": "Audio File"

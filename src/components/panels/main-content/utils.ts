@@ -28,6 +28,7 @@ export const getExtensionVariant = (ext: string): BadgeVariant => {
     flac: 'secondary',
     wav: 'outline',
     m4a: 'default',
+    m4b: 'default',
     ogg: 'destructive',
     aac: 'secondary'
   }

@@ -4,6 +4,7 @@ export const getExtensionKey = (ext: string): string => {
     flac: 'flac',
     wav: 'wav',
     m4a: 'm4a',
+    m4b: 'm4b',
     ogg: 'ogg',
     aac: 'aac'
   }
@@ -16,6 +17,7 @@ export const getExtensionColor = (ext: string): string => {
     flac: 'from-purple-500 to-purple-600',
     wav: 'from-green-500 to-green-600',
     m4a: 'from-orange-500 to-orange-600',
+    m4b: 'from-indigo-500 to-indigo-600',
     ogg: 'from-red-500 to-red-600',
     aac: 'from-yellow-500 to-yellow-600'
   }
