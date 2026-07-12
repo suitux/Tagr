@@ -26,6 +26,7 @@ import {
 import { useAddSongsToPlaylist } from '@/features/playlists/hooks/use-add-songs-to-playlist'
 import { usePlaylists } from '@/features/playlists/hooks/use-playlists'
 import { useRemoveSongFromPlaylist } from '@/features/playlists/hooks/use-remove-song-from-playlist'
+import { useRemoveSongsFromPlaylist } from '@/features/playlists/hooks/use-remove-songs-from-playlist'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
 import { type Song } from '@/features/songs/domain'
@@ -36,9 +37,11 @@ import {
   type SelectionContext,
   useBulkSelectionStore,
   useIsSelectionActive,
+  useSelectionCount,
   useSelectionState
 } from '@/stores/bulk-selection-store'
 import { useHomeStore } from '@/stores/home-store'
+import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { usePlaylistReorder } from './playlist-reorder-context'
 
 interface SongRowContextMenuProps {
@@ -50,6 +53,8 @@ interface SongRowContextMenuProps {
 export function SongRowContextMenu({ row, children, totalSongs }: SongRowContextMenuProps) {
   const tBulk = useTranslations('bulkEdit')
   const tPlaylists = useTranslations('playlists')
+  const tCommon = useTranslations('common')
+  const { confirm } = useAlertDialog()
 
   const { selectedFolderId } = useSelectedFolder()
   const { selectedPlaylistId } = useSelectedPlaylist()
@@ -71,6 +76,8 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
   const { data: playlistsData } = usePlaylists()
   const { mutate: addSongs } = useAddSongsToPlaylist()
   const { mutate: removeSong } = useRemoveSongFromPlaylist()
+  const { mutate: removeSongs } = useRemoveSongsFromPlaylist()
+  const selectionCount = useSelectionCount()
   const ownedPlaylists = playlistsData?.private ?? []
   const reorder = usePlaylistReorder()
 
@@ -106,6 +113,36 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
   const AllIcon = isPlaylist ? ListChecksIcon : FolderCheckIcon
 
   const viewingCustomPlaylist = ownedPlaylists.find(p => p.id === selectedCustomPlaylistId)
+
+  const confirmRemoveSingle = () => {
+    if (!viewingCustomPlaylist) return
+    confirm({
+      title: tPlaylists('removeFromPlaylist'),
+      description: tPlaylists('confirmRemoveSong', { name: row.title || row.fileName }),
+      cancel: { label: tCommon('cancel') },
+      action: {
+        label: tCommon('delete'),
+        variant: 'destructive',
+        onClick: () => removeSong({ playlistId: viewingCustomPlaylist.id, songId: row.id })
+      }
+    })
+  }
+
+  const confirmRemoveBulk = () => {
+    if (!viewingCustomPlaylist) return
+    const target = buildBulkTargetFromSelection(selection)
+    if (!target) return
+    confirm({
+      title: tPlaylists('removeSongsFromPlaylist', { count: selectionCount }),
+      description: tPlaylists('confirmRemoveSongs', { count: selectionCount }),
+      cancel: { label: tCommon('cancel') },
+      action: {
+        label: tCommon('delete'),
+        variant: 'destructive',
+        onClick: () => removeSongs({ playlistId: viewingCustomPlaylist.id, target })
+      }
+    })
+  }
 
   return (
     <>
@@ -161,12 +198,20 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
           )}
 
           {viewingCustomPlaylist && (
-            <ContextMenuItem
-              variant='destructive'
-              onSelect={() => removeSong({ playlistId: viewingCustomPlaylist.id, songId: row.id })}>
-              <XIcon />
-              {tPlaylists('removeFromPlaylist')}
-            </ContextMenuItem>
+            <>
+              <ContextMenuSeparator />
+              {isActive ? (
+                <ContextMenuItem variant='destructive' onSelect={confirmRemoveBulk}>
+                  <XIcon />
+                  {tPlaylists('removeSongsFromPlaylist', { count: selectionCount })}
+                </ContextMenuItem>
+              ) : (
+                <ContextMenuItem variant='destructive' onSelect={confirmRemoveSingle}>
+                  <XIcon />
+                  {tPlaylists('removeFromPlaylist')}
+                </ContextMenuItem>
+              )}
+            </>
           )}
         </ContextMenuContent>
       </ContextMenu>

@@ -75,6 +75,12 @@ export function removeSongFromPlaylist(playlistId: number, songId: number): Prom
     .then(() => undefined)
 }
 
+export async function removeSongsFromPlaylist(playlistId: number, songIds: number[]): Promise<number> {
+  if (songIds.length === 0) return 0
+  const { count } = await prisma.playlistItem.deleteMany({ where: { playlistId, songId: { in: songIds } } })
+  return count
+}
+
 /** Rewrites sortIndex to match the given song order. Songs not listed keep trailing order. */
 export async function reorderPlaylistItems(playlistId: number, orderedSongIds: number[]): Promise<void> {
   await prisma.$transaction(

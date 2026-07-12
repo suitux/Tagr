@@ -492,6 +492,9 @@
     },
     "enableReorder": "Reorder songs",
     "disableReorder": "Done reordering",
-    "reorderHint": "Drag the handles to reorder"
+    "reorderHint": "Drag the handles to reorder",
+    "removeSongsFromPlaylist": "Remove {count} from playlist",
+    "confirmRemoveSong": "Remove \"{name}\" from this playlist?",
+    "confirmRemoveSongs": "Remove {count} song(s) from this playlist?"
   }
 }
