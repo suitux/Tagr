@@ -2,6 +2,10 @@
 node_modules
 .pnpm-store
 
+# Marketing site: built and deployed separately to GitHub Pages, never shipped in the image.
+# Excluded so a change to the landing does not invalidate the app's Docker layer cache.
+landing
+
 # Next.js build output
 .next
 out
