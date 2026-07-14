@@ -32,5 +32,13 @@ export default defineConfig({
   },
   vite: {
     plugins: [tailwindcss()],
+    css: {
+      // An inline (empty) PostCSS config stops Vite from searching parent directories. Without it
+      // it walks up and picks up the Tagr app's own postcss.config.mjs at the repo root, whose
+      // @tailwindcss/postcss plugin is not installed in this project. That resolves locally only
+      // because the app's node_modules happens to be there, and fails in CI, where only landing/
+      // is installed. This site styles itself through @tailwindcss/vite and needs no PostCSS.
+      postcss: {},
+    },
   },
 });
