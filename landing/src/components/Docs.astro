@@ -1,0 +1,249 @@
+---
+import CodeBlock from './CodeBlock.astro';
+import Icon from './Icon.astro';
+import {
+  COMPOSE,
+  COMPOSE_UP,
+  FETCH_COMPOSE,
+  SECRET,
+  MULTI_MOUNT,
+  MANUAL,
+  ENV_FILE,
+  UPDATE,
+  BACKUP,
+  CADDY,
+  NGINX,
+} from '../i18n/snippets';
+import { t, localePath, LINKS, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+const s = d.docs.sections;
+
+const toc = [
+  { id: 'requirements', label: s.requirements.title },
+  { id: 'quick-start', label: s.quickStart.title },
+  { id: 'mounting', label: s.mounting.title },
+  { id: 'environment-variables', label: s.env.title },
+  { id: 'manual', label: s.manual.title },
+  { id: 'scanning', label: s.scanning.title },
+  { id: 'updating', label: s.updating.title },
+  { id: 'backups', label: s.backups.title },
+  { id: 'troubleshooting', label: s.troubleshooting.title },
+  { id: 'reverse-proxy', label: s.proxy.title },
+];
+
+const copyProps = {
+  copyLabel: d.common.copy,
+  copiedLabel: d.common.copied,
+  copyAria: d.common.copyAria,
+};
+---
+
+<div class="container-page py-14 md:py-20">
+  <div class="grid gap-12 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-16">
+    <aside class="lg:sticky lg:top-24 lg:self-start">
+      <details open>
+        <summary
+          class="flex cursor-pointer list-none items-center justify-between border-b border-[var(--border)] pb-3 text-sm font-semibold lg:pointer-events-none lg:border-0 lg:pb-2"
+        >
+          {d.common.onThisPage}
+          <Icon name="chevron-down" size={16} class="text-[var(--muted-foreground)] lg:hidden" />
+        </summary>
+        <nav aria-label={d.common.onThisPage} class="mt-4">
+          <ul class="space-y-1 border-l border-[var(--border)]">
+            {
+              toc.map((item) => (
+                <li>
+                  <a
+                    href={`#${item.id}`}
+                    data-toc={item.id}
+                    class="js-toc-link -ml-px block border-l border-transparent py-1.5 pl-4 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] aria-[current=true]:border-[var(--primary)] aria-[current=true]:text-[var(--foreground)]"
+                  >
+                    {item.label}
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </nav>
+      </details>
+    </aside>
+
+    <article class="max-w-3xl">
+      <h1 class="text-[clamp(2rem,4.5vw,3rem)] leading-[1.1] font-semibold tracking-[-0.03em]">
+        {d.docs.h1}
+      </h1>
+      <p class="mt-5 text-[1.0625rem] leading-relaxed text-[var(--muted-foreground)]">
+        {d.docs.intro}
+      </p>
+
+      <section id="requirements" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.requirements.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.requirements.body}</p>
+      </section>
+
+      <section id="quick-start" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.quickStart.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.quickStart.p1}</p>
+        <CodeBlock code={FETCH_COMPOSE} lang="bash" {...copyProps} class="mt-4" />
+        <p class="mt-6 leading-relaxed text-[var(--muted-foreground)]">{s.quickStart.p2}</p>
+        <CodeBlock code={SECRET} lang="bash" {...copyProps} class="mt-4" />
+        <p class="mt-6 leading-relaxed text-[var(--muted-foreground)]">{s.quickStart.p3}</p>
+        <CodeBlock code={COMPOSE} lang="docker-compose.yml" {...copyProps} class="mt-4" />
+        <CodeBlock code={COMPOSE_UP} lang="bash" {...copyProps} class="mt-4" />
+        <p class="mt-6 leading-relaxed text-[var(--muted-foreground)]">{s.quickStart.p4}</p>
+      </section>
+
+      <section id="mounting" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.mounting.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.mounting.p1}</p>
+        <CodeBlock code={MULTI_MOUNT} lang="docker-compose.yml" {...copyProps} class="mt-4" />
+        <p class="mt-6 leading-relaxed text-[var(--muted-foreground)]">{s.mounting.p2}</p>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.mounting.p3}</p>
+      </section>
+
+      <section id="environment-variables" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.env.title}</h2>
+        <div
+          class="mt-6 overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border)]"
+        >
+          <table class="w-full min-w-[44rem] border-collapse text-left text-sm">
+            <thead>
+              <tr class="border-b border-[var(--border)] bg-[var(--card)]">
+                {
+                  s.env.cols.map((col) => (
+                    <th scope="col" class="px-4 py-3 font-semibold">
+                      {col}
+                    </th>
+                  ))
+                }
+              </tr>
+            </thead>
+            <tbody>
+              {
+                s.env.rows.map((row) => (
+                  <tr class="border-b border-[var(--border)] last:border-b-0">
+                    <th scope="row" class="px-4 py-3 align-top font-mono text-[0.8125rem] font-medium">
+                      {row.name}
+                    </th>
+                    <td class="px-4 py-3 align-top text-[var(--muted-foreground)]">{row.required}</td>
+                    <td class="px-4 py-3 align-top text-[var(--muted-foreground)]">{row.desc}</td>
+                    <td class="px-4 py-3 align-top font-mono text-[0.8125rem] text-[var(--muted-foreground)]">
+                      {row.example}
+                    </td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="manual" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.manual.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.manual.p1}</p>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.manual.p2}</p>
+        <CodeBlock code={ENV_FILE} lang=".env" {...copyProps} class="mt-4" />
+        <p class="mt-6 leading-relaxed text-[var(--muted-foreground)]">{s.manual.p3}</p>
+        <CodeBlock code={MANUAL} lang="bash" {...copyProps} class="mt-4" />
+      </section>
+
+      <section id="scanning" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.scanning.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.scanning.p1}</p>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.scanning.p2}</p>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.scanning.p3}</p>
+      </section>
+
+      <section id="updating" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.updating.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.updating.p1}</p>
+        <CodeBlock code={UPDATE} lang="bash" {...copyProps} class="mt-4" />
+      </section>
+
+      <section id="backups" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.backups.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.backups.p1}</p>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.backups.p2}</p>
+        <CodeBlock code={BACKUP} lang="bash" {...copyProps} class="mt-4" />
+      </section>
+
+      <section id="troubleshooting" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.troubleshooting.title}</h2>
+        <div class="mt-6">
+          {
+            s.troubleshooting.items.map((item) => (
+              <details class="group border-b border-[var(--border)]">
+                <summary class="flex cursor-pointer list-none items-start justify-between gap-4 py-4 font-medium [&::-webkit-details-marker]:hidden">
+                  <span>{item.q}</span>
+                  <Icon
+                    name="chevron-down"
+                    size={18}
+                    class="mt-0.5 shrink-0 text-[var(--muted-foreground)] transition-transform duration-200 group-open:rotate-180"
+                  />
+                </summary>
+                <p class="pb-4 text-[0.9375rem] leading-relaxed text-[var(--muted-foreground)]">
+                  {item.a}
+                </p>
+              </details>
+            ))
+          }
+        </div>
+      </section>
+
+      <section id="reverse-proxy" class="mt-14 scroll-mt-24">
+        <h2 class="text-2xl font-semibold tracking-[-0.02em]">{s.proxy.title}</h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{s.proxy.p1}</p>
+        <CodeBlock code={CADDY} lang="Caddyfile" {...copyProps} class="mt-4" />
+        <p class="mt-6 leading-relaxed text-[var(--muted-foreground)]">{s.proxy.p2}</p>
+        <CodeBlock code={NGINX} lang="nginx" {...copyProps} class="mt-4" />
+        <p class="mt-6 leading-relaxed text-[var(--muted-foreground)]">{s.proxy.p3}</p>
+      </section>
+
+      <div class="mt-16 flex flex-wrap gap-3 border-t border-[var(--border)] pt-8">
+        <a href={LINKS.demo} target="_blank" rel="noopener" class="btn-base btn-primary">
+          {d.common.tryDemo}
+        </a>
+        <a href={localePath(locale, '/')} class="btn-base btn-secondary">
+          <Icon name="arrow-right" size={16} />
+          Tagr
+        </a>
+      </div>
+    </article>
+  </div>
+</div>
+
+<script>
+  // Table of contents highlighting. IntersectionObserver, no scroll listener.
+  const links = Array.from(document.querySelectorAll<HTMLAnchorElement>('.js-toc-link'));
+  const sections = links
+    .map((link) => document.getElementById(link.dataset.toc ?? ''))
+    .filter((el): el is HTMLElement => Boolean(el));
+
+  if (sections.length) {
+    const visible = new Set<string>();
+    const paint = () => {
+      const active = sections.find((section) => visible.has(section.id))?.id;
+      links.forEach((link) =>
+        link.setAttribute('aria-current', String(link.dataset.toc === active))
+      );
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) visible.add(entry.target.id);
+          else visible.delete(entry.target.id);
+        });
+        paint();
+      },
+      { rootMargin: '-96px 0px -70% 0px' }
+    );
+    sections.forEach((section) => observer.observe(section));
+  }
+</script>

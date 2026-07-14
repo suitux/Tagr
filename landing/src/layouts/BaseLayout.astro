@@ -1,0 +1,139 @@
+---
+import '../styles/global.css';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { t, localePath, asset, type Locale } from '../i18n';
+import { heroPreload } from '../lib/hero-image';
+// Imported, not hardcoded: Vite emits these with a hashed, base aware URL, and the @font-face in
+// global.css points at the very same emitted file, so the preload is a cache hit, not a second fetch.
+import geistSans from '../fonts/geist-latin-wght-normal.woff2?url';
+import geistMono from '../fonts/geist-mono-latin-wght-normal.woff2?url';
+
+interface Props {
+  locale: Locale;
+  /** Locale free path, e.g. "/" or "/docs/". Drives hreflang and the language switcher. */
+  path: string;
+  title: string;
+  description: string;
+  ogTitle?: string;
+  preloadHero?: boolean;
+  noindex?: boolean;
+}
+
+const {
+  locale,
+  path,
+  title,
+  description,
+  ogTitle,
+  preloadHero = false,
+  noindex = false,
+} = Astro.props;
+const d = t(locale);
+const hero = preloadHero ? await heroPreload() : null;
+
+const site = Astro.site!;
+const canonical = new URL(localePath(locale, path), site).href;
+const enHref = new URL(localePath('en', path), site).href;
+const esHref = new URL(localePath('es', path), site).href;
+const ogImage = new URL(asset('/og.png'), site).href;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <link rel="alternate" hreflang="en" href={enHref} />
+    <link rel="alternate" hreflang="es" href={esHref} />
+    <link rel="alternate" hreflang="x-default" href={enHref} />
+
+    <link rel="icon" type="image/png" href={asset('/favicon.png')} />
+    <link rel="apple-touch-icon" href={asset('/apple-touch-icon.png')} />
+    <meta name="theme-color" content="#252525" />
+    <meta name="color-scheme" content="dark" />
+
+    <link rel="preload" href={geistSans} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={geistMono} as="font" type="font/woff2" crossorigin />
+    {
+      hero && (
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          imagesrcset={hero.imagesrcset}
+          imagesizes={hero.imagesizes}
+          fetchpriority="high"
+        />
+      )
+    }
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Tagr" />
+    <meta property="og:locale" content={locale === 'es' ? 'es_ES' : 'en_US'} />
+    <meta property="og:title" content={ogTitle ?? title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Tagr, the self hosted music metadata editor, showing its three panel browser interface"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={ogTitle ?? title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <slot name="head" />
+  </head>
+
+  <body class="min-h-[100dvh]">
+    <a
+      href="#main"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[60] focus:rounded-[var(--radius-md)] focus:bg-[var(--card)] focus:px-4 focus:py-2.5 focus:text-sm focus:font-medium"
+    >
+      {d.common.skipToContent}
+    </a>
+
+    <Header locale={locale} path={path} />
+
+    <main id="main" class="pt-16">
+      <slot />
+    </main>
+
+    <Footer locale={locale} path={path} />
+
+    <script>
+      // Copy to clipboard, one delegated listener for every code block on the page.
+      document.addEventListener('click', async (event) => {
+        const target = event.target as HTMLElement | null;
+        const button = target?.closest<HTMLButtonElement>('.js-copy');
+        if (!button) return;
+
+        const code = button.dataset.code ?? '';
+        const label = button.querySelector('.js-copy-text');
+        try {
+          await navigator.clipboard.writeText(code);
+        } catch {
+          return;
+        }
+        if (!label || button.dataset.busy === 'true') return;
+
+        button.dataset.busy = 'true';
+        const original = button.dataset.copy ?? '';
+        label.textContent = button.dataset.copied ?? '';
+        window.setTimeout(() => {
+          label.textContent = original;
+          button.dataset.busy = 'false';
+        }, 1600);
+      });
+    </script>
+  </body>
+</html>

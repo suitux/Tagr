@@ -1,0 +1,39 @@
+---
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+---
+
+<section id="formats" class="border-t border-[var(--border)] py-16 md:py-20">
+  <div class="container-page">
+    <div class="grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center lg:gap-16">
+      <h2 class="text-[clamp(1.625rem,3vw,2.25rem)] leading-[1.15] font-semibold tracking-[-0.025em]">
+        {d.formats.h2}
+      </h2>
+
+      <ul class="reveal flex flex-wrap gap-2.5">
+        {
+          d.formats.list.map((f) => (
+            <li class="inline-flex items-center gap-2 rounded-full border border-[var(--border)] bg-[var(--card)] py-1.5 pr-2.5 pl-3.5">
+              <span class="font-mono text-sm font-medium">{f.name}</span>
+              {f.lossless && (
+                <span class="rounded-full bg-[color-mix(in_oklch,var(--primary)_25%,transparent)] px-2 py-0.5 text-[0.6875rem] font-medium text-[var(--primary-foreground)]">
+                  {d.formats.losslessBadge}
+                </span>
+              )}
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+
+    <p class="mt-10 max-w-3xl text-sm leading-relaxed text-[var(--muted-foreground)]">
+      {d.formats.note}
+    </p>
+  </div>
+</section>

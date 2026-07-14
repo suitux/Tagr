@@ -1,0 +1,148 @@
+---
+import { Image } from 'astro:assets';
+import basicSearch from '../assets/screenshots/basic-search.png';
+import songHistory from '../assets/screenshots/song-history.png';
+import playerBig from '../assets/screenshots/player-big.png';
+import playerMini from '../assets/screenshots/player-mini.png';
+import columns from '../assets/screenshots/columns.png';
+import contextMenu from '../assets/screenshots/rescan-history-context-menu.png';
+import Icon from './Icon.astro';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+const [edit, history, player, browse] = d.features.blocks;
+---
+
+<section id="features" class="border-t border-[var(--border)] py-20 md:py-28">
+  <div class="container-page">
+    <h2
+      class="max-w-3xl text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em]"
+    >
+      {d.features.h2}
+    </h2>
+
+    <!-- Block 1: split, image right -->
+    <div class="reveal mt-16 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+      <div class="max-w-lg">
+        <h3 class="text-2xl font-semibold tracking-[-0.02em]">{edit.title}</h3>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{edit.body}</p>
+      </div>
+      <div
+        class="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)]"
+      >
+        <Image
+          src={basicSearch}
+          alt={edit.alt}
+          widths={[640, 960, 1280]}
+          sizes="(min-width: 1024px) 46vw, 100vw"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="h-auto w-full"
+        />
+      </div>
+    </div>
+
+    <!-- Block 2: split, image left -->
+    <div class="reveal mt-20 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+      <div
+        class="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] lg:order-first"
+      >
+        <Image
+          src={songHistory}
+          alt={history.alt}
+          widths={[640, 960, 1280]}
+          sizes="(min-width: 1024px) 46vw, 100vw"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="h-auto w-full"
+        />
+      </div>
+      <div class="max-w-lg lg:justify-self-end">
+        <h3 class="text-2xl font-semibold tracking-[-0.02em]">{history.title}</h3>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{history.body}</p>
+      </div>
+    </div>
+
+    <!-- Block 3: media band. Two player crops on a lifted panel, copy above them. -->
+    <div class="reveal mt-20 rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] p-8 md:p-12">
+      <div class="max-w-xl">
+        <h3 class="text-2xl font-semibold tracking-[-0.02em]">{player.title}</h3>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{player.body}</p>
+      </div>
+      <div class="mt-10 flex flex-wrap items-end justify-center gap-8 md:gap-12">
+        <Image
+          src={playerBig}
+          alt={player.altBig}
+          widths={[353, 706]}
+          sizes="353px"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="h-auto w-[16rem] rounded-[var(--radius-lg)] border border-[var(--border)] md:w-[22rem]"
+        />
+        <Image
+          src={playerMini}
+          alt={player.altMini}
+          widths={[354, 708]}
+          sizes="354px"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="h-auto w-[16rem] rounded-[var(--radius-lg)] border border-[var(--border)] md:w-[22rem]"
+        />
+      </div>
+    </div>
+
+    <!-- Block 4: copy on top, asymmetric image pair below -->
+    <div class="reveal mt-20">
+      <div class="max-w-2xl">
+        <h3 class="text-2xl font-semibold tracking-[-0.02em]">{browse.title}</h3>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{browse.body}</p>
+      </div>
+      <div class="mt-10 grid gap-6 md:grid-cols-[1.6fr_1fr]">
+        <div
+          class="flex items-center justify-center overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] p-6"
+        >
+          <Image
+            src={contextMenu}
+            alt={browse.altTree}
+            widths={[775, 1024]}
+            sizes="(min-width: 768px) 55vw, 100vw"
+            formats={['avif', 'webp']}
+            loading="lazy"
+            class="h-auto w-full max-w-[46rem] rounded-[var(--radius-md)]"
+          />
+        </div>
+        <div
+          class="flex items-center justify-center overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] p-6"
+        >
+          <Image
+            src={columns}
+            alt={browse.altColumns}
+            widths={[287, 574]}
+            sizes="287px"
+            formats={['avif', 'webp']}
+            loading="lazy"
+            class="h-auto w-[17rem] max-w-full rounded-[var(--radius-md)]"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- Icon grid, no screenshots -->
+    <div class="reveal mt-20 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {
+        d.features.grid.map((item) => (
+          <div class="surface p-5">
+            <Icon name={item.icon as any} size={22} class="text-[var(--primary)]" />
+            <h3 class="mt-4 font-semibold tracking-[-0.01em]">{item.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-[var(--muted-foreground)]">{item.body}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

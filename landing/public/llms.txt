@@ -1,0 +1,108 @@
+# Tagr
+
+> Tagr is an open source, self hosted music metadata editor with a web UI. You point it at your
+> music folders, it scans them into SQLite, and it gives you a three panel browser interface
+> (folder tree, song list, metadata editor) to browse, filter, play and edit audio tags, writing
+> them back to the real files on disk.
+
+- License: AGPL-3.0-only
+- Repository: https://github.com/suitux/Tagr
+- Docker image: ghcr.io/suitux/tagr:latest (linux/amd64, linux/arm64)
+- Live demo: https://tagr-demo.fly.dev/ (login demo / demo, read only)
+- Stack: Next.js 16, React 19, Prisma + SQLite, node-taglib-sharp, WaveSurfer.js
+- Support the author: https://buymeacoffee.com/suitux
+
+## What it is for
+
+Self hosters keep their music on a NAS or a home server and serve it with Jellyfin, Navidrome or
+Plex. Those servers read the tags inside the audio files, so bad tags mean a broken library. The
+usual tag editors (MusicBrainz Picard, Mp3tag, beets) are desktop or CLI tools that expect to run
+on the same machine as the files, which is awkward when that machine is headless. Tagr runs on the
+server itself and gives you a browser UI, on desktop and on a phone.
+
+## Features
+
+- Edit 40+ metadata fields inline: title, artist, album, year, genre, composer, BPM, lyrics, sort
+  fields, catalog numbers, barcodes, plus your own custom tags.
+- Album art management: view, replace, upload, apply in bulk. Star ratings from 1 to 5.
+- Full change history in SQLite with old and new values, and one click revert. Persistent across
+  container restarts. History views per song and per folder.
+- Built in player with a WaveSurfer.js waveform, click to seek, auto advance, and a collapsible
+  sidebar player.
+- Three resizable panels: folder tree, song list, detail editor. Sort on any column. Filter by
+  text, numeric range, date range or boolean. Show or hide any of 40+ columns. Virtual scrolling
+  and infinite pagination for large libraries.
+- MusicBrainz lookup with field by field selection of what to apply.
+- Bulk editing across many selected songs, with a confirmation summary.
+- Mobile first responsive UI with swipe gestures, installable as a PWA.
+- Custom playlists, lossless detection, URL based state (bookmark or share any view).
+- Multi user authentication with user management built in.
+- No telemetry. The only outbound call is to the MusicBrainz API, and only on request.
+
+## Supported audio formats
+
+MP3, FLAC, WAV, AAC, OGG, M4A, M4B, WMA, AIFF, Opus. Lossless formats are detected automatically.
+Tags are read with music-metadata and written with node-taglib-sharp. Audio is never re-encoded.
+
+## Install
+
+Docker Compose is the recommended path:
+
+```yaml
+services:
+  tagr:
+    image: ghcr.io/suitux/tagr:latest
+    container_name: tagr
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - NODE_ENV=production
+      - DATABASE_URL=file:/data/tagr.db
+      - AUTH_SECRET=paste-your-generated-secret-here
+      - AUTH_USER=admin
+      - AUTH_PASSWORD=your-password-here
+      - AUTH_URL=https://your-domain.com
+    volumes:
+      - sqlite_data:/data
+      - /path/to/your/music:/music
+
+volumes:
+  sqlite_data:
+```
+
+Generate the secret with `openssl rand -hex 32`, run `docker compose up -d`, open
+http://localhost:3000 and press scan.
+
+A one line Docker run also works:
+
+```
+docker run -d -p 3000:3000 -v /path/to/music:/music ghcr.io/suitux/tagr:latest
+```
+
+Manual install needs Node.js 22 or newer: clone the repo, `pnpm install`, write a `.env`, then
+`pnpm build && pnpm start`.
+
+## Configuration
+
+| Variable | Required | Purpose |
+|---|---|---|
+| DATABASE_URL | Yes | SQLite path, for example file:/data/tagr.db |
+| AUTH_SECRET | Yes | Signs JWT sessions. Generate with openssl rand -hex 32 |
+| AUTH_USER | Yes | Initial account username |
+| AUTH_PASSWORD | Yes | Initial account password |
+| AUTH_URL | No | Public URL, needed behind a reverse proxy |
+| MUSIC_FOLDERS | No | Restricts scanning to specific subdirectories. Defaults to /music |
+| PUID, PGID | No | User and group the container runs as. Match the owner of your music files |
+
+Tagr scans /music recursively, so mounting several host paths as subdirectories under /music is
+enough to pick them all up.
+
+## Links
+
+- Landing page: https://suitux.github.io/Tagr/
+- Install and configuration docs: https://suitux.github.io/Tagr/docs/
+- Spanish landing page: https://suitux.github.io/Tagr/es/
+- Issues: https://github.com/suitux/Tagr/issues

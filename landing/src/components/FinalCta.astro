@@ -1,0 +1,38 @@
+---
+import { t, localePath, LINKS, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+---
+
+<section class="border-t border-[var(--border)] bg-[var(--card)]">
+  <div class="relative overflow-hidden">
+    <div
+      aria-hidden="true"
+      class="pointer-events-none absolute bottom-[-16rem] left-1/2 h-[28rem] w-[52rem] -translate-x-1/2 rounded-full opacity-30 blur-[110px]"
+      style="background: radial-gradient(closest-side, #7c3aed, #2b5fd9 60%, transparent 100%);"
+    >
+    </div>
+
+    <div class="container-page relative py-20 text-center md:py-28">
+      <h2
+        class="mx-auto max-w-2xl text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em]"
+      >
+        {d.finalCta.h2}
+      </h2>
+      <div class="mt-8 flex flex-wrap justify-center gap-3">
+        <a href={LINKS.demo} target="_blank" rel="noopener" class="btn-base btn-primary">
+          {d.common.tryDemo}
+        </a>
+        <a href={localePath(locale, '/docs/')} class="btn-base btn-secondary">
+          {d.common.readDocs}
+        </a>
+      </div>
+      <p class="mt-6 text-sm text-[var(--muted-foreground)]">{d.finalCta.note}</p>
+    </div>
+  </div>
+</section>

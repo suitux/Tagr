@@ -1,0 +1,117 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/tagr-logo.webp';
+import Icon from './Icon.astro';
+import { t, localePath, asset, otherLocale, LOCALE_LABELS, LINKS, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  path: string;
+}
+
+const { locale, path } = Astro.props;
+const d = t(locale);
+const other = otherLocale(locale);
+const year = new Date().getFullYear();
+
+// Anchor links in the footer belong to the landing page, so prefix them from anywhere.
+// Site relative paths get the base path applied; external ones are left alone.
+const home = localePath(locale, '/');
+const resolve = (href: string) => {
+  if (href.startsWith('#')) return `${home}${href}`;
+  if (href.startsWith('/')) return asset(href);
+  return href;
+};
+---
+
+<footer class="border-t border-[var(--border)]">
+  <div class="container-page py-14 md:py-16">
+    <div class="grid gap-10 md:grid-cols-[1.4fr_repeat(4,1fr)] md:gap-8">
+      <div class="max-w-xs">
+        <div class="flex items-center gap-2.5">
+          <Image
+            src={logo}
+            alt=""
+            width={28}
+            height={28}
+            densities={[1, 2]}
+            loading="lazy"
+            class="rounded-md"
+          />
+          <span class="font-semibold tracking-[-0.02em]">Tagr</span>
+        </div>
+        <p class="mt-3 text-sm leading-relaxed text-[var(--muted-foreground)]">
+          {d.footer.tagline}
+        </p>
+        <a
+          href={LINKS.bmc}
+          target="_blank"
+          rel="noopener"
+          class="mt-5 inline-flex h-9 items-center gap-2 rounded-[var(--radius-md)] bg-[var(--bmc)] px-3.5 text-sm font-semibold text-black transition-[filter] hover:brightness-95"
+        >
+          <Icon name="coffee" size={16} />
+          {d.footer.bmc}
+        </a>
+      </div>
+
+      {
+        d.footer.groups.map((group) => (
+          <nav aria-label={group.title}>
+            <h2 class="text-sm font-semibold">{group.title}</h2>
+            <ul class="mt-4 space-y-2.5">
+              {group.links.map((link) => (
+                <li>
+                  <a
+                    href={resolve(link.href)}
+                    target={'external' in link && link.external ? '_blank' : undefined}
+                    rel={'external' in link && link.external ? 'noopener' : undefined}
+                    class="text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        ))
+      }
+    </div>
+
+    <div
+      class="mt-12 flex flex-col items-start gap-4 border-t border-[var(--border)] pt-6 sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p class="text-sm text-[var(--muted-foreground)]">
+        &copy; {year}
+        {d.footer.rights}
+      </p>
+      <div class="flex items-center gap-3">
+        <div
+          class="flex items-center rounded-[var(--radius-md)] border border-[var(--border)] p-0.5"
+          role="group"
+          aria-label={d.common.langLabel}
+        >
+          <span
+            class="rounded-[var(--radius-sm)] bg-[var(--accent)] px-2 py-1 text-xs font-medium"
+            aria-current="true">{LOCALE_LABELS[locale]}</span
+          >
+          <a
+            href={localePath(other, path)}
+            hreflang={other}
+            rel="alternate"
+            class="rounded-[var(--radius-sm)] px-2 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+            >{LOCALE_LABELS[other]}</a
+          >
+        </div>
+        <a
+          href={LINKS.repo}
+          target="_blank"
+          rel="noopener"
+          aria-label={d.common.viewOnGithub}
+          class="inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)]"
+        >
+          <Icon name="github" size={18} />
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>

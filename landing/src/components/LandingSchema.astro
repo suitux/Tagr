@@ -1,0 +1,87 @@
+---
+import { getImage } from 'astro:assets';
+import mainScreen from '../assets/screenshots/main-screen.png';
+import songHistory from '../assets/screenshots/song-history.png';
+import { t, localePath, asset, LINKS, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+const site = Astro.site!;
+const pageUrl = new URL(localePath(locale, '/'), site).href;
+
+const [shotMain, shotHistory] = await Promise.all([
+  getImage({ src: mainScreen, width: 1280, format: 'webp' }),
+  getImage({ src: songHistory, width: 1280, format: 'webp' }),
+]);
+
+const softwareApplication = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Tagr',
+  applicationCategory: 'MultimediaApplication',
+  applicationSubCategory: 'Music metadata editor',
+  operatingSystem: 'Docker, Linux, Windows, macOS',
+  softwareVersion: LINKS.version,
+  url: pageUrl,
+  downloadUrl: LINKS.repo,
+  license: LINKS.license,
+  description: d.meta.landing.description,
+  inLanguage: locale,
+  isAccessibleForFree: true,
+  screenshot: [new URL(shotMain.src, site).href, new URL(shotHistory.src, site).href],
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  author: {
+    '@type': 'Person',
+    name: 'suitux',
+    url: 'https://github.com/suitux',
+  },
+  featureList: d.features.grid
+    .map((f) => f.title)
+    .concat(d.features.blocks.map((b) => b.title.replace(/\.$/, ''))),
+};
+
+const faqPage = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  inLanguage: locale,
+  mainEntity: d.faq.items.map((item) => ({
+    '@type': 'Question',
+    name: item.q,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.a,
+    },
+  })),
+};
+
+const organization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Tagr',
+  url: new URL(asset('/'), site).href,
+  logo: new URL(asset('/apple-touch-icon.png'), site).href,
+  sameAs: [LINKS.repo, LINKS.bmc],
+};
+
+const website = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Tagr',
+  url: new URL(asset('/'), site).href,
+  inLanguage: locale,
+  publisher: { '@type': 'Organization', name: 'Tagr', url: new URL(asset('/'), site).href },
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(softwareApplication)} is:inline />
+<script type="application/ld+json" set:html={JSON.stringify(faqPage)} is:inline />
+<script type="application/ld+json" set:html={JSON.stringify(organization)} is:inline />
+<script type="application/ld+json" set:html={JSON.stringify(website)} is:inline />

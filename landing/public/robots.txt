@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://suitux.github.io/Tagr/sitemap-index.xml

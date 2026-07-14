@@ -1,0 +1,235 @@
+@import 'tailwindcss';
+
+/* Geist Sans and Geist Mono, self hosted. The woff2 files are the latin subsets shipped by
+   @fontsource-variable/geist and @fontsource-variable/geist-mono, copied into src/fonts.
+   They live in src/ and not public/ so Vite emits them with a hashed, base aware URL: a hardcoded
+   /fonts/... would 404 under the /Tagr/ base path of a GitHub Pages project site.
+   No Google Fonts request: it costs LCP and leaks the visitor. */
+@font-face {
+  font-family: 'Geist Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../fonts/geist-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Geist Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../fonts/geist-mono-latin-wght-normal.woff2') format('woff2-variations');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Dark is the only theme. Values lifted verbatim from the Tagr app's globals.css dark block
+   so the marketing site and the product render the same color. */
+:root {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.59 0.2 277);
+  /* Filled buttons only. Same hue and chroma as --primary, three points darker in lightness, so
+     white label text clears WCAG AA (4.83:1). The app's own pairing measures 3.9:1, which fails.
+     Everything decorative (glows, icons, badges, table tint) still uses --primary unchanged. */
+  --primary-button: oklch(0.56 0.2 277);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.274 0.006 286.033);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.371 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --ring: oklch(0.556 0 0);
+
+  --radius: 0.45rem;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* The only non brand color on the site. Official Buy Me a Coffee yellow. */
+  --bmc: #ffdd00;
+
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-button: var(--primary-button);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-bmc: var(--bmc);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius-md);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --font-sans: 'Geist Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono Variable', ui-monospace, 'SFMono-Regular', monospace;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 6rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
+  ::selection {
+    background: color-mix(in oklch, var(--primary) 40%, transparent);
+    color: var(--foreground);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+}
+
+@utility container-page {
+  width: 100%;
+  max-width: 72rem;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+/* Grid children default to min-width:auto, so one wide descendant (a code block, a table, a
+   screenshot) can push the whole column past the viewport on a phone. Zero specificity via
+   :where(), so any explicit min-width still wins. */
+.container-page :where(.grid) > * {
+  min-width: 0;
+}
+
+/* Brand gradient. Loud in the logo, restrained everywhere else:
+   one phrase in the H1, one radial glow behind the hero. */
+@utility text-brand-gradient {
+  background-image: linear-gradient(135deg, #2b5fd9 0%, #7c3aed 50%, #9d2fb0 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  /* Reserve descender room, the gradient clip crops tight. */
+  padding-bottom: 0.08em;
+}
+
+/* Scroll reveal: fade plus an 8px rise, driven by CSS scroll-driven animations.
+   No JS, no scroll listener, no IntersectionObserver. Degrades to visible-by-default
+   in browsers without animation-timeline, and is disabled under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 22%;
+    }
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Shared surfaces */
+@utility surface {
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+
+@utility btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 2.75rem;
+  padding-inline: 1.5rem;
+  border-radius: var(--radius-lg);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  white-space: nowrap;
+  transition:
+    background-color 200ms ease-out,
+    filter 200ms ease-out,
+    border-color 200ms ease-out;
+}
+
+@utility btn-primary {
+  background-color: var(--primary-button);
+  color: var(--primary-foreground);
+}
+
+@utility btn-secondary {
+  background-color: transparent;
+  border: 1px solid var(--border);
+  color: var(--foreground);
+}
+
+@media (hover: hover) {
+  .btn-primary:hover {
+    filter: brightness(1.12);
+  }
+  .btn-secondary:hover {
+    background-color: var(--accent);
+  }
+}
+
+.btn-base:active {
+  transform: translateY(1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-base:active {
+    transform: none;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

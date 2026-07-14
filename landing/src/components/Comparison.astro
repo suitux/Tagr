@@ -1,0 +1,85 @@
+---
+import Icon from './Icon.astro';
+import { t, localePath, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+---
+
+<section id="comparison" class="border-t border-[var(--border)] py-20 md:py-28">
+  <div class="container-page">
+    <h2
+      class="text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em]"
+    >
+      {d.comparison.h2}
+    </h2>
+    <p class="mt-4 max-w-2xl leading-relaxed text-[var(--muted-foreground)]">
+      {d.comparison.intro}
+    </p>
+
+    <div class="reveal mt-10 overflow-x-auto rounded-[var(--radius-xl)] border border-[var(--border)]">
+      <table class="w-full min-w-[64rem] border-collapse text-left text-sm">
+        <caption class="sr-only">{d.comparison.tableAria}</caption>
+        <thead>
+          <tr class="border-b border-[var(--border)] bg-[var(--card)]">
+            <th scope="col" class="w-[18rem] px-5 py-4 font-semibold">{d.comparison.featureCol}</th>
+            {
+              d.comparison.cols.map((col, i) => (
+                <th
+                  scope="col"
+                  class:list={[
+                    'px-5 py-4 font-semibold',
+                    i === 0 && 'text-[var(--primary-foreground)]',
+                  ]}
+                >
+                  {col}
+                </th>
+              ))
+            }
+          </tr>
+        </thead>
+        <tbody>
+          {
+            d.comparison.rows.map((row) => (
+              <tr class="border-b border-[var(--border)] last:border-b-0">
+                <th
+                  scope="row"
+                  class="px-5 py-4 align-top font-medium text-[var(--foreground)]"
+                >
+                  {row.feature}
+                </th>
+                {row.cells.map((cell, i) => (
+                  <td
+                    class:list={[
+                      'px-5 py-4 align-top text-[var(--muted-foreground)]',
+                      i === 0 &&
+                        'bg-[color-mix(in_oklch,var(--primary)_8%,transparent)] text-[var(--foreground)]',
+                    ]}
+                  >
+                    {cell}
+                  </td>
+                ))}
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="mt-8 max-w-3xl leading-relaxed text-[var(--muted-foreground)]">
+      {d.comparison.closing}
+    </p>
+
+    <a
+      href={`${localePath(locale, '/')}#faq`}
+      class="mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-[var(--foreground)] underline-offset-4 hover:underline"
+    >
+      {d.comparison.faqLink}
+      <Icon name="arrow-right" size={16} />
+    </a>
+  </div>
+</section>
