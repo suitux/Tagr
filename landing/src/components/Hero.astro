@@ -1,0 +1,104 @@
+---
+import { Picture } from 'astro:assets';
+import { mainScreen, HERO_WIDTHS, HERO_SIZES } from '../lib/hero-image';
+import Icon from './Icon.astro';
+import CodeBlock from './CodeBlock.astro';
+import { t, LINKS, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+---
+
+<section class="relative overflow-hidden pt-10 pb-14 md:pt-16 md:pb-20">
+  <!-- One soft violet radial glow. The only decoration on the canvas. -->
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute top-[-20rem] left-1/2 h-[40rem] w-[70rem] -translate-x-1/2 rounded-full opacity-30 blur-[130px]"
+    style="background: radial-gradient(closest-side, #7c3aed, #2b5fd9 55%, transparent 100%);"
+  >
+  </div>
+
+  <div class="container-page relative">
+    <div class="grid items-center gap-12 lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)] lg:gap-12">
+      <div class="min-w-0 max-w-[44rem]">
+        <p
+          class="inline-flex items-center rounded-full border border-[var(--border)] px-3 py-1 text-xs font-medium text-[var(--muted-foreground)]"
+        >
+          {d.hero.eyebrow}
+        </p>
+
+        <!-- Nine words of headline. The type scale is planned around that and around the width of
+             this column, so it lands on two lines at desktop instead of five. -->
+        <h1
+          class="mt-5 text-[clamp(1.875rem,2.75vw,2.5rem)] leading-[1.1] font-semibold tracking-[-0.03em]"
+        >
+          {d.hero.h1Before}<span class="text-brand-gradient">{d.hero.h1Gradient}</span>{d.hero
+            .h1After}
+        </h1>
+
+        <p class="mt-5 max-w-xl leading-relaxed text-[var(--muted-foreground)]">
+          {d.hero.sub}
+        </p>
+
+        <div class="mt-7 flex flex-wrap items-center gap-3">
+          <a href={LINKS.demo} target="_blank" rel="noopener" class="btn-base btn-primary">
+            {d.hero.ctaPrimary}
+          </a>
+          <a href="#install" class="btn-base btn-secondary">
+            {d.hero.ctaSecondary}
+          </a>
+          <a
+            href={LINKS.repo}
+            target="_blank"
+            rel="noopener"
+            class="inline-flex items-center gap-1.5 px-2 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+          >
+            <Icon name="github" size={16} />
+            {d.common.viewOnGithub}
+          </a>
+        </div>
+        <p class="mt-2.5 text-xs text-[var(--muted-foreground)]">{d.hero.ctaPrimaryNote}</p>
+
+        <CodeBlock
+          code={d.hero.runCommand}
+          copyLabel={d.common.copy}
+          copiedLabel={d.common.copied}
+          copyAria={d.common.copyAria}
+          size="inline"
+          class="mt-6"
+        />
+      </div>
+
+      <!-- The shot bleeds toward the viewport edge so the copy column can hold a two line
+           headline without shrinking the product screenshot into a thumbnail. -->
+      <div class="relative min-w-0 lg:w-[calc(100%+8rem)]">
+        <div
+          aria-hidden="true"
+          class="pointer-events-none absolute inset-10 rounded-full opacity-25 blur-[90px]"
+          style="background: linear-gradient(135deg, #2b5fd9, #7c3aed 50%, #9d2fb0);"
+        >
+        </div>
+        <div
+          class="relative overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)]"
+        >
+          <Picture
+            src={mainScreen}
+            alt={d.hero.imageAlt}
+            widths={HERO_WIDTHS}
+            sizes={HERO_SIZES}
+            formats={['avif']}
+            fallbackFormat="webp"
+            loading="eager"
+            fetchpriority="high"
+            decoding="sync"
+            class="h-auto w-full"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

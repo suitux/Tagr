@@ -45,3 +45,9 @@ next-env.d.ts
 
 /data
 
+# landing (Astro marketing site, self contained in landing/)
+/landing/node_modules
+/landing/dist
+/landing/.astro
+/landing/.vercel
+

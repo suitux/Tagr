@@ -1,0 +1,30 @@
+---
+import Hero from './Hero.astro';
+import TrustStrip from './TrustStrip.astro';
+import Why from './Why.astro';
+import Features from './Features.astro';
+import Formats from './Formats.astro';
+import Gallery from './Gallery.astro';
+import Comparison from './Comparison.astro';
+import Install from './Install.astro';
+import Faq from './Faq.astro';
+import FinalCta from './FinalCta.astro';
+import type { Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<Hero locale={locale} />
+<TrustStrip locale={locale} />
+<Why locale={locale} />
+<Features locale={locale} />
+<Formats locale={locale} />
+<Gallery locale={locale} />
+<Comparison locale={locale} />
+<Install locale={locale} />
+<Faq locale={locale} />
+<FinalCta locale={locale} />

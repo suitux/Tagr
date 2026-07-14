@@ -1,0 +1,31 @@
+---
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+---
+
+<section id="why" class="py-20 md:py-28">
+  <div class="container-page">
+    <h2
+      class="max-w-2xl text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em]"
+    >
+      {d.why.h2}
+    </h2>
+
+    <div class="reveal mt-12 grid gap-px overflow-hidden md:grid-cols-3">
+      {
+        d.why.items.map((item, i) => (
+          <div class:list={['py-6 md:py-0', i > 0 && 'md:border-l md:border-[var(--border)] md:pl-8']}>
+            <h3 class="text-lg font-semibold tracking-[-0.015em]">{item.title}</h3>
+            <p class="mt-3 max-w-sm leading-relaxed text-[var(--muted-foreground)]">{item.body}</p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

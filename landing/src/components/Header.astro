@@ -1,0 +1,200 @@
+---
+import { Image } from 'astro:assets';
+import logo from '../assets/tagr-logo.webp';
+import Icon from './Icon.astro';
+import { t, localePath, otherLocale, LOCALE_LABELS, LINKS, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  /** The current page path without the locale prefix, e.g. "/" or "/docs/". */
+  path: string;
+}
+
+const { locale, path } = Astro.props;
+const d = t(locale);
+const home = localePath(locale, '/');
+const other = otherLocale(locale);
+
+const navLinks = [
+  { label: d.nav.features, href: `${home}#features` },
+  { label: d.nav.screenshots, href: `${home}#screenshots` },
+  { label: d.nav.comparison, href: `${home}#comparison` },
+  { label: d.nav.docs, href: localePath(locale, '/docs/') },
+  { label: d.nav.faq, href: `${home}#faq` },
+];
+---
+
+<div id="scroll-sentinel" aria-hidden="true" class="absolute top-0 h-2 w-full"></div>
+
+<header
+  id="site-header"
+  class="fixed inset-x-0 top-0 z-50 transition-colors duration-200"
+  data-scrolled="false"
+>
+  <div class="container-page flex h-16 items-center gap-6">
+    <a href={home} class="flex shrink-0 items-center gap-2.5" aria-label="Tagr">
+      <Image
+        src={logo}
+        alt=""
+        width={32}
+        height={32}
+        densities={[1, 2]}
+        loading="eager"
+        class="rounded-[7px]"
+      />
+      <span class="text-[1.0625rem] font-semibold tracking-[-0.02em]">Tagr</span>
+    </a>
+
+    <nav aria-label="Main" class="hidden lg:flex lg:items-center lg:gap-1">
+      {
+        navLinks.map((l) => (
+          <a
+            href={l.href}
+            class="rounded-[var(--radius-md)] px-3 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+          >
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="ml-auto flex items-center gap-1.5">
+      <div
+        class="hidden items-center rounded-[var(--radius-md)] border border-[var(--border)] p-0.5 sm:flex"
+        role="group"
+        aria-label={d.common.langLabel}
+      >
+        <span
+          class="rounded-[var(--radius-sm)] bg-[var(--accent)] px-2 py-1 text-xs font-medium"
+          aria-current="true">{LOCALE_LABELS[locale]}</span
+        >
+        <a
+          href={localePath(other, path)}
+          hreflang={other}
+          class="rounded-[var(--radius-sm)] px-2 py-1 text-xs font-medium text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)]"
+          >{LOCALE_LABELS[other]}</a
+        >
+      </div>
+
+      <a
+        href={LINKS.repo}
+        target="_blank"
+        rel="noopener"
+        aria-label={d.common.viewOnGithub}
+        class="hidden h-9 w-9 items-center justify-center rounded-[var(--radius-md)] text-[var(--muted-foreground)] transition-colors hover:bg-[var(--accent)] hover:text-[var(--foreground)] sm:inline-flex"
+      >
+        <Icon name="github" size={18} />
+      </a>
+
+      <a
+        href={LINKS.demo}
+        target="_blank"
+        rel="noopener"
+        class="btn-base btn-primary hidden h-9 px-4 text-sm sm:inline-flex"
+      >
+        {d.common.liveDemo}
+      </a>
+
+      <button
+        type="button"
+        id="nav-toggle"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-[var(--radius-md)] text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+        aria-label={d.common.openMenu}
+        data-open={d.common.openMenu}
+        data-close={d.common.closeMenu}
+      >
+        <Icon name="menu" size={20} class="js-menu-open" />
+        <Icon name="x" size={20} class="js-menu-close hidden" />
+      </button>
+    </div>
+  </div>
+</header>
+
+<div
+  id="mobile-nav"
+  hidden
+  class="fixed inset-0 top-16 z-40 flex flex-col gap-1 bg-[var(--background)] px-5 pt-6 pb-10 lg:hidden"
+>
+  {
+    navLinks.map((l) => (
+      <a
+        href={l.href}
+        class="js-mobile-link border-b border-[var(--border)] py-4 text-lg font-medium tracking-[-0.01em]"
+      >
+        {l.label}
+      </a>
+    ))
+  }
+  <div class="mt-6 flex flex-col gap-3">
+    <a href={LINKS.demo} target="_blank" rel="noopener" class="btn-base btn-primary w-full">
+      {d.common.tryDemo}
+    </a>
+    <a href={LINKS.repo} target="_blank" rel="noopener" class="btn-base btn-secondary w-full">
+      <Icon name="github" size={18} />
+      {d.common.viewOnGithub}
+    </a>
+    <a
+      href={localePath(other, path)}
+      hreflang={other}
+      class="btn-base btn-secondary w-full"
+      rel="alternate"
+    >
+      <Icon name="globe" size={18} />
+      {LOCALE_LABELS[other]}
+    </a>
+  </div>
+</div>
+
+<style>
+  #site-header[data-scrolled='true'] {
+    background-color: color-mix(in oklch, var(--background) 80%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+</style>
+
+<script>
+  // Sticky header state. IntersectionObserver on an 8px sentinel, not a scroll listener.
+  const header = document.getElementById('site-header');
+  const sentinel = document.getElementById('scroll-sentinel');
+  if (header && sentinel) {
+    new IntersectionObserver(
+      ([entry]) => header.setAttribute('data-scrolled', String(!entry.isIntersecting)),
+      { threshold: 0 }
+    ).observe(sentinel);
+  }
+
+  // Mobile nav sheet.
+  const toggle = document.getElementById('nav-toggle');
+  const sheet = document.getElementById('mobile-nav');
+  if (toggle && sheet) {
+    const openIcon = toggle.querySelector('.js-menu-open');
+    const closeIcon = toggle.querySelector('.js-menu-close');
+
+    const setOpen = (open: boolean) => {
+      sheet.hidden = !open;
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute(
+        'aria-label',
+        (open ? toggle.dataset.close : toggle.dataset.open) ?? 'Menu'
+      );
+      openIcon?.classList.toggle('hidden', open);
+      closeIcon?.classList.toggle('hidden', !open);
+      document.body.style.overflow = open ? 'hidden' : '';
+    };
+
+    toggle.addEventListener('click', () =>
+      setOpen(toggle.getAttribute('aria-expanded') !== 'true')
+    );
+    sheet.querySelectorAll('a').forEach((a) => a.addEventListener('click', () => setOpen(false)));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !sheet.hidden) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+  }
+</script>

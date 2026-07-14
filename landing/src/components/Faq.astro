@@ -1,0 +1,49 @@
+---
+import Icon from './Icon.astro';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+
+// Two balanced columns on desktop, one on mobile.
+const half = Math.ceil(d.faq.items.length / 2);
+const columns = [d.faq.items.slice(0, half), d.faq.items.slice(half)];
+---
+
+<section id="faq" class="border-t border-[var(--border)] py-20 md:py-28">
+  <div class="container-page">
+    <h2
+      class="text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em]"
+    >
+      {d.faq.h2}
+    </h2>
+
+    <div class="mt-10 grid gap-x-8 gap-y-0 md:grid-cols-2">
+      {
+        columns.map((column) => (
+          <div>
+            {column.map((item) => (
+              <details class="group border-b border-[var(--border)]">
+                <summary class="flex cursor-pointer list-none items-start justify-between gap-4 py-5 font-medium tracking-[-0.01em] [&::-webkit-details-marker]:hidden">
+                  <span>{item.q}</span>
+                  <Icon
+                    name="chevron-down"
+                    size={18}
+                    class="mt-0.5 shrink-0 text-[var(--muted-foreground)] transition-transform duration-200 group-open:rotate-180"
+                  />
+                </summary>
+                <p class="pb-5 text-[0.9375rem] leading-relaxed text-[var(--muted-foreground)]">
+                  {item.a}
+                </p>
+              </details>
+            ))}
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

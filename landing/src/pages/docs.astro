@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Docs from '../components/Docs.astro';
+import { t, localePath } from '../i18n';
+
+const locale = 'en' as const;
+const d = t(locale);
+const site = Astro.site!;
+
+const breadcrumb = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Tagr',
+      item: new URL(localePath(locale, '/'), site).href,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: d.docs.h1,
+      item: new URL(localePath(locale, '/docs/'), site).href,
+    },
+  ],
+};
+---
+
+<BaseLayout
+  locale={locale}
+  path="/docs/"
+  title={d.meta.docs.title}
+  description={d.meta.docs.description}
+  ogTitle={d.meta.docs.ogTitle}
+>
+  <script type="application/ld+json" slot="head" set:html={JSON.stringify(breadcrumb)} is:inline />
+  <Docs locale={locale} />
+</BaseLayout>

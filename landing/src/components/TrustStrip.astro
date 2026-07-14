@@ -1,0 +1,28 @@
+---
+import Icon from './Icon.astro';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+---
+
+<section aria-label="At a glance" class="border-y border-[var(--border)]">
+  <div class="container-page">
+    <ul
+      class="flex flex-wrap items-center justify-between gap-x-8 gap-y-4 py-5 text-[var(--muted-foreground)]"
+    >
+      {
+        d.trust.map((item) => (
+          <li class="flex items-center gap-2 text-[0.8125rem]">
+            <Icon name={item.icon as any} size={16} class="shrink-0 opacity-70" />
+            <span>{item.label}</span>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

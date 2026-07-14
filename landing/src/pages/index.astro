@@ -1,0 +1,21 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Landing from '../components/Landing.astro';
+import LandingSchema from '../components/LandingSchema.astro';
+import { t } from '../i18n';
+
+const locale = 'en' as const;
+const d = t(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  path="/"
+  title={d.meta.landing.title}
+  description={d.meta.landing.description}
+  ogTitle={d.meta.landing.ogTitle}
+  preloadHero
+>
+  <LandingSchema slot="head" locale={locale} />
+  <Landing locale={locale} />
+</BaseLayout>

@@ -1,0 +1,129 @@
+---
+import CodeBlock from './CodeBlock.astro';
+import Icon from './Icon.astro';
+import { COMPOSE, DOCKER_RUN, MANUAL } from '../i18n/snippets';
+import { t, localePath, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+
+const panels = [
+  { id: 'compose', label: d.install.tabs[0], lang: 'docker-compose.yml', code: COMPOSE },
+  { id: 'run', label: d.install.tabs[1], lang: 'bash', code: DOCKER_RUN },
+  { id: 'manual', label: d.install.tabs[2], lang: 'bash', code: MANUAL },
+];
+---
+
+<section id="install" class="border-t border-[var(--border)] py-20 md:py-28">
+  <div class="container-page">
+    <div class="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:gap-16">
+      <div class="lg:sticky lg:top-24 lg:self-start">
+        <h2
+          class="text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em]"
+        >
+          {d.install.h2}
+        </h2>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{d.install.intro}</p>
+
+        <ol class="mt-10 space-y-6">
+          {
+            d.install.steps.map((step, i) => (
+              <li class="flex gap-4">
+                <span
+                  class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-[var(--border)] font-mono text-xs text-[var(--muted-foreground)]"
+                  aria-hidden="true"
+                >
+                  {i + 1}
+                </span>
+                <div>
+                  <h3 class="font-semibold tracking-[-0.01em]">{step.title}</h3>
+                  <p class="mt-1 text-sm leading-relaxed text-[var(--muted-foreground)]">
+                    {step.body}
+                  </p>
+                </div>
+              </li>
+            ))
+          }
+        </ol>
+
+        <a
+          href={localePath(locale, '/docs/')}
+          class="mt-8 inline-flex items-center gap-1.5 text-sm font-medium underline-offset-4 hover:underline"
+        >
+          <Icon name="file-text" size={16} />
+          {d.install.docsLink}
+        </a>
+      </div>
+
+      <div>
+        <div
+          class="inline-flex flex-wrap rounded-[var(--radius-lg)] border border-[var(--border)] p-1"
+          role="tablist"
+          aria-label={d.install.h2}
+        >
+          {
+            panels.map((panel, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`itab-${panel.id}`}
+                aria-controls={`ipanel-${panel.id}`}
+                aria-selected={i === 0 ? 'true' : 'false'}
+                tabindex={i === 0 ? 0 : -1}
+                class="js-install-tab rounded-[var(--radius-md)] px-3.5 py-1.5 text-sm font-medium text-[var(--muted-foreground)] transition-colors aria-selected:bg-[var(--accent)] aria-selected:text-[var(--foreground)]"
+              >
+                {panel.label}
+              </button>
+            ))
+          }
+        </div>
+
+        {
+          panels.map((panel, i) => (
+            <div
+              id={`ipanel-${panel.id}`}
+              role="tabpanel"
+              aria-labelledby={`itab-${panel.id}`}
+              class="mt-5"
+              hidden={i !== 0}
+            >
+              <CodeBlock
+                code={panel.code}
+                lang={panel.lang}
+                copyLabel={d.common.copy}
+                copiedLabel={d.common.copied}
+                copyAria={d.common.copyAria}
+              />
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.js-install-tab'));
+  const select = (tab: HTMLButtonElement) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute('aria-controls') ?? '');
+      if (panel) (panel as HTMLElement).hidden = !on;
+    });
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+</script>

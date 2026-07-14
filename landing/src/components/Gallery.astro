@@ -1,0 +1,182 @@
+---
+import { Image } from 'astro:assets';
+import mainScreen from '../assets/screenshots/main-screen.png';
+import basicSearch from '../assets/screenshots/basic-search.png';
+import songHistory from '../assets/screenshots/song-history.png';
+import columns from '../assets/screenshots/columns.png';
+import mobileList from '../assets/screenshots/mobile-list.png';
+import mobileListSong from '../assets/screenshots/mobile-list-song.png';
+import mobileSong from '../assets/screenshots/mobile-song.png';
+import mobileMb from '../assets/screenshots/mobile-musicbrainz-metadata-pick.png';
+import Icon from './Icon.astro';
+import { t, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+
+const desktopShots = [mainScreen, basicSearch, songHistory, columns];
+const mobileShots = [mobileList, mobileListSong, mobileSong, mobileMb];
+---
+
+<section id="screenshots" class="border-t border-[var(--border)] py-20 md:py-28">
+  <div class="container-page">
+    <div class="flex flex-wrap items-end justify-between gap-6">
+      <h2
+        class="text-[clamp(1.875rem,4vw,2.75rem)] leading-[1.1] font-semibold tracking-[-0.025em]"
+      >
+        {d.gallery.h2}
+      </h2>
+
+      <div
+        class="inline-flex rounded-[var(--radius-lg)] border border-[var(--border)] p-1"
+        role="tablist"
+        aria-label={d.gallery.h2}
+      >
+        <button
+          type="button"
+          role="tab"
+          id="tab-desktop"
+          aria-controls="panel-desktop"
+          aria-selected="true"
+          class="js-gallery-tab rounded-[var(--radius-md)] px-4 py-1.5 text-sm font-medium text-[var(--muted-foreground)] transition-colors aria-selected:bg-[var(--accent)] aria-selected:text-[var(--foreground)]"
+        >
+          {d.gallery.tabs.desktop}
+        </button>
+        <button
+          type="button"
+          role="tab"
+          id="tab-mobile"
+          aria-controls="panel-mobile"
+          aria-selected="false"
+          tabindex="-1"
+          class="js-gallery-tab rounded-[var(--radius-md)] px-4 py-1.5 text-sm font-medium text-[var(--muted-foreground)] transition-colors aria-selected:bg-[var(--accent)] aria-selected:text-[var(--foreground)]"
+        >
+          {d.gallery.tabs.mobile}
+        </button>
+      </div>
+    </div>
+
+    <div id="panel-desktop" role="tabpanel" aria-labelledby="tab-desktop" class="mt-10">
+      <div class="grid gap-6 md:grid-cols-2">
+        {
+          d.gallery.desktop.map((shot, i) => (
+            <figure>
+              <button
+                type="button"
+                class="js-shot group block w-full overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] text-left"
+                aria-label={d.gallery.openAria}
+              >
+                <span class="relative block">
+                  <Image
+                    src={desktopShots[i]}
+                    alt={shot.alt}
+                    widths={[640, 960, 1280]}
+                    sizes="(min-width: 768px) 46vw, 100vw"
+                    formats={['avif', 'webp']}
+                    loading="lazy"
+                    class="h-auto w-full transition-transform duration-300 group-hover:scale-[1.01]"
+                  />
+                  <span class="absolute right-3 bottom-3 inline-flex h-8 w-8 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)]/85 text-[var(--muted-foreground)] opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                    <Icon name="expand" size={15} />
+                  </span>
+                </span>
+              </button>
+              <figcaption class="mt-3 text-sm text-[var(--muted-foreground)]">
+                {shot.caption}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+
+    <div id="panel-mobile" role="tabpanel" aria-labelledby="tab-mobile" class="mt-10" hidden>
+      <div class="grid grid-cols-2 gap-6 md:grid-cols-4 md:gap-8">
+        {
+          d.gallery.mobile.map((shot, i) => (
+            <figure>
+              <button
+                type="button"
+                class="js-shot group block w-full overflow-hidden rounded-[1.5rem] border-4 border-[var(--card)] ring-1 ring-[var(--border)] ring-inset"
+                aria-label={d.gallery.openAria}
+              >
+                <Image
+                  src={mobileShots[i]}
+                  alt={shot.alt}
+                  widths={[320, 640]}
+                  sizes="(min-width: 768px) 22vw, 44vw"
+                  formats={['avif', 'webp']}
+                  loading="lazy"
+                  class="h-auto w-full"
+                />
+              </button>
+              <figcaption class="mt-3 text-sm text-[var(--muted-foreground)]">
+                {shot.caption}
+              </figcaption>
+            </figure>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<dialog
+  id="lightbox"
+  class="max-h-[90dvh] w-[min(92vw,80rem)] max-w-none rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] p-0 backdrop:bg-black/80 backdrop:backdrop-blur-sm"
+>
+  <button
+    type="button"
+    class="js-lightbox-close absolute top-3 right-3 inline-flex h-9 w-9 items-center justify-center rounded-[var(--radius-md)] border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] transition-colors hover:bg-[var(--accent)]"
+    aria-label={d.gallery.dialogClose}
+  >
+    <Icon name="x" size={18} />
+  </button>
+  <img id="lightbox-img" src="" alt="" class="h-auto max-h-[90dvh] w-full object-contain" />
+</dialog>
+
+<script>
+  // Gallery tabs.
+  const tabs = Array.from(document.querySelectorAll<HTMLButtonElement>('.js-gallery-tab'));
+  const select = (tab: HTMLButtonElement) => {
+    tabs.forEach((t) => {
+      const on = t === tab;
+      t.setAttribute('aria-selected', String(on));
+      t.tabIndex = on ? 0 : -1;
+      const panel = document.getElementById(t.getAttribute('aria-controls') ?? '');
+      if (panel) (panel as HTMLElement).hidden = !on;
+    });
+  };
+  tabs.forEach((tab, i) => {
+    tab.addEventListener('click', () => select(tab));
+    tab.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowRight' && e.key !== 'ArrowLeft') return;
+      const next = tabs[(i + (e.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+      select(next);
+      next.focus();
+    });
+  });
+
+  // Lightbox on a native <dialog>: Escape closes it and focus is trapped for free.
+  const dialog = document.getElementById('lightbox') as HTMLDialogElement | null;
+  const dialogImg = document.getElementById('lightbox-img') as HTMLImageElement | null;
+  if (dialog && dialogImg) {
+    document.querySelectorAll<HTMLButtonElement>('.js-shot').forEach((button) => {
+      button.addEventListener('click', () => {
+        const source = button.querySelector('img');
+        if (!source) return;
+        dialogImg.src = source.currentSrc || source.src;
+        dialogImg.alt = source.alt;
+        dialog.showModal();
+      });
+    });
+    dialog.querySelector('.js-lightbox-close')?.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+  }
+</script>
