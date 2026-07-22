@@ -37,6 +37,11 @@ const canonical = new URL(localePath(locale, path), site).href;
 const enHref = new URL(localePath('en', path), site).href;
 const esHref = new URL(localePath('es', path), site).href;
 const ogImage = new URL(asset('/og.png'), site).href;
+
+// Cloudflare Web Analytics: the beacon token is public (it ships in the page for every
+// visitor), but it is read from the environment so it is not committed. Set PUBLIC_CF_BEACON_TOKEN
+// in the deploy environment; the beacon is only emitted in production builds.
+const cfBeaconToken = import.meta.env.PUBLIC_CF_BEACON_TOKEN;
 ---
 
 <!doctype html>
@@ -90,6 +95,16 @@ const ogImage = new URL(asset('/og.png'), site).href;
     <meta name="twitter:title" content={ogTitle ?? title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
+
+    {
+      import.meta.env.PROD && cfBeaconToken && (
+        <script
+          defer
+          src="https://static.cloudflareinsights.com/beacon.min.js"
+          data-cf-beacon={JSON.stringify({ token: cfBeaconToken })}
+        />
+      )
+    }
 
     <slot name="head" />
   </head>

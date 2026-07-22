@@ -41,6 +41,8 @@ jobs:
 
       - name: Build
         working-directory: landing
+        env:
+          PUBLIC_CF_BEACON_TOKEN: ${{ secrets.CF_BEACON_TOKEN }}
         run: pnpm build
 
       - uses: actions/configure-pages@v5
