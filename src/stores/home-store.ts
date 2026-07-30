@@ -1,6 +1,5 @@
 import { create } from 'zustand'
-import type { ColumnField, SongColumnFilters, SongSortDirection } from '@/features/songs/domain'
-import type { SongsSortParams } from '@/features/songs/hooks/use-songs-by-folder'
+import type { ColumnField, SongColumnFilters } from '@/features/songs/domain'
 
 export interface ScanSummaryResult {
   added: { count: number; files: string[] }
@@ -20,7 +19,6 @@ export interface BulkSummaryResult {
 
 interface HomeState {
   search: string
-  sorting: SongsSortParams
   columnFilters: SongColumnFilters
   scanLastResult: ScanSummaryResult | null
   scanSummaryOpen: boolean
@@ -28,8 +26,6 @@ interface HomeState {
   bulkSummaryOpen: boolean
 
   setSearch: (value: string) => void
-  setSorting: (sortField: ColumnField, sort: SongSortDirection) => void
-  clearSorting: () => void
   setColumnFilter: (field: ColumnField, value: string) => void
   setAllColumnFilters: (filters: SongColumnFilters) => void
   clearColumnFilters: () => void
@@ -41,7 +37,6 @@ interface HomeState {
 
 export const useHomeStore = create<HomeState>(set => ({
   search: '',
-  sorting: {},
   columnFilters: {},
   scanLastResult: null,
   scanSummaryOpen: false,
@@ -49,8 +44,6 @@ export const useHomeStore = create<HomeState>(set => ({
   bulkSummaryOpen: false,
 
   setSearch: value => set({ search: value }),
-  setSorting: (sortField, sort) => set({ sorting: { sortField, sort } }),
-  clearSorting: () => set({ sorting: {} }),
   setColumnFilter: (field, value) => set(state => ({ columnFilters: { ...state.columnFilters, [field]: value } })),
   setAllColumnFilters: filters => set({ columnFilters: filters }),
   clearColumnFilters: () => set({ columnFilters: {} }),

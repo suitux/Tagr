@@ -12,6 +12,7 @@ import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import type { Song } from '@/features/songs/domain'
 import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
+import { useSortOrder } from '@/features/songs/hooks/use-sort-order'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
 import type { UserRole } from '@/features/users/domain'
 import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
@@ -55,7 +56,7 @@ export function DetailPanelPreviewCard({
   })
   const { selectedFolderId } = useSelectedFolder()
   const search = useHomeStore(s => s.search)
-  const sorting = useHomeStore(s => s.sorting)
+  const { sorting } = useSortOrder()
   const columnFilters = useHomeStore(s => s.columnFilters)
   const currentSong = usePlayerStore(s => s.currentSong)
   const isPlaying = usePlayerStore(s => s.isPlaying)

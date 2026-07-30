@@ -7,6 +7,7 @@ import { SmartPlaylistModal } from '@/components/panels/folder-list/components/s
 import { Badge } from '@/components/ui/badge'
 import { useSmartPlaylistSongs } from '@/features/smart-playlists/hooks/use-smart-playlist-songs'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
+import { useSortOrder } from '@/features/songs/hooks/use-sort-order'
 import { useHomeStore } from '@/stores/home-store'
 import { useActiveCustomMetadataKeys } from './columns/hooks/use-active-custom-metadata-keys'
 import { SongsDataTable } from './songs-data-table'
@@ -26,7 +27,7 @@ export function MainContentSmartPlaylistView({ playlistId }: Props) {
 
   const search = useHomeStore(s => s.search)
   const setSearch = useHomeStore(s => s.setSearch)
-  const sorting = useHomeStore(s => s.sorting)
+  const { sorting } = useSortOrder()
   const columnFilters = useHomeStore(s => s.columnFilters)
   const activeFilterEntries = Object.entries(columnFilters).filter(([, v]) => v)
   const activeFilters = activeFilterEntries.length > 0 ? Object.fromEntries(activeFilterEntries) : undefined

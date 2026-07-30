@@ -11,6 +11,7 @@ import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
 import { type ColumnField, Song } from '@/features/songs/domain'
 import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
+import { useSortOrder } from '@/features/songs/hooks/use-sort-order'
 import { useDelayedLoading } from '@/hooks/use-delayed-loading'
 import { useKeyPress } from '@/hooks/use-key-press'
 import { useSelectedSong } from '@/hooks/use-selected-song'
@@ -49,9 +50,7 @@ export function SongsDataTable({
 }: SongsDataTableProps) {
   const tCommon = useTranslations('common')
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
-  const sorting = useHomeStore(s => s.sorting)
-  const setSorting = useHomeStore(s => s.setSorting)
-  const clearSorting = useHomeStore(s => s.clearSorting)
+  const { sorting, setSorting, clearSorting } = useSortOrder()
   const clearColumnFilters = useHomeStore(s => s.clearColumnFilters)
   const setSearch = useHomeStore(s => s.setSearch)
   const isAnyFilterActive = useIsAnyFilterActive()

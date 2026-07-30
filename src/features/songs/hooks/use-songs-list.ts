@@ -2,6 +2,7 @@
 
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useHomeStore } from '@/stores/home-store'
+import { useSortOrder } from './use-sort-order'
 import { useSongsByFolder } from './use-songs-by-folder'
 
 interface UseSongsListParams {
@@ -11,7 +12,7 @@ interface UseSongsListParams {
 export function useSongsList(params?: UseSongsListParams) {
   const { selectedFolderId } = useSelectedFolder()
   const search = useHomeStore(s => s.search)
-  const sorting = useHomeStore(s => s.sorting)
+  const { sorting } = useSortOrder()
   const columnFilters = useHomeStore(s => s.columnFilters)
 
   const activeFilterEntries = Object.entries(columnFilters).filter(([, v]) => v)

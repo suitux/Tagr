@@ -7,6 +7,7 @@ import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { useHomeStore } from '@/stores/home-store'
 import type { Song } from '@/features/songs/domain'
+import { useSortOrder } from '@/features/songs/hooks/use-sort-order'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
 import { usePlayerStore } from '@/stores/player-store'
 
@@ -17,7 +18,7 @@ const NameCell = function NameCell({ song }: { song: Song }) {
   const { selectedPlaylistId } = useSelectedPlaylist()
   const { setSelectedSongId } = useSelectedSong()
   const search = useHomeStore(s => s.search)
-  const sorting = useHomeStore(s => s.sorting)
+  const { sorting } = useSortOrder()
   const columnFilters = useHomeStore(s => s.columnFilters)
   const currentSong = usePlayerStore(s => s.currentSong)
   const togglePlayPause = usePlayerStore(s => s.togglePlayPause)
