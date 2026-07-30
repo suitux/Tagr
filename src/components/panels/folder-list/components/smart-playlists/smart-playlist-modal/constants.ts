@@ -6,6 +6,7 @@ export const SONG_FIELD_OPTIONS: ColumnField[] = [
   'album',
   'albumArtist',
   'genre',
+  'style',
   'year',
   'bpm',
   'composer',

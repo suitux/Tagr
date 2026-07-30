@@ -144,6 +144,7 @@
     "sortAlbumArtist": "Sort Album Artist",
     "year": "Year",
     "genre": "Genre",
+    "style": "Style",
     "composer": "Composer",
     "conductor": "Conductor",
     "bpm": "BPM",

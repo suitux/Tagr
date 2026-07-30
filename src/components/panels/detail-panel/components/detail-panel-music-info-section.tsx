@@ -98,6 +98,13 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
         fieldName='genre'
       />
       <DetailPanelRow
+        icon={<TagIcon className='w-4 h-4' />}
+        label={t('style')}
+        value={song.style}
+        songId={song.id}
+        fieldName='style'
+      />
+      <DetailPanelRow
         icon={<PenLineIcon className='w-4 h-4' />}
         label={t('composer')}
         value={song.composer}

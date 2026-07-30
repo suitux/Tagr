@@ -194,6 +194,11 @@ function writeNativeFields(ctx: TagContext, metadata: SongMetadataUpdate) {
     writeToNonId3v2(ctx, 'LYRICIST', metadata.lyricist)
   }
 
+  // Style: no convenience property. Written as a STYLE field across every native
+  // format — ID3v2 `TXXX:STYLE`, Xiph `STYLE`, iTunes/ASF/APE `STYLE` — so it
+  // stays independent of Genre (`TCON`) on read-back (issue #26).
+  if (metadata.style !== undefined) writeToAllNativeTags(ctx, 'STYLE', metadata.style)
+
   // Simple TXXX fields → all native formats
   if (metadata.barcode !== undefined) writeToAllNativeTags(ctx, 'BARCODE', metadata.barcode)
   if (metadata.catalogNumber !== undefined) writeToAllNativeTags(ctx, 'CATALOGNUMBER', metadata.catalogNumber)

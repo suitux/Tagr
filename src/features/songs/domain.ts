@@ -21,6 +21,7 @@ export type SongSortField =
   | 'year'
   | 'bpm'
   | 'genre'
+  | 'style'
   | 'albumArtist'
   | 'sortAlbumArtist'
   | 'composer'
@@ -90,6 +91,7 @@ export const BOOLEAN_SONG_FIELDS: Set<ColumnField> = new Set(['compilation'])
 
 export const SELECT_SONG_FIELDS: Set<ColumnField> = new Set([
   'genre',
+  'style',
   'publisher',
   'albumArtist',
   'composer',

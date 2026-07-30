@@ -11,6 +11,7 @@ export interface SongMetadataUpdate {
   year?: number
   bpm?: number
   genre?: string
+  style?: string
   albumArtist?: string
   sortAlbumArtist?: string
   composer?: string
@@ -91,6 +92,7 @@ export interface SongCreateInput {
   year: number | null
   bpm: number | null
   genre: string | null
+  style: string | null
   albumArtist: string | null
   sortAlbumArtist: string | null
   composer: string | null
@@ -144,6 +146,7 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'TDRC',
     'TBPM',
     'TCON',
+    'TXXX:STYLE',
     'TPE2',
     'TSO2',
     'TCOM',
@@ -199,6 +202,7 @@ export const MAPPED_NATIVE_TAGS = new Set(
     'DATE',
     'BPM',
     'GENRE',
+    'STYLE',
     'ALBUMARTIST',
     'ALBUM ARTIST',
     'PUBLISHER',

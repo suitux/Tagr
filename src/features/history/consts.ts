@@ -13,6 +13,7 @@ export const HISTORY_TRACKABLE_FIELDS = new Set([
   'year',
   'bpm',
   'genre',
+  'style',
   'albumArtist',
   'sortAlbumArtist',
   'composer',

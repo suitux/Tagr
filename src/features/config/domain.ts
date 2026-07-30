@@ -12,6 +12,7 @@ export const DEFAULT_VISIBLE_COLUMNS: ColumnVisibilityState = {
   album: true,
   year: false,
   genre: true,
+  style: false,
   bpm: true,
   duration: false,
   fileSize: false,

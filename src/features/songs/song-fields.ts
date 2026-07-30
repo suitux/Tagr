@@ -22,6 +22,7 @@ export const BULK_EDITABLE_FIELDS: BulkFieldDescriptor[] = [
   { key: 'albumArtist', labelKey: 'albumArtist', type: 'text', section: 'music' },
   { key: 'sortAlbumArtist', labelKey: 'sortAlbumArtist', type: 'text', section: 'music' },
   { key: 'genre', labelKey: 'genre', type: 'text', section: 'music' },
+  { key: 'style', labelKey: 'style', type: 'text', section: 'music' },
   { key: 'composer', labelKey: 'composer', type: 'text', section: 'music' },
   { key: 'conductor', labelKey: 'conductor', type: 'text', section: 'music' },
   { key: 'year', labelKey: 'year', type: 'number', section: 'music' },

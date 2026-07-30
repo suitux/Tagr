@@ -30,6 +30,7 @@ export function ShareMetadataSection({ song }: ShareMetadataSectionProps) {
       <MetadataRow label={tFields('bpm')} value={song.bpm} />
       <MetadataRow label={tFields('year')} value={song.year} />
       <MetadataRow label={tFields('genre')} value={song.genre} />
+      <MetadataRow label={tFields('style')} value={song.style} />
       <MetadataRow label={tFields('composer')} value={song.composer} />
       {song.trackNumber && (
         <MetadataRow

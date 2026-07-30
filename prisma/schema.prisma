@@ -35,6 +35,7 @@ model Song {
   year                Int?
   bpm                 Int?
   genre               String?
+  style               String?
   albumArtist         String?   @map("album_artist")
   sortAlbumArtist     String?   @map("sort_album_artist")
   composer            String?

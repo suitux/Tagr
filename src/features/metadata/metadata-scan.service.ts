@@ -67,11 +67,66 @@ function getNativeTagValue(
 
 // ID3v2.2 uses shorter frame IDs (TXX instead of TXXX). For these frames,
 // the description is embedded in the value as "DESCRIPTION\0VALUE".
-// Check if the description matches a mapped TXXX subtag.
 const TXXX_SHORT_IDS = new Set(['TXX', 'TXXX'])
+
+// A Style tag surfaces under different native IDs per format:
+//   Vorbis/APE  → `STYLE`
+//   ID3v2.4     → `TXXX:STYLE`
+//   iTunes/M4A  → `----:com.apple.iTunes:STYLE`
+//   ASF/WMA     → `STYLE`
+//   ID3v2.2     → `TXX` frame with value "STYLE\0value"
+// Every case ends in a `STYLE` segment (after splitting the ID on ':'), except
+// the ID3v2.2 embedded form which we unpack from the value. Returns the Style
+// string for a native tag, or undefined when the tag is not a Style tag.
+function styleValueFromTag(tag: { id: string; value: unknown }): string | undefined {
+  if (typeof tag.value !== 'string') return undefined
+  const upperId = tag.id.toUpperCase()
+
+  // Cross-format: last ':'-segment is the descriptor/field name.
+  if (upperId.split(':').pop() === 'STYLE') return tag.value
+
+  // ID3v2.2 `TXX` embeds the description in the value as "STYLE\0value".
+  if (TXXX_SHORT_IDS.has(upperId) && tag.value.includes('\0')) {
+    const nullIndex = tag.value.indexOf('\0')
+    if (tag.value.substring(0, nullIndex).toUpperCase() === 'STYLE') {
+      let text = tag.value.substring(nullIndex + 1)
+      if (text.charCodeAt(0) === 0xfeff) text = text.substring(1)
+      return text
+    }
+  }
+
+  return undefined
+}
+
+// `music-metadata` maps STYLE frames to the SAME common field as the real genre
+// frame (`TCON`/`GENRE`), silently merging Style into Genre, e.g.
+// `Pop Punk;acoustic` (issue #26). We collect the raw STYLE values from the
+// native frames so we can (a) store Style in its own column and (b) strip those
+// values back out of `common.genre`, keeping Genre = the genre frame only.
+function getNativeStyleValues(
+  native: Record<string, Array<{ id: string; value: unknown }>> | undefined
+): string[] {
+  const styles: string[] = []
+  if (!native) return styles
+
+  for (const tags of Object.values(native)) {
+    for (const tag of tags) {
+      const value = styleValueFromTag(tag)
+      if (value !== undefined) styles.push(value)
+    }
+  }
+
+  return styles
+}
+
+// Check if the description matches a mapped TXXX subtag.
 function isMappedNativeTag(tagId: string, value: string): boolean {
   const upperId = tagId.toUpperCase()
   if (MAPPED_NATIVE_TAGS.has(upperId)) return true
+
+  // Style lives in its own Song column, so its native frame must not also be
+  // surfaced as a generic custom-metadata row (covers iTunes/ASF ID variants).
+  if (styleValueFromTag({ id: tagId, value }) !== undefined) return true
 
   // For TXX/TXXX frames, check if TXXX:DESCRIPTION is mapped
   if (TXXX_SHORT_IDS.has(upperId)) {
@@ -90,6 +145,11 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
     const { common, format } = metadata
 
     const additionalMetadata: MetadataInput[] = []
+
+    // STYLE values that music-metadata merged into common.genre; split back out
+    // into the Style column below and stripped from Genre.
+    const styleValues = getNativeStyleValues(metadata.native)
+    const styleSet = new Set(styleValues)
 
     if (metadata.native) {
       for (const [formatType, tags] of Object.entries(metadata.native)) {
@@ -149,7 +209,8 @@ async function extractMetadata(filePath: string): Promise<SongCreateInput | null
       discTotal: common.disk?.of || null,
       year: common.year || null,
       bpm: common.bpm || null,
-      genre: joinMultiValue(common.genre ?? []) || null,
+      genre: joinMultiValue((common.genre ?? []).filter(g => !styleSet.has(g))) || null,
+      style: joinMultiValue(styleValues) || null,
       albumArtist: joinMultiValue(common.albumartists ?? []) || common.albumartist || null,
       sortAlbumArtist: common.albumartistsort || null,
       composer: joinMultiValue(common.composer ?? []) || null,
