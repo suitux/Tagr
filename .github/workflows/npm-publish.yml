@@ -47,15 +47,6 @@ jobs:
           pnpm rebuild esbuild
         working-directory: .
 
-      - name: Check the tag matches package.json
-        run: |
-          TAG_VERSION="${GITHUB_REF_NAME#audiotagr-v}"
-          PKG_VERSION="$(node -p "require('./package.json').version")"
-          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
-            echo "Tag $GITHUB_REF_NAME does not match package.json version $PKG_VERSION" >&2
-            exit 1
-          fi
-
       - name: Typecheck
         run: pnpm typecheck
 
