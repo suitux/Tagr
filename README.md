@@ -249,7 +249,7 @@ pnpm dev                 # Development mode
 ```
 Browser (React Query) --> Next.js API Routes --> Prisma --> SQLite
                                                    |
-                                          node-taglib-sharp --> audio files on disk
+                                              audiotagr --> audio files on disk
 ```
 
 | Layer | Technology |
@@ -258,9 +258,16 @@ Browser (React Query) --> Next.js API Routes --> Prisma --> SQLite
 | Backend | Next.js 16 App Router (route handlers) |
 | Database | SQLite via Prisma 7 + LibSQL |
 | Auth | NextAuth 5 (credentials provider, JWT sessions) |
-| Metadata Read | music-metadata |
-| Metadata Write | node-taglib-sharp |
+| Tag read/write + library scanning | [audiotagr](https://github.com/suitux/audiotagr) |
 | Audio Player | WaveSurfer.js |
+
+### audiotagr
+
+Every tag Tagr reads from or writes to your files goes through **[audiotagr](https://github.com/suitux/audiotagr)** ([npm](https://www.npmjs.com/package/audiotagr)) — a standalone library extracted from this project and maintained in its own repo.
+
+It is what actually talks to the audio files: scanning your folders, reading tags and audio properties, and writing your edits back to disk. It handles the per-format differences behind a single API — ID3v2 frames in MP3, Vorbis comments in FLAC and Ogg, iTunes atoms in M4A, ASF descriptors in WMA, APEv2 items — including the quirks that quietly corrupt tags otherwise, such as Style being folded into Genre or BPM landing in a field no reader looks at.
+
+It is published under LGPL-3.0-only, so you can use it in your own projects whatever their license.
 
 ---
 
