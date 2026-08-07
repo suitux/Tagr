@@ -16,6 +16,7 @@
     "music"
   ],
   "license": "LGPL-3.0-only",
+  "packageManager": "pnpm@11.8.0",
   "author": "Xavier Rincon",
   "homepage": "https://github.com/suitux/Tagr/tree/main/packages/audiotagr#readme",
   "repository": {

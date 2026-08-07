@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "license": "AGPL-3.0-only",
+  "packageManager": "pnpm@11.8.0",
   "scripts": {
     "predev": "pnpm --filter audiotagr build",
     "dev": "next dev",
