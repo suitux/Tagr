@@ -38,8 +38,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Workspace packages carry their own tsconfig/build and are not Next.js code.
-    "packages/**",
   ]),
 ]);
 
