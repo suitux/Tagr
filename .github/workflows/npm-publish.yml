@@ -37,8 +37,14 @@ jobs:
           cache: pnpm
           registry-url: https://registry.npmjs.org
 
+      # --filter narrows the install to the package, and --ignore-scripts keeps
+      # the app's postinstall (prisma generate) out of a library release.
+      # esbuild still needs its own postinstall to place the platform binary
+      # tsup builds with, so it is rebuilt on its own.
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          pnpm install --frozen-lockfile --filter audiotagr --ignore-scripts
+          pnpm rebuild esbuild
         working-directory: .
 
       - name: Check the tag matches package.json
