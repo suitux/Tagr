@@ -13,9 +13,10 @@ ignoredBuiltDependencies:
   - msw
   - sharp
   - unrs-resolver
+# audiotagr is ours: we publish it and bump it here in the same session, so
+# the release-age quarantine for third-party packages does not apply.
 minimumReleaseAgeExclude:
-  - audiotagr@0.1.0
-  - audiotagr@0.1.2
+  - audiotagr
 onlyBuiltDependencies:
   - '@prisma/engines'
   - better-sqlite3
