@@ -11,7 +11,7 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY patches ./patches
+COPY packages/audiotagr/package.json ./packages/audiotagr/
 COPY prisma ./prisma
 RUN pnpm install --frozen-lockfile
 RUN pnpm run prisma-generate-client

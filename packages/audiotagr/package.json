@@ -1,0 +1,75 @@
+{
+  "name": "audiotagr",
+  "version": "0.1.0",
+  "description": "Read and write audio file tags (ID3v2, Xiph, iTunes/MP4, ASF, APEv2) through one format-agnostic API, plus a streaming folder scanner.",
+  "keywords": [
+    "audio",
+    "metadata",
+    "tags",
+    "id3",
+    "id3v2",
+    "vorbis",
+    "flac",
+    "mp3",
+    "m4a",
+    "taglib",
+    "music"
+  ],
+  "license": "LGPL-3.0-only",
+  "author": "Xavier Rincon",
+  "homepage": "https://github.com/suitux/Tagr/tree/main/packages/audiotagr#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/suitux/Tagr.git",
+    "directory": "packages/audiotagr"
+  },
+  "bugs": {
+    "url": "https://github.com/suitux/Tagr/issues"
+  },
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./tags": {
+      "types": "./dist/tags.d.ts",
+      "import": "./dist/tags.js",
+      "default": "./dist/tags.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "LICENSE.GPL"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "music-metadata": "11.12.3",
+    "node-taglib-sharp": "6.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "20",
+    "tsup": "8.5.0",
+    "typescript": "5",
+    "vitest": "4.1.2"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}

@@ -4,8 +4,10 @@
   "private": true,
   "license": "AGPL-3.0-only",
   "scripts": {
+    "predev": "pnpm --filter audiotagr build",
     "dev": "next dev",
     "debug": "next dev --inspect",
+    "prebuild": "pnpm --filter audiotagr build",
     "build": "next build",
     "start": "node ./.next/standalone/server.js",
     "lint": "eslint",
@@ -14,7 +16,9 @@
     "prisma-recreate-db": "rm -rf ./data/tagr.* & prisma db push --config ./prisma.config.ts --force-reset",
     "prisma-generate-client": "prisma generate",
     "postinstall": "prisma generate",
-    "test": "vitest"
+    "test": "vitest",
+    "test:packages": "pnpm --filter audiotagr test",
+    "test:all": "vitest run && pnpm --filter audiotagr test"
   },
   "dependencies": {
     "@hookform/resolvers": "5.2.0",
@@ -25,6 +29,7 @@
     "@tanstack/react-query-devtools": "5.91.3",
     "@tanstack/react-table": "8.21.3",
     "@use-gesture/react": "10.3.1",
+    "audiotagr": "workspace:*",
     "axios": "1.15.2",
     "bcryptjs": "3.0.3",
     "class-variance-authority": "0.7.1",

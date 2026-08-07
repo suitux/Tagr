@@ -110,8 +110,7 @@ export const DATE_SONG_FIELDS: Set<ColumnField> = new Set([
 
 export const FILTERS_MULTI_VALUE_SEPARATOR = '||'
 
-export const MUSIC_EXTENSIONS = ['.mp3', '.flac', '.wav', '.aac', '.ogg', '.m4a', '.m4b', '.wma', '.aiff', '.opus'] as const
-export type MusicExtension = (typeof MUSIC_EXTENSIONS)[number]
+export { MUSIC_EXTENSIONS, type MusicExtension } from 'audiotagr/tags'
 
 export const MIME_TYPES: Record<string, string> = {
   '.mp3': 'audio/mpeg',

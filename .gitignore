@@ -45,6 +45,10 @@ next-env.d.ts
 
 /data
 
+# workspace packages
+/packages/*/node_modules
+/packages/*/dist
+
 # landing (Astro marketing site, self contained in landing/)
 /landing/node_modules
 /landing/dist
