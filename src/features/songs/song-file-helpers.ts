@@ -1,5 +1,4 @@
-import path from 'path'
-import { MUSIC_EXTENSIONS, MusicExtension } from '@/features/songs/domain'
+export { isMusicFile } from 'audiotagr/tags'
 
 export const DEFAULT_MUSIC_FOLDER = '/music'
 
@@ -12,12 +11,6 @@ export function getMusicFolders(): string[] {
     .split(',')
     .map(folder => folder.trim())
     .filter(folder => folder.length > 0)
-}
-
-export function isMusicFile(filename: string): boolean {
-  if (filename.startsWith('._')) return false
-  const ext = path.extname(filename).toLowerCase()
-  return MUSIC_EXTENSIONS.includes(ext.toLowerCase() as MusicExtension)
 }
 
 export function getSongPictureUrl(songId: number, cacheBust?: string | Date | null): string {

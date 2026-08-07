@@ -1,9 +1,9 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import type { AudioFileMetadata, ScanItem } from 'audiotagr'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { mockReaddir, mockStat, mockParseFile, repo } = vi.hoisted(() => ({
-  mockReaddir: vi.fn(),
-  mockStat: vi.fn(),
-  mockParseFile: vi.fn(),
+const { mockScanFolder, mockReadAudioMetadata, repo } = vi.hoisted(() => ({
+  mockScanFolder: vi.fn(),
+  mockReadAudioMetadata: vi.fn(),
   repo: {
     createScannedSong: vi.fn(),
     replaceScannedSongByFilePath: vi.fn(),
@@ -16,181 +16,147 @@ const { mockReaddir, mockStat, mockParseFile, repo } = vi.hoisted(() => ({
   }
 }))
 
-vi.mock('fs/promises', () => ({
-  default: { readdir: mockReaddir, stat: mockStat }
-}))
-
-vi.mock('music-metadata', () => ({
-  parseFile: (...args: unknown[]) => mockParseFile(...args)
+vi.mock('audiotagr', () => ({
+  scanFolder: (...args: unknown[]) => mockScanFolder(...args),
+  readAudioMetadata: (...args: unknown[]) => mockReadAudioMetadata(...args)
 }))
 
 vi.mock('@/features/songs/songs.repository', () => repo)
 
-import { scanAllFoldersAndUpdateDatabase } from './metadata-scan.service'
+import { scanFolderAndUpdateDatabase } from './metadata-scan.service'
 
-function dirent(name: string) {
-  return { name, isDirectory: () => false, isFile: () => true }
+function metadata(filePath: string): AudioFileMetadata {
+  return {
+    filePath,
+    fileName: filePath.split('/').pop()!,
+    folderPath: '/music',
+    extension: 'mp3',
+    fileSize: 1,
+    createdAt: new Date(0),
+    modifiedAt: new Date(0),
+    title: 'Song',
+    originalReleaseDate: '1998',
+    customTags: [{ key: 'ID3v2.4:TXXX:MOOD', value: 'calm' }],
+    pictures: []
+  } as unknown as AudioFileMetadata
+}
+
+function song(filePath: string): ScanItem {
+  return {
+    kind: 'song',
+    filePath,
+    progress: { current: 1, total: 1, currentFile: filePath },
+    metadata: metadata(filePath)
+  }
+}
+
+function yields(...items: ScanItem[]) {
+  mockScanFolder.mockImplementation(async function* () {
+    for (const item of items) yield item
+  })
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
-  mockStat.mockResolvedValue({ size: 1, birthtime: new Date(0), mtime: new Date(0) })
-  mockParseFile.mockResolvedValue({ common: {}, format: {}, native: {} })
   repo.findSongByFilePath.mockResolvedValue(null)
-  repo.createScannedSong.mockResolvedValue(undefined)
   repo.getSongIdsAndPathsInTree.mockResolvedValue([])
+  repo.getSongModifiedTimesInTree.mockResolvedValue([])
 })
 
-afterEach(() => {
-  delete (globalThis as { gc?: () => void }).gc
+describe('persistence', () => {
+  it('creates a song for a file that is not in the database yet', async () => {
+    yields(song('/music/a.mp3'))
+
+    const result = await scanFolderAndUpdateDatabase('/music')
+
+    expect(result.addedFiles).toEqual(['/music/a.mp3'])
+    const [songFields, customTags] = repo.createScannedSong.mock.calls[0]
+    expect(songFields.title).toBe('Song')
+    // Raw tag dates become real dates, and playback settings default to null.
+    expect(songFields.originalReleaseDate).toEqual(new Date(1998, 0, 1))
+    expect(songFields.volume).toBeNull()
+    expect(customTags).toEqual([{ key: 'ID3v2.4:TXXX:MOOD', value: 'calm' }])
+  })
+
+  it('replaces a song that already exists', async () => {
+    repo.findSongByFilePath.mockResolvedValue({ id: 7 })
+    yields(song('/music/a.mp3'))
+
+    const result = await scanFolderAndUpdateDatabase('/music')
+
+    expect(result.updatedFiles).toEqual(['/music/a.mp3'])
+    expect(repo.replaceScannedSongByFilePath).toHaveBeenCalledWith(
+      '/music/a.mp3',
+      7,
+      expect.objectContaining({ title: 'Song' }),
+      expect.anything(),
+      undefined
+    )
+  })
+
+  it('records database failures as scan errors without aborting', async () => {
+    repo.createScannedSong.mockRejectedValueOnce(new Error('disk full'))
+    yields(song('/music/a.mp3'), song('/music/b.mp3'))
+
+    const result = await scanFolderAndUpdateDatabase('/music')
+
+    expect(result.errors).toEqual([{ path: '/music/a.mp3', error: 'disk full' }])
+    expect(result.addedFiles).toEqual(['/music/b.mp3'])
+  })
+
+  it('forwards read errors and skips from the scanner', async () => {
+    yields(
+      { kind: 'error', filePath: '/music/bad.mp3', progress: { current: 1, total: 2, currentFile: '' }, error: 'boom' },
+      { kind: 'skipped', filePath: '/music/old.mp3', progress: { current: 2, total: 2, currentFile: '' } }
+    )
+
+    const result = await scanFolderAndUpdateDatabase('/music')
+
+    expect(result.errors).toEqual([{ path: '/music/bad.mp3', error: 'boom' }])
+    expect(result.skippedFiles).toEqual(['/music/old.mp3'])
+    expect(repo.createScannedSong).not.toHaveBeenCalled()
+  })
 })
 
-describe('scanAllFoldersAndUpdateDatabase batching', () => {
-  it('scans every file across multiple batches and forces GC once per batch', async () => {
-    const fileCount = 250 // 3 batches of 100, 100, 50
-    mockReaddir.mockResolvedValue(Array.from({ length: fileCount }, (_, i) => dirent(`song${i}.mp3`)))
+describe('orphan deletion', () => {
+  it('deletes songs whose files are gone but keeps skipped ones', async () => {
+    yields(song('/music/a.mp3'), {
+      kind: 'skipped',
+      filePath: '/music/b.mp3',
+      progress: { current: 2, total: 2, currentFile: '' }
+    })
+    repo.getSongIdsAndPathsInTree.mockResolvedValue([
+      { id: 1, filePath: '/music/a.mp3' },
+      { id: 2, filePath: '/music/b.mp3' },
+      { id: 3, filePath: '/music/gone.mp3' }
+    ])
 
-    const gc = vi.fn()
-    ;(globalThis as { gc?: () => void }).gc = gc
+    const result = await scanFolderAndUpdateDatabase('/music')
 
-    const result = await scanAllFoldersAndUpdateDatabase(['/music'], undefined, 'full')
-
-    expect(repo.createScannedSong).toHaveBeenCalledTimes(fileCount)
-    expect(result.addedFiles).toHaveLength(fileCount)
-    // One GC pass per batch: ceil(250 / 100) = 3
-    expect(gc).toHaveBeenCalledTimes(3)
-  })
-
-  it('is a no-op for GC when --expose-gc is not enabled', async () => {
-    mockReaddir.mockResolvedValue([dirent('only.mp3')])
-
-    // No globalThis.gc defined — must not throw.
-    const result = await scanAllFoldersAndUpdateDatabase(['/music'], undefined, 'full')
-
-    expect(result.addedFiles).toHaveLength(1)
+    expect(repo.deleteSongById).toHaveBeenCalledExactlyOnceWith(3)
+    expect(result.deletedFiles).toEqual(['/music/gone.mp3'])
   })
 })
 
-describe('genre / style separation (issue #26)', () => {
-  type ScannedSong = {
-    genre: string | null
-    style: string | null
-    metadata?: Array<{ key: string; value: string | null }>
-  }
+describe('quick mode', () => {
+  it('skips files whose modification time still matches the database', async () => {
+    yields()
+    repo.getSongModifiedTimesInTree.mockResolvedValue([{ filePath: '/music/a.mp3', modifiedAt: new Date(1000) }])
 
-  async function scanSingle(parsed: {
-    common?: Record<string, unknown>
-    native?: Record<string, Array<{ id: string; value: unknown }>>
-  }): Promise<ScannedSong> {
-    mockReaddir.mockResolvedValue([dirent('song.mp3')])
-    mockParseFile.mockResolvedValue({ common: {}, format: {}, native: {}, ...parsed })
-    await scanAllFoldersAndUpdateDatabase(['/music'], undefined, 'full')
-    return repo.createScannedSong.mock.calls[0][0] as ScannedSong
-  }
+    await scanFolderAndUpdateDatabase('/music', undefined, 'quick')
 
-  it('splits ID3v2.4 TXXX:STYLE out of Genre into Style', async () => {
-    const song = await scanSingle({
-      common: { genre: ['Pop Punk', 'acoustic'] },
-      native: {
-        'ID3v2.4': [
-          { id: 'TCON', value: 'Pop Punk' },
-          { id: 'TXXX:STYLE', value: 'acoustic' }
-        ]
-      }
-    })
-
-    expect(song.genre).toBe('Pop Punk')
-    expect(song.style).toBe('acoustic')
+    const { shouldSkip } = mockScanFolder.mock.calls[0][1]
+    expect(shouldSkip('/music/a.mp3', { mtime: new Date(1000) })).toBe(true)
+    expect(shouldSkip('/music/a.mp3', { mtime: new Date(2000) })).toBe(false)
+    expect(shouldSkip('/music/unknown.mp3', { mtime: new Date(1000) })).toBe(false)
   })
 
-  it('splits Vorbis STYLE (FLAC/Ogg) out of Genre into Style', async () => {
-    const song = await scanSingle({
-      common: { genre: ['Pop Punk', 'acoustic'] },
-      native: {
-        vorbis: [
-          { id: 'GENRE', value: 'Pop Punk' },
-          { id: 'STYLE', value: 'acoustic' }
-        ]
-      }
-    })
+  it('does not fetch modification times in full mode', async () => {
+    yields()
 
-    expect(song.genre).toBe('Pop Punk')
-    expect(song.style).toBe('acoustic')
-  })
+    await scanFolderAndUpdateDatabase('/music', undefined, 'full')
 
-  it('splits iTunes/M4A STYLE out of Genre into Style', async () => {
-    const song = await scanSingle({
-      common: { genre: ['Pop Punk', 'acoustic'] },
-      native: {
-        'iTunes MP4': [
-          { id: '©gen', value: 'Pop Punk' },
-          { id: '----:com.apple.iTunes:STYLE', value: 'acoustic' }
-        ]
-      }
-    })
-
-    expect(song.genre).toBe('Pop Punk')
-    expect(song.style).toBe('acoustic')
-  })
-
-  it('splits ID3v2.2 TXX STYLE embedded as "STYLE\\0value"', async () => {
-    const song = await scanSingle({
-      common: { genre: ['Pop Punk', 'acoustic'] },
-      native: {
-        'ID3v2.2': [
-          { id: 'TCO', value: 'Pop Punk' },
-          { id: 'TXX', value: 'STYLE\0acoustic' }
-        ]
-      }
-    })
-
-    expect(song.genre).toBe('Pop Punk')
-    expect(song.style).toBe('acoustic')
-  })
-
-  it('does not duplicate Style into generic custom metadata', async () => {
-    const song = await scanSingle({
-      common: { genre: ['Pop Punk', 'acoustic'] },
-      native: {
-        'ID3v2.4': [
-          { id: 'TCON', value: 'Pop Punk' },
-          { id: 'TXXX:STYLE', value: 'acoustic' }
-        ]
-      }
-    })
-
-    const styleRow = song.metadata?.find(m => m.key.toUpperCase().endsWith('STYLE'))
-    expect(styleRow).toBeUndefined()
-  })
-
-  it('keeps genuine multi-value genres when no STYLE frame is present', async () => {
-    const song = await scanSingle({
-      common: { genre: ['Rock', 'Metal'] },
-      native: {
-        'ID3v2.4': [
-          { id: 'TCON', value: 'Rock' },
-          { id: 'TCON', value: 'Metal' }
-        ]
-      }
-    })
-
-    expect(song.genre).toBe('Rock;Metal')
-    expect(song.style).toBeNull()
-  })
-
-  it('supports multiple STYLE values', async () => {
-    const song = await scanSingle({
-      common: { genre: ['Pop Punk', 'acoustic', 'lo-fi'] },
-      native: {
-        'ID3v2.4': [
-          { id: 'TCON', value: 'Pop Punk' },
-          { id: 'TXXX:STYLE', value: 'acoustic' },
-          { id: 'TXXX:STYLE', value: 'lo-fi' }
-        ]
-      }
-    })
-
-    expect(song.genre).toBe('Pop Punk')
-    expect(song.style).toBe('acoustic;lo-fi')
+    expect(repo.getSongModifiedTimesInTree).not.toHaveBeenCalled()
+    expect(mockScanFolder.mock.calls[0][1].shouldSkip).toBeUndefined()
   })
 })
