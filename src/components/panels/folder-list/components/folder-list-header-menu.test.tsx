@@ -18,7 +18,8 @@ vi.mock('@/features/scan/hooks/use-scan', () => ({
 
 const defaultProps = {
   onOpenHistory: vi.fn(),
-  onOpenUserManagement: vi.fn()
+  onOpenUserManagement: vi.fn(),
+  onOpenSettings: vi.fn()
 }
 
 async function renderAndOpenMenu(role: string) {
@@ -69,6 +70,7 @@ describe('FolderListHeaderMenu - role-based actions', () => {
 
       expect(screen.getByText('common.logout')).toBeInTheDocument()
       expect(screen.getByText('folders.feedback')).toBeInTheDocument()
+      expect(screen.getByText('settings.title')).toBeInTheDocument()
     })
   })
 })

@@ -50,6 +50,10 @@ Tagr lets you browse, edit, and manage audio file tags from any browser — desk
 - Click-to-seek on the waveform
 - Auto-advance to next song
 - Collapsible sidebar player with album art, title, and artist display
+- **Listen history** — every play is recorded once you have heard half the track (or four minutes), and the
+  *Recently played* view in the sidebar lists it back. Play counts and last played dates are kept per song.
+- **ListenBrainz scrobbling** — optionally forward those listens to your ListenBrainz profile, including
+  "playing now" while a track is running. See [Scrobbling](#scrobbling).
 
 <p>
   <img src="docs/player-big.png" alt="Player expanded" height="400" />
@@ -232,6 +236,32 @@ pnpm dev                 # Development mode
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
 | `PUID` | No | User ID for the container process. Defaults to `1000`. (Docker only) |
 | `PGID` | No | Group ID for the container process. Defaults to `1000`. (Docker only) |
+
+---
+
+## Scrobbling
+
+Tagr can send what you play to [ListenBrainz](https://listenbrainz.org). No environment variable is involved —
+each user connects their own account:
+
+1. Copy your user token from <https://listenbrainz.org/settings/>.
+2. Open the menu next to the Tagr logo, choose **Settings**, paste the token and hit **Verify and save**. Tagr
+   checks the token against the service before storing it.
+3. Leave *API root* empty unless you run your own ListenBrainz-compatible server.
+
+What gets sent:
+
+- A `playing_now` update when a track starts.
+- A listen once you have actually played half the track or four minutes, whichever comes first — the rule
+  ListenBrainz itself defines. Tracks shorter than 30 seconds and tracks you skip early are never submitted.
+- Title, artist, album, track number, duration and any MusicBrainz IDs stored in the file's tags.
+
+Tokens are encrypted with a key derived from `AUTH_SECRET` before they touch the database and are never sent
+back to the browser. Changing `AUTH_SECRET` invalidates stored tokens, so they have to be entered again.
+
+If ListenBrainz is unreachable, listens are kept in a queue in the database and retried with an increasing
+delay the next time you play something. The Settings dialog shows how many are still waiting. Listen history
+and play counts inside Tagr are recorded regardless of whether scrobbling is configured.
 
 ---
 

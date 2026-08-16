@@ -10,6 +10,7 @@ import { StarPromptDialog } from '@/components/star-prompt-dialog'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
 import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useSelectedView } from '@/hooks/use-selected-view'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 
@@ -17,12 +18,14 @@ export function HomeClientPage() {
   const { selectedFolderId, setSelectedFolderId } = useSelectedFolder()
   const { selectedPlaylistId, setSelectedPlaylistId } = useSelectedPlaylist()
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
+  const { selectedView, setSelectedView } = useSelectedView()
   const setFolderSheetOpen = useMobileNavStore(s => s.setFolderSheetOpen)
   const clearBulkSelect = useBulkSelectionStore(s => s.clear)
 
   const handleFolderSelect = (folderId: string | null) => {
     setSelectedFolderId(folderId)
     setSelectedPlaylistId(null)
+    setSelectedView(null)
     setSelectedSongId(null)
     setFolderSheetOpen(false)
     clearBulkSelect()
@@ -31,6 +34,16 @@ export function HomeClientPage() {
   const handlePlaylistSelect = (playlistId: number | null) => {
     setSelectedPlaylistId(playlistId)
     setSelectedFolderId(null)
+    setSelectedView(null)
+    setSelectedSongId(null)
+    setFolderSheetOpen(false)
+    clearBulkSelect()
+  }
+
+  const handleRecentListensSelect = () => {
+    setSelectedView('recent')
+    setSelectedFolderId(null)
+    setSelectedPlaylistId(null)
     setSelectedSongId(null)
     setFolderSheetOpen(false)
     clearBulkSelect()
@@ -48,6 +61,8 @@ export function HomeClientPage() {
             onFolderSelect={handleFolderSelect}
             selectedPlaylistId={selectedPlaylistId}
             onPlaylistSelect={handlePlaylistSelect}
+            selectedView={selectedView}
+            onRecentListensSelect={handleRecentListensSelect}
           />
         }
         main={<MainContent />}

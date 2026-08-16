@@ -1,6 +1,6 @@
 'use client'
 
-import { FolderIcon, SparklesIcon } from 'lucide-react'
+import { FolderIcon, HistoryIcon, SparklesIcon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -9,7 +9,7 @@ import { useMobileNavStore } from '@/stores/mobile-nav-store'
 interface SongTableHeaderProps {
   title?: string | null
   mobileTitle?: string | null
-  variant?: 'folder' | 'smart-playlist'
+  variant?: 'folder' | 'smart-playlist' | 'recent'
   badges?: ReactNode
   searchValue: string
   onSearchChange: (value: string) => void
@@ -37,6 +37,8 @@ export function SongsTableHeader({
             <div className='flex items-center justify-center w-10 h-10 rounded-lg bg-primary/10 text-primary flex-shrink-0'>
               {variant === 'smart-playlist' && <SparklesIcon className='w-5 h-5' />}
 
+              {variant === 'recent' && <HistoryIcon className='w-5 h-5' />}
+
               {variant === 'folder' && <FolderIcon className='w-5 h-5' />}
             </div>
 
@@ -48,7 +50,8 @@ export function SongsTableHeader({
         </div>
 
         <div className='md:hidden flex items-center gap-2 mb-3 min-w-0'>
-          {variant === 'smart-playlist' ? <SparklesIcon className='w-5 h-5 text-primary flex-shrink-0' /> : null}
+          {variant === 'smart-playlist' && <SparklesIcon className='w-5 h-5 text-primary flex-shrink-0' />}
+          {variant === 'recent' && <HistoryIcon className='w-5 h-5 text-primary flex-shrink-0' />}
           {variant === 'folder' && (
             <button
               type='button'

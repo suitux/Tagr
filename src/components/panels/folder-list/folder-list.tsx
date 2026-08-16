@@ -7,6 +7,7 @@ import { SidebarPlayer } from '@/components/sidebar-player/sidebar-player'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useFolders } from '@/features/folders/hooks/use-folders'
+import type { MainView } from '@/hooks/use-selected-view'
 import { AllFoldersListItem } from './components/all-folders-list-item'
 import { FolderListEmptyState } from './components/folder-list-empty-state'
 import { FolderListErrorState } from './components/folder-list-error-state'
@@ -15,6 +16,7 @@ import { FolderListItem } from './components/folder-list-item'
 import { FolderListLoadingState } from './components/folder-list-loading-state'
 import { FolderListSearch } from './components/folder-list-search'
 import { ListItemGroup } from './components/list-item-group'
+import { RecentListensListItem } from './components/recent-listens-list-item'
 import { SmartPlaylistsSection } from './components/smart-playlists/smart-playlists-section'
 
 interface FolderListProps {
@@ -22,13 +24,17 @@ interface FolderListProps {
   selectedFolderId?: string | null
   onPlaylistSelect?: (playlistId: number | null) => void
   selectedPlaylistId?: number | null
+  selectedView?: MainView | null
+  onRecentListensSelect?: () => void
 }
 
 export function FolderList({
   onFolderSelect,
   selectedFolderId,
   onPlaylistSelect,
-  selectedPlaylistId
+  selectedPlaylistId,
+  selectedView,
+  onRecentListensSelect
 }: FolderListProps) {
   const t = useTranslations('navigation')
   const [search, setSearch] = useState('')
@@ -88,6 +94,10 @@ export function FolderList({
               ))
             )}
           </ListItemGroup>
+
+          {!hasSearch && onRecentListensSelect && (
+            <RecentListensListItem isSelected={selectedView === 'recent'} onSelect={onRecentListensSelect} />
+          )}
         </div>
       </ScrollArea>
 
