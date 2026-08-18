@@ -1,11 +1,14 @@
 'use client'
 
-import { useQueryState } from 'nuqs'
-import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
+import { useParams, usePathname } from 'next/navigation'
+import { segmentsToFolderPath } from '@/lib/library-routes'
 
 export function useSelectedFolder() {
-  const [selectedFolderId, setSelectedFolderId] = useQueryState('folder', {
-    history: 'replace'
-  })
-  return { selectedFolderId, setSelectedFolderId }
+  const pathname = usePathname()
+  const params = useParams<{ path?: string[] }>()
+
+  const isLibraryRoute = pathname === '/library' || pathname.startsWith('/library/')
+  const selectedFolderId = isLibraryRoute ? segmentsToFolderPath(params.path) : null
+
+  return { selectedFolderId }
 }

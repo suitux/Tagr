@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
-import { redirect } from 'next/navigation'
 import { getTranslations } from 'next-intl/server'
+import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import { findSharedLinkWithSong, findSharedLinkWithSongTags } from '@/features/share/share.repository'
+import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
+import { buildFolderHref } from '@/lib/library-routes'
 import { SharePageClient } from './share-page-client'
 
 interface PageProps {
@@ -23,9 +25,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const artist = sharedLink.song.artist || t('unknownArtist')
   const album = sharedLink.song.album
 
-  const description = album
-    ? t('descriptionWithAlbum', { title, artist, album })
-    : t('description', { title, artist })
+  const description = album ? t('descriptionWithAlbum', { title, artist, album }) : t('description', { title, artist })
 
   return {
     title: t('title', { title, artist }),
@@ -54,16 +54,10 @@ export default async function SharePage({ params }: PageProps) {
 
   const session = await auth()
   if (session?.user) {
-    redirect(`/?song=${sharedLink.song.id}`)
+    redirect(`${buildFolderHref(ALL_SONGS_FOLDER_ID)}?song=${sharedLink.song.id}`)
   }
 
   const { filePath: _filePath, folderPath: _folderPath, ...safeSong } = sharedLink.song
 
-  return (
-    <SharePageClient
-      token={token}
-      song={safeSong}
-      expiresAt={sharedLink.expiresAt.toISOString()}
-    />
-  )
+  return <SharePageClient token={token} song={safeSong} expiresAt={sharedLink.expiresAt.toISOString()} />
 }

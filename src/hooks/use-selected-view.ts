@@ -1,15 +1,14 @@
 'use client'
 
-import { useQueryState } from 'nuqs'
+import { usePathname } from 'next/navigation'
+import { RECENT_LISTENS_ROUTE } from '@/lib/library-routes'
 
 export type MainView = 'recent'
 
 /** Views that replace the folder/playlist listing in the main panel. */
 export function useSelectedView() {
-  const [selectedView, setSelectedView] = useQueryState('view', {
-    history: 'replace',
-    parse: (value): MainView | null => (value === 'recent' ? 'recent' : null)
-  })
+  const pathname = usePathname()
+  const selectedView: MainView | null = pathname === RECENT_LISTENS_ROUTE ? 'recent' : null
 
-  return { selectedView, setSelectedView }
+  return { selectedView }
 }

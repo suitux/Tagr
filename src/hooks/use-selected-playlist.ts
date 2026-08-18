@@ -1,11 +1,14 @@
 'use client'
 
-import { parseAsInteger, useQueryState } from 'nuqs'
+import { useParams, usePathname } from 'next/navigation'
 
 export function useSelectedPlaylist() {
-  const [selectedPlaylistId, setSelectedPlaylistId] = useQueryState(
-    'playlist',
-    parseAsInteger.withOptions({ history: 'replace' })
-  )
-  return { selectedPlaylistId, setSelectedPlaylistId }
+  const pathname = usePathname()
+  const params = useParams<{ id?: string }>()
+
+  const isPlaylistRoute = pathname.startsWith('/smart-playlists/')
+  const parsed = params.id ? Number.parseInt(params.id, 10) : NaN
+  const selectedPlaylistId = isPlaylistRoute && Number.isFinite(parsed) ? parsed : null
+
+  return { selectedPlaylistId }
 }

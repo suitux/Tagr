@@ -1,46 +1,33 @@
-import { auth } from '@/auth'
-import { WelcomeScanState } from '@/components/welcome-scan-state'
-import { DEFAULT_SORT_ORDER, DEFAULT_VISIBLE_COLUMNS } from '@/features/config/domain'
-import { getConfigQueryKey } from '@/features/config/hooks/use-config'
-import { getConfigValue } from '@/features/config/config.repository'
-import { countSongs } from '@/features/songs/songs.repository'
-import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query'
-import { HomeClientPage } from './page.client'
+import { redirect } from 'next/navigation'
+import { buildFolderHref, buildPlaylistHref, RECENT_LISTENS_ROUTE } from '@/lib/library-routes'
 
-export const dynamic = 'force-dynamic'
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
 
-export default async function Home() {
-  const songCount = await countSongs()
-  const session = await auth()
+function first(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value
+}
 
-  if (songCount === 0) {
-    return <WelcomeScanState />
-  }
+/**
+ * The UI lives under /library and /playlists now. This route only keeps the old query-param
+ * links working (bookmarks, the PWA start_url and shared /?song=N links).
+ * This could be deleted in the future if we don't need to support those old links anymore.
+ */
+export default async function Home({ searchParams }: PageProps) {
+  const params = await searchParams
+  const folder = first(params.folder)
+  const playlist = first(params.playlist)
+  const song = first(params.song)
+  const view = first(params.view)
 
-  const queryClient = new QueryClient()
+  const playlistId = playlist ? Number.parseInt(playlist, 10) : NaN
+  const target =
+    view === 'recent'
+      ? RECENT_LISTENS_ROUTE
+      : Number.isFinite(playlistId)
+        ? buildPlaylistHref(playlistId)
+        : buildFolderHref(folder ?? '')
 
-  await Promise.all([
-    queryClient.prefetchQuery({
-      queryKey: getConfigQueryKey('columnVisibility'),
-      queryFn: async () => {
-        const configValue = await getConfigValue(session!.user.id, 'columnVisibility')
-
-        return configValue ? JSON.parse(configValue) : DEFAULT_VISIBLE_COLUMNS
-      }
-    }),
-    queryClient.prefetchQuery({
-      queryKey: getConfigQueryKey('sortOrder'),
-      queryFn: async () => {
-        const configValue = await getConfigValue(session!.user.id, 'sortOrder')
-
-        return configValue ? JSON.parse(configValue) : DEFAULT_SORT_ORDER
-      }
-    })
-  ])
-
-  return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <HomeClientPage />
-    </HydrationBoundary>
-  )
+  redirect(song ? `${target}?song=${encodeURIComponent(song)}` : target)
 }
