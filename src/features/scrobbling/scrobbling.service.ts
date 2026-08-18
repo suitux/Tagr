@@ -4,11 +4,12 @@ import { drainQueue } from '@/features/scrobbling/scrobble-queue.service'
 import {
   createListen,
   enqueueListen,
+  findListen,
   incrementSongPlayStats,
   listEnabledScrobbleAccounts
 } from '@/features/scrobbling/scrobbling.repository'
 import { findSongWithMetadata } from '@/features/songs/songs.repository'
-import type { ScrobbleAccount, SongMetadata } from '@/generated/prisma/client'
+import type { Listen, ScrobbleAccount, SongMetadata } from '@/generated/prisma/client'
 import { decryptSecret } from '@/lib/crypto'
 
 /** Native tag names other taggers use for MusicBrainz identifiers. */
@@ -53,9 +54,22 @@ function providerConfig(account: ScrobbleAccount) {
   }
 }
 
+/** Payload from the listen's own snapshot, for songs removed from the library since. */
+function buildListenPayloadFromSnapshot(listen: Listen): ListenPayload | null {
+  if (!listen.artistName) return null
+
+  return {
+    listenedAt: listen.listenedAt.toISOString(),
+    trackName: listen.trackName,
+    artistName: listen.artistName,
+    releaseName: listen.releaseName ?? undefined
+  }
+}
+
 /**
- * Records a finished listen: local history and play stats always, plus a queued
- * submission for every enabled scrobbling account. Returns null if the song is gone.
+ * Records a play in Tagr's own history and bumps the play stats. Deliberately local: the
+ * external providers have their own "this really counts as a listen" rules, so submitting is
+ * a separate step (`scrobbleListen`). Returns null if the song is gone.
  */
 export async function recordListen(userId: string, songId: number, listenedAt: Date): Promise<number | null> {
   const song = await findSongWithMetadata(songId)
@@ -72,8 +86,21 @@ export async function recordListen(userId: string, songId: number, listenedAt: D
 
   await incrementSongPlayStats(songId, listenedAt)
 
-  const payload = buildListenPayload(song, listenedAt)
-  if (!payload) return listen.id
+  return listen.id
+}
+
+/**
+ * Queues an already recorded listen for every enabled scrobbling account and drains the queue.
+ * Called once the play passes the provider threshold, so history and scrobbles stay one row.
+ * Returns false when the listen does not exist for this user.
+ */
+export async function scrobbleListen(userId: string, listenId: number): Promise<boolean> {
+  const listen = await findListen(userId, listenId)
+  if (!listen) return false
+
+  const song = listen.songId ? await findSongWithMetadata(listen.songId) : null
+  const payload = song ? buildListenPayload(song, listen.listenedAt) : buildListenPayloadFromSnapshot(listen)
+  if (!payload) return true
 
   const accounts = await listEnabledScrobbleAccounts(userId)
   for (const account of accounts) {
@@ -81,7 +108,7 @@ export async function recordListen(userId: string, songId: number, listenedAt: D
     await drainQueue(account)
   }
 
-  return listen.id
+  return true
 }
 
 /**

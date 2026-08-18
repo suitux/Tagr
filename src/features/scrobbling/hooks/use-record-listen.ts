@@ -5,24 +5,39 @@ import { RECENT_LISTENS_QUERY_KEY } from '@/features/scrobbling/hooks/use-recent
 import { api } from '@/lib/axios'
 import { useQueryClient } from '@tanstack/react-query'
 
-/**
- * Fire-and-forget calls used by the listen tracker. Failures are logged and dropped:
- * losing a listen must never interrupt playback.
- */
+interface CreateListenResponse {
+  success: boolean
+  listenId?: number
+}
+
 export function useRecordListen() {
   const queryClient = useQueryClient()
 
   const recordListen = useCallback(
-    async (songId: number, listenedAt: Date) => {
+    async (songId: number, listenedAt: Date): Promise<number | null> => {
       try {
-        await api.post('/listens', { songId, listenedAt: listenedAt.toISOString() })
+        const { data } = await api.post<CreateListenResponse>('/listens', {
+          songId,
+          listenedAt: listenedAt.toISOString()
+        })
         void queryClient.invalidateQueries({ queryKey: RECENT_LISTENS_QUERY_KEY })
+
+        return data.listenId ?? null
       } catch (error) {
         console.warn('Could not record listen:', error instanceof Error ? error.message : error)
+        return null
       }
     },
     [queryClient]
   )
+
+  const scrobbleListen = useCallback(async (listenId: number) => {
+    try {
+      await api.post(`/listens/${listenId}/scrobble`)
+    } catch (error) {
+      console.warn('Could not scrobble listen:', error instanceof Error ? error.message : error)
+    }
+  }, [])
 
   const sendNowPlaying = useCallback(async (songId: number) => {
     try {
@@ -32,5 +47,5 @@ export function useRecordListen() {
     }
   }, [])
 
-  return { recordListen, sendNowPlaying }
+  return { recordListen, scrobbleListen, sendNowPlaying }
 }

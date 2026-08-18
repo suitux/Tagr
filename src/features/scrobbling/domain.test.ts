@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { isScrobbleableDuration, listenThresholdSeconds, SCROBBLE_LISTEN_THRESHOLD_S } from './domain'
+import {
+  historyThresholdSeconds,
+  isScrobbleableDuration,
+  listenThresholdSeconds,
+  LOCAL_HISTORY_THRESHOLD_S,
+  SCROBBLE_LISTEN_THRESHOLD_S
+} from './domain'
 
 describe('listenThresholdSeconds', () => {
   it('uses half the track when it is shorter than 8 minutes', () => {
@@ -16,6 +22,25 @@ describe('listenThresholdSeconds', () => {
     expect(listenThresholdSeconds(null)).toBe(SCROBBLE_LISTEN_THRESHOLD_S)
     expect(listenThresholdSeconds(undefined)).toBe(SCROBBLE_LISTEN_THRESHOLD_S)
     expect(listenThresholdSeconds(0)).toBe(SCROBBLE_LISTEN_THRESHOLD_S)
+  })
+})
+
+describe('historyThresholdSeconds', () => {
+  it('uses the fixed threshold for a normal track', () => {
+    expect(historyThresholdSeconds(180)).toBe(LOCAL_HISTORY_THRESHOLD_S)
+  })
+
+  it('halves the threshold for tracks shorter than twice it', () => {
+    expect(historyThresholdSeconds(4)).toBe(2)
+  })
+
+  it('falls back to the fixed threshold when the duration is unknown', () => {
+    expect(historyThresholdSeconds(null)).toBe(LOCAL_HISTORY_THRESHOLD_S)
+    expect(historyThresholdSeconds(0)).toBe(LOCAL_HISTORY_THRESHOLD_S)
+  })
+
+  it('lets a play enter the history well before it can be scrobbled', () => {
+    expect(historyThresholdSeconds(180)).toBeLessThan(listenThresholdSeconds(180))
   })
 })
 

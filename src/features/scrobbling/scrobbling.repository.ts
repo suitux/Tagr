@@ -17,6 +17,11 @@ export function createListen(input: CreateListenInput): Promise<Listen> {
   return prisma.listen.create({ data: input })
 }
 
+/** A single listen, scoped to its owner so one user can never scrobble another's history. */
+export function findListen(userId: string, id: number): Promise<Listen | null> {
+  return prisma.listen.findFirst({ where: { id, userId } })
+}
+
 /**
  * Bumps the denormalized play stats shown in the songs table and detail panel.
  * `playCount` is read first because incrementing a NULL (a song scanned without the tag)

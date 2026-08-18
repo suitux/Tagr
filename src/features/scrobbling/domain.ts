@@ -13,10 +13,25 @@ export const MIN_SCROBBLE_DURATION_S = 30
 /** Retries per queued listen before it is dropped. */
 export const MAX_SCROBBLE_ATTEMPTS = 10
 
+/**
+ * Real playback seconds before a play lands in Tagr's own history. Short enough that anything
+ * the user actually listens to shows up in "recently played", long enough to keep skips out.
+ */
+export const LOCAL_HISTORY_THRESHOLD_S = 5
+
 /** Seconds of real playback needed before a play counts as a listen. */
 export function listenThresholdSeconds(durationS: number | null | undefined): number {
   if (!durationS || durationS <= 0) return SCROBBLE_LISTEN_THRESHOLD_S
   return Math.min(SCROBBLE_LISTEN_THRESHOLD_S, durationS / 2)
+}
+
+/**
+ * Seconds of real playback needed before a play enters the local history. Unlike scrobbling,
+ * no track is too short: a jingle only has to be played past its own halfway point.
+ */
+export function historyThresholdSeconds(durationS: number | null | undefined): number {
+  if (!durationS || durationS <= 0) return LOCAL_HISTORY_THRESHOLD_S
+  return Math.min(LOCAL_HISTORY_THRESHOLD_S, durationS / 2)
 }
 
 /** Whether a track is long enough to be worth scrobbling. */
