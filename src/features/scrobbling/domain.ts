@@ -64,3 +64,5 @@ export interface ScrobbleAccountPublic {
 }
 
 export type ListenWithSong = Listen & { song: Song | null }
+
+export type RecentlyListenedSongRow = Song & { listenId: number; listenedAt: Date }

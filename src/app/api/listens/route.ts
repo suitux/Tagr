@@ -3,6 +3,8 @@ import { auth } from '@/auth'
 import type { ListenWithSong } from '@/features/scrobbling/domain'
 import { countListens, listRecentListens } from '@/features/scrobbling/scrobbling.repository'
 import { recordListen } from '@/features/scrobbling/scrobbling.service'
+import type { ColumnField, SongSortDirection } from '@/features/songs/domain'
+import { getSongFiltersFromSearchParams } from '@/features/songs/filters-helpers'
 import { getSearchParam } from '@/lib/api/search-params'
 
 const DEFAULT_LIMIT = 100
@@ -31,9 +33,18 @@ export async function GET(request: NextRequest): Promise<NextResponse<ListensRes
   const { searchParams } = new URL(request.url)
   const limit = Math.min(getSearchParam(searchParams, 'limit', 'number', DEFAULT_LIMIT), MAX_LIMIT)
   const offset = getSearchParam(searchParams, 'offset', 'number', 0)
+  const search = getSearchParam(searchParams, 'search', 'string', '') || undefined
+  const sortField = getSearchParam(searchParams, 'sortField', 'string', '') as ColumnField | ''
+  const sort = getSearchParam(searchParams, 'sort', 'string', 'desc') as SongSortDirection
+
+  const { filters, hasFilters } = getSongFiltersFromSearchParams(searchParams)
+  const activeFilters = hasFilters ? filters : undefined
 
   try {
-    const [listens, totalListens] = await Promise.all([listRecentListens(userId, limit, offset), countListens(userId)])
+    const [listens, totalListens] = await Promise.all([
+      listRecentListens(userId, limit, offset, search, sortField || undefined, sort, activeFilters),
+      countListens(userId, search, activeFilters)
+    ])
     return NextResponse.json({ success: true, totalListens, listens })
   } catch (error) {
     console.error('Error fetching listens:', error)

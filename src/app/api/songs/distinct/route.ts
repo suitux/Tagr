@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { SELECT_SONG_FIELDS, type SongSortField } from '@/features/songs/domain'
+import { SELECT_SONG_FIELDS, type SongScalarField } from '@/features/songs/domain'
 import { getDistinctValues } from '@/features/songs/song-query.repository'
 import { getSearchParam } from '@/lib/api/search-params'
 
@@ -13,7 +13,7 @@ interface ErrorResponse {
 
 export async function GET(request: Request): Promise<NextResponse<DistinctResponse | ErrorResponse>> {
   const { searchParams } = new URL(request.url)
-  const field = getSearchParam(searchParams, 'field', 'string') as SongSortField | undefined
+  const field = getSearchParam(searchParams, 'field', 'string') as SongScalarField | undefined
 
   if (!field || !SELECT_SONG_FIELDS.has(field)) {
     return NextResponse.json({ error: 'Invalid or missing field parameter' }, { status: 400 })

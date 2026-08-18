@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import NameCell from '@/components/panels/main-content/components/columns/components/name-cell'
 import { RowSelectCheckbox } from '@/components/panels/main-content/components/columns/components/row-select-checkbox'
 import { SelectAllHeaderCheckbox } from '@/components/panels/main-content/components/columns/components/select-all-header-checkbox'
+import type { RecentlyListenedSongRow } from '@/features/scrobbling/domain'
 import type { Song } from '@/features/songs/domain'
 import { joinMultiValue, stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import type { SongMetadata } from '@/generated/prisma/client'
@@ -35,11 +36,13 @@ const dateCell = (value: Date | null | undefined) => (
 interface UseSongColumnsOptions {
   selectionActive?: boolean
   totalSongs?: number | null
+  /** Recently-played only: prepends the play date, which lives on the listen and not on the song. */
+  includeListenedAt?: boolean
 }
 
 export function useSongColumns(metadataKeys: string[] = [], options: UseSongColumnsOptions = {}): ColumnDef<Song>[] {
   const t = useTranslations('fields')
-  const { selectionActive = false, totalSongs = null } = options
+  const { selectionActive = false, totalSongs = null, includeListenedAt = false } = options
 
   const metadataColumns: ColumnDef<Song>[] = useMemo(
     () =>
@@ -70,8 +73,20 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
     cell: ({ row }) => <RowSelectCheckbox songId={row.original.id} />
   }
 
+  const listenedAtColumn: ColumnDef<Song> = {
+    id: 'listenedAt',
+    accessorFn: (song: Song) => (song as RecentlyListenedSongRow).listenedAt,
+    header: ({ column }) => <SortableHeader column={column} label={t('listenedAt')} />,
+    cell: ({ getValue }) => dateCell(getValue() as Date),
+    size: 160,
+    // Not hideable: it is what the recently-played view is about, and the persisted
+    // visibility config of existing users would otherwise default it to hidden.
+    enableHiding: false
+  }
+
   return [
     ...(selectionActive ? [selectColumn] : []),
+    ...(includeListenedAt ? [listenedAtColumn] : []),
     // --- Name (always visible, not hideable) ---
     {
       id: 'title',

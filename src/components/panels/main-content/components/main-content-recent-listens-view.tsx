@@ -4,27 +4,32 @@ import { MusicIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
+import type { RecentlyListenedSongRow } from '@/features/scrobbling/domain'
 import { useRecentListens } from '@/features/scrobbling/hooks/use-recent-listens'
+import type { Song } from '@/features/songs/domain'
+import { useSortOrder } from '@/features/songs/hooks/use-sort-order'
+import { useHomeStore } from '@/stores/home-store'
 import { SongsDataTable } from './songs-data-table'
 import { SongsTableHeader } from './songs-table-header'
-
-/** Matches the already-loaded listens; the endpoint returns plain history, not a search. */
-function matchesSearch(haystack: (string | null)[], needle: string): boolean {
-  const lowered = needle.toLowerCase()
-  return haystack.some(value => value?.toLowerCase().includes(lowered))
-}
 
 export function MainContentRecentListensView() {
   const t = useTranslations('listens')
   const tFiles = useTranslations('files')
   const tFolders = useTranslations('folders')
 
-  const [search, setSearch] = useState('')
-  const { songs, isLoading, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } = useRecentListens()
+  const search = useHomeStore(s => s.search)
+  const setSearch = useHomeStore(s => s.setSearch)
+  const { sorting } = useSortOrder({ allowListenFields: true })
+  const columnFilters = useHomeStore(s => s.columnFilters)
 
-  const visibleSongs = search
-    ? songs.filter(song => matchesSearch([song.title, song.artist, song.album], search))
-    : songs
+  const activeFilterEntries = Object.entries(columnFilters).filter(([, v]) => v)
+  const activeFilters = activeFilterEntries.length > 0 ? Object.fromEntries(activeFilterEntries) : undefined
+
+  const { rows, totalListens, isLoading, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useRecentListens({ search, sorting, filters: activeFilters })
+
+  // One song can fill several rows, so the highlight follows the listen, not the song.
+  const [selectedListenId, setSelectedListenId] = useState<number | null>(null)
 
   return (
     <div className='flex flex-col h-full'>
@@ -35,7 +40,7 @@ export function MainContentRecentListensView() {
         badges={
           <Badge variant='secondary' className='gap-1.5'>
             <MusicIcon className='w-3.5 h-3.5' />
-            {tFolders('files', { count: visibleSongs.length })}
+            {tFolders('files', { count: totalListens ?? rows.length })}
           </Badge>
         }
         searchKey='recent'
@@ -45,14 +50,18 @@ export function MainContentRecentListensView() {
       />
 
       <SongsDataTable
-        songs={visibleSongs}
-        totalSongs={visibleSongs.length}
+        songs={rows}
+        totalSongs={totalListens}
         isLoadingSongs={isLoading}
         isRefetching={isRefetching}
         fetchNextPage={fetchNextPage}
         hasNextPage={hasNextPage}
         isFetchingNextPage={isFetchingNextPage}
         showSavedFiltersDropdown={false}
+        includeListenedAt
+        getRowId={(song: Song) => String((song as RecentlyListenedSongRow).listenId)}
+        selectedRowId={selectedListenId != null ? String(selectedListenId) : null}
+        onRowSelect={(song: Song) => setSelectedListenId((song as RecentlyListenedSongRow).listenId)}
       />
     </div>
   )

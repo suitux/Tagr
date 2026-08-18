@@ -182,6 +182,7 @@
     "folderPath": "Folder Path",
     "dateAdded": "Date Added",
     "lastPlayed": "Last Played",
+    "listenedAt": "Listened At",
     "playCount": "Play Count",
     "lossless": "Lossless"
   },

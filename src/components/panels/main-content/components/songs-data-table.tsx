@@ -36,6 +36,10 @@ export interface SongsDataTableProps {
   hasNextPage: boolean
   isFetchingNextPage: boolean
   showSavedFiltersDropdown?: boolean
+  includeListenedAt?: boolean
+  getRowId?: (song: Song) => string
+  selectedRowId?: string | null
+  onRowSelect?: (song: Song) => void
 }
 
 export function SongsDataTable({
@@ -46,11 +50,15 @@ export function SongsDataTable({
   fetchNextPage,
   hasNextPage,
   isFetchingNextPage,
-  showSavedFiltersDropdown = true
+  showSavedFiltersDropdown = true,
+  includeListenedAt = false,
+  getRowId = (song: Song) => String(song.id),
+  selectedRowId,
+  onRowSelect
 }: SongsDataTableProps) {
   const tCommon = useTranslations('common')
   const { selectedSongId, setSelectedSongId } = useSelectedSong()
-  const { sorting, setSorting, clearSorting } = useSortOrder()
+  const { sorting, setSorting, clearSorting } = useSortOrder({ allowListenFields: includeListenedAt })
   const clearColumnFilters = useHomeStore(s => s.clearColumnFilters)
   const setSearch = useHomeStore(s => s.setSearch)
   const isAnyFilterActive = useIsAnyFilterActive()
@@ -68,7 +76,7 @@ export function SongsDataTable({
   const clearSelection = useBulkSelectionStore(s => s.clear)
   useKeyPress('Escape', clearSelection, { enabled: selectionActive })
 
-  const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs })
+  const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs, includeListenedAt })
   const { data: columnVisibility } = useColumnVisibility({ columns })
 
   const SongRowWrapper = useCallback(
@@ -147,14 +155,17 @@ export function SongsDataTable({
       <DataTable
         columns={columns}
         data={songs}
-        getRowId={(song: Song) => String(song.id)}
-        selectedRowId={selectedSongId != null ? String(selectedSongId) : null}
+        getRowId={getRowId}
+        selectedRowId={
+          selectedRowId !== undefined ? selectedRowId : selectedSongId != null ? String(selectedSongId) : null
+        }
         onRowClick={(song: Song) => {
           if (selectionActive) {
             toggleSelection(song.id)
             return
           }
           setSelectedSongId?.(song.id)
+          onRowSelect?.(song)
         }}
         sorting={tableSorting}
         onSortingChange={onSortingChange}

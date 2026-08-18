@@ -90,7 +90,32 @@ describe('GET /api/listens', () => {
     const body = await res.json()
 
     expect(body).toEqual({ success: true, totalListens: 1, listens: [{ id: 1 }] })
-    expect(mockListRecentListens).toHaveBeenCalledWith('admin', 10, 5)
+    expect(mockListRecentListens).toHaveBeenCalledWith('admin', 10, 5, undefined, undefined, 'desc', undefined)
+  })
+
+  it('defaults to the newest 100 listens without search, sort or filters', async () => {
+    mockListRecentListens.mockResolvedValue([])
+    mockCountListens.mockResolvedValue(0)
+
+    await GET(new NextRequest('http://localhost/api/listens'))
+
+    expect(mockListRecentListens).toHaveBeenCalledWith('admin', 100, 0, undefined, undefined, 'desc', undefined)
+    expect(mockCountListens).toHaveBeenCalledWith('admin', undefined, undefined)
+  })
+
+  it('forwards search, sorting and column filters to the repository', async () => {
+    mockListRecentListens.mockResolvedValue([])
+    mockCountListens.mockResolvedValue(0)
+
+    await GET(
+      new NextRequest(
+        'http://localhost/api/listens?search=daft&sortField=artist&sort=asc&filter.listenedAt=2026-01-01..2026-01-31&filter.genre=House'
+      )
+    )
+
+    const filters = { listenedAt: '2026-01-01..2026-01-31', genre: 'House' }
+    expect(mockListRecentListens).toHaveBeenCalledWith('admin', 100, 0, 'daft', 'artist', 'asc', filters)
+    expect(mockCountListens).toHaveBeenCalledWith('admin', 'daft', filters)
   })
 
   it('caps the page size', async () => {
@@ -99,6 +124,6 @@ describe('GET /api/listens', () => {
 
     await GET(new NextRequest('http://localhost/api/listens?limit=100000'))
 
-    expect(mockListRecentListens).toHaveBeenCalledWith('admin', 500, 0)
+    expect(mockListRecentListens).toHaveBeenCalledWith('admin', 500, 0, undefined, undefined, 'desc', undefined)
   })
 })

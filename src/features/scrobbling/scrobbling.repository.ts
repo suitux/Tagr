@@ -1,4 +1,12 @@
 import type { ListenPayload, ListenWithSong, ScrobbleProviderId } from '@/features/scrobbling/domain'
+import {
+  type ColumnField,
+  type SongColumnFilters,
+  type SongSortDirection,
+  isMetadataColumnId
+} from '@/features/songs/domain'
+import { parseDateRangeFilter } from '@/features/songs/filters-helpers'
+import { buildColumnFiltersWhere } from '@/features/songs/song-query.repository'
 import type { Listen, ScrobbleAccount, ScrobbleQueueItem } from '@/generated/prisma/client'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
@@ -36,19 +44,66 @@ export async function incrementSongPlayStats(songId: number, listenedAt: Date): 
   })
 }
 
+const LISTEN_SEARCH_FIELDS = ['title', 'artist', 'publisher', 'album', 'fileName', 'comment'] as const
+
+function buildListensWhere(
+  userId: string,
+  search?: string,
+  filters?: SongColumnFilters
+): Record<string, unknown> {
+  const conditions: Record<string, unknown>[] = []
+
+  if (filters) {
+    // `listenedAt` lives on the `Listen`; every other filterable column is reached through `song`.
+    const { listenedAt, ...songFilters } = filters
+    if (listenedAt) {
+      const range = parseDateRangeFilter(listenedAt)
+      if (range) conditions.push({ listenedAt: range })
+    }
+    for (const songCondition of buildColumnFiltersWhere(songFilters)) {
+      conditions.push({ song: songCondition })
+    }
+  }
+
+  return {
+    userId,
+    songId: { not: null },
+    ...(search && {
+      song: { OR: LISTEN_SEARCH_FIELDS.map(field => ({ [field]: { contains: search } })) }
+    }),
+    ...(conditions.length > 0 && { AND: conditions })
+  }
+}
+
+/** Metadata columns would need a join Prisma can't express here, so they fall back to the default. */
+function buildListensOrderBy(sortField?: ColumnField, sort?: SongSortDirection): Record<string, unknown> {
+  const defaultOrder = { listenedAt: 'desc' as const }
+  if (!sortField || !sort || isMetadataColumnId(sortField)) return defaultOrder
+  if (sortField === 'listenedAt') return { listenedAt: sort }
+  return { song: { [sortField]: sort } }
+}
+
 /** Recent listens of a user, newest first, skipping songs removed from the library. */
-export function listRecentListens(userId: string, limit: number, offset: number): Promise<ListenWithSong[]> {
+export function listRecentListens(
+  userId: string,
+  limit: number,
+  offset: number,
+  search?: string,
+  sortField?: ColumnField,
+  sort?: SongSortDirection,
+  filters?: SongColumnFilters
+): Promise<ListenWithSong[]> {
   return prisma.listen.findMany({
-    where: { userId, songId: { not: null } },
+    where: buildListensWhere(userId, search, filters),
     include: { song: true },
-    orderBy: { listenedAt: 'desc' },
+    orderBy: buildListensOrderBy(sortField, sort),
     take: limit,
     skip: offset
   })
 }
 
-export function countListens(userId: string): Promise<number> {
-  return prisma.listen.count({ where: { userId, songId: { not: null } } })
+export function countListens(userId: string, search?: string, filters?: SongColumnFilters): Promise<number> {
+  return prisma.listen.count({ where: buildListensWhere(userId, search, filters) })
 }
 
 // --- Accounts ------------------------------------------------------------
