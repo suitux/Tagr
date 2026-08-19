@@ -1,11 +1,10 @@
 'use client'
 
-import { Loader2Icon, PlusIcon, UsersIcon } from 'lucide-react'
+import { Loader2Icon, PlusIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import type { UserPublic } from '@/features/users/domain'
 import { useCreateUser } from '@/features/users/hooks/use-create-user'
@@ -16,15 +15,10 @@ import { UserEmptyState } from './components/user-empty-state'
 import { UserForm } from './components/user-form'
 import { UserTable } from './components/user-table'
 
-interface UserManagementModalProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-}
-
-export function UserManagementModal({ open, onOpenChange }: UserManagementModalProps) {
+export function UsersSettings() {
   const t = useTranslations('users')
   const { confirm } = useAlertDialog()
-  const { data: users, isLoading } = useUsers(open)
+  const { data: users, isLoading } = useUsers()
   const createUser = useCreateUser()
   const updateUser = useUpdateUser()
   const deleteUser = useDeleteUser()
@@ -83,63 +77,49 @@ export function UserManagementModal({ open, onOpenChange }: UserManagementModalP
     })
   }
 
-  const handleOpenChange = (value: boolean) => {
-    if (!value) {
-      setShowForm(false)
-      setEditingUser(null)
-    }
-    onOpenChange(value)
-  }
-
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className='max-w-lg'>
-        <DialogHeader>
-          <DialogTitle className='flex items-center gap-2'>
-            <UsersIcon className='h-5 w-5' />
-            {t('title')}
-          </DialogTitle>
-        </DialogHeader>
+    <div className='flex flex-col gap-4'>
+      <div>
+        <h3 className='text-sm font-semibold'>{t('title')}</h3>
+        <p className='text-xs text-muted-foreground'>{t('description')}</p>
+      </div>
 
-        <div className='flex flex-col gap-4'>
-          {isLoading ? (
-            <div className='flex justify-center py-8'>
-              <Loader2Icon className='h-5 w-5 animate-spin text-muted-foreground' />
-            </div>
-          ) : users && users.length > 0 ? (
-            <UserTable
-              users={users}
-              onEdit={u => {
-                setShowForm(false)
-                setEditingUser(u)
-              }}
-              onDelete={handleDelete}
-            />
-          ) : !showForm ? (
-            <UserEmptyState onCreateUser={() => setShowForm(true)} />
-          ) : null}
-
-          {showForm && (
-            <UserForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} isPending={createUser.isPending} />
-          )}
-
-          {editingUser && (
-            <UserForm
-              initialValues={{ username: editingUser.username, role: editingUser.role }}
-              onSubmit={handleUpdate}
-              onCancel={() => setEditingUser(null)}
-              isPending={updateUser.isPending}
-            />
-          )}
-
-          {!showForm && !editingUser && users && users.length > 0 && (
-            <Button variant='outline' size='sm' className='self-start' onClick={() => setShowForm(true)}>
-              <PlusIcon className='h-4 w-4' />
-              {t('createUser')}
-            </Button>
-          )}
+      {isLoading ? (
+        <div className='flex justify-center py-8'>
+          <Loader2Icon className='h-5 w-5 animate-spin text-muted-foreground' />
         </div>
-      </DialogContent>
-    </Dialog>
+      ) : users && users.length > 0 ? (
+        <UserTable
+          users={users}
+          onEdit={u => {
+            setShowForm(false)
+            setEditingUser(u)
+          }}
+          onDelete={handleDelete}
+        />
+      ) : !showForm ? (
+        <UserEmptyState onCreateUser={() => setShowForm(true)} />
+      ) : null}
+
+      {showForm && (
+        <UserForm onSubmit={handleCreate} onCancel={() => setShowForm(false)} isPending={createUser.isPending} />
+      )}
+
+      {editingUser && (
+        <UserForm
+          initialValues={{ username: editingUser.username, role: editingUser.role }}
+          onSubmit={handleUpdate}
+          onCancel={() => setEditingUser(null)}
+          isPending={updateUser.isPending}
+        />
+      )}
+
+      {!showForm && !editingUser && users && users.length > 0 && (
+        <Button variant='outline' size='sm' className='self-start' onClick={() => setShowForm(true)}>
+          <PlusIcon className='h-4 w-4' />
+          {t('createUser')}
+        </Button>
+      )}
+    </div>
   )
 }

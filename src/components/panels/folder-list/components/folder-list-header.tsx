@@ -8,8 +8,7 @@ import Link from 'next/link'
 import { HistoryModal } from '@/components/history-modal/history-modal'
 import { FolderListHeaderMenu } from '@/components/panels/folder-list/components/folder-list-header-menu'
 import { UpdateBanner } from '@/components/panels/folder-list/components/update-banner'
-import { SettingsModal } from '@/components/settings-modal/settings-modal'
-import { UserManagementModal } from '@/components/user-management-modal/user-management-modal'
+import { SettingsModal, type SettingsSection } from '@/components/settings-modal/settings-modal'
 import { Button } from '@/components/ui/button'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 
@@ -18,8 +17,13 @@ const GITHUB_ISSUE_URL = 'https://github.com/suitux/Tagr/issues/new'
 export function FolderListHeader() {
   const t = useTranslations('folders')
   const [historyOpen, setHistoryOpen] = useState(false)
-  const [usersOpen, setUsersOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
+  const [settingsSection, setSettingsSection] = useState<SettingsSection>('integrations')
+
+  const openSettings = (section: SettingsSection) => {
+    setSettingsSection(section)
+    setSettingsOpen(true)
+  }
 
   return (
     <div className='px-4 py-5'>
@@ -43,13 +47,12 @@ export function FolderListHeader() {
         </Tooltip>
         <FolderListHeaderMenu
           onOpenHistory={() => setHistoryOpen(true)}
-          onOpenUserManagement={() => setUsersOpen(true)}
-          onOpenSettings={() => setSettingsOpen(true)}
+          onOpenUserManagement={() => openSettings('users')}
+          onOpenSettings={() => openSettings('integrations')}
         />
       </div>
       <HistoryModal open={historyOpen} onOpenChange={setHistoryOpen} />
-      <UserManagementModal open={usersOpen} onOpenChange={setUsersOpen} />
-      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <SettingsModal open={settingsOpen} onOpenChange={setSettingsOpen} section={settingsSection} />
       <UpdateBanner />
     </div>
   )

@@ -12,7 +12,7 @@ export function UserEmptyState({ onCreateUser }: UserEmptyStateProps) {
   const t = useTranslations('users')
 
   return (
-    <div className='flex flex-col items-center justify-center rounded-md border border-dashed py-10 text-center'>
+    <div className='flex flex-col items-center justify-center py-10 text-center'>
       <UserPlusIcon className='h-10 w-10 text-muted-foreground/50' />
       <p className='mt-3 text-sm font-medium'>{t('noUsers')}</p>
       <p className='mt-1 text-xs text-muted-foreground'>{t('noUsersDescription')}</p>

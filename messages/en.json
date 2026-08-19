@@ -335,6 +335,7 @@
   },
   "users": {
     "title": "Manage Users",
+    "description": "Create, edit and remove the users that can access Tagr.",
     "createUser": "Create user",
     "editUser": "Edit user",
     "deleteUser": "Delete user",
@@ -469,7 +470,11 @@
     "totalFiles": "{count, plural, one {# song processed} other {# songs processed}}"
   },
   "settings": {
-    "title": "Settings"
+    "title": "Settings",
+    "sections": {
+      "users": "Users",
+      "integrations": "Third party integrations"
+    }
   },
   "scrobbling": {
     "listenbrainz": "ListenBrainz",
