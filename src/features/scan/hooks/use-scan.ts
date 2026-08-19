@@ -3,6 +3,7 @@ import { useCallback, useRef } from 'react'
 import { useTranslations } from 'next-intl'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { ScanMode } from '@/features/scan/domain'
+import { invalidateSongListings } from '@/features/songs/hooks/bulk-cache-sync'
 import { api } from '@/lib/axios'
 import type { ScanSummaryResult } from '@/stores/home-store'
 import { useHomeStore } from '@/stores/home-store'
@@ -48,10 +49,7 @@ function sleep(ms: number): Promise<void> {
 
 // Scans run as a background job server-side (issue #22): start it, then poll for
 // completion so a long scan can never time out the request/proxy.
-async function scanDatabase(
-  mode?: ScanMode,
-  onProgress?: (progress: ScanProgress) => void
-): Promise<ScanResponse> {
+async function scanDatabase(mode?: ScanMode, onProgress?: (progress: ScanProgress) => void): Promise<ScanResponse> {
   const start = await api.post<ScanStartResponse>('/scan/start', { mode })
 
   if (!start.data.success || !start.data.job?.id) {
@@ -101,7 +99,7 @@ export function useScan() {
     },
     onSuccess: (data, _variables, context) => {
       queryClient.invalidateQueries({ queryKey: ['folders'] })
-      queryClient.invalidateQueries({ queryKey: ['songs'] })
+      invalidateSongListings(queryClient)
 
       if (data.result) {
         setScanLastResult(data.result)

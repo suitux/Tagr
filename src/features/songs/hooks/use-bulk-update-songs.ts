@@ -5,7 +5,7 @@ import { invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-hist
 import { type SongMetadataUpdate } from '@/features/metadata/domain'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
-import { applyBulkSongUpdates, invalidateBulkTargetQueries } from '@/features/songs/hooks/bulk-cache-sync'
+import { applySongUpdates, invalidateBulkTargetQueries } from '@/features/songs/hooks/bulk-cache-sync'
 import { readNdjsonStream } from '@/lib/ndjson-stream'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -75,13 +75,10 @@ export function useBulkUpdateSongs() {
   return useMutation({
     mutationFn: bulkUpdate,
     onSuccess: (data, variables) => {
-      const updates = new Map<number, SongWithMetadata>()
-      for (const r of data.results) {
-        if (r.ok) updates.set(r.songId, r.song)
-      }
+      const updatedSongs = data.results.filter(result => result.ok).map(result => result.song)
 
-      if (updates.size > 0) {
-        applyBulkSongUpdates(queryClient, updates)
+      if (updatedSongs.length > 0) {
+        applySongUpdates(queryClient, updatedSongs)
         invalidateAllHistoryQueryKeys(queryClient)
         incrementEditCount()
       }

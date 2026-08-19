@@ -2,7 +2,7 @@
 
 import { invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-history'
 import { Song } from '@/features/songs/domain'
-import { getSongQueryKey } from '@/features/songs/hooks/use-song'
+import { applySongUpdates } from '@/features/songs/hooks/bulk-cache-sync'
 import { api } from '@/lib/axios'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -30,10 +30,7 @@ export function useRevertChanges() {
     },
     onSuccess: songs => {
       invalidateAllHistoryQueryKeys(queryClient)
-      queryClient.invalidateQueries({ queryKey: ['songs'] })
-      for (const song of songs) {
-        queryClient.setQueryData(getSongQueryKey(song.id), song)
-      }
+      applySongUpdates(queryClient, songs)
     }
   })
 }

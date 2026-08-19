@@ -1,12 +1,9 @@
 'use client'
 
 import { Song } from '@/features/songs/domain'
-import { getSongQueryKey } from '@/features/songs/hooks/use-song'
-import { getUseSongsByFolderQueryKey, SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
+import { applySongUpdates } from '@/features/songs/hooks/bulk-cache-sync'
 import { api } from '@/lib/axios'
-import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
-
-type SongsResponse = SongsSuccessResponse | { success: false; error: string }
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface RescanSongResponse {
   success: true
@@ -36,29 +33,7 @@ export function useRescanSong() {
   return useMutation({
     mutationFn: rescanSong,
     onSuccess: updatedSong => {
-      queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
-        {
-          predicate: ({ queryKey }) => {
-            return queryKey[0] === 'songs' && queryKey[1] === 'folder'
-          }
-        },
-        oldData => {
-          if (!oldData) return oldData
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map(page => {
-              if (!page.success) return page
-              return {
-                ...page,
-                files: page.files.map(song => (song.id === updatedSong.id ? updatedSong : song))
-              }
-            })
-          }
-        }
-      )
-
-      queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
+      applySongUpdates(queryClient, [updatedSong])
     }
   })
 }

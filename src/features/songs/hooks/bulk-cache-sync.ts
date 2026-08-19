@@ -3,7 +3,7 @@
 import type { ListenWithSong } from '@/features/scrobbling/domain'
 import { RECENT_LISTENS_QUERY_KEY } from '@/features/scrobbling/hooks/use-recent-listens'
 import type { BulkTarget } from '@/features/songs/bulk-target'
-import type { Song, SongWithMetadata } from '@/features/songs/domain'
+import type { Song } from '@/features/songs/domain'
 import { getSongQueryKey } from '@/features/songs/hooks/use-song'
 import type { SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
 import type { InfiniteData, QueryClient, QueryKey } from '@tanstack/react-query'
@@ -54,7 +54,11 @@ function patchListensPages(updates: Map<number, Song>) {
   }
 }
 
-function applySongUpdatesToListings(queryClient: QueryClient, updates: Map<number, Song>): void {
+export function applySongUpdates(queryClient: QueryClient, songs: readonly Song[]): void {
+  if (songs.length === 0) return
+
+  const updates = new Map(songs.map(song => [song.id, song]))
+
   queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
     { predicate: isSongsListQuery },
     patchSongsPages(updates)
@@ -67,14 +71,16 @@ function applySongUpdatesToListings(queryClient: QueryClient, updates: Map<numbe
     { predicate: isRecentListensQuery },
     patchListensPages(updates)
   )
+
+  for (const song of songs) {
+    queryClient.setQueryData(getSongQueryKey(song.id), song)
+  }
 }
 
-export function applyBulkSongUpdates(queryClient: QueryClient, updates: Map<number, SongWithMetadata>): void {
-  applySongUpdatesToListings(queryClient, updates)
-
-  for (const [id, song] of updates) {
-    queryClient.setQueryData(getSongQueryKey(id), song)
-  }
+export function invalidateSongListings(queryClient: QueryClient): void {
+  void queryClient.invalidateQueries({
+    predicate: query => isSongsListQuery(query) || isPlaylistSongsQuery(query) || isRecentListensQuery(query)
+  })
 }
 
 export function invalidateBulkTargetQueries(queryClient: QueryClient, target: BulkTarget): void {
