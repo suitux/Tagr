@@ -46,11 +46,7 @@ export async function incrementSongPlayStats(songId: number, listenedAt: Date): 
 
 const LISTEN_SEARCH_FIELDS = ['title', 'artist', 'publisher', 'album', 'fileName', 'comment'] as const
 
-function buildListensWhere(
-  userId: string,
-  search?: string,
-  filters?: SongColumnFilters
-): Record<string, unknown> {
+function buildListensWhere(userId: string, search?: string, filters?: SongColumnFilters): Record<string, unknown> {
   const conditions: Record<string, unknown>[] = []
 
   if (filters) {
@@ -104,6 +100,37 @@ export function listRecentListens(
 
 export function countListens(userId: string, search?: string, filters?: SongColumnFilters): Promise<number> {
   return prisma.listen.count({ where: buildListensWhere(userId, search, filters) })
+}
+
+export async function countListenedSongs(
+  userId: string,
+  search?: string,
+  filters?: SongColumnFilters
+): Promise<number> {
+  const groups = await prisma.listen.groupBy({
+    by: ['songId'],
+    where: buildListensWhere(userId, search, filters),
+    _count: { _all: true }
+  })
+
+  return groups.filter(group => group.songId !== null).length
+}
+
+export async function listListenedSongIds(
+  userId: string,
+  search?: string,
+  filters?: SongColumnFilters,
+  limit?: number
+): Promise<number[]> {
+  const groups = await prisma.listen.groupBy({
+    by: ['songId'],
+    where: buildListensWhere(userId, search, filters),
+    _max: { listenedAt: true },
+    orderBy: { _max: { listenedAt: 'desc' } },
+    ...(limit !== undefined && { take: limit })
+  })
+
+  return groups.map(group => group.songId).filter((songId): songId is number => songId !== null)
 }
 
 // --- Accounts ------------------------------------------------------------

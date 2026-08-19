@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import type { ListenWithSong } from '@/features/scrobbling/domain'
-import { countListens, listRecentListens } from '@/features/scrobbling/scrobbling.repository'
+import { countListenedSongs, countListens, listRecentListens } from '@/features/scrobbling/scrobbling.repository'
 import { recordListen } from '@/features/scrobbling/scrobbling.service'
 import type { ColumnField, SongSortDirection } from '@/features/songs/domain'
 import { getSongFiltersFromSearchParams } from '@/features/songs/filters-helpers'
@@ -13,6 +13,7 @@ const MAX_LIMIT = 500
 interface ListensSuccessResponse {
   success: true
   totalListens: number
+  totalSongs: number
   listens: ListenWithSong[]
 }
 
@@ -41,11 +42,12 @@ export async function GET(request: NextRequest): Promise<NextResponse<ListensRes
   const activeFilters = hasFilters ? filters : undefined
 
   try {
-    const [listens, totalListens] = await Promise.all([
+    const [listens, totalListens, totalSongs] = await Promise.all([
       listRecentListens(userId, limit, offset, search, sortField || undefined, sort, activeFilters),
-      countListens(userId, search, activeFilters)
+      countListens(userId, search, activeFilters),
+      countListenedSongs(userId, search, activeFilters)
     ])
-    return NextResponse.json({ success: true, totalListens, listens })
+    return NextResponse.json({ success: true, totalListens, totalSongs, listens })
   } catch (error) {
     console.error('Error fetching listens:', error)
     return NextResponse.json(

@@ -1,8 +1,9 @@
-import { getSongIdsByFolder, getSongIdsByPlaylist } from '@/features/songs/song-query.repository'
+import { listListenedSongIds } from '@/features/scrobbling/scrobbling.repository'
 import { parseSmartListRules } from '@/features/smart-playlists/helpers'
-import { BULK_RESOLVE_LIMIT, type BulkTarget } from '@/features/songs/bulk-target'
 import { findSmartPlaylistById } from '@/features/smart-playlists/smart-playlists.repository'
+import { BULK_RESOLVE_LIMIT, type BulkTarget } from '@/features/songs/bulk-target'
 import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
+import { getSongIdsByFolder, getSongIdsByPlaylist } from '@/features/songs/song-query.repository'
 
 export class BulkResolveError extends Error {
   constructor(
@@ -49,6 +50,9 @@ export async function resolveBulkTargetIds(target: BulkTarget, options?: Resolve
 
     const rules = parseSmartListRules(playlist.rules)
     ids = await getSongIdsByPlaylist(rules, target.search, target.filters, BULK_RESOLVE_LIMIT + 1)
+  } else if (target.context.type === 'recent-listens') {
+    if (!options?.userId) throw new BulkResolveError('Unauthorized', 401)
+    ids = await listListenedSongIds(options.userId, target.search, target.filters, BULK_RESOLVE_LIMIT + 1)
   } else {
     throw new BulkResolveError('Invalid context', 400)
   }

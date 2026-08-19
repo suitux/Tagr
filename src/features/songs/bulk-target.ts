@@ -4,7 +4,10 @@ export type BulkTarget =
   | { mode: 'ids'; songIds: number[] }
   | {
       mode: 'all-in-context'
-      context: { type: 'folder'; folderPath: string } | { type: 'smart-playlist'; playlistId: number }
+      context:
+        | { type: 'folder'; folderPath: string }
+        | { type: 'smart-playlist'; playlistId: number }
+        | { type: 'recent-listens' }
       search?: string
       filters?: SongColumnFilters
       exclusions?: number[]

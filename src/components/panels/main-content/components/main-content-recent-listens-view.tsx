@@ -25,10 +25,9 @@ export function MainContentRecentListensView() {
   const activeFilterEntries = Object.entries(columnFilters).filter(([, v]) => v)
   const activeFilters = activeFilterEntries.length > 0 ? Object.fromEntries(activeFilterEntries) : undefined
 
-  const { rows, totalListens, isLoading, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } =
+  const { rows, totalListens, totalSongs, isLoading, isRefetching, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useRecentListens({ search, sorting, filters: activeFilters })
 
-  // One song can fill several rows, so the highlight follows the listen, not the song.
   const [selectedListenId, setSelectedListenId] = useState<number | null>(null)
 
   return (
@@ -51,7 +50,7 @@ export function MainContentRecentListensView() {
 
       <SongsDataTable
         songs={rows}
-        totalSongs={totalListens}
+        totalSongs={totalSongs}
         isLoadingSongs={isLoading}
         isRefetching={isRefetching}
         fetchNextPage={fetchNextPage}

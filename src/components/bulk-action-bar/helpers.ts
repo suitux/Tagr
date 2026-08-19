@@ -13,6 +13,7 @@ export function filterLoadedBySelection(loadedSongs: Song[], selection: Selectio
 interface ContextLabelOptions {
   playlistName: string | null
   allFoldersLabel: string
+  recentListensLabel: string
 }
 
 export function buildContextLabel(selection: NonNullable<SelectionState>, opts: ContextLabelOptions): string {
@@ -21,5 +22,7 @@ export function buildContextLabel(selection: NonNullable<SelectionState>, opts: 
     if (selection.context.folderPath === ALL_SONGS_FOLDER_ID) return opts.allFoldersLabel
     return selection.context.folderPath
   }
+  if (selection.context.type === 'recent-listens') return opts.recentListensLabel
+
   return opts.playlistName ?? `#${selection.context.playlistId}`
 }

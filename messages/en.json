@@ -416,6 +416,7 @@
       "selectSong": "Select song",
       "selectAllFolder": "Select entire folder",
       "selectAllPlaylist": "Select entire smart playlist",
+      "selectAllRecent": "Select everything recently played",
       "clearSelection": "Clear selection"
     },
     "actionBar": {

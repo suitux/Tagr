@@ -11,6 +11,7 @@ const PAGE_SIZE = 100
 interface ListensSuccessResponse {
   success: true
   totalListens: number
+  totalSongs: number
   listens: ListenWithSong[]
 }
 
@@ -73,7 +74,9 @@ export function useRecentListens({ search, sorting, filters }: UseRecentListensP
   })
 
   const listens = query.data?.pages.flatMap(page => (page.success ? page.listens : [])) ?? []
-  const totalListens = (query.data?.pages[0]?.success === true && query.data.pages[0].totalListens) || null
+  const firstPage = query.data?.pages[0]
+  const totalListens = (firstPage?.success === true && firstPage.totalListens) || null
+  const totalSongs = firstPage?.success === true ? firstPage.totalSongs : null
 
-  return { ...query, listens, rows: toRows(listens), totalListens }
+  return { ...query, listens, rows: toRows(listens), totalListens, totalSongs }
 }
