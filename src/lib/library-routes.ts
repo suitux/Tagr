@@ -14,13 +14,18 @@ export function folderPathToSegments(folderPath: string): string[] {
     .map(segment => encodeURIComponent(segment))
 }
 
-/**
- * Next.js already decodes route params, so segments must not be decoded again here.
- */
+function decodeSegment(segment: string): string {
+  try {
+    return decodeURIComponent(segment)
+  } catch {
+    return segment
+  }
+}
+
 export function segmentsToFolderPath(segments?: string[]): string {
   if (!segments || segments.length === 0) return ALL_SONGS_FOLDER_ID
 
-  return `/${segments.join('/')}`
+  return `/${segments.map(decodeSegment).join('/')}`
 }
 
 export function buildFolderHref(folderPath: string): string {

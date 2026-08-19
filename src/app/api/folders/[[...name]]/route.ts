@@ -16,7 +16,7 @@ interface RouteParams {
 
 export async function GET(request: Request, { params }: RouteParams) {
   const { name } = await params
-  const folderPath = name?.length ? '/' + name.map(segment => decodeURIComponent(segment)).join('/') : undefined
+  const folderPath = name?.length ? '/' + name.join('/') : undefined
 
   const t = await getTranslations('api.folders')
   const folders = getMusicFolders()
