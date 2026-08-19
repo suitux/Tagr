@@ -66,3 +66,48 @@ export async function* readNdjsonStream<TResult>(response: Response): AsyncGener
     reader.releaseLock()
   }
 }
+
+export interface NdjsonBulkProgress<TResult> {
+  completed: number
+  total: number
+  lastResult?: TResult
+}
+
+export interface NdjsonBulkOutcome<TResult> {
+  resolvedCount: number
+  results: TResult[]
+}
+
+/**
+ * Client: turn a bulk endpoint response into its collected results, reporting
+ * progress after every song. Shared by all the `/api/songs/bulk/*` hooks.
+ */
+export async function collectNdjsonBulkResponse<TResult>(
+  response: Response,
+  onProgress?: (progress: NdjsonBulkProgress<TResult>) => void
+): Promise<NdjsonBulkOutcome<TResult>> {
+  if (!response.ok) {
+    const data = await response.json().catch(() => null)
+    throw new Error(data?.error ?? `Request failed with status ${response.status}`)
+  }
+
+  const results: TResult[] = []
+  let total = 0
+  let resolvedCount = 0
+
+  for await (const event of readNdjsonStream<TResult>(response)) {
+    if (event.type === 'start') {
+      total = event.total
+      onProgress?.({ completed: 0, total })
+    } else if (event.type === 'result') {
+      results.push(event.result)
+      onProgress?.({ completed: results.length, total, lastResult: event.result })
+    } else if (event.type === 'done') {
+      resolvedCount = event.resolvedCount
+    } else if (event.type === 'error') {
+      throw new Error(event.error)
+    }
+  }
+
+  return { resolvedCount, results }
+}

@@ -10,13 +10,16 @@ import { useBulkFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-b
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
 import { type Song } from '@/features/songs/domain'
+import { useBulkUpdateSongPicture } from '@/features/songs/hooks/use-bulk-update-song-picture'
 import { useBulkUpdateSongs } from '@/features/songs/hooks/use-bulk-update-songs'
 import { useBulkSelectionStore, useSelectionCount, useSelectionState } from '@/stores/bulk-selection-store'
 import { type BulkSummaryKind, useHomeStore } from '@/stores/home-store'
 import { BulkActionBarPill } from './bulk-action-bar-pill'
+import { BulkCoverPickerModal } from './bulk-cover-picker-modal'
 import { CoverSummary } from './cover-summary'
 import { buildContextLabel, filterLoadedBySelection } from './helpers'
 import { PatchSummary } from './patch-summary'
+import { SetCoverSummary } from './set-cover-summary'
 
 interface BulkActionBarProps {
   loadedSongs: Song[]
@@ -32,14 +35,18 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const clear = useBulkSelectionStore(s => s.clear)
   const setBulkLastResult = useHomeStore(s => s.setBulkLastResult)
   const setBulkSummaryOpen = useHomeStore(s => s.setBulkSummaryOpen)
+  const coverPickerOpen = useHomeStore(s => s.bulkCoverPickerOpen)
+  const setCoverPickerOpen = useHomeStore(s => s.setBulkCoverPickerOpen)
 
   const [editOpen, setEditOpen] = useState(false)
-  const [confirmKind, setConfirmKind] = useState<'edit' | 'cover' | null>(null)
+  const [confirmKind, setConfirmKind] = useState<'edit' | 'cover' | 'set-cover' | null>(null)
   const [pendingPatch, setPendingPatch] = useState<Partial<SongMetadataUpdate> | null>(null)
+  const [pendingCover, setPendingCover] = useState<File | null>(null)
   const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
 
   const updateMutation = useBulkUpdateSongs()
   const coverMutation = useBulkFetchMusicBrainzCover()
+  const setCoverMutation = useBulkUpdateSongPicture()
 
   const playlists = useSmartPlaylists().data
   const playlistName = useMemo(() => {
@@ -63,10 +70,18 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     setConfirmKind('edit')
   }
 
+  const handleCoverSubmit = (file: File) => {
+    setPendingCover(file)
+    setCoverPickerOpen(false)
+    setConfirmKind('set-cover')
+  }
+
   const closeAll = () => {
     setEditOpen(false)
+    setCoverPickerOpen(false)
     setConfirmKind(null)
     setPendingPatch(null)
+    setPendingCover(null)
     setProgress(null)
   }
 
@@ -138,6 +153,18 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     }
   }
 
+  const runSetCover = async (target: ReturnType<typeof buildBulkTargetFromSelection>, file: File) => {
+    if (!target) return
+    try {
+      const result = await setCoverMutation.mutateAsync({ target, file, onProgress: handleProgress })
+      reportResults('set-cover', result.results)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'Bulk cover update failed')
+    } finally {
+      closeAll()
+    }
+  }
+
   const handleConfirm = () => {
     const target = buildBulkTargetFromSelection(selection)
     if (!target) return
@@ -145,22 +172,33 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
       void runBulkEdit(target, pendingPatch)
     } else if (confirmKind === 'cover') {
       void runBulkCover(target)
+    } else if (confirmKind === 'set-cover' && pendingCover) {
+      void runSetCover(target, pendingCover)
     }
   }
 
-  const busy = updateMutation.isPending || coverMutation.isPending
+  const busy = updateMutation.isPending || coverMutation.isPending || setCoverMutation.isPending
 
   const confirmTitle =
-    confirmKind === 'edit' ? tBulk('edit.title') : confirmKind === 'cover' ? tBulk('cover.title') : ''
+    confirmKind === 'edit'
+      ? tBulk('edit.title')
+      : confirmKind === 'cover'
+        ? tBulk('cover.title')
+        : confirmKind === 'set-cover'
+          ? tBulk('setCover.title')
+          : ''
 
   const confirmChanges =
     confirmKind === 'edit' && pendingPatch ? (
       <PatchSummary patch={pendingPatch} />
     ) : confirmKind === 'cover' ? (
       <CoverSummary count={count} />
+    ) : confirmKind === 'set-cover' && pendingCover ? (
+      <SetCoverSummary file={pendingCover} count={count} />
     ) : null
 
-  const confirmWarning = confirmKind === 'cover' ? tBulk('cover.warning') : undefined
+  const confirmWarning =
+    confirmKind === 'cover' || confirmKind === 'set-cover' ? tBulk('cover.warning') : undefined
 
   return (
     <>
@@ -169,6 +207,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
         busy={busy}
         onCancel={() => clear()}
         onEdit={() => setEditOpen(true)}
+        onSetCover={() => setCoverPickerOpen(true)}
         onFetchCovers={() => setConfirmKind('cover')}
       />
 
@@ -180,12 +219,20 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
         onSubmit={handleEditSubmit}
       />
 
+      <BulkCoverPickerModal
+        open={coverPickerOpen}
+        onOpenChange={setCoverPickerOpen}
+        totalAffected={count}
+        onSubmit={handleCoverSubmit}
+      />
+
       <BulkConfirmModal
         open={confirmKind !== null}
         onOpenChange={open => {
           if (!open) {
             setConfirmKind(null)
             setPendingPatch(null)
+            setPendingCover(null)
           }
         }}
         onConfirm={handleConfirm}

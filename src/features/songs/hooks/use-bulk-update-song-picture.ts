@@ -1,5 +1,6 @@
 'use client'
 
+import { incrementEditCount } from '@/components/star-prompt-dialog'
 import { invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-history'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
@@ -8,42 +9,43 @@ import { collectNdjsonBulkResponse, type NdjsonBulkProgress } from '@/lib/ndjson
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
-type BulkCoverResult =
+type BulkPictureResult =
   | { songId: number; ok: true; song: SongWithMetadata }
   | { songId: number; ok: false; error: string }
 
-export type BulkProgress = NdjsonBulkProgress<BulkCoverResult>
-
-interface BulkCoverParams {
+interface BulkPictureParams {
   target: BulkTarget
-  onProgress?: (progress: BulkProgress) => void
+  file: File
+  onProgress?: (progress: NdjsonBulkProgress<BulkPictureResult>) => void
 }
 
-async function bulkFetchCover(params: BulkCoverParams) {
-  const { onProgress, ...payload } = params
+async function bulkUpdatePicture({ target, file, onProgress }: BulkPictureParams) {
+  const formData = new FormData()
+  formData.append('image', file)
+  formData.append('target', JSON.stringify(target))
 
-  const response = await fetch('/api/songs/bulk/musicbrainz/fetch-cover', {
+  const response = await fetch('/api/songs/bulk/picture', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     credentials: 'include',
-    body: JSON.stringify(payload)
+    body: formData
   })
 
-  return collectNdjsonBulkResponse<BulkCoverResult>(response, onProgress)
+  return collectNdjsonBulkResponse<BulkPictureResult>(response, onProgress)
 }
 
-export function useBulkFetchMusicBrainzCover() {
+export function useBulkUpdateSongPicture() {
   const queryClient = useQueryClient()
   const clear = useBulkSelectionStore(s => s.clear)
 
   return useMutation({
-    mutationFn: bulkFetchCover,
+    mutationFn: bulkUpdatePicture,
     onSuccess: (data, variables) => {
       const updatedSongs = data.results.filter(result => result.ok).map(result => result.song)
 
       if (updatedSongs.length > 0) {
         applySongUpdates(queryClient, updatedSongs)
         invalidateAllHistoryQueryKeys(queryClient)
+        incrementEditCount()
       }
 
       invalidateBulkTargetQueries(queryClient, variables.target)
