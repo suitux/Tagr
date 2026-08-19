@@ -76,6 +76,17 @@ Tagr lets you browse, edit, and manage audio file tags from any browser — desk
   <img src="docs/columns.png" alt="Customizable columns" height="350" />
 </p>
 
+### Users and Roles
+
+- **Multiple users** — the admin account comes from `AUTH_USER` / `AUTH_PASSWORD`; every other user is created from
+  the app itself, in **Settings → Users**
+- **Roles** — a **Tagger** can browse, play, edit metadata and rescan the library; a **Listener** can only browse and
+  play. The UI hides what a role cannot do, and the API enforces it on every request
+- Create, rename, change the role of, or delete users at any time. Passwords are stored bcrypt-hashed
+- **Per-user data** — listen history, play counts and the ListenBrainz connection all belong to the user who made them
+
+![User management](docs/user-management.png)
+
 ### File Support
 
 | Format | Supported |
@@ -113,7 +124,7 @@ Tagr is fully responsive and works on phones and tablets. The mobile UI adapts t
 
 ### Additional
 
-- **Single-user authentication** — password-protected access
+- **Multi-user authentication** — password-protected access with roles (admin, tagger, listener)
 - **Resizable panels** — drag to resize the three-panel layout to your liking
 - **Dark theme** by default
 - **Toast notifications** for operation feedback
@@ -231,8 +242,8 @@ pnpm dev                 # Development mode
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | SQLite database path. Use `file:/data/tagr.db` in Docker or `file:./data/tagr.db` locally. |
 | `AUTH_SECRET` | Yes | Secret for signing JWT sessions. Generate with `openssl rand -hex 32`. |
-| `AUTH_USER` | Yes | Login username. |
-| `AUTH_PASSWORD` | Yes | Login password (plain text). |
+| `AUTH_USER` | Yes | Username of the admin account. Additional users are created from **Settings → Users**. |
+| `AUTH_PASSWORD` | Yes | Password of the admin account (plain text). |
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
 | `PUID` | No | User ID for the container process. Defaults to `1000`. (Docker only) |
 | `PGID` | No | Group ID for the container process. Defaults to `1000`. (Docker only) |
@@ -245,9 +256,11 @@ Tagr can send what you play to [ListenBrainz](https://listenbrainz.org). No envi
 each user connects their own account:
 
 1. Copy your user token from <https://listenbrainz.org/settings/>.
-2. Open the menu next to the Tagr logo, choose **Settings**, paste the token and hit **Verify and save**. Tagr
-   checks the token against the service before storing it.
+2. Open the menu next to the Tagr logo, choose **Settings → Third party integrations**, paste the token and hit
+   **Verify and save**. Tagr checks the token against the service before storing it.
 3. Leave *API root* empty unless you run your own ListenBrainz-compatible server.
+
+![ListenBrainz settings](docs/settings-listenbrainz.png)
 
 What gets sent:
 

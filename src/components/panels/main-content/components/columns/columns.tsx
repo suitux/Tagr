@@ -78,7 +78,7 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
     accessorFn: (song: Song) => (song as RecentlyListenedSongRow).listenedAt,
     header: ({ column }) => <SortableHeader column={column} label={t('listenedAt')} />,
     cell: ({ getValue }) => dateCell(getValue() as Date),
-    size: 160,
+    size: 165,
     // Not hideable: it is what the recently-played view is about, and the persisted
     // visibility config of existing users would otherwise default it to hidden.
     enableHiding: false
