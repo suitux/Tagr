@@ -5,11 +5,10 @@ import { invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-hist
 import { type SongMetadataUpdate } from '@/features/metadata/domain'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
-import { getSongQueryKey } from '@/features/songs/hooks/use-song'
-import { type SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
+import { applySongUpdates, invalidateBulkTargetQueries } from '@/features/songs/hooks/bulk-cache-sync'
 import { readNdjsonStream } from '@/lib/ndjson-stream'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
-import { type InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 type BulkUpdateResult =
   | { songId: number; ok: true; song: SongWithMetadata }
@@ -69,24 +68,6 @@ async function bulkUpdate(params: BulkUpdateParams): Promise<BulkUpdateResponse>
   return { resolvedCount, results }
 }
 
-type SongsResponse = SongsSuccessResponse | { success: false; error: string }
-
-function applyUpdatesToCache(updates: Map<number, SongWithMetadata>) {
-  return (oldData: InfiniteData<SongsResponse, number> | undefined) => {
-    if (!oldData) return oldData
-    return {
-      ...oldData,
-      pages: oldData.pages.map(page => {
-        if (!page.success) return page
-        return {
-          ...page,
-          files: page.files.map(song => updates.get(song.id) ?? song)
-        }
-      })
-    }
-  }
-}
-
 export function useBulkUpdateSongs() {
   const queryClient = useQueryClient()
   const clear = useBulkSelectionStore(s => s.clear)
@@ -94,39 +75,15 @@ export function useBulkUpdateSongs() {
   return useMutation({
     mutationFn: bulkUpdate,
     onSuccess: (data, variables) => {
-      const updates = new Map<number, SongWithMetadata>()
-      for (const r of data.results) {
-        if (r.ok) updates.set(r.songId, r.song)
-      }
+      const updatedSongs = data.results.filter(result => result.ok).map(result => result.song)
 
-      if (updates.size > 0) {
-        queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
-          { predicate: ({ queryKey }) => queryKey[0] === 'songs' && queryKey[1] === 'folder' },
-          applyUpdatesToCache(updates)
-        )
-        queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
-          { predicate: ({ queryKey }) => queryKey[0] === 'smart-playlists' && queryKey[2] === 'songs' },
-          applyUpdatesToCache(updates)
-        )
-        for (const [id, song] of updates) {
-          queryClient.setQueryData(getSongQueryKey(id), song)
-        }
+      if (updatedSongs.length > 0) {
+        applySongUpdates(queryClient, updatedSongs)
         invalidateAllHistoryQueryKeys(queryClient)
         incrementEditCount()
       }
 
-      if (variables.target.mode === 'all-in-context') {
-        if (variables.target.context.type === 'folder') {
-          void queryClient.invalidateQueries({
-            predicate: ({ queryKey }) => queryKey[0] === 'songs' && queryKey[1] === 'folder'
-          })
-        } else {
-          void queryClient.invalidateQueries({
-            predicate: ({ queryKey }) =>
-              queryKey[0] === 'smart-playlists' && queryKey[2] === 'songs'
-          })
-        }
-      }
+      invalidateBulkTargetQueries(queryClient, variables.target)
 
       clear()
     }

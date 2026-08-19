@@ -3,11 +3,8 @@
 import axios from 'axios'
 import { invalidateAllHistoryQueryKeys } from '@/features/history/hooks/use-history'
 import { Song } from '@/features/songs/domain'
-import { getSongQueryKey } from '@/features/songs/hooks/use-song'
-import { SongsSuccessResponse } from '@/features/songs/hooks/use-songs-by-folder'
-import { InfiniteData, useMutation, useQueryClient } from '@tanstack/react-query'
-
-type SongsResponse = SongsSuccessResponse | { success: false; error: string }
+import { applySongUpdates } from '@/features/songs/hooks/bulk-cache-sync'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface UpdatePictureResponse {
   success: true
@@ -45,30 +42,8 @@ export function useUpdateSongPicture() {
   return useMutation({
     mutationFn: updateSongPicture,
     onSuccess: updatedSong => {
-      queryClient.setQueriesData<InfiniteData<SongsResponse, number>>(
-        {
-          predicate: ({ queryKey }) => {
-            return queryKey[0] === 'songs' && queryKey[1] === 'folder'
-          }
-        },
-        oldData => {
-          if (!oldData) return oldData
-
-          return {
-            ...oldData,
-            pages: oldData.pages.map(page => {
-              if (!page.success) return page
-              return {
-                ...page,
-                files: page.files.map(song => (song.id === updatedSong.id ? updatedSong : song))
-              }
-            })
-          }
-        }
-      )
-
+      applySongUpdates(queryClient, [updatedSong])
       invalidateAllHistoryQueryKeys(queryClient)
-      queryClient.setQueryData(getSongQueryKey(updatedSong.id), updatedSong)
     }
   })
 }

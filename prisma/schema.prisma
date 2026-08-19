@@ -80,6 +80,7 @@ model Song {
   pictures      SongPicture[]
   changeHistory SongChangeHistory[]
   sharedLinks   SharedLink[]
+  listens       Listen[]
 
   @@index([folderPath])
   @@map("songs")
@@ -182,4 +183,65 @@ model SmartPlaylist {
   @@index([userId])
   @@index([isPublic])
   @@map("smart_playlists")
+}
+
+/// One play recorded by the player once the listen threshold was reached.
+model Listen {
+  id     Int  @id @default(autoincrement())
+  userId String @map("user_id")
+  /// Nulled instead of deleted when the song disappears from the library, so history survives a rescan.
+  songId Int? @map("song_id")
+
+  listenedAt DateTime @map("listened_at")
+
+  // Snapshot of the tags at listen time
+  trackName   String  @map("track_name")
+  artistName  String? @map("artist_name")
+  releaseName String? @map("release_name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  song Song? @relation(fields: [songId], references: [id], onDelete: SetNull)
+
+  @@index([userId, listenedAt])
+  @@index([songId])
+  @@map("listens")
+}
+
+/// A user's account on an external scrobbling service.
+model ScrobbleAccount {
+  id       Int     @id @default(autoincrement())
+  userId   String  @map("user_id")
+  provider String // ScrobbleProviderId
+  enabled  Boolean @default(true)
+  /// Overrides the provider default when the user self-hosts the service.
+  apiRoot  String? @map("api_root")
+  /// AES-256-GCM, never leaves the server. See src/lib/crypto.ts
+  encryptedToken String  @map("encrypted_token")
+  username       String?
+  lastError      String? @map("last_error")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  queue ScrobbleQueueItem[]
+
+  @@unique([userId, provider])
+  @@map("scrobble_accounts")
+}
+
+/// Listens waiting to be delivered to a provider, retried with backoff.
+model ScrobbleQueueItem {
+  id            Int      @id @default(autoincrement())
+  accountId     Int      @map("account_id")
+  payload       String // JSON-serialized ListenPayload
+  attempts      Int      @default(0)
+  lastError     String?  @map("last_error")
+  nextAttemptAt DateTime @map("next_attempt_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  account ScrobbleAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@index([accountId, nextAttemptAt])
+  @@map("scrobble_queue")
 }

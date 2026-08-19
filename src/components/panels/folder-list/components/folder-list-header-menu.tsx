@@ -8,6 +8,7 @@ import {
   MessageCirclePlus,
   MoreVerticalIcon,
   RefreshCwIcon,
+  SettingsIcon,
   UsersIcon,
   ZapIcon
 } from 'lucide-react'
@@ -35,11 +36,17 @@ const GITHUB_ISSUE_URL = 'https://github.com/suitux/Tagr/issues/new'
 interface FolderListHeaderMenuProps {
   onOpenHistory: () => void
   onOpenUserManagement: () => void
+  onOpenSettings: () => void
 }
 
-export function FolderListHeaderMenu({ onOpenHistory, onOpenUserManagement }: FolderListHeaderMenuProps) {
+export function FolderListHeaderMenu({
+  onOpenHistory,
+  onOpenUserManagement,
+  onOpenSettings
+}: FolderListHeaderMenuProps) {
   const t = useTranslations('folders')
   const tCommon = useTranslations('common')
+  const tSettings = useTranslations('settings')
   const { data: session } = useSession()
   const { isPending, confirmQuickScan, confirmFullScan } = useScan()
   const { canInstall, install } = usePwaInstall()
@@ -86,6 +93,10 @@ export function FolderListHeaderMenu({ onOpenHistory, onOpenUserManagement }: Fo
             {t('manageUsers')}
           </DropdownMenuItem>
         )}
+        <DropdownMenuItem onClick={onOpenSettings}>
+          <SettingsIcon className='h-4 w-4' />
+          {tSettings('title')}
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <Link href={GITHUB_ISSUE_URL} target='_blank' rel='noopener noreferrer'>
             <MessageCirclePlus className='h-4 w-4' />

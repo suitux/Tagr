@@ -4,6 +4,8 @@ import mainScreen from '../assets/screenshots/main-screen.png';
 import basicSearch from '../assets/screenshots/basic-search.png';
 import songHistory from '../assets/screenshots/song-history.png';
 import columns from '../assets/screenshots/columns.png';
+import userManagement from '../assets/screenshots/user-management.png';
+import listenbrainz from '../assets/screenshots/settings-listenbrainz.png';
 import mobileList from '../assets/screenshots/mobile-list.png';
 import mobileListSong from '../assets/screenshots/mobile-list-song.png';
 import mobileSong from '../assets/screenshots/mobile-song.png';
@@ -18,7 +20,7 @@ interface Props {
 const { locale } = Astro.props;
 const d = t(locale);
 
-const desktopShots = [mainScreen, basicSearch, songHistory, columns];
+const desktopShots = [mainScreen, basicSearch, songHistory, columns, userManagement, listenbrainz];
 const mobileShots = [mobileList, mobileListSong, mobileSong, mobileMb];
 ---
 

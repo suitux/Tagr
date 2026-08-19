@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
-import { buildFolderHref, buildPlaylistHref, folderPathToSegments, segmentsToFolderPath } from './library-routes'
+import {
+  buildFolderHref,
+  buildPlaylistHref,
+  folderPathToSegments,
+  RECENT_LISTENS_ROUTE,
+  segmentsToFolderPath
+} from './library-routes'
 
 describe('folderPathToSegments', () => {
   it('returns no segments for the all-songs sentinel', () => {
@@ -22,15 +28,22 @@ describe('segmentsToFolderPath', () => {
     expect(segmentsToFolderPath([])).toBe(ALL_SONGS_FOLDER_ID)
   })
 
-  it('rebuilds the absolute path from already decoded segments', () => {
-    expect(segmentsToFolderPath(['music', 'Sigur Rós'])).toBe('/music/Sigur Rós')
+  it('decodes the segments the client router hands back', () => {
+    expect(segmentsToFolderPath(['music', 'Sigur%20R%C3%B3s'])).toBe('/music/Sigur Rós')
   })
 
-  it('round-trips a path through decoded segments', () => {
-    const folderPath = '/music/Rock/100% Real'
-    const decoded = folderPathToSegments(folderPath).map(decodeURIComponent)
+  it('leaves an already decoded segment alone', () => {
+    expect(segmentsToFolderPath(['music', 'A folder with music'])).toBe('/music/A folder with music')
+  })
 
-    expect(segmentsToFolderPath(decoded)).toBe(folderPath)
+  it('keeps a segment that is not valid percent-encoding', () => {
+    expect(segmentsToFolderPath(['music', '100% Real'])).toBe('/music/100% Real')
+  })
+
+  it('round-trips a path through the segments of its href', () => {
+    const folderPath = '/music/Rock/100% Real'
+
+    expect(segmentsToFolderPath(folderPathToSegments(folderPath))).toBe(folderPath)
   })
 })
 
@@ -45,5 +58,9 @@ describe('href builders', () => {
 
   it('builds a playlist href', () => {
     expect(buildPlaylistHref(12)).toBe('/smart-playlists/12')
+  })
+
+  it('points the recent listens view at its own route', () => {
+    expect(RECENT_LISTENS_ROUTE).toBe('/listens')
   })
 })

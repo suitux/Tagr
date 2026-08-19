@@ -12,6 +12,7 @@ import { useLibraryNavigation } from '@/hooks/use-library-navigation'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
 import { useSelectedSong } from '@/hooks/use-selected-song'
+import { useSelectedView } from '@/hooks/use-selected-view'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMobileNavStore } from '@/stores/mobile-nav-store'
 
@@ -20,7 +21,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { selectedFolderId } = useSelectedFolder()
   const { selectedPlaylistId } = useSelectedPlaylist()
   const { selectedSongId } = useSelectedSong()
-  const { navigateToFolder, navigateToPlaylist } = useLibraryNavigation()
+  const { selectedView } = useSelectedView()
+  const { navigateToFolder, navigateToPlaylist, navigateToRecentListens } = useLibraryNavigation()
   const setFolderSheetOpen = useMobileNavStore(s => s.setFolderSheetOpen)
   const clearBulkSelect = useBulkSelectionStore(s => s.clear)
 
@@ -31,6 +33,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   const handleFolderSelect = (folderId: string | null) => navigateToFolder(folderId)
   const handlePlaylistSelect = (playlistId: number | null) => navigateToPlaylist(playlistId)
+  const handleRecentListensSelect = () => navigateToRecentListens()
 
   return (
     <>
@@ -44,6 +47,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onFolderSelect={handleFolderSelect}
             selectedPlaylistId={selectedPlaylistId}
             onPlaylistSelect={handlePlaylistSelect}
+            selectedView={selectedView}
+            onRecentListensSelect={handleRecentListensSelect}
           />
         }
         main={children}

@@ -182,6 +182,7 @@
     "folderPath": "Folder Path",
     "dateAdded": "Date Added",
     "lastPlayed": "Last Played",
+    "listenedAt": "Listened At",
     "playCount": "Play Count",
     "lossless": "Lossless"
   },
@@ -334,6 +335,7 @@
   },
   "users": {
     "title": "Manage Users",
+    "description": "Create, edit and remove the users that can access Tagr.",
     "createUser": "Create user",
     "editUser": "Edit user",
     "deleteUser": "Delete user",
@@ -414,6 +416,7 @@
       "selectSong": "Select song",
       "selectAllFolder": "Select entire folder",
       "selectAllPlaylist": "Select entire smart playlist",
+      "selectAllRecent": "Select everything recently played",
       "clearSelection": "Clear selection"
     },
     "actionBar": {
@@ -466,5 +469,32 @@
     "titleEdit": "Bulk edit summary",
     "titleCover": "Cover fetch summary",
     "totalFiles": "{count, plural, one {# song processed} other {# songs processed}}"
+  },
+  "settings": {
+    "title": "Settings",
+    "sections": {
+      "users": "Users",
+      "integrations": "Third party integrations"
+    }
+  },
+  "scrobbling": {
+    "listenbrainz": "ListenBrainz",
+    "description": "Send the songs you play in Tagr to your ListenBrainz profile.",
+    "enable": "Scrobble what I play",
+    "token": "User token",
+    "tokenPlaceholder": "Paste your ListenBrainz token",
+    "tokenStored": "A token is already stored — type a new one to replace it",
+    "tokenHelp": "Copy it from your <link>ListenBrainz settings</link>.",
+    "apiRoot": "API root (optional)",
+    "save": "Verify and save",
+    "saved": "Scrobbling settings saved",
+    "connectedAs": "Connected as {username}",
+    "disconnect": "Disconnect",
+    "disconnected": "ListenBrainz disconnected",
+    "pending": "{count} listens waiting to be sent"
+  },
+  "listens": {
+    "title": "Recently played",
+    "empty": "Nothing played yet"
   }
 }

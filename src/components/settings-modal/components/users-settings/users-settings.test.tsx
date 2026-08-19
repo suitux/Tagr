@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { UserPublic } from '@/features/users/domain'
@@ -36,35 +36,32 @@ vi.mock('@/features/users/hooks/use-delete-user', () => ({
   useDeleteUser: () => ({ mutate: mockDeleteMutate, isPending: false })
 }))
 
-import { UserManagementModal } from './user-management-modal'
+import { UsersSettings } from './users-settings'
 
 const mockUsers: UserPublic[] = [
   { id: 1, username: 'alice', role: 'tagger', createdAt: '2024-01-01', updatedAt: '2024-01-01' },
   { id: 2, username: 'bob', role: 'listener', createdAt: '2024-01-02', updatedAt: '2024-01-02' }
 ]
 
-function renderModal(open = true) {
+function renderUsersSettings() {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
-  const onOpenChange = vi.fn()
 
   render(
     <QueryClientProvider client={queryClient}>
-      <UserManagementModal open={open} onOpenChange={onOpenChange} />
+      <UsersSettings />
     </QueryClientProvider>
   )
-
-  return { onOpenChange }
 }
 
 beforeEach(() => {
   vi.clearAllMocks()
 })
 
-describe('UserManagementModal', () => {
+describe('UsersSettings', () => {
   it('shows loading state', () => {
     mockUseUsers.mockReturnValue({ data: undefined, isLoading: true })
 
-    renderModal()
+    renderUsersSettings()
 
     expect(screen.getByText('users.title')).toBeInTheDocument()
   })
@@ -72,7 +69,7 @@ describe('UserManagementModal', () => {
   it('shows empty state when no users', () => {
     mockUseUsers.mockReturnValue({ data: [], isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     expect(screen.getByText('users.noUsers')).toBeInTheDocument()
   })
@@ -80,7 +77,7 @@ describe('UserManagementModal', () => {
   it('shows user table when users exist', () => {
     mockUseUsers.mockReturnValue({ data: mockUsers, isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     expect(screen.getByText('alice')).toBeInTheDocument()
     expect(screen.getByText('bob')).toBeInTheDocument()
@@ -89,7 +86,7 @@ describe('UserManagementModal', () => {
   it('shows create button when users exist and no form is open', () => {
     mockUseUsers.mockReturnValue({ data: mockUsers, isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     expect(screen.getByRole('button', { name: /createUser/i })).toBeInTheDocument()
   })
@@ -98,7 +95,7 @@ describe('UserManagementModal', () => {
     const user = userEvent.setup()
     mockUseUsers.mockReturnValue({ data: mockUsers, isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     await user.click(screen.getByRole('button', { name: /createUser/i }))
 
@@ -110,7 +107,7 @@ describe('UserManagementModal', () => {
     const user = userEvent.setup()
     mockUseUsers.mockReturnValue({ data: mockUsers, isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     await user.click(screen.getByRole('button', { name: /createUser/i }))
     await user.type(screen.getByPlaceholderText('users.username'), 'newuser')
@@ -130,7 +127,7 @@ describe('UserManagementModal', () => {
     const user = userEvent.setup()
     mockUseUsers.mockReturnValue({ data: mockUsers, isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     // Click edit on first user (alice)
     const buttons = screen.getAllByRole('button')
@@ -144,7 +141,7 @@ describe('UserManagementModal', () => {
     const user = userEvent.setup()
     mockUseUsers.mockReturnValue({ data: mockUsers, isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     // Click delete on first user
     const buttons = screen.getAllByRole('button')
@@ -166,7 +163,7 @@ describe('UserManagementModal', () => {
       action.onClick()
     })
 
-    renderModal()
+    renderUsersSettings()
 
     const buttons = screen.getAllByRole('button')
     const deleteButton = buttons.find(b => b.querySelector('.lucide-trash-2'))!
@@ -179,7 +176,7 @@ describe('UserManagementModal', () => {
     const user = userEvent.setup()
     mockUseUsers.mockReturnValue({ data: [], isLoading: false })
 
-    renderModal()
+    renderUsersSettings()
 
     await user.click(screen.getByRole('button', { name: /createUser/i }))
 

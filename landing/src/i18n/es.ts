@@ -111,6 +111,16 @@ export const es: Dict = {
         altColumns: 'Selector de columnas de Tagr con los interruptores de las más de 40 columnas disponibles en la lista de canciones',
         altTree: 'Árbol de carpetas de Tagr con un menú contextual que ofrece reescanear la carpeta y ver su historial',
       },
+      {
+        title: 'Comparte la biblioteca, no la contraseña.',
+        body: 'Cada persona con su propia cuenta. La de administrador sale de tu fichero de entorno; el resto se crean dentro de Tagr con un rol: un Tagger navega, escucha, edita metadatos y reescanea; un Listener solo navega y escucha. La interfaz oculta lo que el rol no puede hacer y la API lo comprueba en cada petición. El historial de escuchas y las reproducciones se guardan por usuario.',
+        alt: 'Diálogo de ajustes de Tagr abierto en la sección de usuarios, con una cuenta tagger y otra listener, sus etiquetas de rol y las acciones de editar y borrar',
+      },
+      {
+        title: 'Envía tus escuchas a ListenBrainz.',
+        body: 'Pega tu token de ListenBrainz una vez y cada reproducción llega a tu perfil, además del aviso de reproduciendo ahora mientras suena la pista. Cada usuario conecta su propia cuenta, los tokens se cifran antes de tocar la base de datos y las escuchas se encolan y reintentan si ListenBrainz no responde. Puedes apuntarlo a tu propio servidor compatible si también lo autoalojas.',
+        alt: 'Diálogo de ajustes de Tagr abierto en la sección de integraciones de terceros, con la conexión a ListenBrainz, el token guardado y el campo opcional de API root',
+      },
     ],
     grid: [
       {
@@ -195,6 +205,14 @@ export const es: Dict = {
       {
         caption: 'Solo las columnas que usas.',
         alt: 'Menú de visibilidad de columnas de Tagr con casillas para título, artista, álbum, bitrate y decenas de columnas más',
+      },
+      {
+        caption: 'Usuarios y roles, sin tocar ficheros de configuración.',
+        alt: 'Diálogo de ajustes de Tagr en la sección de usuarios, con una cuenta tagger, otra listener y el botón de crear usuario',
+      },
+      {
+        caption: 'Tus escuchas, en tu perfil de ListenBrainz.',
+        alt: 'Diálogo de ajustes de Tagr en la sección de integraciones de terceros, con la cuenta de ListenBrainz conectada',
       },
     ],
     mobile: [
@@ -369,7 +387,7 @@ export const es: Dict = {
       },
       {
         q: '¿Pueden usar la misma instancia varias personas?',
-        a: 'Sí. Tagr trae acceso protegido por contraseña y gestión de usuarios, así que puedes crear cuentas para quienes comparten la biblioteca. El acceso es por usuario, no una única contraseña compartida.',
+        a: 'Sí. Tagr trae acceso protegido por contraseña y gestión de usuarios, así que puedes crear una cuenta para cada persona que comparte la biblioteca, con un rol que decide lo que puede hacer: los taggers editan metadatos y reescanean, los listeners solo navegan y escuchan. El acceso es por usuario, no una única contraseña compartida.',
       },
       {
         q: '¿Puedo deshacer un cambio de metadatos?',

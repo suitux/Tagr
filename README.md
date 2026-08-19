@@ -50,6 +50,10 @@ Tagr lets you browse, edit, and manage audio file tags from any browser — desk
 - Click-to-seek on the waveform
 - Auto-advance to next song
 - Collapsible sidebar player with album art, title, and artist display
+- **Listen history** — every play is recorded once you have heard half the track (or four minutes), and the
+  *Recently played* view in the sidebar lists it back. Play counts and last played dates are kept per song.
+- **ListenBrainz scrobbling** — optionally forward those listens to your ListenBrainz profile, including
+  "playing now" while a track is running. See [Scrobbling](#scrobbling).
 
 <p>
   <img src="docs/player-big.png" alt="Player expanded" height="400" />
@@ -71,6 +75,17 @@ Tagr lets you browse, edit, and manage audio file tags from any browser — desk
   &nbsp;&nbsp;
   <img src="docs/columns.png" alt="Customizable columns" height="350" />
 </p>
+
+### Users and Roles
+
+- **Multiple users** — the admin account comes from `AUTH_USER` / `AUTH_PASSWORD`; every other user is created from
+  the app itself, in **Settings → Users**
+- **Roles** — a **Tagger** can browse, play, edit metadata and rescan the library; a **Listener** can only browse and
+  play. The UI hides what a role cannot do, and the API enforces it on every request
+- Create, rename, change the role of, or delete users at any time. Passwords are stored bcrypt-hashed
+- **Per-user data** — listen history, play counts and the ListenBrainz connection all belong to the user who made them
+
+![User management](docs/user-management.png)
 
 ### File Support
 
@@ -109,7 +124,7 @@ Tagr is fully responsive and works on phones and tablets. The mobile UI adapts t
 
 ### Additional
 
-- **Single-user authentication** — password-protected access
+- **Multi-user authentication** — password-protected access with roles (admin, tagger, listener)
 - **Resizable panels** — drag to resize the three-panel layout to your liking
 - **Dark theme** by default
 - **Toast notifications** for operation feedback
@@ -227,11 +242,39 @@ pnpm dev                 # Development mode
 |----------|----------|-------------|
 | `DATABASE_URL` | Yes | SQLite database path. Use `file:/data/tagr.db` in Docker or `file:./data/tagr.db` locally. |
 | `AUTH_SECRET` | Yes | Secret for signing JWT sessions. Generate with `openssl rand -hex 32`. |
-| `AUTH_USER` | Yes | Login username. |
-| `AUTH_PASSWORD` | Yes | Login password (plain text). |
+| `AUTH_USER` | Yes | Username of the admin account. Additional users are created from **Settings → Users**. |
+| `AUTH_PASSWORD` | Yes | Password of the admin account (plain text). |
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
 | `PUID` | No | User ID for the container process. Defaults to `1000`. (Docker only) |
 | `PGID` | No | Group ID for the container process. Defaults to `1000`. (Docker only) |
+
+---
+
+## Scrobbling
+
+Tagr can send what you play to [ListenBrainz](https://listenbrainz.org). No environment variable is involved —
+each user connects their own account:
+
+1. Copy your user token from <https://listenbrainz.org/settings/>.
+2. Open the menu next to the Tagr logo, choose **Settings → Third party integrations**, paste the token and hit
+   **Verify and save**. Tagr checks the token against the service before storing it.
+3. Leave *API root* empty unless you run your own ListenBrainz-compatible server.
+
+![ListenBrainz settings](docs/settings-listenbrainz.png)
+
+What gets sent:
+
+- A `playing_now` update when a track starts.
+- A listen once you have actually played half the track or four minutes, whichever comes first — the rule
+  ListenBrainz itself defines. Tracks shorter than 30 seconds and tracks you skip early are never submitted.
+- Title, artist, album, track number, duration and any MusicBrainz IDs stored in the file's tags.
+
+Tokens are encrypted with a key derived from `AUTH_SECRET` before they touch the database and are never sent
+back to the browser. Changing `AUTH_SECRET` invalidates stored tokens, so they have to be entered again.
+
+If ListenBrainz is unreachable, listens are kept in a queue in the database and retried with an increasing
+delay the next time you play something. The Settings dialog shows how many are still waiting. Listen history
+and play counts inside Tagr are recorded regardless of whether scrobbling is configured.
 
 ---
 

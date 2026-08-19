@@ -10,6 +10,8 @@ interface ListItemProps {
   isSelected?: boolean
   isExpanded?: boolean
   hasExpandButton?: boolean
+  /** Drops the placeholder that keeps items aligned with expandable ones. */
+  hideExpandSpacer?: boolean
   onToggleExpand?: () => void
   onClick?: () => void
   icon: ReactNode
@@ -24,6 +26,7 @@ export function ListItem({
   isSelected,
   isExpanded,
   hasExpandButton,
+  hideExpandSpacer,
   onToggleExpand,
   onClick,
   icon,
@@ -59,7 +62,7 @@ export function ListItem({
             )}
           />
         </span>
-      ) : (
+      ) : hideExpandSpacer ? null : (
         <div className='w-5 h-5' />
       )}
 

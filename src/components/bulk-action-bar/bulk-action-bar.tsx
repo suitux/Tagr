@@ -25,6 +25,7 @@ interface BulkActionBarProps {
 export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const tBulk = useTranslations('bulkEdit')
   const tFolders = useTranslations('folders')
+  const tListens = useTranslations('listens')
 
   const selection = useSelectionState()
   const count = useSelectionCount()
@@ -51,7 +52,11 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   if (!selection) return null
 
   const selectedLoadedSongs = filterLoadedBySelection(loadedSongs, selection)
-  const contextLabel = buildContextLabel(selection, { playlistName, allFoldersLabel: tFolders('allFolders') })
+  const contextLabel = buildContextLabel(selection, {
+    playlistName,
+    allFoldersLabel: tFolders('allFolders'),
+    recentListensLabel: tListens('title')
+  })
 
   const handleEditSubmit = (patch: Partial<SongMetadataUpdate>) => {
     setPendingPatch(patch)

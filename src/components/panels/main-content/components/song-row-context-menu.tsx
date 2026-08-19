@@ -1,7 +1,7 @@
 'use client'
 
-import { CheckSquareIcon, FolderCheckIcon, ListChecksIcon, XIcon } from 'lucide-react'
-import { useMemo, type ReactNode } from 'react'
+import { CheckSquareIcon, FolderCheckIcon, HistoryIcon, ListChecksIcon, XIcon, type LucideIcon } from 'lucide-react'
+import { type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import {
   ContextMenu,
@@ -11,14 +11,14 @@ import {
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
 import { type Song } from '@/features/songs/domain'
-import { useSelectedFolder } from '@/hooks/use-selected-folder'
-import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
-import {
-  type SelectionContext,
-  useBulkSelectionStore,
-  useIsSelectionActive
-} from '@/stores/bulk-selection-store'
-import { useHomeStore } from '@/stores/home-store'
+import { useSelectionContext } from '@/hooks/use-selection-context'
+import { type SelectionContext, useBulkSelectionStore, useIsSelectionActive } from '@/stores/bulk-selection-store'
+
+const SELECT_ALL_ACTIONS = {
+  folder: { icon: FolderCheckIcon, labelKey: 'contextMenu.selectAllFolder' },
+  'smart-playlist': { icon: ListChecksIcon, labelKey: 'contextMenu.selectAllPlaylist' },
+  'recent-listens': { icon: HistoryIcon, labelKey: 'contextMenu.selectAllRecent' }
+} as const satisfies Record<SelectionContext['type'], { icon: LucideIcon; labelKey: string }>
 
 interface SongRowContextMenuProps {
   row: Song
@@ -29,15 +29,7 @@ interface SongRowContextMenuProps {
 export function SongRowContextMenu({ row, children, totalSongs }: SongRowContextMenuProps) {
   const tBulk = useTranslations('bulkEdit')
 
-  const { selectedFolderId } = useSelectedFolder()
-  const { selectedPlaylistId } = useSelectedPlaylist()
-  const search = useHomeStore(s => s.search)
-  const columnFilters = useHomeStore(s => s.columnFilters)
-
-  const activeFilters = useMemo(() => {
-    const entries = Object.entries(columnFilters).filter(([, v]) => v)
-    return entries.length > 0 ? Object.fromEntries(entries) : undefined
-  }, [columnFilters])
+  const context = useSelectionContext()
 
   const toggle = useBulkSelectionStore(s => s.toggle)
   const selectAllInContext = useBulkSelectionStore(s => s.selectAllInContext)
@@ -45,19 +37,11 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
   const isActive = useIsSelectionActive()
 
   const handleSelectAll = () => {
-    let context: SelectionContext | null = null
-    if (selectedPlaylistId !== null) {
-      context = { type: 'smart-playlist', playlistId: selectedPlaylistId, search: search || undefined, filters: activeFilters }
-    } else if (selectedFolderId) {
-      context = { type: 'folder', folderPath: selectedFolderId, search: search || undefined, filters: activeFilters }
-    }
     if (!context || totalSongs === null || totalSongs === 0) return
     selectAllInContext(context, totalSongs)
   }
 
-  const isPlaylist = selectedPlaylistId !== null
-  const allLabel = isPlaylist ? tBulk('contextMenu.selectAllPlaylist') : tBulk('contextMenu.selectAllFolder')
-  const AllIcon = isPlaylist ? ListChecksIcon : FolderCheckIcon
+  const { icon: AllIcon, labelKey } = SELECT_ALL_ACTIONS[context?.type ?? 'folder']
 
   return (
     <ContextMenu>
@@ -69,7 +53,7 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
         </ContextMenuItem>
         <ContextMenuItem onSelect={handleSelectAll} disabled={totalSongs === null || totalSongs === 0}>
           <AllIcon />
-          {allLabel}
+          {tBulk(labelKey)}
         </ContextMenuItem>
         {isActive && (
           <>

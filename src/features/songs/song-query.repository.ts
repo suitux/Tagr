@@ -6,21 +6,24 @@ import {
   DATE_SONG_FIELDS,
   DURATION_SONG_FIELDS,
   FILTERS_MULTI_VALUE_SEPARATOR,
+  RECENTLY_LISTENED_ONLY_FIELDS,
   NUMERIC_SONG_FIELDS,
   SELECT_SONG_FIELDS,
   Song,
   SongColumnFilters,
+  SongScalarField,
   SongSortDirection,
   SongSortField,
   getMetadataKeyFromColumnId,
   isMetadataColumnId
 } from '@/features/songs/domain'
+import { parseDateRangeFilter } from '@/features/songs/filters-helpers'
 import { FIELD_MULTI_VALUE_SEPARATOR, stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import { prisma } from '@/infrastructure/prisma/dbClient'
 
 export const PAGE_SIZE = 50
 
-export async function getDistinctValues(field: SongSortField): Promise<string[]> {
+export async function getDistinctValues(field: SongScalarField): Promise<string[]> {
   const rows = (await prisma.song.findMany({
     distinct: [field],
     select: { [field]: true }
@@ -95,13 +98,20 @@ export async function getDistinctMetadataKeys(): Promise<string[]> {
   return keys
 }
 
-function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, unknown>[] {
+/** Sort fields that only exist on `Listen` must never reach a `song` query. */
+function songSortField(sortField?: ColumnField): ColumnField | undefined {
+  return sortField && RECENTLY_LISTENED_ONLY_FIELDS.has(sortField) ? undefined : sortField
+}
+
+export function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, unknown>[] {
   if (!filters) return []
   const conditions: Record<string, unknown>[] = []
 
   for (const [field, value] of Object.entries(filters)) {
     if (!value) continue
     const columnField = field as ColumnField
+
+    if (RECENTLY_LISTENED_ONLY_FIELDS.has(columnField)) continue
 
     if (isMetadataColumnId(columnField)) {
       const metaKey = getMetadataKeyFromColumnId(columnField)
@@ -125,13 +135,8 @@ function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<string, un
     const songField = field as SongSortField
 
     if (DATE_SONG_FIELDS.has(songField)) {
-      const [fromStr, toStr] = value.split('..')
-      const condition: Record<string, Date> = {}
-      if (fromStr) condition.gte = new Date(fromStr + 'T00:00:00')
-      if (toStr) condition.lte = new Date(toStr + 'T23:59:59')
-      if (Object.keys(condition).length > 0) {
-        conditions.push({ [field]: condition })
-      }
+      const range = parseDateRangeFilter(value)
+      if (range) conditions.push({ [field]: range })
     } else if (BOOLEAN_SONG_FIELDS.has(songField)) {
       conditions.push({ [field]: { equals: value === 'true' || value === '1' } })
     } else if (DURATION_SONG_FIELDS.has(songField)) {
@@ -191,9 +196,9 @@ export async function getSongsByFolder(
   filters?: SongColumnFilters,
   metadataKeys?: string[]
 ): Promise<Song[]> {
+  const sortColumn = songSortField(sortField)
   const columnFilterConditions = buildColumnFiltersWhere(filters)
   const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
-  const isMetadataSort = sortField && isMetadataColumnId(sortField)
 
   const where = {
     ...(folderPath && { folderPath }),
@@ -212,8 +217,8 @@ export async function getSongsByFolder(
     })
   }
 
-  if (isMetadataSort) {
-    const metaKey = getMetadataKeyFromColumnId(sortField)
+  if (sortColumn && isMetadataColumnId(sortColumn)) {
+    const metaKey = getMetadataKeyFromColumnId(sortColumn)
     const songIds = await getMetadataSortedSongIds(where, metaKey, sort ?? 'asc', skip, take)
     if (songIds.length === 0) return []
 
@@ -228,7 +233,7 @@ export async function getSongsByFolder(
   }
 
   const defaultOrder = [{ title: 'asc' as const }]
-  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+  const orderBy = sortColumn && sort ? [{ [sortColumn]: sort }] : defaultOrder
 
   return prisma.song.findMany({
     where,
@@ -287,8 +292,8 @@ export async function getAdjacentSongs({
   extraWhere,
   shuffle
 }: GetAdjacentSongsParams): Promise<{ previous: Song | null; next: Song | null }> {
+  const sortColumn = songSortField(sortField)
   const columnFilterConditions = buildColumnFiltersWhere(filters)
-  const isMetadataSort = sortField && isMetadataColumnId(sortField)
 
   const conditions: Record<string, unknown>[] = []
 
@@ -312,8 +317,8 @@ export async function getAdjacentSongs({
 
   let orderedIds: { id: number }[]
 
-  if (isMetadataSort) {
-    const metaKey = getMetadataKeyFromColumnId(sortField)
+  if (sortColumn && isMetadataColumnId(sortColumn)) {
+    const metaKey = getMetadataKeyFromColumnId(sortColumn)
     const filteredSongs = await prisma.song.findMany({ where, select: { id: true } })
     if (filteredSongs.length === 0) return { previous: null, next: null }
 
@@ -325,7 +330,7 @@ export async function getAdjacentSongs({
     orderedIds = sortedIds.map(id => ({ id }))
   } else {
     const defaultOrder = [{ title: 'asc' as const }]
-    const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+    const orderBy = sortColumn && sort ? [{ [sortColumn]: sort }] : defaultOrder
     orderedIds = await prisma.song.findMany({ where, orderBy, select: { id: true } })
   }
 
@@ -386,13 +391,13 @@ export async function getSongsByPlaylist(
   filters?: SongColumnFilters,
   metadataKeys?: string[]
 ): Promise<Song[]> {
+  const sortColumn = songSortField(sortField)
   const where = buildPlaylistWhereClause(rules, search, filters)
   const includeMetadata =
     (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters) || rulesUseMetadata(rules)
-  const isMetadataSort = sortField && isMetadataColumnId(sortField)
 
-  if (isMetadataSort) {
-    const metaKey = getMetadataKeyFromColumnId(sortField)
+  if (sortColumn && isMetadataColumnId(sortColumn)) {
+    const metaKey = getMetadataKeyFromColumnId(sortColumn)
     const songIds = await getMetadataSortedSongIds(where, metaKey, sort ?? 'asc', skip, take)
     if (songIds.length === 0) return []
 
@@ -407,7 +412,7 @@ export async function getSongsByPlaylist(
   }
 
   const defaultOrder = [{ title: 'asc' as const }]
-  const orderBy = sortField && sort ? [{ [sortField]: sort }] : defaultOrder
+  const orderBy = sortColumn && sort ? [{ [sortColumn]: sort }] : defaultOrder
 
   return prisma.song.findMany({
     where,

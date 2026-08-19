@@ -52,6 +52,12 @@ export type SongSortField =
   | 'dateAdded'
   | 'lastPlayed'
   | 'playCount'
+  /** Only exists on `Listen`, not on `Song` — see `LISTEN_ONLY_FIELDS`. */
+  | 'listenedAt'
+
+/** The subset of {@link SongSortField} that is an actual column of the `Song` table. */
+export type SongScalarField = Exclude<SongSortField, 'listenedAt'>
+
 export type SongSortDirection = 'asc' | 'desc'
 
 export const METADATA_COLUMN_PREFIX = 'meta:'
@@ -105,8 +111,11 @@ export const DATE_SONG_FIELDS: Set<ColumnField> = new Set([
   'lastPlayed',
   'modifiedAt',
   'createdAt',
-  'originalReleaseDate'
+  'originalReleaseDate',
+  'listenedAt'
 ])
+
+export const RECENTLY_LISTENED_ONLY_FIELDS: Set<ColumnField> = new Set(['listenedAt'])
 
 export const FILTERS_MULTI_VALUE_SEPARATOR = '||'
 

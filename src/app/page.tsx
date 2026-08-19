@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { buildFolderHref, buildPlaylistHref } from '@/lib/library-routes'
+import { buildFolderHref, buildPlaylistHref, RECENT_LISTENS_ROUTE } from '@/lib/library-routes'
 
 interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -19,9 +19,15 @@ export default async function Home({ searchParams }: PageProps) {
   const folder = first(params.folder)
   const playlist = first(params.playlist)
   const song = first(params.song)
+  const view = first(params.view)
 
   const playlistId = playlist ? Number.parseInt(playlist, 10) : NaN
-  const target = Number.isFinite(playlistId) ? buildPlaylistHref(playlistId) : buildFolderHref(folder ?? '')
+  const target =
+    view === 'recent'
+      ? RECENT_LISTENS_ROUTE
+      : Number.isFinite(playlistId)
+        ? buildPlaylistHref(playlistId)
+        : buildFolderHref(folder ?? '')
 
   redirect(song ? `${target}?song=${encodeURIComponent(song)}` : target)
 }

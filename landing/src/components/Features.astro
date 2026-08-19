@@ -6,6 +6,8 @@ import playerBig from '../assets/screenshots/player-big.png';
 import playerMini from '../assets/screenshots/player-mini.png';
 import columns from '../assets/screenshots/columns.png';
 import contextMenu from '../assets/screenshots/rescan-history-context-menu.png';
+import userManagement from '../assets/screenshots/user-management.png';
+import listenbrainz from '../assets/screenshots/settings-listenbrainz.png';
 import Icon from './Icon.astro';
 import { t, type Locale } from '../i18n';
 
@@ -15,7 +17,7 @@ interface Props {
 
 const { locale } = Astro.props;
 const d = t(locale);
-const [edit, history, player, browse] = d.features.blocks;
+const [edit, history, player, browse, users, scrobbling] = d.features.blocks;
 ---
 
 <section id="features" class="border-t border-[var(--border)] py-20 md:py-28">
@@ -129,6 +131,48 @@ const [edit, history, player, browse] = d.features.blocks;
             class="h-auto w-[17rem] max-w-full rounded-[var(--radius-md)]"
           />
         </div>
+      </div>
+    </div>
+
+    <!-- Block 5: split, image right -->
+    <div class="reveal mt-20 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+      <div class="max-w-lg">
+        <h3 class="text-2xl font-semibold tracking-[-0.02em]">{users.title}</h3>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{users.body}</p>
+      </div>
+      <div
+        class="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)]"
+      >
+        <Image
+          src={userManagement}
+          alt={users.alt}
+          widths={[640, 787]}
+          sizes="(min-width: 1024px) 46vw, 100vw"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="h-auto w-full"
+        />
+      </div>
+    </div>
+
+    <!-- Block 6: split, image left -->
+    <div class="reveal mt-20 grid items-center gap-10 lg:grid-cols-2 lg:gap-14">
+      <div
+        class="overflow-hidden rounded-[var(--radius-xl)] border border-[var(--border)] bg-[var(--card)] lg:order-first"
+      >
+        <Image
+          src={listenbrainz}
+          alt={scrobbling.alt}
+          widths={[640, 792]}
+          sizes="(min-width: 1024px) 46vw, 100vw"
+          formats={['avif', 'webp']}
+          loading="lazy"
+          class="h-auto w-full"
+        />
+      </div>
+      <div class="max-w-lg lg:justify-self-end">
+        <h3 class="text-2xl font-semibold tracking-[-0.02em]">{scrobbling.title}</h3>
+        <p class="mt-4 leading-relaxed text-[var(--muted-foreground)]">{scrobbling.body}</p>
       </div>
     </div>
 

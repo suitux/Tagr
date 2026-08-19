@@ -109,6 +109,16 @@ export const en = {
         altColumns: 'Tagr column picker showing toggles for over 40 available song list columns',
         altTree: 'Tagr folder tree with a right click context menu offering rescan and folder history actions',
       },
+      {
+        title: 'Share the library, not the password.',
+        body: 'Give everyone their own account. The admin comes from your environment file, the rest are created inside Tagr with a role: a Tagger browses, plays, edits metadata and rescans, a Listener only browses and plays. The interface hides what a role cannot do and the API enforces it on every request. Listen history and play counts are kept per user.',
+        alt: 'Tagr settings dialog open on the Users section, listing a tagger and a listener account with their role badges and edit and delete actions',
+      },
+      {
+        title: 'Scrobble to ListenBrainz.',
+        body: 'Paste your ListenBrainz token once and every play is forwarded to your profile, plus a playing now update while the track runs. Each user connects their own account, tokens are encrypted before they reach the database, and listens are queued and retried if ListenBrainz is unreachable. Point it at your own compatible server if you self host that too.',
+        alt: 'Tagr settings dialog open on the third party integrations section, showing the ListenBrainz connection with a stored user token and an optional API root',
+      },
     ],
     grid: [
       {
@@ -143,8 +153,8 @@ export const en = {
       },
       {
         icon: 'users',
-        title: 'Multi user auth',
-        body: 'Password protected access with user management built in.',
+        title: 'Users and roles',
+        body: 'Password protected access with user management built in: admin, tagger and listener.',
       },
       {
         icon: 'moon',
@@ -193,6 +203,14 @@ export const en = {
       {
         caption: 'Show only the columns you use.',
         alt: 'Tagr column visibility menu with checkboxes for title, artist, album, bitrate and dozens of other columns',
+      },
+      {
+        caption: 'Users and roles, no config file needed.',
+        alt: 'Tagr settings dialog on the Users section with a tagger and a listener account and a create user button',
+      },
+      {
+        caption: 'Your plays, on your ListenBrainz profile.',
+        alt: 'Tagr settings dialog on the third party integrations section with the ListenBrainz account connected',
       },
     ],
     mobile: [
@@ -367,7 +385,7 @@ export const en = {
       },
       {
         q: 'Can multiple people use the same Tagr instance?',
-        a: 'Yes. Tagr has password protected access and user management built in, so you can create accounts for the people who share the library. Access is per user, not a single shared password.',
+        a: 'Yes. Tagr has password protected access and user management built in, so you can create an account for each person who shares the library, with a role that decides what they can do: taggers edit metadata and rescan, listeners only browse and play. Access is per user, not a single shared password.',
       },
       {
         q: 'Can I undo a metadata change?',
