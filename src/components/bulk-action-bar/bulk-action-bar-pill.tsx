@@ -1,6 +1,6 @@
 'use client'
 
-import { ImageIcon, PencilIcon, XIcon } from 'lucide-react'
+import { ImageIcon, ImageUpIcon, PencilIcon, XIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useBreakpoint } from '@/hooks/use-breakpoint'
@@ -12,10 +12,18 @@ interface BulkActionBarPillProps {
   busy: boolean
   onCancel: () => void
   onEdit: () => void
+  onSetCover: () => void
   onFetchCovers: () => void
 }
 
-export function BulkActionBarPill({ count, busy, onCancel, onEdit, onFetchCovers }: BulkActionBarPillProps) {
+export function BulkActionBarPill({
+  count,
+  busy,
+  onCancel,
+  onEdit,
+  onSetCover,
+  onFetchCovers
+}: BulkActionBarPillProps) {
   const tBulk = useTranslations('bulkEdit')
   const breakpoint = useBreakpoint()
   const hasPlayer = usePlayerStore(s => s.currentSong) !== null
@@ -45,6 +53,15 @@ export function BulkActionBarPill({ count, busy, onCancel, onEdit, onFetchCovers
         <Button size='sm' onClick={onEdit} disabled={count === 0 || busy} aria-label={tBulk('actionBar.edit')}>
           <PencilIcon />
           <span className='hidden sm:inline'>{tBulk('actionBar.edit')}</span>
+        </Button>
+        <Button
+          variant='secondary'
+          size='sm'
+          onClick={onSetCover}
+          disabled={count === 0 || busy}
+          aria-label={tBulk('actionBar.setCover')}>
+          <ImageUpIcon />
+          <span className='hidden sm:inline'>{tBulk('actionBar.setCover')}</span>
         </Button>
         <Button
           variant='secondary'

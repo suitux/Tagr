@@ -1,6 +1,14 @@
 'use client'
 
-import { CheckSquareIcon, FolderCheckIcon, HistoryIcon, ListChecksIcon, XIcon, type LucideIcon } from 'lucide-react'
+import {
+  CheckSquareIcon,
+  FolderCheckIcon,
+  HistoryIcon,
+  ImageUpIcon,
+  ListChecksIcon,
+  XIcon,
+  type LucideIcon
+} from 'lucide-react'
 import { type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import {
@@ -12,7 +20,13 @@ import {
 } from '@/components/ui/context-menu'
 import { type Song } from '@/features/songs/domain'
 import { useSelectionContext } from '@/hooks/use-selection-context'
-import { type SelectionContext, useBulkSelectionStore, useIsSelectionActive } from '@/stores/bulk-selection-store'
+import {
+  type SelectionContext,
+  useBulkSelectionStore,
+  useIsSelectionActive,
+  useSelectionCount
+} from '@/stores/bulk-selection-store'
+import { useHomeStore } from '@/stores/home-store'
 
 const SELECT_ALL_ACTIONS = {
   folder: { icon: FolderCheckIcon, labelKey: 'contextMenu.selectAllFolder' },
@@ -35,6 +49,8 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
   const selectAllInContext = useBulkSelectionStore(s => s.selectAllInContext)
   const clear = useBulkSelectionStore(s => s.clear)
   const isActive = useIsSelectionActive()
+  const selectionCount = useSelectionCount()
+  const setCoverPickerOpen = useHomeStore(s => s.setBulkCoverPickerOpen)
 
   const handleSelectAll = () => {
     if (!context || totalSongs === null || totalSongs === 0) return
@@ -58,6 +74,12 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
         {isActive && (
           <>
             <ContextMenuSeparator />
+            {selectionCount > 1 && (
+              <ContextMenuItem onSelect={() => setCoverPickerOpen(true)}>
+                <ImageUpIcon />
+                {tBulk('contextMenu.setCover')}
+              </ContextMenuItem>
+            )}
             <ContextMenuItem onSelect={() => clear()}>
               <XIcon />
               {tBulk('contextMenu.clearSelection')}

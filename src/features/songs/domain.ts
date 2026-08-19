@@ -134,3 +134,5 @@ export const MIME_TYPES: Record<string, string> = {
 }
 
 export const RESTART_SONG_THRESHOLD_S = 3
+
+export const MAX_COVER_IMAGE_BYTES = 20 * 1024 * 1024

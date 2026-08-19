@@ -2,7 +2,13 @@
 
 import { useTranslations } from 'next-intl'
 import { SummaryModal, type SummarySection } from '@/components/summary-modal/summary-modal'
-import { useHomeStore } from '@/stores/home-store'
+import { type BulkSummaryKind, useHomeStore } from '@/stores/home-store'
+
+const KIND_CONFIG = {
+  edit: { titleKey: 'titleEdit', updatedVariant: 'updated' },
+  cover: { titleKey: 'titleCover', updatedVariant: 'cover' },
+  'set-cover': { titleKey: 'titleSetCover', updatedVariant: 'cover' }
+} as const satisfies Record<BulkSummaryKind, { titleKey: string; updatedVariant: SummarySection['variant'] }>
 
 export function BulkSummaryModal() {
   const t = useTranslations('bulkSummary')
@@ -12,7 +18,7 @@ export function BulkSummaryModal() {
 
   const { kind, updated, failed } = bulkLastResult
   const totalFiles = updated.count + failed.count
-  const updatedVariant = kind === 'cover' ? 'cover' : 'updated'
+  const { titleKey, updatedVariant } = KIND_CONFIG[kind]
 
   const sections: SummarySection[] = [
     { variant: updatedVariant, count: updated.count, files: updated.files },
@@ -23,7 +29,7 @@ export function BulkSummaryModal() {
     <SummaryModal
       open={bulkSummaryOpen}
       onOpenChange={setBulkSummaryOpen}
-      title={t(kind === 'cover' ? 'titleCover' : 'titleEdit')}
+      title={t(titleKey)}
       totalLabel={t('totalFiles', { count: totalFiles })}
       sections={sections}
     />

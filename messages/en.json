@@ -417,13 +417,15 @@
       "selectAllFolder": "Select entire folder",
       "selectAllPlaylist": "Select entire smart playlist",
       "selectAllRecent": "Select everything recently played",
-      "clearSelection": "Clear selection"
+      "clearSelection": "Clear selection",
+      "setCover": "Set cover art for selection"
     },
     "actionBar": {
       "selectedCount": "{count, plural, one {# song selected} other {# songs selected}}",
       "wholeFolder": "(whole folder)",
       "wholePlaylist": "(whole playlist)",
       "edit": "Edit",
+      "setCover": "Set cover",
       "fetchCovers": "Get covers from MusicBrainz",
       "cancel": "Cancel selection"
     },
@@ -445,6 +447,18 @@
       "description": "Each selected song looks up its own MusicBrainz release and writes the cover. The operation is rate-limited to one request per second.",
       "estimate": "Estimated time: ~{duration} for {count, plural, one {# song} other {# songs}}.",
       "warning": "Existing cover art will be overwritten, but can be restored from the history if needed."
+    },
+    "setCover": {
+      "title": "Set cover art",
+      "description": "Pick one image and it will be written as the cover art of {count, plural, one {the selected song} other {all # selected songs}}.",
+      "dropHint": "Drag an image here, or use the button below.",
+      "upload": "Upload image",
+      "replaceFile": "Replace image",
+      "removeFile": "Remove image",
+      "selectedAnnounce": "Selected image: {name}",
+      "errorNotImage": "That file is not an image.",
+      "errorTooLarge": "That image is too large. Maximum size is {size}.",
+      "applyNote": "This image will replace the cover art of {count, plural, one {# song} other {# songs}}."
     },
     "progress": {
       "label": "Processing {completed} / {total}"
@@ -468,7 +482,8 @@
   "bulkSummary": {
     "titleEdit": "Bulk edit summary",
     "titleCover": "Cover fetch summary",
-    "totalFiles": "{count, plural, one {# song processed} other {# songs processed}}"
+    "totalFiles": "{count, plural, one {# song processed} other {# songs processed}}",
+    "titleSetCover": "Cover update summary"
   },
   "settings": {
     "title": "Settings",

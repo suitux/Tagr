@@ -18,3 +18,18 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## UI Components
+
+**Always build UI out of the Shadcn primitives in `src/components/ui/` — never hand-roll an element one of them already covers.**
+Before writing markup, check what is there (`Dialog`, `Card`, `Button`, `Input`, `Label`, `Select`, `Tooltip`,
+`ContextMenu`, `DropdownMenu`, `Table`, `Tabs`, `Sheet`, `Popover`, `ScrollArea`, `Badge`, `Skeleton`, `Separator`,
+`AlertDialog`, `Checkbox`, `RadioGroup`, `Slider`, `Accordion`, `Calendar`, …). Toasts go through `sonner`, images
+through `@/components/ui/image` (a `next/image` wrapper with a fallback).
+
+- A primitive missing from `src/components/ui/` is added with the CLI (`pnpm dlx shadcn@latest add <name>`,
+  configured in `components.json`: style `radix-nova`, icons from `lucide-react`), not rewritten by hand.
+- Deviate only when the primitive genuinely cannot do the job — e.g. the visually hidden `<input type='file'>` behind
+  the cover upload button, which needs to be `sr-only` rather than styled. Leave a comment saying why.
+- Compose with the primitive's own props and slots (`Card` + `CardContent`, `Button asChild`, `size`/`variant`)
+  instead of re-styling it from scratch; `cn()` from `@/lib/utils` merges any extra classes.

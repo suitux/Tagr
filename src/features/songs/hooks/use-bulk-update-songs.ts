@@ -6,7 +6,7 @@ import { type SongMetadataUpdate } from '@/features/metadata/domain'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
 import { applySongUpdates, invalidateBulkTargetQueries } from '@/features/songs/hooks/bulk-cache-sync'
-import { readNdjsonStream } from '@/lib/ndjson-stream'
+import { collectNdjsonBulkResponse, type NdjsonBulkProgress } from '@/lib/ndjson-stream'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
@@ -14,11 +14,7 @@ type BulkUpdateResult =
   | { songId: number; ok: true; song: SongWithMetadata }
   | { songId: number; ok: false; error: string }
 
-export interface BulkProgress {
-  completed: number
-  total: number
-  lastResult?: BulkUpdateResult
-}
+export type BulkProgress = NdjsonBulkProgress<BulkUpdateResult>
 
 interface BulkUpdateParams {
   target: BulkTarget
@@ -27,12 +23,7 @@ interface BulkUpdateParams {
   onProgress?: (progress: BulkProgress) => void
 }
 
-interface BulkUpdateResponse {
-  resolvedCount: number
-  results: BulkUpdateResult[]
-}
-
-async function bulkUpdate(params: BulkUpdateParams): Promise<BulkUpdateResponse> {
+async function bulkUpdate(params: BulkUpdateParams) {
   const { onProgress, ...payload } = params
 
   const response = await fetch('/api/songs/bulk', {
@@ -42,30 +33,7 @@ async function bulkUpdate(params: BulkUpdateParams): Promise<BulkUpdateResponse>
     body: JSON.stringify(payload)
   })
 
-  if (!response.ok) {
-    const data = await response.json().catch(() => null)
-    throw new Error(data?.error ?? `Request failed with status ${response.status}`)
-  }
-
-  const results: BulkUpdateResult[] = []
-  let total = 0
-  let resolvedCount = 0
-
-  for await (const event of readNdjsonStream<BulkUpdateResult>(response)) {
-    if (event.type === 'start') {
-      total = event.total
-      onProgress?.({ completed: 0, total })
-    } else if (event.type === 'result') {
-      results.push(event.result)
-      onProgress?.({ completed: results.length, total, lastResult: event.result })
-    } else if (event.type === 'done') {
-      resolvedCount = event.resolvedCount
-    } else if (event.type === 'error') {
-      throw new Error(event.error)
-    }
-  }
-
-  return { resolvedCount, results }
+  return collectNdjsonBulkResponse<BulkUpdateResult>(response, onProgress)
 }
 
 export function useBulkUpdateSongs() {
