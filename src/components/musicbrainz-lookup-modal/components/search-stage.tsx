@@ -1,14 +1,18 @@
 'use client'
 
 import { Loader2Icon, SearchIcon } from 'lucide-react'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import type { MusicBrainzRecording, MusicBrainzRecordingRelease } from '@/features/musicbrainz/domain'
+import type {
+  MusicBrainzRecording,
+  MusicBrainzRecordingRelease,
+  MusicBrainzSearchParams
+} from '@/features/musicbrainz/domain'
 import { useMusicBrainzSearch } from '@/features/musicbrainz/hooks/use-musicbrainz-search'
 import type { Song } from '@/features/songs/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
@@ -24,33 +28,66 @@ function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string 
   return credits.map(c => c.name + (c.joinphrase ?? '')).join('')
 }
 
+function readField(formData: FormData, name: string): string {
+  return ((formData.get(name) as string | null) ?? '').trim()
+}
+
 export function SearchStage({ song, onSelect }: SearchStageProps) {
   const t = useTranslations('musicbrainzLookup')
   const tFields = useTranslations('fields')
 
-  const [searchTitle, setSearchTitle] = useState(song.title ?? '')
-  const [searchAlbum, setSearchAlbum] = useState(song.album ?? '')
+  const [search, setSearch] = useState<MusicBrainzSearchParams>({
+    title: song.title ?? '',
+    artist: song.artist ?? '',
+    album: song.album ?? '',
+    year: song.year ?? undefined
+  })
 
-  const { data: recordings, isPending } = useMusicBrainzSearch(searchTitle, searchAlbum)
+  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage } = useMusicBrainzSearch(search)
+
+  const recordings = useMemo(() => data?.pages.flatMap(page => page.recordings) ?? [], [data])
+  const totalCount = data?.pages[0].count ?? 0
 
   const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
-    setSearchTitle(formData.get('title') as string)
-    setSearchAlbum(formData.get('album') as string)
+    const year = Number(readField(formData, 'year'))
+
+    setSearch({
+      title: readField(formData, 'title'),
+      artist: readField(formData, 'artist'),
+      album: readField(formData, 'album'),
+      year: Number.isInteger(year) && year > 0 ? year : undefined,
+      mbid: readField(formData, 'mbid')
+    })
   }
 
   return (
     <>
-      <form onSubmit={handleSubmit} className='px-6 py-4 space-y-4'>
-        <div className='flex gap-3'>
-          <div className='flex-1 space-y-1'>
+      <form onSubmit={handleSubmit} className='px-6 py-4 space-y-3'>
+        <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+          <div className='space-y-1'>
             <label className='text-xs font-medium text-muted-foreground'>{tFields('title')}</label>
             <Input name='title' defaultValue={song.title ?? ''} />
           </div>
-          <div className='flex-1 space-y-1'>
+          <div className='space-y-1'>
+            <label className='text-xs font-medium text-muted-foreground'>{tFields('artist')}</label>
+            <Input name='artist' defaultValue={song.artist ?? ''} />
+          </div>
+          <div className='space-y-1'>
             <label className='text-xs font-medium text-muted-foreground'>{tFields('album')}</label>
             <Input name='album' defaultValue={song.album ?? ''} />
+          </div>
+        </div>
+
+        <div className='flex gap-3'>
+          <div className='w-24 space-y-1'>
+            <label className='text-xs font-medium text-muted-foreground'>{tFields('year')}</label>
+            <Input name='year' type='number' inputMode='numeric' defaultValue={song.year ?? ''} />
+          </div>
+          <div className='flex-1 space-y-1'>
+            <label className='text-xs font-medium text-muted-foreground'>{t('mbid')}</label>
+            <Input name='mbid' placeholder={t('mbidPlaceholder')} />
           </div>
           <div className='flex items-end'>
             <Button type='submit' disabled={isPending} size='icon'>
@@ -68,7 +105,7 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
         </div>
       )}
 
-      {!isPending && recordings && (
+      {!isPending && data && (
         <ScrollArea className='h-[50vh]'>
           {!recordings.length && (
             <div className='flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground'>
@@ -76,8 +113,13 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
               <p className='text-sm'>{t('noResults')}</p>
             </div>
           )}
+          {!!recordings.length && (
+            <p className='px-6 pt-3 text-xs text-muted-foreground'>
+              {t('resultsCount', { shown: recordings.length, total: totalCount })}
+            </p>
+          )}
           {recordings.map((recording, index) => (
-            <div key={recording.id}>
+            <div key={`${recording.id}-${index}`}>
               <div className='px-6 py-3'>
                 <div className='flex items-center justify-between gap-2'>
                   <span className='font-medium text-sm'>{recording.title}</span>
@@ -108,6 +150,20 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
               {index < recordings.length - 1 && <Separator />}
             </div>
           ))}
+          {hasNextPage && (
+            <div className='px-6 py-3'>
+              <Button
+                type='button'
+                variant='outline'
+                size='sm'
+                className='w-full'
+                disabled={isFetchingNextPage}
+                onClick={() => fetchNextPage()}>
+                {isFetchingNextPage && <Loader2Icon className='h-4 w-4 animate-spin' />}
+                {t('loadMore')}
+              </Button>
+            </div>
+          )}
         </ScrollArea>
       )}
     </>

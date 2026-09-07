@@ -5,7 +5,9 @@ import {
   type MusicBrainzRecordingSearchResponse,
   type MusicBrainzReleaseDetail,
   type MusicBrainzMappedMetadata,
-  type MusicBrainzRecording
+  type MusicBrainzRecording,
+  type MusicBrainzSearchParams,
+  MUSICBRAINZ_SEARCH_PAGE_SIZE
 } from './domain'
 import { musicBrainzApi } from './musicbrainz-api'
 
@@ -21,21 +23,42 @@ export async function searchReleaseId(artist: string, album: string): Promise<st
   }
 }
 
-interface SearchRecordingsParams {
-  title: string
-  album: string
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+function isMbid(value: string): boolean {
+  return UUID_REGEX.test(value.trim())
+}
+
+interface SearchRecordingsParams extends MusicBrainzSearchParams {
+  limit?: number
+  offset?: number
+}
+
+export function buildRecordingQuery({ title, artist, album, year, mbid }: MusicBrainzSearchParams): string {
+  const parts: string[] = []
+
+  if (title) parts.push(`recording:${JSON.stringify(title)}`)
+  if (artist) parts.push(`artist:${JSON.stringify(artist)}`)
+  if (album) parts.push(`release:${JSON.stringify(album)}`)
+  if (year) parts.push(`date:[${year} TO ${year}-12-31]`)
+  // A single MBID can be a recording, a release or an artist — match all three so a
+  // pasted id works whatever page the user copied it from.
+  if (mbid && isMbid(mbid)) {
+    const id = mbid.trim()
+    parts.push(`(rid:${id} OR reid:${id} OR arid:${id})`)
+  }
+
+  return parts.join(' AND ')
 }
 
 export async function searchRecordings({
-  title,
-  album
+  limit = MUSICBRAINZ_SEARCH_PAGE_SIZE,
+  offset = 0,
+  ...params
 }: SearchRecordingsParams): Promise<MusicBrainzRecordingSearchResponse> {
-  const parts: string[] = []
-  if (title) parts.push(`recording:${JSON.stringify(title)}`)
-  if (album) parts.push(`release:${JSON.stringify(album)}`)
-  const query = parts.join(' AND ')
+  const query = buildRecordingQuery(params)
 
-  return musicBrainzApi.searchRecordings<MusicBrainzRecordingSearchResponse>(query, 10)
+  return musicBrainzApi.searchRecordings<MusicBrainzRecordingSearchResponse>(query, limit, offset)
 }
 
 export async function fetchReleaseDetails(releaseId: string): Promise<MusicBrainzReleaseDetail> {

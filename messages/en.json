@@ -218,6 +218,8 @@
     "back": "Back",
     "score": "Score: {score}%",
     "noResults": "No recordings found",
+    "loadMore": "Load more",
+    "resultsCount": "Showing {shown} of {total} results",
     "field": "Field",
     "currentValue": "Current",
     "mbValue": "MusicBrainz",
@@ -227,7 +229,9 @@
     "currentCover": "Current",
     "mbCover": "MusicBrainz",
     "noCover": "No cover",
-    "replaceCover": "Replace cover art"
+    "replaceCover": "Replace cover art",
+    "mbid": "MBID",
+    "mbidPlaceholder": "Recording, release or artist MBID"
   },
   "musicbrainz": {
     "fetchSuccess": "Cover art updated from MusicBrainz",

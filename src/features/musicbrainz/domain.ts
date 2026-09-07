@@ -61,7 +61,22 @@ export interface MusicBrainzRecording {
 
 export interface MusicBrainzRecordingSearchResponse {
   recordings: MusicBrainzRecording[]
+  count: number
+  offset: number
 }
+
+/** Free-text search inputs shared by the search form, the API route and the service. */
+export interface MusicBrainzSearchParams {
+  title?: string
+  artist?: string
+  album?: string
+  year?: number
+  /** A recording, release or artist MBID — all three are matched. */
+  mbid?: string
+}
+
+export const MUSICBRAINZ_SEARCH_PAGE_SIZE = 25
+export const MUSICBRAINZ_SEARCH_MAX_LIMIT = 100
 
 export interface MusicBrainzReleaseMedia {
   position: number
