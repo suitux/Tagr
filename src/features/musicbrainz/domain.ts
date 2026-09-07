@@ -65,14 +65,20 @@ export interface MusicBrainzRecordingSearchResponse {
   offset: number
 }
 
+export type MusicBrainzMatchMode = 'all' | 'any'
+
+export const MUSICBRAINZ_MATCH_MODES: MusicBrainzMatchMode[] = ['any', 'all']
+
+export const DEFAULT_MUSICBRAINZ_MATCH_MODE: MusicBrainzMatchMode = 'any'
+
 /** Free-text search inputs shared by the search form, the API route and the service. */
 export interface MusicBrainzSearchParams {
   title?: string
   artist?: string
   album?: string
   year?: number
-  /** A recording, release or artist MBID — all three are matched. */
   mbid?: string
+  matchMode?: MusicBrainzMatchMode
 }
 
 export const MUSICBRAINZ_SEARCH_PAGE_SIZE = 25

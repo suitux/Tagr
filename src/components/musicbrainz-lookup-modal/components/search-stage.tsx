@@ -6,12 +6,17 @@ import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
-import type {
-  MusicBrainzRecording,
-  MusicBrainzRecordingRelease,
-  MusicBrainzSearchParams
+import {
+  DEFAULT_MUSICBRAINZ_MATCH_MODE,
+  MUSICBRAINZ_MATCH_MODES,
+  type MusicBrainzMatchMode,
+  type MusicBrainzRecording,
+  type MusicBrainzRecordingRelease,
+  type MusicBrainzSearchParams
 } from '@/features/musicbrainz/domain'
 import { useMusicBrainzSearch } from '@/features/musicbrainz/hooks/use-musicbrainz-search'
 import type { Song } from '@/features/songs/domain'
@@ -40,7 +45,8 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
     title: song.title ?? '',
     artist: song.artist ?? '',
     album: song.album ?? '',
-    year: song.year ?? undefined
+    year: song.year ?? undefined,
+    matchMode: DEFAULT_MUSICBRAINZ_MATCH_MODE
   })
 
   const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage } = useMusicBrainzSearch(search)
@@ -52,13 +58,15 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
     const year = Number(readField(formData, 'year'))
+    const match = readField(formData, 'match') as MusicBrainzMatchMode
 
     setSearch({
       title: readField(formData, 'title'),
       artist: readField(formData, 'artist'),
       album: readField(formData, 'album'),
       year: Number.isInteger(year) && year > 0 ? year : undefined,
-      mbid: readField(formData, 'mbid')
+      mbid: readField(formData, 'mbid'),
+      matchMode: MUSICBRAINZ_MATCH_MODES.includes(match) ? match : DEFAULT_MUSICBRAINZ_MATCH_MODE
     })
   }
 
@@ -94,6 +102,23 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
               {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <SearchIcon className='h-4 w-4' />}
             </Button>
           </div>
+        </div>
+
+        <div className='flex items-center gap-4'>
+          <span className='text-xs font-medium text-muted-foreground'>{t('matchMode')}</span>
+          <RadioGroup
+            name='match'
+            defaultValue={DEFAULT_MUSICBRAINZ_MATCH_MODE}
+            className='flex w-auto items-center gap-4'>
+            {MUSICBRAINZ_MATCH_MODES.map(mode => (
+              <div key={mode} className='flex items-center gap-2'>
+                <RadioGroupItem value={mode} id={`match-${mode}`} />
+                <Label htmlFor={`match-${mode}`} className='text-xs font-normal'>
+                  {t(`matchModeOption.${mode}`)}
+                </Label>
+              </div>
+            ))}
+          </RadioGroup>
         </div>
       </form>
 

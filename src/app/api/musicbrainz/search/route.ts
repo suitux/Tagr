@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { MUSICBRAINZ_SEARCH_MAX_LIMIT, MUSICBRAINZ_SEARCH_PAGE_SIZE } from '@/features/musicbrainz/domain'
+import {
+  DEFAULT_MUSICBRAINZ_MATCH_MODE,
+  MUSICBRAINZ_MATCH_MODES,
+  MUSICBRAINZ_SEARCH_MAX_LIMIT,
+  MUSICBRAINZ_SEARCH_PAGE_SIZE,
+  type MusicBrainzMatchMode
+} from '@/features/musicbrainz/domain'
 import { searchRecordings } from '@/features/musicbrainz/musicbrainz.service'
 import { getSearchParam } from '@/lib/api/search-params'
 
@@ -10,6 +16,7 @@ export async function GET(request: NextRequest) {
   const album = getSearchParam(searchParams, 'album', 'string', '')
   const mbid = getSearchParam(searchParams, 'mbid', 'string', '')
   const year = getSearchParam(searchParams, 'year', 'number')
+  const match = getSearchParam(searchParams, 'match', 'string', DEFAULT_MUSICBRAINZ_MATCH_MODE)
   const limit = getSearchParam(searchParams, 'limit', 'number', MUSICBRAINZ_SEARCH_PAGE_SIZE)
   const offset = Math.max(getSearchParam(searchParams, 'offset', 'number', 0), 0)
 
@@ -27,6 +34,9 @@ export async function GET(request: NextRequest) {
       album,
       year,
       mbid,
+      matchMode: MUSICBRAINZ_MATCH_MODES.includes(match as MusicBrainzMatchMode)
+        ? (match as MusicBrainzMatchMode)
+        : DEFAULT_MUSICBRAINZ_MATCH_MODE,
       limit: Math.min(Math.max(limit, 1), MUSICBRAINZ_SEARCH_MAX_LIMIT),
       offset
     })

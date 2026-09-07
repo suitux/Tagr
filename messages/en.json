@@ -231,7 +231,12 @@
     "noCover": "No cover",
     "replaceCover": "Replace cover art",
     "mbid": "MBID",
-    "mbidPlaceholder": "Recording, release or artist MBID"
+    "mbidPlaceholder": "Recording, release or artist MBID",
+    "matchMode": "Match",
+    "matchModeOption": {
+      "all": "All fields",
+      "any": "Any field"
+    }
   },
   "musicbrainz": {
     "fetchSuccess": "Cover art updated from MusicBrainz",
