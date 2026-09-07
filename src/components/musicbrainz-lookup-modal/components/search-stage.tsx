@@ -3,6 +3,7 @@
 import { Loader2Icon, SearchIcon } from 'lucide-react'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { HighlightedText } from '@/components/highlighted-text'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -147,7 +148,7 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
             <div key={`${recording.id}-${index}`}>
               <div className='px-6 py-3'>
                 <div className='flex items-center justify-between gap-2'>
-                  <span className='font-medium text-sm'>{recording.title}</span>
+                  <HighlightedText text={recording.title} query={search.title ?? ''} className='font-medium text-sm' />
                   <Badge variant='secondary'>{t('score', { score: recording.score })}</Badge>
                 </div>
                 <p className='text-xs text-muted-foreground mt-0.5'>{formatArtistCredit(recording['artist-credit'])}</p>
