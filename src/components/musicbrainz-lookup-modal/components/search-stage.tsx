@@ -25,6 +25,7 @@ import { useMusicBrainzSearch } from '@/features/musicbrainz/hooks/use-musicbrai
 import type { Song } from '@/features/songs/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { formatDate } from '@/lib/date'
+import { cn } from '@/lib/utils'
 import { SearchFieldSelector } from './search-field-selector'
 
 interface SearchStageProps {
@@ -35,6 +36,22 @@ interface SearchStageProps {
 function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string }>): string {
   if (!credits?.length) return ''
   return credits.map(c => c.name + (c.joinphrase ?? '')).join('')
+}
+
+/**
+ * Fields flow into a three-column grid, so only the last row can come up short. Its final field
+ * takes the one leftover column instead of leaving a gap — but only when it sits second in the
+ * row: a field that opens a row keeps its third, however much space is free to its right.
+ * Written out rather than interpolated because Tailwind only sees whole class names.
+ */
+const STRETCHED_COLUMN = 'sm:col-span-2'
+
+function columnSpan(index: number, total: number): string {
+  const isLast = index === total - 1
+  // Position 0 opens a row and never grows; position 2 already ends a full one.
+  const isSecondInRow = index % 3 === 1
+
+  return isLast && isSecondInRow ? STRETCHED_COLUMN : ''
 }
 
 /**
@@ -115,8 +132,10 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
       <form onSubmit={handleSubmit} className='px-6 py-4 space-y-3'>
         {!!shownFields.length && (
           <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
-            {shownFields.map(field => (
-              <div key={field} className='space-y-1'>
+            {shownFields.map((field, index) => (
+              <div
+                key={field}
+                className={cn('space-y-1', columnSpan(index, shownFields.length))}>
                 <Label htmlFor={`mb-${field}`} className='text-xs font-medium text-muted-foreground'>
                   {field === 'mbid' ? t('mbid') : tFields(field)}
                 </Label>

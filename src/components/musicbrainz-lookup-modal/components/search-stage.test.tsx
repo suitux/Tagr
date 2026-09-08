@@ -101,3 +101,62 @@ describe('SearchStage field selector', () => {
     expect(screen.getByText('musicbrainzLookup.noSearchFields')).toBeInTheDocument()
   })
 })
+
+describe('SearchStage field widths', () => {
+  /** The grid cell wrapping a field's input. */
+  const cell = (label: string) => screen.getByLabelText(label).closest('div')
+
+  it('leaves every cell one column wide when the row is full', () => {
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    expect(cell('fields.title')).not.toHaveClass('sm:col-span-2')
+    expect(cell('fields.album')).not.toHaveClass('sm:col-span-2')
+  })
+
+  it('stretches the last field over the columns the row has left', async () => {
+    const user = userEvent.setup()
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    // title, artist, album, year -> hide album and year, leaving title + artist on one row
+    await openSelector(user)
+    await user.click(screen.getByRole('menuitemcheckbox', { name: 'fields.album' }))
+    await user.click(screen.getByRole('menuitemcheckbox', { name: 'fields.year' }))
+    await user.keyboard('{Escape}')
+
+    expect(cell('fields.title')).not.toHaveClass('sm:col-span-2')
+    expect(cell('fields.artist')).toHaveClass('sm:col-span-2')
+  })
+
+  it('keeps a lone field at one column', async () => {
+    const user = userEvent.setup()
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    await openSelector(user)
+    for (const name of ['fields.artist', 'fields.album', 'fields.year']) {
+      await user.click(screen.getByRole('menuitemcheckbox', { name }))
+    }
+    await user.keyboard('{Escape}')
+
+    expect(cell('fields.title')).not.toHaveClass('sm:col-span-2')
+  })
+
+  it('keeps a field that opens the second row at one column', () => {
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    // title, artist, album fill the first row, so year opens the second one on its own
+    expect(cell('fields.year')).not.toHaveClass('sm:col-span-2')
+  })
+
+  it('stretches a field added after a full row', async () => {
+    const user = userEvent.setup()
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    // title, artist, album, year, mbid -> year opens the second row, mbid ends it
+    await openSelector(user)
+    await user.click(screen.getByRole('menuitemcheckbox', { name: 'musicbrainzLookup.mbid' }))
+    await user.keyboard('{Escape}')
+
+    expect(cell('fields.year')).not.toHaveClass('sm:col-span-2')
+    expect(cell('musicbrainzLookup.mbid')).toHaveClass('sm:col-span-2')
+  })
+})
