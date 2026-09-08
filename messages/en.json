@@ -218,6 +218,7 @@
     "back": "Back",
     "score": "Score: {score}%",
     "noResults": "No recordings found",
+    "noSearchFields": "Add a field to search",
     "loadMore": "Load more",
     "resultsCount": "Showing {shown} of {total} results",
     "field": "Field",
@@ -236,7 +237,8 @@
     "matchModeOption": {
       "all": "All fields",
       "any": "Any field"
-    }
+    },
+    "searchFields": "Fields"
   },
   "musicbrainz": {
     "fetchSuccess": "Cover art updated from MusicBrainz",

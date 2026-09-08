@@ -14,6 +14,8 @@ import { Separator } from '@/components/ui/separator'
 import {
   DEFAULT_MUSICBRAINZ_MATCH_MODE,
   MUSICBRAINZ_MATCH_MODES,
+  MUSICBRAINZ_SEARCH_FIELDS,
+  type MusicBrainzSearchField,
   type MusicBrainzMatchMode,
   type MusicBrainzRecording,
   type MusicBrainzRecordingRelease,
@@ -23,6 +25,7 @@ import { useMusicBrainzSearch } from '@/features/musicbrainz/hooks/use-musicbrai
 import type { Song } from '@/features/songs/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { formatDate } from '@/lib/date'
+import { SearchFieldSelector } from './search-field-selector'
 
 interface SearchStageProps {
   song: Song
@@ -34,13 +37,38 @@ function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string 
   return credits.map(c => c.name + (c.joinphrase ?? '')).join('')
 }
 
-function readField(formData: FormData, name: string): string {
-  return ((formData.get(name) as string | null) ?? '').trim()
+/**
+ * Starts with the fields the song actually carries a tag for — showing an empty Artist box for a
+ * song with no artist is noise, and the selector is there to add it back.
+ */
+function buildVisibleFields(song: Song): Record<MusicBrainzSearchField, boolean> {
+  return {
+    title: true,
+    artist: !!song.artist,
+    album: !!song.album,
+    year: !!song.year,
+    mbid: false
+  }
 }
 
 export function SearchStage({ song, onSelect }: SearchStageProps) {
   const t = useTranslations('musicbrainzLookup')
   const tFields = useTranslations('fields')
+
+  // The values live in state, not in the DOM: hiding a field unmounts its input, and an
+  // uncontrolled one would lose whatever the user had typed there.
+  const [values, setValues] = useState<Record<MusicBrainzSearchField, string>>({
+    title: song.title ?? '',
+    artist: song.artist ?? '',
+    album: song.album ?? '',
+    year: song.year ? String(song.year) : '',
+    mbid: ''
+  })
+
+  const [visibleFields, setVisibleFields] = useState<Record<MusicBrainzSearchField, boolean>>(() =>
+    buildVisibleFields(song)
+  )
+  const shownFields = MUSICBRAINZ_SEARCH_FIELDS.filter(field => visibleFields[field])
 
   const [search, setSearch] = useState<MusicBrainzSearchParams>({
     title: song.title ?? '',
@@ -50,66 +78,65 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
     matchMode: DEFAULT_MUSICBRAINZ_MATCH_MODE
   })
 
-  const { data, isPending, isFetchingNextPage, hasNextPage, fetchNextPage } = useMusicBrainzSearch(search)
+  const [matchMode, setMatchMode] = useState<MusicBrainzMatchMode>(DEFAULT_MUSICBRAINZ_MATCH_MODE)
+
+  const setValue = (field: MusicBrainzSearchField) => (value: string) =>
+    setValues(current => ({ ...current, [field]: value }))
+
+  const toggleField = (field: MusicBrainzSearchField, visible: boolean) =>
+    setVisibleFields(current => ({ ...current, [field]: visible }))
+
+  // `isLoading`, not `isPending`: with every field switched off the query is disabled, and a
+  // disabled query stays pending forever — which would leave a spinner running with nothing to fetch.
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useMusicBrainzSearch(search)
 
   const recordings = useMemo(() => data?.pages.flatMap(page => page.recordings) ?? [], [data])
   const totalCount = data?.pages[0].count ?? 0
 
   const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const year = Number(readField(formData, 'year'))
-    const match = readField(formData, 'match') as MusicBrainzMatchMode
+
+    // A hidden field takes no part in the query, whatever it still holds.
+    const value = (field: MusicBrainzSearchField) => (visibleFields[field] ? values[field].trim() : '')
+    const year = Number(value('year'))
 
     setSearch({
-      title: readField(formData, 'title'),
-      artist: readField(formData, 'artist'),
-      album: readField(formData, 'album'),
+      title: value('title'),
+      artist: value('artist'),
+      album: value('album'),
       year: Number.isInteger(year) && year > 0 ? year : undefined,
-      mbid: readField(formData, 'mbid'),
-      matchMode: MUSICBRAINZ_MATCH_MODES.includes(match) ? match : DEFAULT_MUSICBRAINZ_MATCH_MODE
+      mbid: value('mbid'),
+      matchMode
     })
   }
 
   return (
     <>
       <form onSubmit={handleSubmit} className='px-6 py-4 space-y-3'>
-        <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
-          <div className='space-y-1'>
-            <label className='text-xs font-medium text-muted-foreground'>{tFields('title')}</label>
-            <Input name='title' defaultValue={song.title ?? ''} />
+        {!!shownFields.length && (
+          <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
+            {shownFields.map(field => (
+              <div key={field} className='space-y-1'>
+                <Label htmlFor={`mb-${field}`} className='text-xs font-medium text-muted-foreground'>
+                  {field === 'mbid' ? t('mbid') : tFields(field)}
+                </Label>
+                <Input
+                  id={`mb-${field}`}
+                  value={values[field]}
+                  onChange={e => setValue(field)(e.target.value)}
+                  {...(field === 'year' ? { type: 'number', inputMode: 'numeric' as const } : {})}
+                  {...(field === 'mbid' ? { placeholder: t('mbidPlaceholder') } : {})}
+                />
+              </div>
+            ))}
           </div>
-          <div className='space-y-1'>
-            <label className='text-xs font-medium text-muted-foreground'>{tFields('artist')}</label>
-            <Input name='artist' defaultValue={song.artist ?? ''} />
-          </div>
-          <div className='space-y-1'>
-            <label className='text-xs font-medium text-muted-foreground'>{tFields('album')}</label>
-            <Input name='album' defaultValue={song.album ?? ''} />
-          </div>
-        </div>
+        )}
 
-        <div className='flex gap-3'>
-          <div className='w-24 space-y-1'>
-            <label className='text-xs font-medium text-muted-foreground'>{tFields('year')}</label>
-            <Input name='year' type='number' inputMode='numeric' defaultValue={song.year ?? ''} />
-          </div>
-          <div className='flex-1 space-y-1'>
-            <label className='text-xs font-medium text-muted-foreground'>{t('mbid')}</label>
-            <Input name='mbid' placeholder={t('mbidPlaceholder')} />
-          </div>
-          <div className='flex items-end'>
-            <Button type='submit' disabled={isPending} size='icon'>
-              {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <SearchIcon className='h-4 w-4' />}
-            </Button>
-          </div>
-        </div>
-
-        <div className='flex items-center gap-4'>
+        <div className='flex flex-wrap items-center gap-x-4 gap-y-2'>
           <span className='text-xs font-medium text-muted-foreground'>{t('matchMode')}</span>
           <RadioGroup
-            name='match'
-            defaultValue={DEFAULT_MUSICBRAINZ_MATCH_MODE}
+            value={matchMode}
+            onValueChange={value => setMatchMode(value as MusicBrainzMatchMode)}
             className='flex w-auto items-center gap-4'>
             {MUSICBRAINZ_MATCH_MODES.map(mode => (
               <div key={mode} className='flex items-center gap-2'>
@@ -120,23 +147,39 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
               </div>
             ))}
           </RadioGroup>
+
+          <SearchFieldSelector
+            fields={MUSICBRAINZ_SEARCH_FIELDS}
+            visible={visibleFields}
+            onToggle={toggleField}
+            label={field => (field === 'mbid' ? t('mbid') : tFields(field))}
+          />
+
+          <Button
+            type='submit'
+            disabled={isLoading || !shownFields.length}
+            size='icon'
+            className='ml-auto'
+            aria-label={t('search')}>
+            {isLoading ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <SearchIcon className='h-4 w-4' />}
+          </Button>
         </div>
       </form>
 
       <Separator />
 
-      {isPending && (
+      {isLoading && (
         <div className='h-[50vh] flex items-center justify-center'>
           <Loader2Icon className='h-5 w-5 animate-spin text-muted-foreground' />
         </div>
       )}
 
-      {!isPending && data && (
+      {!isLoading && (
         <ScrollArea className='h-[50vh]'>
           {!recordings.length && (
             <div className='flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground'>
               <MusicBrainzIcon className='h-8 w-8 opacity-40' />
-              <p className='text-sm'>{t('noResults')}</p>
+              <p className='text-sm'>{shownFields.length ? t('noResults') : t('noSearchFields')}</p>
             </div>
           )}
           {!!recordings.length && (
