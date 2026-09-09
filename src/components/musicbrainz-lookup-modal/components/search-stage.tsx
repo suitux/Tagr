@@ -189,13 +189,9 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
             label={field => (field === 'mbid' ? t('mbid') : tFields(field))}
           />
 
-          <Button
-            type='submit'
-            disabled={isLoading || !shownFields.length}
-            size='icon'
-            className='ml-auto'
-            aria-label={t('search')}>
+          <Button type='submit' disabled={isLoading || !shownFields.length} className='ml-auto'>
             {isLoading ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <SearchIcon className='h-4 w-4' />}
+            {t('search')}
           </Button>
         </div>
       </form>
