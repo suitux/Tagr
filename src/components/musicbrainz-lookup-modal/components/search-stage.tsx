@@ -40,12 +40,6 @@ function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string 
   return credits.map(c => c.name + (c.joinphrase ?? '')).join('')
 }
 
-/**
- * Fields flow into a three-column grid, so only the last row can come up short. Its final field
- * takes the one leftover column instead of leaving a gap — but only when it sits second in the
- * row: a field that opens a row keeps its third, however much space is free to its right.
- * Written out rather than interpolated because Tailwind only sees whole class names.
- */
 const STRETCHED_COLUMN = 'sm:col-span-2'
 
 function columnSpan(index: number, total: number): string {
@@ -56,10 +50,6 @@ function columnSpan(index: number, total: number): string {
   return isLast && isSecondInRow ? STRETCHED_COLUMN : ''
 }
 
-/**
- * Starts with the fields the song actually carries a tag for — showing an empty Artist box for a
- * song with no artist is noise, and the selector is there to add it back.
- */
 function buildVisibleFields(song: Song): MusicBrainzSearchFieldsState {
   return {
     title: true,
@@ -70,7 +60,6 @@ function buildVisibleFields(song: Song): MusicBrainzSearchFieldsState {
   }
 }
 
-/** The params a freshly opened modal searches with: the song's own tags, minus the hidden fields. */
 function initialSearch(song: Song, fields: MusicBrainzSearchFieldsState): MusicBrainzSearchParams {
   return {
     title: fields.title ? (song.title ?? '') : '',
@@ -85,8 +74,6 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
   const t = useTranslations('musicbrainzLookup')
   const tFields = useTranslations('fields')
 
-  // The values live in state, not in the DOM: hiding a field unmounts its input, and an
-  // uncontrolled one would lose whatever the user had typed there.
   const [values, setValues] = useState<Record<MusicBrainzSearchField, string>>({
     title: song.title ?? '',
     artist: song.artist ?? '',
@@ -115,13 +102,9 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
   const setValue = (field: MusicBrainzSearchField) => (value: string) =>
     setValues(current => ({ ...current, [field]: value }))
 
-  // `useUpdateConfig` writes the new value into the query cache straight away, so the form
-  // re-renders from `savedFields` without waiting for the round trip.
   const toggleField = (field: MusicBrainzSearchField, visible: boolean) =>
     saveFields({ ...visibleFields, [field]: visible })
 
-  // `isLoading`, not `isPending`: with every field switched off the query is disabled, and a
-  // disabled query stays pending forever — which would leave a spinner running with nothing to fetch.
   const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage } = useMusicBrainzSearch(search)
 
   const recordings = useMemo(() => data?.pages.flatMap(page => page.recordings) ?? [], [data])
@@ -130,7 +113,6 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
   const handleSubmit = (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    // A hidden field takes no part in the query, whatever it still holds.
     const value = (field: MusicBrainzSearchField) => (visibleFields[field] ? values[field].trim() : '')
     const year = Number(value('year'))
 
