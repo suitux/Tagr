@@ -218,6 +218,9 @@
     "back": "Back",
     "score": "Score: {score}%",
     "noResults": "No recordings found",
+    "noSearchFields": "Add a field to search",
+    "loadMore": "Load more",
+    "resultsCount": "Showing {shown} of {total} results",
     "field": "Field",
     "currentValue": "Current",
     "mbValue": "MusicBrainz",
@@ -227,7 +230,15 @@
     "currentCover": "Current",
     "mbCover": "MusicBrainz",
     "noCover": "No cover",
-    "replaceCover": "Replace cover art"
+    "replaceCover": "Replace cover art",
+    "mbid": "MBID",
+    "mbidPlaceholder": "Recording, release or artist MBID",
+    "matchMode": "Match",
+    "matchModeOption": {
+      "all": "All fields",
+      "any": "Any field"
+    },
+    "searchFields": "Fields"
   },
   "musicbrainz": {
     "fetchSuccess": "Cover art updated from MusicBrainz",

@@ -61,7 +61,33 @@ export interface MusicBrainzRecording {
 
 export interface MusicBrainzRecordingSearchResponse {
   recordings: MusicBrainzRecording[]
+  count: number
+  offset: number
 }
+
+export type MusicBrainzMatchMode = 'all' | 'any'
+
+export const MUSICBRAINZ_MATCH_MODES: MusicBrainzMatchMode[] = ['any', 'all']
+
+export const DEFAULT_MUSICBRAINZ_MATCH_MODE: MusicBrainzMatchMode = 'any'
+
+/** The inputs the search form can show, in the order they are laid out. */
+export const MUSICBRAINZ_SEARCH_FIELDS = ['title', 'artist', 'album', 'year', 'mbid'] as const
+
+export type MusicBrainzSearchField = (typeof MUSICBRAINZ_SEARCH_FIELDS)[number]
+
+/** Free-text search inputs shared by the search form, the API route and the service. */
+export interface MusicBrainzSearchParams {
+  title?: string
+  artist?: string
+  album?: string
+  year?: number
+  mbid?: string
+  matchMode?: MusicBrainzMatchMode
+}
+
+export const MUSICBRAINZ_SEARCH_PAGE_SIZE = 25
+export const MUSICBRAINZ_SEARCH_MAX_LIMIT = 100
 
 export interface MusicBrainzReleaseMedia {
   position: number
