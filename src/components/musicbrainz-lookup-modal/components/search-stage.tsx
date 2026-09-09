@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import type { MusicBrainzSearchFieldsState } from '@/features/config/domain'
 import {
   DEFAULT_MUSICBRAINZ_MATCH_MODE,
   MUSICBRAINZ_MATCH_MODES,
@@ -22,6 +23,7 @@ import {
   type MusicBrainzSearchParams
 } from '@/features/musicbrainz/domain'
 import { useMusicBrainzSearch } from '@/features/musicbrainz/hooks/use-musicbrainz-search'
+import { useMusicBrainzSearchFields } from '@/features/musicbrainz/hooks/use-musicbrainz-search-fields'
 import type { Song } from '@/features/songs/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { formatDate } from '@/lib/date'
@@ -58,13 +60,24 @@ function columnSpan(index: number, total: number): string {
  * Starts with the fields the song actually carries a tag for — showing an empty Artist box for a
  * song with no artist is noise, and the selector is there to add it back.
  */
-function buildVisibleFields(song: Song): Record<MusicBrainzSearchField, boolean> {
+function buildVisibleFields(song: Song): MusicBrainzSearchFieldsState {
   return {
     title: true,
     artist: !!song.artist,
     album: !!song.album,
     year: !!song.year,
     mbid: false
+  }
+}
+
+/** The params a freshly opened modal searches with: the song's own tags, minus the hidden fields. */
+function initialSearch(song: Song, fields: MusicBrainzSearchFieldsState): MusicBrainzSearchParams {
+  return {
+    title: fields.title ? (song.title ?? '') : '',
+    artist: fields.artist ? (song.artist ?? '') : '',
+    album: fields.album ? (song.album ?? '') : '',
+    year: fields.year ? (song.year ?? undefined) : undefined,
+    matchMode: DEFAULT_MUSICBRAINZ_MATCH_MODE
   }
 }
 
@@ -82,26 +95,30 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
     mbid: ''
   })
 
-  const [visibleFields, setVisibleFields] = useState<Record<MusicBrainzSearchField, boolean>>(() =>
-    buildVisibleFields(song)
-  )
+  const { fields: savedFields, saveFields } = useMusicBrainzSearchFields()
+  const visibleFields = savedFields ?? buildVisibleFields(song)
   const shownFields = MUSICBRAINZ_SEARCH_FIELDS.filter(field => visibleFields[field])
 
-  const [search, setSearch] = useState<MusicBrainzSearchParams>({
-    title: song.title ?? '',
-    artist: song.artist ?? '',
-    album: song.album ?? '',
-    year: song.year ?? undefined,
-    matchMode: DEFAULT_MUSICBRAINZ_MATCH_MODE
-  })
+  const [search, setSearch] = useState<MusicBrainzSearchParams>(() => initialSearch(song, buildVisibleFields(song)))
+
+  // The saved config only arrives after the first render, so the automatic first search would
+  // otherwise be built from fields the form is not even showing. Seeding it here (a state update
+  // during render, which React re-runs immediately) keeps the results and the form in step.
+  const [seededFromConfig, setSeededFromConfig] = useState(false)
+  if (savedFields && !seededFromConfig) {
+    setSeededFromConfig(true)
+    setSearch(initialSearch(song, savedFields))
+  }
 
   const [matchMode, setMatchMode] = useState<MusicBrainzMatchMode>(DEFAULT_MUSICBRAINZ_MATCH_MODE)
 
   const setValue = (field: MusicBrainzSearchField) => (value: string) =>
     setValues(current => ({ ...current, [field]: value }))
 
+  // `useUpdateConfig` writes the new value into the query cache straight away, so the form
+  // re-renders from `savedFields` without waiting for the round trip.
   const toggleField = (field: MusicBrainzSearchField, visible: boolean) =>
-    setVisibleFields(current => ({ ...current, [field]: visible }))
+    saveFields({ ...visibleFields, [field]: visible })
 
   // `isLoading`, not `isPending`: with every field switched off the query is disabled, and a
   // disabled query stays pending forever — which would leave a spinner running with nothing to fetch.
@@ -129,13 +146,11 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
 
   return (
     <>
-      <form onSubmit={handleSubmit} className='px-6 py-4 space-y-3'>
+      <form onSubmit={handleSubmit} className='px-6 space-y-3'>
         {!!shownFields.length && (
           <div className='grid grid-cols-1 sm:grid-cols-3 gap-3'>
             {shownFields.map((field, index) => (
-              <div
-                key={field}
-                className={cn('space-y-1', columnSpan(index, shownFields.length))}>
+              <div key={field} className={cn('space-y-1', columnSpan(index, shownFields.length))}>
                 <Label htmlFor={`mb-${field}`} className='text-xs font-medium text-muted-foreground'>
                   {field === 'mbid' ? t('mbid') : tFields(field)}
                 </Label>
@@ -185,8 +200,6 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
         </div>
       </form>
 
-      <Separator />
-
       {isLoading && (
         <div className='h-[50vh] flex items-center justify-center'>
           <Loader2Icon className='h-5 w-5 animate-spin text-muted-foreground' />
@@ -194,65 +207,75 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
       )}
 
       {!isLoading && (
-        <ScrollArea className='h-[50vh]'>
-          {!recordings.length && (
-            <div className='flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground'>
-              <MusicBrainzIcon className='h-8 w-8 opacity-40' />
-              <p className='text-sm'>{shownFields.length ? t('noResults') : t('noSearchFields')}</p>
-            </div>
-          )}
-          {!!recordings.length && (
-            <p className='px-6 pt-3 text-xs text-muted-foreground'>
-              {t('resultsCount', { shown: recordings.length, total: totalCount })}
-            </p>
-          )}
-          {recordings.map((recording, index) => (
-            <div key={`${recording.id}-${index}`}>
-              <div className='px-6 py-3'>
-                <div className='flex items-center justify-between gap-2'>
-                  <HighlightedText text={recording.title} query={search.title ?? ''} className='font-medium text-sm' />
-                  <Badge variant='secondary'>{t('score', { score: recording.score })}</Badge>
-                </div>
-                <p className='text-xs text-muted-foreground mt-0.5'>{formatArtistCredit(recording['artist-credit'])}</p>
-                <div className='mt-2 space-y-1'>
-                  {recording.releases?.map(release => (
-                    <Button
-                      key={release.id}
-                      variant='ghost'
-                      size='sm'
-                      className='w-full justify-start h-auto py-1.5 px-3 text-xs font-normal'
-                      onClick={() => onSelect(recording, release)}>
-                      <span className='font-medium'>{release.title}</span>
-                      {release.date && (
-                        <span className='text-muted-foreground'> ({formatDate(release.date, 'yyyy')})</span>
-                      )}
-                      {release.country && (
-                        <Badge variant='outline' className='ml-auto text-[10px] h-4 px-1.5'>
-                          {release.country}
-                        </Badge>
-                      )}
-                    </Button>
-                  ))}
-                </div>
+        <div>
+          <Separator />
+
+          <ScrollArea className='h-[50vh]'>
+            {!recordings.length && (
+              <div className='flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground'>
+                <MusicBrainzIcon className='h-8 w-8 opacity-40' />
+                <p className='text-sm'>{shownFields.length ? t('noResults') : t('noSearchFields')}</p>
               </div>
-              {index < recordings.length - 1 && <Separator />}
-            </div>
-          ))}
-          {hasNextPage && (
-            <div className='px-6 py-3'>
-              <Button
-                type='button'
-                variant='outline'
-                size='sm'
-                className='w-full'
-                disabled={isFetchingNextPage}
-                onClick={() => fetchNextPage()}>
-                {isFetchingNextPage && <Loader2Icon className='h-4 w-4 animate-spin' />}
-                {t('loadMore')}
-              </Button>
-            </div>
-          )}
-        </ScrollArea>
+            )}
+            {!!recordings.length && (
+              <p className='px-6 pt-3 text-xs text-muted-foreground'>
+                {t('resultsCount', { shown: recordings.length, total: totalCount })}
+              </p>
+            )}
+            {recordings.map((recording, index) => (
+              <div key={`${recording.id}-${index}`}>
+                <div className='px-6 py-3'>
+                  <div className='flex items-center justify-between gap-2'>
+                    <HighlightedText
+                      text={recording.title}
+                      query={search.title ?? ''}
+                      className='font-medium text-sm'
+                    />
+                    <Badge variant='secondary'>{t('score', { score: recording.score })}</Badge>
+                  </div>
+                  <p className='text-xs text-muted-foreground mt-0.5'>
+                    {formatArtistCredit(recording['artist-credit'])}
+                  </p>
+                  <div className='mt-2 space-y-1'>
+                    {recording.releases?.map(release => (
+                      <Button
+                        key={release.id}
+                        variant='ghost'
+                        size='sm'
+                        className='w-full justify-start h-auto py-1.5 px-3 text-xs font-normal'
+                        onClick={() => onSelect(recording, release)}>
+                        <span className='font-medium'>{release.title}</span>
+                        {release.date && (
+                          <span className='text-muted-foreground'> ({formatDate(release.date, 'yyyy')})</span>
+                        )}
+                        {release.country && (
+                          <Badge variant='outline' className='ml-auto text-[10px] h-4 px-1.5'>
+                            {release.country}
+                          </Badge>
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                {index < recordings.length - 1 && <Separator />}
+              </div>
+            ))}
+            {hasNextPage && (
+              <div className='px-6 py-3'>
+                <Button
+                  type='button'
+                  variant='outline'
+                  size='sm'
+                  className='w-full'
+                  disabled={isFetchingNextPage}
+                  onClick={() => fetchNextPage()}>
+                  {isFetchingNextPage && <Loader2Icon className='h-4 w-4 animate-spin' />}
+                  {t('loadMore')}
+                </Button>
+              </div>
+            )}
+          </ScrollArea>
+        </div>
       )}
     </>
   )

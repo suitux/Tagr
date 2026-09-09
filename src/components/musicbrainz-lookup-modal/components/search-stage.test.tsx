@@ -3,11 +3,36 @@ import userEvent from '@testing-library/user-event'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Song } from '@/features/songs/domain'
 
-const { mockUseMusicBrainzSearch } = vi.hoisted(() => ({ mockUseMusicBrainzSearch: vi.fn() }))
+const { mockUseMusicBrainzSearch, mockSaveFields, mockSavedFields } = vi.hoisted(() => ({
+  mockUseMusicBrainzSearch: vi.fn(),
+  mockSaveFields: vi.fn(),
+  mockSavedFields: { current: null as Record<string, boolean> | null }
+}))
 
 vi.mock('@/features/musicbrainz/hooks/use-musicbrainz-search', () => ({
   useMusicBrainzSearch: (params: unknown) => mockUseMusicBrainzSearch(params)
 }))
+
+// Stands in for the persisted config. It holds the value in state so a save re-renders the form,
+// the way the real hook's optimistic cache update does.
+vi.mock('@/features/musicbrainz/hooks/use-musicbrainz-search-fields', async () => {
+  const { useState } = await import('react')
+
+  return {
+    useMusicBrainzSearchFields: () => {
+      const [fields, setFields] = useState(mockSavedFields.current)
+
+      return {
+        fields,
+        saveFields: (next: Record<string, boolean>) => {
+          mockSavedFields.current = next
+          mockSaveFields(next)
+          setFields(next)
+        }
+      }
+    }
+  }
+})
 
 import { SearchStage } from './search-stage'
 
@@ -29,6 +54,8 @@ const openSelector = (user: ReturnType<typeof userEvent.setup>) =>
   user.click(screen.getByRole('button', { name: 'musicbrainzLookup.searchFields' }))
 
 beforeEach(() => {
+  mockSavedFields.current = null
+  mockSaveFields.mockReset()
   mockUseMusicBrainzSearch.mockReset()
   mockUseMusicBrainzSearch.mockReturnValue({
     data: { pages: [{ recordings: [], count: 0, offset: 0 }] },
@@ -158,5 +185,40 @@ describe('SearchStage field widths', () => {
 
     expect(cell('fields.year')).not.toHaveClass('sm:col-span-2')
     expect(cell('musicbrainzLookup.mbid')).toHaveClass('sm:col-span-2')
+  })
+})
+
+describe('SearchStage saved field config', () => {
+  it('persists the pick when a field is toggled', async () => {
+    const user = userEvent.setup()
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    await openSelector(user)
+    await user.click(screen.getByRole('menuitemcheckbox', { name: 'musicbrainzLookup.mbid' }))
+
+    expect(mockSaveFields).toHaveBeenCalledWith({
+      title: true,
+      artist: true,
+      album: true,
+      year: true,
+      mbid: true
+    })
+  })
+
+  it('shows the saved fields instead of the ones derived from the song', () => {
+    mockSavedFields.current = { title: true, artist: false, album: false, year: false, mbid: true }
+
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    expect(screen.getByLabelText('musicbrainzLookup.mbid')).toBeInTheDocument()
+    expect(screen.queryByLabelText('fields.artist')).not.toBeInTheDocument()
+  })
+
+  it('builds the first automatic search from the saved fields, not from every tag', () => {
+    mockSavedFields.current = { title: true, artist: false, album: false, year: false, mbid: false }
+
+    render(<SearchStage song={song} onSelect={vi.fn()} />)
+
+    expect(lastSearch()).toMatchObject({ title: 'In Silence', artist: '', album: '', year: undefined })
   })
 })

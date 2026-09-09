@@ -1,6 +1,15 @@
+import type { MusicBrainzSearchField } from '@/features/musicbrainz/domain'
 import { ColumnField, SongSortDirection } from '@/features/songs/domain'
 
-export type ConfigKey = 'columnVisibility' | 'dismissedVersion' | 'starPromptDismissed' | 'sortOrder'
+export type ConfigKey =
+  | 'columnVisibility'
+  | 'dismissedVersion'
+  | 'starPromptDismissed'
+  | 'sortOrder'
+  | 'musicbrainzSearchFields'
+
+/** Which inputs the MusicBrainz lookup form shows. */
+export type MusicBrainzSearchFieldsState = Record<MusicBrainzSearchField, boolean>
 
 export type SortOrderState = {
   sortField?: ColumnField
