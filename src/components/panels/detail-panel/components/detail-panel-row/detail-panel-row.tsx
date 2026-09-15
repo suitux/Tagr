@@ -14,12 +14,12 @@ import { DatePickerEdit } from './components/date-picker-edit'
 import { ExpandableText } from './components/expandable-text'
 import { StarRatingEdit } from './components/star-rating-edit'
 import { TextEdit } from './components/text-edit'
+import { TextareaEdit } from './components/textarea-edit'
 
 interface BaseRowProps {
   icon: React.ReactNode
   label: string
   value?: string | number | boolean | null
-  type?: HTMLInputTypeAttribute | 'date' | 'rating' | 'boolean'
   isAPath?: boolean
   songId?: number
 }
@@ -34,10 +34,20 @@ interface ExtraMetadataRowProps extends BaseRowProps {
   isExtraMetadata: true
 }
 
-type DetailPanelRowProps = StandardRowProps | ExtraMetadataRowProps
+type RowEditorProps =
+  | {
+      type: 'textarea'
+      fileImportAccept?: string
+    }
+  | {
+      type?: HTMLInputTypeAttribute | 'date' | 'rating' | 'boolean'
+      fileImportAccept?: never
+    }
+
+type DetailPanelRowProps = (StandardRowProps | ExtraMetadataRowProps) & RowEditorProps
 
 export function DetailPanelRow(props: DetailPanelRowProps) {
-  const { icon, label, value = '', isAPath, songId, fieldName, type = 'text' } = props
+  const { icon, label, value = '', isAPath, songId, fieldName, type = 'text', fileImportAccept } = props
   const isExtraMetadata = 'isExtraMetadata' in props && props.isExtraMetadata
 
   const { data: session } = useSession()
@@ -95,6 +105,21 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
       )
     }
 
+    if (isEditing && type === 'textarea') {
+      return (
+        <>
+          <p className='text-xs text-muted-foreground'>{label}</p>
+          <TextareaEdit
+            value={value as string | null}
+            isPending={isPending}
+            onSave={handleSave}
+            onCancel={() => setIsEditing(false)}
+            fileAccept={fileImportAccept}
+          />
+        </>
+      )
+    }
+
     if (isEditing && type !== 'date') {
       return (
         <>
@@ -120,7 +145,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
         <div
           className={cn('flex items-start gap-2', { 'cursor-pointer': clickToEdit })}
           onClick={clickToEdit ? () => setIsEditing(true) : undefined}>
-          <ExpandableText value={displayValue} isPath={isAPath} />
+          <ExpandableText value={displayValue} isPath={isAPath} preserveWhitespace={type === 'textarea'} />
           {canEdit && type === 'date' && <DatePickerEdit value={value as string | number | null} onSave={handleSave} />}
           {canEdit && type !== 'date' && (
             <Button

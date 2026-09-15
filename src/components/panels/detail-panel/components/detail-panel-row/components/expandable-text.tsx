@@ -9,9 +9,10 @@ import { cn } from '@/lib/utils'
 interface ExpandableTextProps {
   value: string | number | null | undefined | boolean
   isPath?: boolean
+  preserveWhitespace?: boolean
 }
 
-export function ExpandableText({ value, isPath }: ExpandableTextProps) {
+export function ExpandableText({ value, isPath, preserveWhitespace }: ExpandableTextProps) {
   const t = useTranslations('common')
   const [isExpanded, setIsExpanded] = useState(false)
   const [isClamped, setIsClamped] = useState(false)
@@ -30,6 +31,7 @@ export function ExpandableText({ value, isPath }: ExpandableTextProps) {
           ref={textRef}
           className={cn('text-sm font-medium text-foreground mt-0.5 wrap-anywhere', {
             'text-xs': isPath,
+            'whitespace-pre-wrap': preserveWhitespace,
             'line-clamp-3': !isExpanded
           })}>
           {value}

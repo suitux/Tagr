@@ -118,6 +118,11 @@
   "notes": {
     "title": "Notes"
   },
+  "textareaEdit": {
+    "importFromFile": "Import from file",
+    "importError": "Could not read that file",
+    "saveHint": "⌘/Ctrl + Enter to save"
+  },
   "customTags": {
     "title": "Custom Tags",
     "addTag": "Add Tag",

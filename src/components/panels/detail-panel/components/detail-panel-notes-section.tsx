@@ -1,6 +1,6 @@
 'use client'
 
-import { PenLineIcon } from 'lucide-react'
+import { MicVocalIcon, PenLineIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Card, CardContent } from '@/components/ui/card'
 import { Song } from '@/features/songs/domain'
@@ -26,12 +26,15 @@ export function DetailPanelNotesSection({ song }: DetailPanelNotesSectionProps) 
             songId={song.id}
             fieldName='comment'
           />
-          {song.lyrics && (
-            <div className='p-3'>
-              <p className='text-xs text-muted-foreground mb-2'>{t('lyrics')}</p>
-              <p className='text-sm text-foreground whitespace-pre-wrap'>{song.lyrics}</p>
-            </div>
-          )}
+          <DetailPanelRow
+            icon={<MicVocalIcon className='w-4 h-4' />}
+            label={t('lyrics')}
+            value={song.lyrics}
+            songId={song.id}
+            fieldName='lyrics'
+            type='textarea'
+            fileImportAccept='.txt,.lrc,text/plain'
+          />
         </CardContent>
       </Card>
     </div>
