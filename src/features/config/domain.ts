@@ -1,5 +1,6 @@
 import type { MusicBrainzSearchField } from '@/features/musicbrainz/domain'
 import { ColumnField, SongSortDirection } from '@/features/songs/domain'
+import type { BulkEditableField } from '@/features/songs/song-fields'
 
 export type ConfigKey =
   | 'columnVisibility'
@@ -7,9 +8,22 @@ export type ConfigKey =
   | 'starPromptDismissed'
   | 'sortOrder'
   | 'musicbrainzSearchFields'
+  | 'bulkEditFields'
 
 /** Which inputs the MusicBrainz lookup form shows. */
 export type MusicBrainzSearchFieldsState = Record<MusicBrainzSearchField, boolean>
+
+/**
+ * Which rows the bulk edit form shows. A standard field is visible unless listed in `hidden`, so an
+ * absent config keeps the original behaviour of showing every field.
+ */
+export type BulkEditFieldsState = {
+  hidden?: BulkEditableField[]
+  /** Extended tag keys (uppercase, no prefix) rendered as extra rows. */
+  custom?: string[]
+}
+
+export const DEFAULT_BULK_EDIT_FIELDS: BulkEditFieldsState = {}
 
 export type SortOrderState = {
   sortField?: ColumnField

@@ -455,8 +455,12 @@
       "sections": {
         "music": "Music",
         "track": "Track",
-        "misc": "Misc"
-      }
+        "misc": "Misc",
+        "custom": "Custom tags"
+      },
+      "fieldsMenu": "Fields",
+      "addCustomKey": "Add custom tag",
+      "customKeyPlaceholder": "New tag name (e.g. SOURCEMEDIA)"
     },
     "cover": {
       "title": "Get covers from MusicBrainz",

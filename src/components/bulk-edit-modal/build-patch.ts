@@ -1,25 +1,49 @@
-import { type SongMetadataUpdate } from '@/features/metadata/domain'
-import { BULK_EDITABLE_FIELDS, type BulkEditableField } from '@/features/songs/song-fields'
+import { type MetadataInput, type SongMetadataUpdate } from '@/features/metadata/domain'
+import {
+  BULK_EDITABLE_FIELDS,
+  getCustomTagKey,
+  isCustomBulkField,
+  type BulkFormFieldKey
+} from '@/features/songs/song-fields'
 
-export type FormShape = Record<BulkEditableField, string>
+export type FormShape = Record<BulkFormFieldKey, string>
+
+export interface BulkPatch {
+  /** Standard song columns, in the shape the bulk route's `metadata` expects. */
+  metadata: Partial<SongMetadataUpdate>
+  /** Extended tags, in the shape the bulk route's `customMetadata` expects. */
+  customMetadata: MetadataInput[]
+}
+
+export function isEmptyBulkPatch(patch: BulkPatch): boolean {
+  return Object.keys(patch.metadata).length === 0 && patch.customMetadata.length === 0
+}
 
 /**
  * Build the PATCH payload from the user-touched form fields.
- * - Empty string → null (clear the tag on disk).
+ * - Empty string → null (clear the tag on disk; for an extended tag that removes it).
  * - Numeric / rating → Number(...) when finite.
  * - Boolean → "true"/"false" string → boolean.
  * - Date → ISO string passthrough.
  * - Other → trimmed string value.
  */
-export function buildBulkPatch(values: FormShape, touched: Set<BulkEditableField>): Partial<SongMetadataUpdate> {
-  const patch: Partial<SongMetadataUpdate> = {}
+export function buildBulkPatch(values: FormShape, touched: Set<BulkFormFieldKey>): BulkPatch {
+  const metadata: Partial<SongMetadataUpdate> = {}
+  const customMetadata: MetadataInput[] = []
+
   for (const key of touched) {
+    const v = values[key] ?? ''
+
+    if (isCustomBulkField(key)) {
+      customMetadata.push({ key: getCustomTagKey(key), value: v === '' ? null : v })
+      continue
+    }
+
     const descriptor = BULK_EDITABLE_FIELDS.find(field => field.key === key)
     if (!descriptor) continue
 
-    const v = values[key] ?? ''
     if (v === '') {
-      ;(patch as Record<string, unknown>)[key] = null
+      ;(metadata as Record<string, unknown>)[key] = null
       continue
     }
 
@@ -27,18 +51,19 @@ export function buildBulkPatch(values: FormShape, touched: Set<BulkEditableField
       case 'number':
       case 'rating': {
         const n = Number(v)
-        if (Number.isFinite(n)) (patch as Record<string, unknown>)[key] = n
+        if (Number.isFinite(n)) (metadata as Record<string, unknown>)[key] = n
         break
       }
       case 'boolean':
-        ;(patch as Record<string, unknown>)[key] = v === 'true'
+        ;(metadata as Record<string, unknown>)[key] = v === 'true'
         break
       case 'date':
-        ;(patch as Record<string, unknown>)[key] = v
+        ;(metadata as Record<string, unknown>)[key] = v
         break
       default:
-        ;(patch as Record<string, unknown>)[key] = v
+        ;(metadata as Record<string, unknown>)[key] = v
     }
   }
-  return patch
+
+  return { metadata, customMetadata }
 }

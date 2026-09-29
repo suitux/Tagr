@@ -2,9 +2,9 @@
 
 import { useTranslations } from 'next-intl'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { type SongMetadataUpdate } from '@/features/metadata/domain'
 import { type Song } from '@/features/songs/domain'
 import { BulkEditFormBody } from './bulk-edit-form-body'
+import { type BulkPatch } from './build-patch'
 
 interface BulkEditModalProps {
   open: boolean
@@ -13,7 +13,7 @@ interface BulkEditModalProps {
   loadedSongs: Song[]
   /** Total number of songs the bulk operation will affect. */
   totalAffected: number
-  onSubmit: (patch: Partial<SongMetadataUpdate>) => void
+  onSubmit: (patch: BulkPatch) => void
 }
 
 export function BulkEditModal({ open, onOpenChange, loadedSongs, totalAffected, onSubmit }: BulkEditModalProps) {

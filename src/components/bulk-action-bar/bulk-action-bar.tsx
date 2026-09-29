@@ -5,7 +5,8 @@ import { useTranslations } from 'next-intl'
 import { toast } from 'sonner'
 import { BulkConfirmModal } from '@/components/bulk-confirm-modal/bulk-confirm-modal'
 import { BulkEditModal } from '@/components/bulk-edit-modal/bulk-edit-modal'
-import { type SongMetadataUpdate } from '@/features/metadata/domain'
+import { isEmptyBulkPatch, type BulkPatch } from '@/components/bulk-edit-modal/build-patch'
+import { SCAN_FILE_LIST_LIMIT } from '@/features/metadata/domain'
 import { useBulkFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-bulk-fetch-musicbrainz-cover'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
@@ -40,7 +41,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
 
   const [editOpen, setEditOpen] = useState(false)
   const [confirmKind, setConfirmKind] = useState<'edit' | 'cover' | 'set-cover' | null>(null)
-  const [pendingPatch, setPendingPatch] = useState<Partial<SongMetadataUpdate> | null>(null)
+  const [pendingPatch, setPendingPatch] = useState<BulkPatch | null>(null)
   const [pendingCover, setPendingCover] = useState<File | null>(null)
   const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
 
@@ -65,7 +66,12 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     recentListensLabel: tListens('title')
   })
 
-  const handleEditSubmit = (patch: Partial<SongMetadataUpdate>) => {
+  const handleEditSubmit = (patch: BulkPatch) => {
+    // Nothing touched means nothing to send — the route rejects an empty payload.
+    if (isEmptyBulkPatch(patch)) {
+      setEditOpen(false)
+      return
+    }
     setPendingPatch(patch)
     setConfirmKind('edit')
   }
@@ -106,12 +112,16 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     const ok = okResults.length
     const fail = failResults.length
 
+    // Only the first slice is listed — the summary shows "and N more" from the counts, and a
+    // selection can run into thousands of songs.
     setBulkLastResult({
       kind,
-      updated: { count: ok, files: okResults.map(r => buildPath(r.song)) },
+      updated: { count: ok, files: okResults.slice(0, SCAN_FILE_LIST_LIMIT).map(r => buildPath(r.song)) },
       failed: {
         count: fail,
-        errors: failResults.map(r => ({ path: findLoadedPath(r.songId), error: r.error }))
+        errors: failResults
+          .slice(0, SCAN_FILE_LIST_LIMIT)
+          .map(r => ({ path: findLoadedPath(r.songId), error: r.error }))
       }
     })
 
@@ -129,10 +139,15 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     }
   }
 
-  const runBulkEdit = async (target: ReturnType<typeof buildBulkTargetFromSelection>, patch: Partial<SongMetadataUpdate>) => {
+  const runBulkEdit = async (target: ReturnType<typeof buildBulkTargetFromSelection>, patch: BulkPatch) => {
     if (!target) return
     try {
-      const result = await updateMutation.mutateAsync({ target, metadata: patch, onProgress: handleProgress })
+      const result = await updateMutation.mutateAsync({
+        target,
+        metadata: patch.metadata,
+        ...(patch.customMetadata.length > 0 && { customMetadata: patch.customMetadata }),
+        onProgress: handleProgress
+      })
       reportResults('edit', result.results)
     } catch (e) {
       toast.error(e instanceof Error ? e.message : 'Bulk update failed')
