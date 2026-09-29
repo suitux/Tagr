@@ -4,16 +4,51 @@ export type BulkEditableField = keyof Omit<SongMetadataUpdate, 'lyrics' | 'custo
 
 export type BulkFieldType = 'text' | 'number' | 'date' | 'boolean' | 'rating'
 
-export type BulkFieldSection = 'music' | 'track' | 'misc'
+export type BulkFieldSection = 'music' | 'track' | 'misc' | 'custom'
 
-export interface BulkFieldDescriptor {
+/** Extended tag keys are namespaced so they can share the form state with the standard fields. */
+export const CUSTOM_FIELD_PREFIX = 'custom:'
+
+export type CustomBulkFieldKey = `${typeof CUSTOM_FIELD_PREFIX}${string}`
+
+export type BulkFormFieldKey = BulkEditableField | CustomBulkFieldKey
+
+export interface StandardBulkFieldDescriptor {
   key: BulkEditableField
   labelKey: string
   type: BulkFieldType
-  section: BulkFieldSection
+  section: Exclude<BulkFieldSection, 'custom'>
+  custom?: false
 }
 
-export const BULK_EDITABLE_FIELDS: BulkFieldDescriptor[] = [
+export interface CustomBulkFieldDescriptor {
+  key: CustomBulkFieldKey
+  /** The raw tag key — extended tags have no translation. */
+  label: string
+  type: 'text'
+  section: 'custom'
+  custom: true
+}
+
+export type BulkFieldDescriptor = StandardBulkFieldDescriptor | CustomBulkFieldDescriptor
+
+export function toCustomFieldKey(tagKey: string): CustomBulkFieldKey {
+  return `${CUSTOM_FIELD_PREFIX}${tagKey}`
+}
+
+export function isCustomBulkField(key: BulkFormFieldKey): key is CustomBulkFieldKey {
+  return key.startsWith(CUSTOM_FIELD_PREFIX)
+}
+
+export function getCustomTagKey(key: CustomBulkFieldKey): string {
+  return key.slice(CUSTOM_FIELD_PREFIX.length)
+}
+
+export function buildCustomFieldDescriptor(tagKey: string): CustomBulkFieldDescriptor {
+  return { key: toCustomFieldKey(tagKey), label: tagKey, type: 'text', section: 'custom', custom: true }
+}
+
+export const BULK_EDITABLE_FIELDS: StandardBulkFieldDescriptor[] = [
   { key: 'title', labelKey: 'title', type: 'text', section: 'music' },
   { key: 'artist', labelKey: 'artist', type: 'text', section: 'music' },
   { key: 'sortArtist', labelKey: 'sortArtist', type: 'text', section: 'music' },

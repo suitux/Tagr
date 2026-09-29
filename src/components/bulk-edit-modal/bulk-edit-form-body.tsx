@@ -3,26 +3,33 @@
 import { useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { useTranslations } from 'next-intl'
+import { FieldVisibilityMenu } from '@/components/field-visibility-menu'
 import { Button } from '@/components/ui/button'
 import { DialogFooter } from '@/components/ui/dialog'
-import { type SongMetadataUpdate } from '@/features/metadata/domain'
+import { useBulkEditFields } from '@/features/songs/hooks/use-bulk-edit-fields'
+import { useMetadataKeys } from '@/features/songs/hooks/use-metadata-keys'
+import { stripKeyPrefix } from '@/features/songs/metadata-helpers'
 import { type Song } from '@/features/songs/domain'
 import {
   BULK_EDITABLE_FIELDS,
-  type BulkEditableField,
+  buildCustomFieldDescriptor,
+  getCustomTagKey,
+  isCustomBulkField,
   type BulkFieldDescriptor,
-  type BulkFieldSection
+  type BulkFieldSection,
+  type BulkFormFieldKey
 } from '@/features/songs/song-fields'
-import { type AggregateValue, MIXED, computeAggregate } from './aggregate-helpers'
-import { buildBulkPatch, type FormShape } from './build-patch'
+import { type AggregateValue, MIXED, computeAggregate, computeCustomAggregate } from './aggregate-helpers'
+import { AddCustomFieldForm } from './add-custom-field-form'
+import { buildBulkPatch, type BulkPatch, type FormShape } from './build-patch'
 import { FieldRow } from './field-row'
 
-const SECTION_ORDER: BulkFieldSection[] = ['music', 'track', 'misc']
+const SECTION_ORDER: BulkFieldSection[] = ['music', 'track', 'misc', 'custom']
 
 interface BulkEditFormBodyProps {
   loadedSongs: Song[]
   totalAffected: number
-  onSubmit: (patch: Partial<SongMetadataUpdate>) => void
+  onSubmit: (patch: BulkPatch) => void
   onCancel: () => void
   cancelLabel: string
   continueLabel: string
@@ -42,19 +49,49 @@ export function BulkEditFormBody({
   const hasUnloadedSamples = loadedSongs.length < totalAffected
   const placeholderText = tBulk('edit.variousPlaceholder')
 
+  const { fields: savedFields, saveFields } = useBulkEditFields()
+  const { data: libraryKeys = [] } = useMetadataKeys()
+
+  const hidden = useMemo(() => new Set(savedFields.hidden ?? []), [savedFields.hidden])
+  const customKeys = useMemo(() => savedFields.custom ?? [], [savedFields.custom])
+
+  /** Standard fields plus every extended tag key the user can pick from. */
+  const menuFields = useMemo(() => {
+    const knownKeys = new Set([...libraryKeys.map(stripKeyPrefix), ...customKeys])
+    const custom = Array.from(knownKeys).sort((a, b) => a.localeCompare(b)).map(buildCustomFieldDescriptor)
+    return [...BULK_EDITABLE_FIELDS, ...custom]
+  }, [libraryKeys, customKeys])
+
+  const visibleFields = useMemo<BulkFieldDescriptor[]>(
+    () => [
+      ...BULK_EDITABLE_FIELDS.filter(field => !hidden.has(field.key)),
+      ...customKeys.map(buildCustomFieldDescriptor)
+    ],
+    [hidden, customKeys]
+  )
+
   const aggregates = useMemo(() => {
-    const map = new Map<BulkEditableField, AggregateValue>()
-    for (const f of BULK_EDITABLE_FIELDS) {
-      map.set(f.key, computeAggregate(loadedSongs, f.key, f.type, hasUnloadedSamples))
+    const map = new Map<BulkFormFieldKey, AggregateValue>()
+    for (const f of visibleFields) {
+      map.set(
+        f.key,
+        f.custom
+          ? computeCustomAggregate(loadedSongs, getCustomTagKey(f.key), hasUnloadedSamples)
+          : computeAggregate(loadedSongs, f.key, f.type, hasUnloadedSamples)
+      )
     }
     return map
-  }, [loadedSongs, hasUnloadedSamples])
+  }, [visibleFields, loadedSongs, hasUnloadedSamples])
+
+  const defaultValue = (key: BulkFormFieldKey) => {
+    const agg = aggregates.get(key)
+    return agg === MIXED || agg === null || agg === undefined ? '' : String(agg)
+  }
 
   const defaultValues = useMemo<FormShape>(() => {
     const obj = {} as FormShape
-    for (const f of BULK_EDITABLE_FIELDS) {
-      const agg = aggregates.get(f.key)
-      obj[f.key] = agg === MIXED || agg === null ? '' : String(agg)
+    for (const [key, agg] of aggregates) {
+      obj[key] = agg === MIXED || agg === null ? '' : String(agg)
     }
     return obj
   }, [aggregates])
@@ -68,9 +105,9 @@ export function BulkEditFormBody({
   // a user re-types the original value, but we need an explicit "user
   // intentionally edited this field" signal even if the resulting value
   // matches the aggregate (notably: clearing a shared field to remove it).
-  const [touched, setTouched] = useState<Set<BulkEditableField>>(() => new Set())
+  const [touched, setTouched] = useState<Set<BulkFormFieldKey>>(() => new Set())
 
-  const markTouched = (key: BulkEditableField) => {
+  const markTouched = (key: BulkFormFieldKey) => {
     setTouched(prev => {
       if (prev.has(key)) return prev
       const next = new Set(prev)
@@ -79,15 +116,47 @@ export function BulkEditFormBody({
     })
   }
 
+  const forgetTouched = (key: BulkFormFieldKey) => {
+    setTouched(prev => {
+      if (!prev.has(key)) return prev
+      const next = new Set(prev)
+      next.delete(key)
+      return next
+    })
+  }
+
   const fieldsBySection = useMemo(() => {
     const map = new Map<BulkFieldSection, BulkFieldDescriptor[]>()
-    for (const f of BULK_EDITABLE_FIELDS) {
+    for (const f of visibleFields) {
       const arr = map.get(f.section) ?? []
       arr.push(f)
       map.set(f.section, arr)
     }
     return map
-  }, [])
+  }, [visibleFields])
+
+  const fieldLabel = (f: BulkFieldDescriptor) => (f.custom ? f.label : tFields(f.labelKey))
+
+  const toggleField = (key: BulkFormFieldKey, visible: boolean) => {
+    // A hidden row can no longer be submitted, so its pending edit goes with it.
+    if (!visible) forgetTouched(key)
+
+    if (isCustomBulkField(key)) {
+      const tagKey = getCustomTagKey(key)
+      const next = visible ? [...customKeys, tagKey] : customKeys.filter(k => k !== tagKey)
+      saveFields({ ...savedFields, custom: next })
+      return
+    }
+
+    const nextHidden = visible ? [...hidden].filter(k => k !== key) : [...hidden, key]
+    saveFields({ ...savedFields, hidden: nextHidden })
+  }
+
+  const addCustomKey = (rawKey: string) => {
+    const tagKey = stripKeyPrefix(rawKey.trim()).toUpperCase()
+    if (!tagKey || customKeys.includes(tagKey)) return
+    saveFields({ ...savedFields, custom: [...customKeys, tagKey] })
+  }
 
   const handleValid = (values: FormShape) => {
     if (touched.size === 0) return
@@ -97,6 +166,20 @@ export function BulkEditFormBody({
   return (
     <form onSubmit={handleSubmit(handleValid)} className='flex min-h-0 flex-1 flex-col'>
       <div className='min-h-0 flex-1 overflow-y-auto px-4 py-3 space-y-4'>
+        <div className='flex items-center justify-between gap-2'>
+          <FieldVisibilityMenu
+            fields={menuFields.map(f => f.key)}
+            isVisible={key => visibleFields.some(f => f.key === key)}
+            onToggle={toggleField}
+            label={key => {
+              const field = menuFields.find(f => f.key === key)
+              return field ? fieldLabel(field) : key
+            }}
+            triggerLabel={tBulk('edit.fieldsMenu')}
+            footer={<AddCustomFieldForm onAdd={addCustomKey} />}
+          />
+        </div>
+
         {hasUnloadedSamples && (
           <p className='text-xs rounded-md border border-yellow-500/30 bg-yellow-500/5 px-2.5 py-2 text-yellow-700 dark:text-yellow-400'>
             {tBulk('edit.partialSampleNote', { loaded: loadedSongs.length, total: totalAffected })}
@@ -117,14 +200,15 @@ export function BulkEditFormBody({
                     key={f.key}
                     control={control}
                     name={f.key}
+                    defaultValue={defaultValue(f.key)}
                     render={({ field }) => (
                       <FieldRow
                         field={f}
                         aggregate={aggregates.get(f.key) ?? null}
-                        value={field.value}
+                        value={field.value ?? ''}
                         isTouched={touched.has(f.key)}
                         placeholderText={placeholderText}
-                        label={tFields(f.labelKey)}
+                        label={fieldLabel(f)}
                         onChange={v => {
                           field.onChange(v)
                           markTouched(f.key)

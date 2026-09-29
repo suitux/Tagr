@@ -6,6 +6,7 @@ import { type SongMetadataUpdate } from '@/features/metadata/domain'
 import { type BulkTarget } from '@/features/songs/bulk-target'
 import { type SongWithMetadata } from '@/features/songs/domain'
 import { applySongUpdates, invalidateBulkTargetQueries } from '@/features/songs/hooks/bulk-cache-sync'
+import { METADATA_KEYS_QUERY_KEY } from '@/features/songs/hooks/use-metadata-keys'
 import { collectNdjsonBulkResponse, type NdjsonBulkProgress } from '@/lib/ndjson-stream'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
@@ -49,6 +50,11 @@ export function useBulkUpdateSongs() {
         applySongUpdates(queryClient, updatedSongs)
         invalidateAllHistoryQueryKeys(queryClient)
         incrementEditCount()
+
+        // A bulk edit can introduce an extended tag key the library never had.
+        if (variables.customMetadata?.length) {
+          void queryClient.invalidateQueries({ queryKey: METADATA_KEYS_QUERY_KEY })
+        }
       }
 
       invalidateBulkTargetQueries(queryClient, variables.target)

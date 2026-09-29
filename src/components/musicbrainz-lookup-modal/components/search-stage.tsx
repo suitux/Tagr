@@ -3,6 +3,7 @@
 import { Loader2Icon, SearchIcon } from 'lucide-react'
 import { ChangeEvent, useMemo, useState } from 'react'
 import { useTranslations } from 'next-intl'
+import { FieldVisibilityMenu } from '@/components/field-visibility-menu'
 import { HighlightedText } from '@/components/highlighted-text'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -28,7 +29,6 @@ import type { Song } from '@/features/songs/domain'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { formatDate } from '@/lib/date'
 import { cn } from '@/lib/utils'
-import { SearchFieldSelector } from './search-field-selector'
 
 interface SearchStageProps {
   song: Song
@@ -164,11 +164,12 @@ export function SearchStage({ song, onSelect }: SearchStageProps) {
             ))}
           </RadioGroup>
 
-          <SearchFieldSelector
+          <FieldVisibilityMenu
             fields={MUSICBRAINZ_SEARCH_FIELDS}
-            visible={visibleFields}
+            isVisible={field => visibleFields[field]}
             onToggle={toggleField}
             label={field => (field === 'mbid' ? t('mbid') : tFields(field))}
+            triggerLabel={t('searchFields')}
           />
 
           <Button type='submit' disabled={isLoading || !shownFields.length} className='ml-auto'>
