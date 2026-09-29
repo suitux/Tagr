@@ -98,7 +98,12 @@ export async function replaceScannedSongByFilePath(
   })
 }
 
-/** Replaces a song's scalar fields, metadata and pictures, matched by id; returns with relations. */
+/**
+ * Replaces a song's scalar fields, metadata and pictures, matched by id; returns the row with its
+ * metadata. Cover art is deliberately left out: callers ship this straight to the client as JSON,
+ * where a `Bytes` blob serialises to `{"0":137,…}` — megabytes per song, and a bulk edit of a few
+ * hundred songs is enough to kill the tab. Art is served by `/api/songs/[id]/picture` instead.
+ */
 export async function replaceScannedSongById(
   songId: number,
   songFields: SongScalarFields,
@@ -110,7 +115,7 @@ export async function replaceScannedSongById(
   return prisma.song.update({
     where: { id: songId },
     data: { ...songFields, scannedAt: new Date(), ...nestedRelations(metadata, pictures) },
-    include: { metadata: true, pictures: true }
+    include: { metadata: true }
   })
 }
 

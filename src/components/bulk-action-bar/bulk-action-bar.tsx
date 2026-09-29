@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { BulkConfirmModal } from '@/components/bulk-confirm-modal/bulk-confirm-modal'
 import { BulkEditModal } from '@/components/bulk-edit-modal/bulk-edit-modal'
 import { isEmptyBulkPatch, type BulkPatch } from '@/components/bulk-edit-modal/build-patch'
+import { SCAN_FILE_LIST_LIMIT } from '@/features/metadata/domain'
 import { useBulkFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-bulk-fetch-musicbrainz-cover'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
@@ -111,12 +112,16 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     const ok = okResults.length
     const fail = failResults.length
 
+    // Only the first slice is listed — the summary shows "and N more" from the counts, and a
+    // selection can run into thousands of songs.
     setBulkLastResult({
       kind,
-      updated: { count: ok, files: okResults.map(r => buildPath(r.song)) },
+      updated: { count: ok, files: okResults.slice(0, SCAN_FILE_LIST_LIMIT).map(r => buildPath(r.song)) },
       failed: {
         count: fail,
-        errors: failResults.map(r => ({ path: findLoadedPath(r.songId), error: r.error }))
+        errors: failResults
+          .slice(0, SCAN_FILE_LIST_LIMIT)
+          .map(r => ({ path: findLoadedPath(r.songId), error: r.error }))
       }
     })
 
