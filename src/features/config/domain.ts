@@ -61,6 +61,7 @@ export const DEFAULT_VISIBLE_COLUMNS: ColumnVisibilityState = {
   grouping: false,
   publisher: false,
   catalogNumber: false,
+  releaseType: false,
   lyricist: false,
   barcode: false,
   work: false,

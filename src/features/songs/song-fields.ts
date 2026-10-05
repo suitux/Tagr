@@ -65,6 +65,7 @@ export const BULK_EDITABLE_FIELDS: StandardBulkFieldDescriptor[] = [
   { key: 'grouping', labelKey: 'grouping', type: 'text', section: 'music' },
   { key: 'publisher', labelKey: 'publisher', type: 'text', section: 'music' },
   { key: 'catalogNumber', labelKey: 'catalogNumber', type: 'text', section: 'music' },
+  { key: 'releaseType', labelKey: 'releaseType', type: 'text', section: 'music' },
   { key: 'lyricist', labelKey: 'lyricist', type: 'text', section: 'music' },
   { key: 'barcode', labelKey: 'barcode', type: 'text', section: 'music' },
   { key: 'work', labelKey: 'work', type: 'text', section: 'music' },

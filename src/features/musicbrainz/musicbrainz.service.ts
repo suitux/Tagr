@@ -1,3 +1,4 @@
+import { joinMultiValue } from 'audiotagr/tags'
 import {
   type MusicBrainzSearchResponse,
   type MusicBrainzCoverArtResponse,
@@ -129,6 +130,11 @@ export function mapToSongMetadata(
   }
 
   result.barcode = release.barcode || undefined
+
+  // Picard's RELEASETYPE: the primary type followed by any secondary ones, lowercased.
+  const releaseGroup = release['release-group']
+  const releaseTypes = [releaseGroup?.['primary-type'], ...(releaseGroup?.['secondary-types'] ?? [])]
+  result.releaseType = joinMultiValue(releaseTypes.map(type => type?.toLowerCase())) ?? undefined
 
   if (release['release-group']?.['first-release-date']) {
     result.originalReleaseDate = release['release-group']['first-release-date']

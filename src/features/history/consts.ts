@@ -22,6 +22,7 @@ export const HISTORY_TRACKABLE_FIELDS = new Set([
   'grouping',
   'publisher',
   'catalogNumber',
+  'releaseType',
   'lyricist',
   'barcode',
   'work',

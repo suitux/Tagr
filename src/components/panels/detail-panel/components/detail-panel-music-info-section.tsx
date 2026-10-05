@@ -6,6 +6,7 @@ import {
   BookOpenIcon,
   CalendarIcon,
   CopyrightIcon,
+  Disc3Icon,
   DiscIcon,
   FolderIcon,
   LibraryIcon,
@@ -146,6 +147,13 @@ export function DetailPanelMusicInfoSection({ song }: DetailPanelMusicInfoSectio
         value={song.catalogNumber}
         songId={song.id}
         fieldName='catalogNumber'
+      />
+      <DetailPanelRow
+        icon={<Disc3Icon className='w-4 h-4' />}
+        label={t('releaseType')}
+        value={song.releaseType}
+        songId={song.id}
+        fieldName='releaseType'
       />
       <DetailPanelRow
         icon={<PenLineIcon className='w-4 h-4' />}

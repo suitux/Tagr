@@ -44,6 +44,7 @@ model Song {
   grouping            String?
   publisher           String?
   catalogNumber       String?   @map("catalog_number")
+  releaseType         String?   @map("release_type")
   lyricist            String?
   barcode             String?
   work                String?

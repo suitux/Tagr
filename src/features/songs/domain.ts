@@ -30,6 +30,7 @@ export type SongSortField =
   | 'grouping'
   | 'publisher'
   | 'catalogNumber'
+  | 'releaseType'
   | 'lyricist'
   | 'barcode'
   | 'work'
@@ -99,6 +100,7 @@ export const SELECT_SONG_FIELDS: Set<ColumnField> = new Set([
   'genre',
   'style',
   'publisher',
+  'releaseType',
   'albumArtist',
   'composer',
   'conductor',

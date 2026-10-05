@@ -13,6 +13,7 @@ export const SONG_FIELD_OPTIONS: ColumnField[] = [
   'conductor',
   'publisher',
   'catalogNumber',
+  'releaseType',
   'lyricist',
   'barcode',
   'work',
