@@ -235,6 +235,13 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
       size: 140
     },
     {
+      id: 'releaseType',
+      accessorKey: 'releaseType',
+      header: ({ column }) => <SortableHeader column={column} label={t('releaseType')} />,
+      cell: ({ row }) => textCell(row.original.releaseType),
+      size: 120
+    },
+    {
       id: 'lyricist',
       accessorKey: 'lyricist',
       header: ({ column }) => <SortableHeader column={column} label={t('lyricist')} />,

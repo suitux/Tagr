@@ -70,6 +70,7 @@ export interface SongCreateInput {
   grouping: string | null
   publisher: string | null
   catalogNumber: string | null
+  releaseType: string | null
   lyricist: string | null
   barcode: string | null
   work: string | null

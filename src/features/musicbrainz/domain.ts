@@ -113,6 +113,7 @@ export interface MusicBrainzReleaseDetail {
   media?: MusicBrainzReleaseMedia[]
   'release-group'?: {
     'primary-type'?: string
+    'secondary-types'?: string[]
     'first-release-date'?: string
   }
 }
@@ -129,6 +130,7 @@ export interface MusicBrainzMappedMetadata {
   discTotal?: number
   publisher?: string
   catalogNumber?: string
+  releaseType?: string
   barcode?: string
   originalReleaseDate?: string
   genre?: string
@@ -146,6 +148,7 @@ export const MUSIC_BRAINZ_FIELDS: (keyof MusicBrainzMappedMetadata)[] = [
   'discTotal',
   'publisher',
   'catalogNumber',
+  'releaseType',
   'barcode',
   'originalReleaseDate',
   'genre'

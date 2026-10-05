@@ -156,6 +156,7 @@
     "grouping": "Grouping",
     "publisher": "Publisher",
     "catalogNumber": "Catalog Number",
+    "releaseType": "Release Type",
     "lyricist": "Lyricist",
     "barcode": "Barcode",
     "work": "Work",
