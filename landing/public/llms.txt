@@ -102,7 +102,7 @@ enough to pick them all up.
 
 ## Links
 
-- Landing page: https://suitux.github.io/Tagr/
-- Install and configuration docs: https://suitux.github.io/Tagr/docs/
-- Spanish landing page: https://suitux.github.io/Tagr/es/
+- Landing page: https://tagr.xavirincon.com/
+- Install and configuration docs: https://tagr.xavirincon.com/docs/
+- Spanish landing page: https://tagr.xavirincon.com/es/
 - Issues: https://github.com/suitux/Tagr/issues
