@@ -79,20 +79,15 @@ dropdown in `Header.astro` and `Footer.astro`.
 
 ## Deploying
 
-GitHub Pages, as a project site at `https://suitux.github.io/Tagr/`. Pushing to `main` with changes
-under `landing/` triggers `.github/workflows/landing.yml`, which builds and deploys. In the repo
-settings, **Settings > Pages > Source** must be set to **GitHub Actions** (not "Deploy from a
-branch"), once.
+GitHub Pages, served on the custom domain `https://tagr.xavirincon.com/` (`public/CNAME`). Pushing to
+`main` with changes under `landing/` triggers `.github/workflows/landing.yml`, which builds and
+deploys. In the repo settings, **Settings > Pages > Source** must be set to **GitHub Actions** (not
+"Deploy from a branch"), and **Custom domain** set to `tagr.xavirincon.com` with **Enforce HTTPS**,
+once. DNS: a `CNAME` record `tagr` → `suitux.github.io`. The old `suitux.github.io/Tagr/` URLs
+redirect to the custom domain.
 
 `public/.nojekyll` is required and must stay: GitHub Pages runs Jekyll by default, and Jekyll skips
 directories starting with an underscore, which would drop every asset Astro emits into `_astro/`.
-
-Two consequences of living under a subpath rather than a domain root:
-
-- `robots.txt` is only honoured at the domain root (`suitux.github.io/robots.txt`), which belongs to
-  a different repo. The one here is served but ignored by crawlers. Submit the sitemap
-  (`https://suitux.github.io/Tagr/sitemap-index.xml`) directly in Google Search Console instead.
-- The same applies to `llms.txt`, whose convention expects the root.
 
 ## Swapping the domain
 
@@ -101,15 +96,14 @@ OG tags, the absolute JSON-LD URLs, and every internal link and asset (through `
 `asset()` in `src/i18n/index.ts`).
 
 ```js
-export const SITE = 'https://suitux.github.io';
-export const BASE = '/Tagr';
+export const SITE = 'https://tagr.xavirincon.com';
+export const BASE = '/';
 ```
 
-To move to a custom domain: set `SITE` to it, set `BASE` to `'/'`, add a `CNAME` file with the
-domain in `public/`, and point the DNS at GitHub Pages. Then update the `Sitemap:` line in
+To move to another domain: change `SITE` (and `BASE` if it is served under a subpath), update
+`public/CNAME`, and point the DNS at GitHub Pages. Then update the `Sitemap:` line in
 `public/robots.txt` and the links at the bottom of `public/llms.txt`, which are plain text and
-cannot read the config. Nothing else in the source needs touching, and GitHub redirects the old
-`github.io` URLs to the new domain.
+cannot read the config. Nothing else in the source needs touching.
 
 Never hardcode a site relative path (`/og.png`, `/docs/`) in a component. Use `asset()` or
 `localePath()`, or it will 404 under the base path.

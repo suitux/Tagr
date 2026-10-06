@@ -3,7 +3,7 @@
 /* Geist Sans and Geist Mono, self hosted. The woff2 files are the latin subsets shipped by
    @fontsource-variable/geist and @fontsource-variable/geist-mono, copied into src/fonts.
    They live in src/ and not public/ so Vite emits them with a hashed, base aware URL: a hardcoded
-   /fonts/... would 404 under the /Tagr/ base path of a GitHub Pages project site.
+   /fonts/... would 404 if the site is ever served under a base path.
    No Google Fonts request: it costs LCP and leaks the visitor. */
 @font-face {
   font-family: 'Geist Variable';

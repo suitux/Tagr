@@ -3,11 +3,11 @@ import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Deployed as a GitHub Pages project site: https://suitux.github.io/Tagr/
-// If a custom domain is ever added, set SITE to it and BASE to '/', and nothing else changes:
+// Deployed on GitHub Pages under a custom domain (public/CNAME): https://tagr.xavirincon.com/
+// SITE and BASE drive everything, and nothing else changes when they do:
 // every internal link, asset and canonical is built from these two values.
-export const SITE = 'https://suitux.github.io';
-export const BASE = '/Tagr';
+export const SITE = 'https://tagr.xavirincon.com';
+export const BASE = '/';
 
 export default defineConfig({
   site: SITE,
