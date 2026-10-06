@@ -1,0 +1,4 @@
+# Separate from the app's workspace at the repo root.
+allowBuilds:
+  esbuild: true
+  sharp: true
