@@ -584,6 +584,18 @@ export const es: Dict = {
             desc: 'Modo de ejecución. Usa production en un despliegue normal.',
             example: 'production',
           },
+          {
+            name: 'TAGR_INSIGHTS',
+            required: 'No',
+            desc: 'Ponlo a false para desactivar Insights, el informe anónimo diario de uso, de forma permanente. Tiene prioridad sobre el ajuste de la app, y no se le pregunta al admin.',
+            example: 'false',
+          },
+          {
+            name: 'DO_NOT_TRACK',
+            required: 'No',
+            desc: 'Ponlo a 1 para desactivar Insights, igual que TAGR_INSIGHTS=false. Sigue la convención Console Do Not Track.',
+            example: '1',
+          },
         ],
       },
       manual: {
