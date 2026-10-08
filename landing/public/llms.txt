@@ -37,7 +37,7 @@ server itself and gives you a browser UI, on desktop and on a phone.
 - Mobile first responsive UI with swipe gestures, installable as a PWA.
 - Custom playlists, lossless detection, URL based state (bookmark or share any view).
 - Multi user authentication with user management built in.
-- No telemetry. The only outbound call is to the MusicBrainz API, and only on request.
+- Private by design: music, tags and file names never leave the server. Outbound calls: MusicBrainz lookups on request, ListenBrainz scrobbling if configured, and Insights, an anonymous daily report of counts that an admin must accept first and can turn off (public results: https://tagr.xavirincon.com/insights/).
 
 ## Supported audio formats
 

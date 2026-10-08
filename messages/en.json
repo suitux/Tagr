@@ -282,10 +282,11 @@
   },
   "welcome": {
     "title": "Welcome to Tagr",
-    "description": "Tagr needs to scan your music folders to build a local database. This makes browsing and searching your library fast and smooth. No data leaves your machine.",
+    "description": "Tagr needs to scan your music folders to build a local database. This makes browsing and searching your library fast and smooth. Your music and its tags never leave your machine.",
     "timing": "This process may take a few minutes depending on the size of your library.",
     "scanButton": "Scan library",
-    "scanning": "Scanning your library..."
+    "scanning": "Scanning your library...",
+    "insightsNotice": "Tagr can send anonymous usage statistics (Insights) once a day: counts only, never file names, paths or user names. Nothing is sent until you agree, and you can turn it off in Settings."
   },
   "version": {
     "updateAvailable": "Version {version} is available",
@@ -510,7 +511,8 @@
     "title": "Settings",
     "sections": {
       "users": "Users",
-      "integrations": "Third party integrations"
+      "integrations": "Third party integrations",
+      "insights": "Insights"
     }
   },
   "scrobbling": {
@@ -532,5 +534,32 @@
   "listens": {
     "title": "Recently played",
     "empty": "Nothing played yet"
+  },
+  "insights": {
+    "title": "Insights",
+    "description": "Insights are Tagr's anonymous usage statistics. Once a day Tagr sends a small report (version, library size, which features are used) so we know how many people use it and what to improve. It never includes file names, paths, tags or user names.",
+    "enable": "Send Insights (anonymous usage statistics)",
+    "forcedByEnv": "Disabled by the TAGR_INSIGHTS or DO_NOT_TRACK environment variable.",
+    "lastSent": "Last report sent on {date}.",
+    "neverSent": "No report sent yet.",
+    "dashboard": "The aggregated results are public: <link>see the dashboard</link>.",
+    "preview": "Show exactly what is sent",
+    "previewHelp": "This JSON is sent to {endpoint}:",
+    "enabledToast": "Insights enabled",
+    "disabledToast": "Insights disabled",
+    "noticeTitle": "Help improve Tagr with Insights",
+    "noticeBody": "Insights are anonymous usage statistics: once a day Tagr can send a small report so we know how many people use it and which features are worth working on. Nothing has been sent yet, and nothing will be unless you keep it enabled.",
+    "noticeDetails": "Show the exact report",
+    "noticeKeep": "Keep enabled",
+    "noticeDisable": "Disable",
+    "pendingNotice": "Nothing has been sent yet: it starts once an admin confirms.",
+    "noticeSentTitle": "What is sent",
+    "noticeSent": "Tagr version, OS and architecture, number of songs and users, file formats, and how often features like tag editing, smart playlists or scrobbling are used.",
+    "noticeNeverTitle": "What is never sent",
+    "noticeNever": "File names, paths, tags, user names, tokens or your IP address.",
+    "noticeLater": "You can change this at any time in Settings → Insights.",
+    "sendNow": "Send now",
+    "sentToast": "Report sent",
+    "sendFailedToast": "Could not send the report: {error}"
   }
 }

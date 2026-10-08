@@ -38,6 +38,7 @@ export function WelcomeScanState() {
             {isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <ScanSearchIcon className='h-4 w-4' />}
             {isPending ? t('scanning') : t('scanButton')}
           </Button>
+          <p className='text-xs text-muted-foreground mt-6'>{t('insightsNotice')}</p>
         </CardContent>
       </Card>
     </div>

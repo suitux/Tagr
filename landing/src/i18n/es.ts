@@ -14,6 +14,12 @@ export const es: Dict = {
         'Cómo instalar y configurar Tagr, el editor de metadatos de música self hosted. Docker Compose, variables de entorno, montaje de carpetas de música y resolución de problemas.',
       ogTitle: 'Instalar Tagr: Docker y configuración',
     },
+    insights: {
+      title: 'Tagr Insights: estadísticas de uso anónimas de cada instalación',
+      description:
+        'Estadísticas de uso públicas, agregadas y anónimas que envían las instalaciones de Tagr: instalaciones activas, versiones, plataformas, tamaño de biblioteca y adopción de funciones a lo largo del tiempo.',
+      ogTitle: 'Tagr Insights',
+    },
     notFound: {
       title: 'Página no encontrada: Tagr',
       description: 'Esa página no existe. Vuelve a la portada de Tagr o a la guía de instalación.',
@@ -63,7 +69,7 @@ export const es: Dict = {
   trust: [
     { icon: 'scale', label: 'AGPL-3.0' },
     { icon: 'cpu', label: 'amd64 y arm64' },
-    { icon: 'shield', label: 'Sin telemetría' },
+    { icon: 'shield', label: 'Privado por diseño' },
     { icon: 'database', label: 'SQLite, sin base de datos externa' },
     { icon: 'smartphone', label: 'Funciona en el móvil' },
   ],
@@ -375,7 +381,7 @@ export const es: Dict = {
       },
       {
         q: '¿Tagr envía datos a la nube?',
-        a: 'Ni telemetría, ni analítica, ni llamadas a casa. La única salida a internet que puede hacer Tagr es a la API de MusicBrainz, y solo cuando le pides explícitamente que busque una canción. Si no usas esa función, el contenedor no habla con internet.',
+        a: 'Tu música, tus etiquetas y los nombres de tus archivos nunca salen de tu servidor. Tagr solo se conecta a internet para tres cosas: buscar en MusicBrainz cuando se lo pides, hacer scrobbling a ListenBrainz si conectas una cuenta, e Insights, un informe anónimo diario con recuentos (versión, tamaño de la biblioteca, qué funciones se usan). Insights espera a que un admin lo acepte y se puede desactivar en cualquier momento; los resultados son públicos en la página de Insights.',
       },
       {
         q: '¿Puedo usar Tagr desde el móvil?',
@@ -431,6 +437,7 @@ export const es: Dict = {
         links: [
           { label: 'GitHub', href: 'https://github.com/suitux/Tagr', external: true },
           { label: 'Versiones', href: 'https://github.com/suitux/Tagr/releases', external: true },
+          { label: 'Insights', href: '/es/insights/' },
           { label: 'Incidencias', href: 'https://github.com/suitux/Tagr/issues', external: true },
           { label: 'Licencia', href: 'https://github.com/suitux/Tagr/blob/main/LICENSE', external: true },
         ],
@@ -445,6 +452,49 @@ export const es: Dict = {
     ],
     bmc: 'Invítame a un café',
     rights: 'Tagr, AGPL-3.0',
+  },
+
+  insights: {
+    h1: 'Insights',
+    intro:
+      'Insights son las estadísticas de uso anónimas de Tagr. Cada instalación cuyo admin lo ha aceptado envía un informe al día: versión, plataforma, tamaño de la biblioteca y qué funciones usa. Nunca nombres de archivo, rutas, etiquetas ni nombres de usuario. Estos son los resultados agregados, actualizados en directo.',
+    optOut: 'Para no enviarlo, desactívalo en Ajustes → Insights o define TAGR_INSIGHTS=false.',
+    whatIsSent: 'Ver exactamente qué se envía',
+    rangeLabel: 'Periodo',
+    ranges: { '30d': '30 días', '90d': '90 días', '1y': '1 año', all: 'Todo' },
+    loading: 'Cargando estadísticas…',
+    error: 'No se han podido cargar las estadísticas. Inténtalo más tarde.',
+    empty: 'Aún no hay datos. Las estadísticas aparecen en cuanto llegan los primeros informes.',
+    updated: 'Actualizado el {date}',
+    vsStart: '{delta} desde el {date}',
+    showTable: 'Ver los datos en una tabla',
+    other: 'Otras',
+    date: 'Fecha',
+    week: 'Semana del',
+    tiles: {
+      instances: 'Instalaciones activas',
+      songs: 'Canciones gestionadas',
+      edits: 'Ediciones de etiquetas, últimos 7 días',
+      docker: 'Funcionando en Docker',
+    },
+    charts: {
+      instances: { title: 'Instalaciones activas', caption: 'Instalaciones que enviaron su informe cada día. El último punto es en directo: todas las vistas en las últimas 24 horas.' },
+      versions: { title: 'Versiones de Tagr', caption: 'Instalaciones por versión. Muestra lo rápido que se adoptan las nuevas releases.' },
+      platforms: { title: 'Sistema operativo y arquitectura', caption: 'Porcentaje de instalaciones.' },
+      librarySizes: { title: 'Tamaño de la biblioteca', caption: 'Porcentaje de instalaciones según su número de canciones.' },
+      features: { title: 'Adopción de funciones', caption: 'Porcentaje de instalaciones que usan cada función.' },
+      activity: { title: 'Actividad', caption: 'Ediciones de etiquetas y reproducciones de los 7 días anteriores, sumando todas las instalaciones.' },
+      formats: { title: 'Formatos de archivo', caption: 'Porcentaje de todas las canciones que gestiona Tagr.' },
+    },
+    features: {
+      metadataEditing: 'Edición de etiquetas',
+      smartPlaylists: 'Listas inteligentes',
+      savedFilters: 'Filtros guardados',
+      multiUser: 'Varios usuarios',
+      scrobbling: 'Scrobbling',
+      sharedLinks: 'Enlaces compartidos',
+    },
+    activity: { metadataEdits7d: 'Ediciones', listens7d: 'Reproducciones' },
   },
 
   notFound: {
@@ -533,6 +583,18 @@ export const es: Dict = {
             required: 'No',
             desc: 'Modo de ejecución. Usa production en un despliegue normal.',
             example: 'production',
+          },
+          {
+            name: 'TAGR_INSIGHTS',
+            required: 'No',
+            desc: 'Ponlo a false para desactivar Insights, el informe anónimo diario de uso, de forma permanente. Tiene prioridad sobre el ajuste de la app, y no se le pregunta al admin.',
+            example: 'false',
+          },
+          {
+            name: 'DO_NOT_TRACK',
+            required: 'No',
+            desc: 'Ponlo a 1 para desactivar Insights, igual que TAGR_INSIGHTS=false. Sigue la convención Console Do Not Track.',
+            example: '1',
           },
         ],
       },

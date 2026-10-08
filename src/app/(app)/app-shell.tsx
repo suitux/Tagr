@@ -6,6 +6,7 @@ import { BulkSummaryModal } from '@/components/bulk-summary-modal'
 import { ResponsiveLayout } from '@/components/layout/responsive-layout'
 import { DetailPanel } from '@/components/panels/detail-panel/detail-panel'
 import { FolderList } from '@/components/panels/folder-list/folder-list'
+import { InsightsNoticeDialog } from '@/components/insights-notice-dialog'
 import { ScanSummaryModal } from '@/components/scan-summary-modal'
 import { StarPromptDialog } from '@/components/star-prompt-dialog'
 import { useLibraryNavigation } from '@/hooks/use-library-navigation'
@@ -40,6 +41,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <ScanSummaryModal />
       <BulkSummaryModal />
       <StarPromptDialog />
+      <InsightsNoticeDialog />
       <ResponsiveLayout
         sidebar={
           <FolderList

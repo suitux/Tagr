@@ -1,6 +1,6 @@
 'use client'
 
-import { PlugIcon, SettingsIcon, UsersIcon, type LucideIcon } from 'lucide-react'
+import { ChartNoAxesColumnIcon, PlugIcon, SettingsIcon, UsersIcon, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
 import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import type { UserRole } from '@/features/users/domain'
 import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { useBreakpoint } from '@/hooks/use-breakpoint'
+import { InsightsSettings } from './components/insights-settings'
 import { ListenBrainzSettings } from './components/listenbrainz-settings'
 import { UsersSettings } from './components/users-settings/users-settings'
 
@@ -29,7 +30,8 @@ const SETTINGS_SECTIONS = [
     icon: PlugIcon,
     minimumRole: 'listener',
     Content: ListenBrainzSettings
-  }
+  },
+  { id: 'insights', labelKey: 'insights', icon: ChartNoAxesColumnIcon, minimumRole: 'admin', Content: InsightsSettings }
 ] as const satisfies readonly SettingsSectionDefinition[]
 
 export type SettingsSection = (typeof SETTINGS_SECTIONS)[number]['id']
