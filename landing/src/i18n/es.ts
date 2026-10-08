@@ -14,6 +14,12 @@ export const es: Dict = {
         'Cómo instalar y configurar Tagr, el editor de metadatos de música self hosted. Docker Compose, variables de entorno, montaje de carpetas de música y resolución de problemas.',
       ogTitle: 'Instalar Tagr: Docker y configuración',
     },
+    analytics: {
+      title: 'Estadísticas de uso de Tagr: datos anónimos de cada instalación',
+      description:
+        'Estadísticas de uso públicas, agregadas y anónimas que envían las instalaciones de Tagr: instalaciones activas, versiones, plataformas, tamaño de biblioteca y adopción de funciones a lo largo del tiempo.',
+      ogTitle: 'Estadísticas de uso de Tagr',
+    },
     notFound: {
       title: 'Página no encontrada: Tagr',
       description: 'Esa página no existe. Vuelve a la portada de Tagr o a la guía de instalación.',
@@ -431,6 +437,7 @@ export const es: Dict = {
         links: [
           { label: 'GitHub', href: 'https://github.com/suitux/Tagr', external: true },
           { label: 'Versiones', href: 'https://github.com/suitux/Tagr/releases', external: true },
+          { label: 'Estadísticas de uso', href: '/es/analytics/' },
           { label: 'Incidencias', href: 'https://github.com/suitux/Tagr/issues', external: true },
           { label: 'Licencia', href: 'https://github.com/suitux/Tagr/blob/main/LICENSE', external: true },
         ],
@@ -445,6 +452,49 @@ export const es: Dict = {
     ],
     bmc: 'Invítame a un café',
     rights: 'Tagr, AGPL-3.0',
+  },
+
+  analytics: {
+    h1: 'Estadísticas de uso',
+    intro:
+      'Cada instalación de Tagr envía un informe anónimo al día: versión, plataforma, tamaño de la biblioteca y qué funciones usa. Nunca nombres de archivo, rutas, etiquetas ni nombres de usuario. Estos son los resultados agregados, actualizados a diario.',
+    optOut: 'Para no enviarlo, desactívalo en Ajustes o define TAGR_INSIGHTS=false.',
+    whatIsSent: 'Ver exactamente qué se envía',
+    rangeLabel: 'Periodo',
+    ranges: { '30d': '30 días', '90d': '90 días', '1y': '1 año', all: 'Todo' },
+    loading: 'Cargando estadísticas…',
+    error: 'No se han podido cargar las estadísticas. Inténtalo más tarde.',
+    empty: 'Aún no hay datos. Las estadísticas aparecen un día después de que lleguen los primeros informes.',
+    updated: 'Actualizado el {date}',
+    vsStart: '{delta} desde el {date}',
+    showTable: 'Ver los datos en una tabla',
+    other: 'Otras',
+    date: 'Fecha',
+    week: 'Semana del',
+    tiles: {
+      instances: 'Instalaciones activas',
+      songs: 'Canciones gestionadas',
+      edits: 'Ediciones de etiquetas, últimos 7 días',
+      docker: 'Funcionando en Docker',
+    },
+    charts: {
+      instances: { title: 'Instalaciones activas', caption: 'Instalaciones que enviaron su informe cada día.' },
+      versions: { title: 'Versiones de Tagr', caption: 'Instalaciones por versión. Muestra lo rápido que se adoptan las nuevas releases.' },
+      platforms: { title: 'Sistema operativo y arquitectura', caption: 'Porcentaje de instalaciones.' },
+      librarySizes: { title: 'Tamaño de la biblioteca', caption: 'Porcentaje de instalaciones según su número de canciones.' },
+      features: { title: 'Adopción de funciones', caption: 'Porcentaje de instalaciones que usan cada función.' },
+      activity: { title: 'Actividad', caption: 'Ediciones de etiquetas y reproducciones de los 7 días anteriores, sumando todas las instalaciones.' },
+      formats: { title: 'Formatos de archivo', caption: 'Porcentaje de todas las canciones que gestiona Tagr.' },
+    },
+    features: {
+      metadataEditing: 'Edición de etiquetas',
+      smartPlaylists: 'Listas inteligentes',
+      savedFilters: 'Filtros guardados',
+      multiUser: 'Varios usuarios',
+      scrobbling: 'Scrobbling',
+      sharedLinks: 'Enlaces compartidos',
+    },
+    activity: { metadataEdits7d: 'Ediciones', listens7d: 'Reproducciones' },
   },
 
   notFound: {

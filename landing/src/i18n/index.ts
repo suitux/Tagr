@@ -40,4 +40,6 @@ export const LINKS = {
   image: 'ghcr.io/suitux/tagr:latest',
   version: '1.8.6',
   license: 'https://www.gnu.org/licenses/agpl-3.0.html',
+  insightsApi: 'https://analytics.tagr.xavirincon.com',
+  insightsDocs: 'https://github.com/suitux/Tagr#anonymous-usage-statistics',
 } as const;

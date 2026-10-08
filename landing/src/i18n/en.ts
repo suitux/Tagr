@@ -12,6 +12,12 @@ export const en = {
         'How to install and configure Tagr, the self hosted music metadata editor. Docker Compose, environment variables, music folder mounting, and troubleshooting.',
       ogTitle: 'Install Tagr: Docker setup and configuration',
     },
+    analytics: {
+      title: 'Tagr usage analytics: anonymous statistics from every instance',
+      description:
+        'Public, aggregated and anonymous usage statistics sent by Tagr instances: active installations, versions, platforms, library sizes and feature adoption over time.',
+      ogTitle: 'Tagr usage analytics',
+    },
     notFound: {
       title: 'Page not found: Tagr',
       description: 'That page does not exist. Head back to the Tagr landing page or the install docs.',
@@ -429,6 +435,7 @@ export const en = {
         links: [
           { label: 'GitHub', href: 'https://github.com/suitux/Tagr', external: true },
           { label: 'Releases', href: 'https://github.com/suitux/Tagr/releases', external: true },
+          { label: 'Usage statistics', href: '/analytics/' },
           { label: 'Issues', href: 'https://github.com/suitux/Tagr/issues', external: true },
           { label: 'License', href: 'https://github.com/suitux/Tagr/blob/main/LICENSE', external: true },
         ],
@@ -443,6 +450,49 @@ export const en = {
     ],
     bmc: 'Buy me a coffee',
     rights: 'Tagr, AGPL-3.0',
+  },
+
+  analytics: {
+    h1: 'Usage analytics',
+    intro:
+      'Every Tagr instance sends one anonymous report a day: version, platform, library size and which features are in use. Never file names, paths, tags or user names. These are the aggregated results, updated daily.',
+    optOut: 'To opt out, turn it off in Settings or set TAGR_INSIGHTS=false.',
+    whatIsSent: 'See exactly what is sent',
+    rangeLabel: 'Time range',
+    ranges: { '30d': '30 days', '90d': '90 days', '1y': '1 year', all: 'All time' },
+    loading: 'Loading statistics…',
+    error: 'Statistics could not be loaded. Try again later.',
+    empty: 'No data yet. Statistics appear here a day after the first reports arrive.',
+    updated: 'Updated {date}',
+    vsStart: '{delta} since {date}',
+    showTable: 'Show data as a table',
+    other: 'Other',
+    date: 'Date',
+    week: 'Week of',
+    tiles: {
+      instances: 'Active installations',
+      songs: 'Songs managed',
+      edits: 'Tag edits, last 7 days',
+      docker: 'Running in Docker',
+    },
+    charts: {
+      instances: { title: 'Active installations', caption: 'Instances that reported on each day.' },
+      versions: { title: 'Tagr versions', caption: 'Installations per minor version. Shows how fast new releases are adopted.' },
+      platforms: { title: 'Operating system and architecture', caption: 'Share of installations.' },
+      librarySizes: { title: 'Library size', caption: 'Share of installations by number of songs.' },
+      features: { title: 'Feature adoption', caption: 'Share of installations using each feature.' },
+      activity: { title: 'Activity', caption: 'Tag edits and plays in the previous 7 days, summed over every installation.' },
+      formats: { title: 'File formats', caption: 'Share of all songs managed by Tagr.' },
+    },
+    features: {
+      metadataEditing: 'Tag editing',
+      smartPlaylists: 'Smart playlists',
+      savedFilters: 'Saved filters',
+      multiUser: 'Several users',
+      scrobbling: 'Scrobbling',
+      sharedLinks: 'Shared links',
+    },
+    activity: { metadataEdits7d: 'Tag edits', listens7d: 'Plays' },
   },
 
   notFound: {

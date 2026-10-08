@@ -1,0 +1,100 @@
+---
+import { t, LINKS, type Locale } from '../i18n';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const d = t(locale);
+const a = d.analytics;
+
+// Overridable for local work against `wrangler dev` (PUBLIC_INSIGHTS_API=http://localhost:8787).
+const api = import.meta.env.PUBLIC_INSIGHTS_API ?? LINKS.insightsApi;
+
+const ranges = ['30d', '90d', '1y', 'all'] as const;
+const tiles = ['instances', 'songs', 'edits', 'docker'] as const;
+const charts = ['instances', 'versions', 'platforms', 'librarySizes', 'features', 'activity', 'formats'] as const;
+---
+
+<div
+  id="analytics"
+  class="container-page py-14 md:py-20"
+  data-api={api}
+  data-locale={locale}
+  data-labels={JSON.stringify(a)}
+>
+  <header class="max-w-3xl">
+    <h1 class="text-[clamp(2rem,4.5vw,3rem)] leading-[1.1] font-semibold tracking-[-0.03em]">{a.h1}</h1>
+    <p class="mt-5 text-[1.0625rem] leading-relaxed text-[var(--muted-foreground)]">{a.intro}</p>
+    <p class="mt-3 text-sm leading-relaxed text-[var(--muted-foreground)]">
+      {a.optOut}
+      <a href={LINKS.insightsDocs} target="_blank" rel="noopener noreferrer" class="underline hover:text-[var(--foreground)]">
+        {a.whatIsSent}
+      </a>
+    </p>
+  </header>
+
+  <div class="mt-10 flex flex-wrap items-center gap-x-6 gap-y-3">
+    <div role="group" aria-label={a.rangeLabel} class="inline-flex rounded-[var(--radius-lg)] border border-[var(--border)] p-1">
+      {
+        ranges.map((range) => (
+          <button
+            type="button"
+            data-range={range}
+            aria-pressed={range === '90d' ? 'true' : 'false'}
+            class="js-range rounded-[var(--radius-md)] px-3 py-1.5 text-sm text-[var(--muted-foreground)] transition-colors hover:text-[var(--foreground)] aria-pressed:bg-[var(--accent)] aria-pressed:font-medium aria-pressed:text-[var(--foreground)]"
+          >
+            {a.ranges[range]}
+          </button>
+        ))
+      }
+    </div>
+    <p class="js-status text-sm text-[var(--muted-foreground)]" aria-live="polite">{a.loading}</p>
+  </div>
+
+  <div class="js-content mt-8 transition-opacity duration-200">
+    <dl class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+      {
+        tiles.map((tile) => (
+          <div class="surface p-5">
+            <dt class="text-sm text-[var(--muted-foreground)]">{a.tiles[tile]}</dt>
+            <dd class="mt-2 text-3xl font-semibold tracking-[-0.02em] tabular-nums" data-tile={tile}>
+              –
+            </dd>
+            <dd class="mt-1 text-xs text-[var(--muted-foreground)] tabular-nums" data-tile-delta={tile} />
+          </div>
+        ))
+      }
+    </dl>
+
+    <div class="mt-4 grid gap-4 lg:grid-cols-2">
+      {
+        charts.map((chart) => (
+          <section class:list={['surface p-5', chart === 'instances' && 'lg:col-span-2']} aria-labelledby={`chart-${chart}-title`}>
+            <h2 id={`chart-${chart}-title`} class="text-base font-semibold">
+              {a.charts[chart].title}
+            </h2>
+            <p class="mt-1 text-sm text-[var(--muted-foreground)]">{a.charts[chart].caption}</p>
+            <div class="relative mt-4 h-72">
+              <canvas data-chart={chart} role="img" aria-label={a.charts[chart].title} />
+            </div>
+            <details class="js-table mt-3" data-table={chart}>
+              <summary class="cursor-pointer text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)]">
+                {a.showTable}
+              </summary>
+              <div class="mt-3 max-h-72 overflow-auto" />
+            </details>
+          </section>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  import { initAnalyticsDashboard } from '../lib/analytics-dashboard';
+
+  const root = document.getElementById('analytics');
+  if (root) initAnalyticsDashboard(root);
+</script>

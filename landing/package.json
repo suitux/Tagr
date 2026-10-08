@@ -19,6 +19,7 @@
     "@fontsource-variable/geist-mono": "^5.2.8",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.16.0",
+    "chart.js": "^4.5.1",
     "sharp": "^0.34.5",
     "tailwindcss": "^4.1.18"
   },

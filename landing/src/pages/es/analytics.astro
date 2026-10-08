@@ -1,0 +1,18 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Analytics from '../../components/Analytics.astro';
+import { t } from '../../i18n';
+
+const locale = 'es' as const;
+const d = t(locale);
+---
+
+<BaseLayout
+  locale={locale}
+  path="/analytics/"
+  title={d.meta.analytics.title}
+  description={d.meta.analytics.description}
+  ogTitle={d.meta.analytics.ogTitle}
+>
+  <Analytics locale={locale} />
+</BaseLayout>

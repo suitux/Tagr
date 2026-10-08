@@ -3,6 +3,7 @@ import { format, formatDuration, intervalToDuration, isSameDay, isValid, parse, 
 export const ISO_DATE_FORMAT = 'yyyy-MM-dd'
 export const DISPLAY_DATE_FORMAT = 'MMM d'
 export const FULL_DATE_FORMAT = 'dd MMMM yyyy, HH:mm'
+export const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000
 
 export function formatDate(date: Date | string | null, fmt: string = ISO_DATE_FORMAT): string | null {
   if (!date) return null

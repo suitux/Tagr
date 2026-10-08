@@ -247,6 +247,7 @@ pnpm dev                 # Development mode
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
 | `PUID` | No | User ID for the container process. Defaults to `1000`. (Docker only) |
 | `PGID` | No | Group ID for the container process. Defaults to `1000`. (Docker only) |
+| `TAGR_INSIGHTS` | No | Set to `false` to stop sending [anonymous usage statistics](#anonymous-usage-statistics). `DO_NOT_TRACK=1` does the same. |
 
 ---
 
@@ -275,6 +276,30 @@ back to the browser. Changing `AUTH_SECRET` invalidates stored tokens, so they h
 If ListenBrainz is unreachable, listens are kept in a queue in the database and retried with an increasing
 delay the next time you play something. The Settings dialog shows how many are still waiting. Listen history
 and play counts inside Tagr are recorded regardless of whether scrobbling is configured.
+
+---
+
+## Anonymous usage statistics
+
+Once a day, Tagr sends a small anonymous report to `https://analytics.tagr.xavirincon.com/collect` so we can tell
+how many instances exist and which features are worth working on. The aggregated results are public at
+<https://tagr.xavirincon.com/analytics/>.
+
+The report contains only counts and flags:
+
+- A random instance ID generated on first run (not derived from anything about you or your machine)
+- Tagr version, OS, CPU architecture, Node version and whether it runs in a container
+- Number of songs, music folders and songs per file format
+- Number of users, and how many played something in the last 7 days
+- Tag edits, edited songs and plays in the last 7 days
+- How many smart playlists, saved filters, active share links and scrobbling accounts exist
+
+It never includes file names, paths, tags, user names, tokens or your IP address (the server does not store it).
+The first report goes out 30 minutes after start-up, then every 24 hours. Admins can see the exact JSON under
+**Settings → Usage statistics**.
+
+To opt out, untick it in **Settings → Usage statistics**, or set `TAGR_INSIGHTS=false` (or `DO_NOT_TRACK=1`) to
+turn it off for good. The collector is open source: [suitux/tagr-insights](https://github.com/suitux/tagr-insights).
 
 ---
 

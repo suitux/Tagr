@@ -282,10 +282,11 @@
   },
   "welcome": {
     "title": "Welcome to Tagr",
-    "description": "Tagr needs to scan your music folders to build a local database. This makes browsing and searching your library fast and smooth. No data leaves your machine.",
+    "description": "Tagr needs to scan your music folders to build a local database. This makes browsing and searching your library fast and smooth. Your music and its tags never leave your machine.",
     "timing": "This process may take a few minutes depending on the size of your library.",
     "scanButton": "Scan library",
-    "scanning": "Scanning your library..."
+    "scanning": "Scanning your library...",
+    "insightsNotice": "Tagr sends anonymous usage statistics once a day (no file names, paths or user names). You can turn this off in Settings."
   },
   "version": {
     "updateAvailable": "Version {version} is available",
@@ -510,7 +511,8 @@
     "title": "Settings",
     "sections": {
       "users": "Users",
-      "integrations": "Third party integrations"
+      "integrations": "Third party integrations",
+      "insights": "Usage statistics"
     }
   },
   "scrobbling": {
@@ -532,5 +534,18 @@
   "listens": {
     "title": "Recently played",
     "empty": "Nothing played yet"
+  },
+  "insights": {
+    "title": "Anonymous usage statistics",
+    "description": "Once a day Tagr sends a small anonymous report (version, library size, which features are used) so we know how many people use it and what to improve. It never includes file names, paths, tags or user names.",
+    "enable": "Send anonymous usage statistics",
+    "forcedByEnv": "Disabled by the TAGR_INSIGHTS or DO_NOT_TRACK environment variable.",
+    "lastSent": "Last report sent on {date}.",
+    "neverSent": "No report sent yet.",
+    "dashboard": "The aggregated results are public: <link>see the dashboard</link>.",
+    "preview": "Show exactly what is sent",
+    "previewHelp": "This JSON is sent to {endpoint}:",
+    "enabledToast": "Usage statistics enabled",
+    "disabledToast": "Usage statistics disabled"
   }
 }

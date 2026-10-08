@@ -246,3 +246,11 @@ model ScrobbleQueueItem {
   @@index([accountId, nextAttemptAt])
   @@map("scrobble_queue")
 }
+
+/// Instance-wide key/value settings, not tied to a user (e.g. the anonymous insights ID).
+model AppProperty {
+  key   String @id
+  value String
+
+  @@map("app_properties")
+}
