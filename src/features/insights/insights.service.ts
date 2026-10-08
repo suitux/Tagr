@@ -175,22 +175,22 @@ export async function getInsightsStatus(): Promise<InsightsStatus> {
 export async function logInsightsStartupState(): Promise<void> {
   try {
     if (getEnvInsightsOverride() === false) {
-      console.info('Anonymous usage statistics are disabled by TAGR_INSIGHTS / DO_NOT_TRACK.')
+      console.info('Insights (anonymous usage statistics) are disabled by TAGR_INSIGHTS / DO_NOT_TRACK.')
       return
     }
     if (!(await isInsightsEnabled())) {
-      console.info('Anonymous usage statistics are disabled in Settings.')
+      console.info('Insights (anonymous usage statistics) are disabled in Settings.')
       return
     }
     const base =
-      'Tagr sends anonymous usage statistics once a day (counts only, see the README). ' +
-      'Turn them off in Settings → Usage statistics or with TAGR_INSIGHTS=false.'
+      'Insights: Tagr sends anonymous usage statistics once a day (counts only, see the README). ' +
+      'Turn them off in Settings → Insights or with TAGR_INSIGHTS=false.'
     console.info(
       (await isInsightsNoticeAcknowledged())
         ? base
         : `${base} Nothing is sent until an admin has seen the notice in the web UI.`
     )
   } catch (error) {
-    console.warn('Could not read the usage statistics setting:', error instanceof Error ? error.message : error)
+    console.warn('Could not read the Insights setting:', error instanceof Error ? error.message : error)
   }
 }

@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { useInsights, useSendInsightsNow, useUpdateInsights } from '@/features/insights/hooks/use-insights'
 import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
 
-const INSIGHTS_DASHBOARD_URL = 'https://tagr.xavirincon.com/analytics/'
+const INSIGHTS_DASHBOARD_URL = 'https://tagr.xavirincon.com/insights/'
 
 export function InsightsSettings() {
   const t = useTranslations('insights')

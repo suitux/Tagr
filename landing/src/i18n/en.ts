@@ -12,11 +12,11 @@ export const en = {
         'How to install and configure Tagr, the self hosted music metadata editor. Docker Compose, environment variables, music folder mounting, and troubleshooting.',
       ogTitle: 'Install Tagr: Docker setup and configuration',
     },
-    analytics: {
-      title: 'Tagr usage analytics: anonymous statistics from every instance',
+    insights: {
+      title: 'Tagr Insights: anonymous usage statistics from every instance',
       description:
         'Public, aggregated and anonymous usage statistics sent by Tagr instances: active installations, versions, platforms, library sizes and feature adoption over time.',
-      ogTitle: 'Tagr usage analytics',
+      ogTitle: 'Tagr Insights',
     },
     notFound: {
       title: 'Page not found: Tagr',
@@ -67,7 +67,7 @@ export const en = {
   trust: [
     { icon: 'scale', label: 'AGPL-3.0' },
     { icon: 'cpu', label: 'amd64 and arm64' },
-    { icon: 'shield', label: 'No telemetry' },
+    { icon: 'shield', label: 'Private by design' },
     { icon: 'database', label: 'SQLite, no external database' },
     { icon: 'smartphone', label: 'Works on mobile' },
   ],
@@ -379,7 +379,7 @@ export const en = {
       },
       {
         q: 'Does Tagr send any data to the cloud?',
-        a: 'No telemetry, no analytics, no phoning home. The one outbound call Tagr can make is to the MusicBrainz API, and only when you explicitly ask it to look a song up. Skip that feature and the container never talks to the internet.',
+        a: 'Your music, tags and file names never leave your server. Tagr only goes online for three things: MusicBrainz lookups when you ask for one, ListenBrainz scrobbling if you connect an account, and Insights, one anonymous daily report of counts (version, library size, which features are used). Insights waits until an admin agrees and can be turned off at any time; the results are public on the Insights page.',
       },
       {
         q: 'Can I use Tagr from my phone?',
@@ -435,7 +435,7 @@ export const en = {
         links: [
           { label: 'GitHub', href: 'https://github.com/suitux/Tagr', external: true },
           { label: 'Releases', href: 'https://github.com/suitux/Tagr/releases', external: true },
-          { label: 'Usage statistics', href: '/analytics/' },
+          { label: 'Insights', href: '/insights/' },
           { label: 'Issues', href: 'https://github.com/suitux/Tagr/issues', external: true },
           { label: 'License', href: 'https://github.com/suitux/Tagr/blob/main/LICENSE', external: true },
         ],
@@ -452,17 +452,17 @@ export const en = {
     rights: 'Tagr, AGPL-3.0',
   },
 
-  analytics: {
-    h1: 'Usage analytics',
+  insights: {
+    h1: 'Insights',
     intro:
-      'Every Tagr instance sends one anonymous report a day: version, platform, library size and which features are in use. Never file names, paths, tags or user names. These are the aggregated results, updated daily.',
-    optOut: 'To opt out, turn it off in Settings or set TAGR_INSIGHTS=false.',
+      'Insights are the anonymous usage statistics of Tagr. Every instance whose admin agreed sends one report a day: version, platform, library size and which features are in use. Never file names, paths, tags or user names. These are the aggregated results, updated live.',
+    optOut: 'To opt out, turn it off in Settings → Insights or set TAGR_INSIGHTS=false.',
     whatIsSent: 'See exactly what is sent',
     rangeLabel: 'Time range',
     ranges: { '30d': '30 days', '90d': '90 days', '1y': '1 year', all: 'All time' },
     loading: 'Loading statistics…',
     error: 'Statistics could not be loaded. Try again later.',
-    empty: 'No data yet. Statistics appear here a day after the first reports arrive.',
+    empty: 'No data yet. Statistics appear here as soon as the first reports arrive.',
     updated: 'Updated {date}',
     vsStart: '{delta} since {date}',
     showTable: 'Show data as a table',
@@ -476,7 +476,7 @@ export const en = {
       docker: 'Running in Docker',
     },
     charts: {
-      instances: { title: 'Active installations', caption: 'Instances that reported on each day.' },
+      instances: { title: 'Active installations', caption: 'Instances that reported on each day. The last point is live: every instance seen in the past 24 hours.' },
       versions: { title: 'Tagr versions', caption: 'Installations per minor version. Shows how fast new releases are adopted.' },
       platforms: { title: 'Operating system and architecture', caption: 'Share of installations.' },
       librarySizes: { title: 'Library size', caption: 'Share of installations by number of songs.' },

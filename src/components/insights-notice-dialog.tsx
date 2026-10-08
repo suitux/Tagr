@@ -13,7 +13,7 @@ import type { UserRole } from '@/features/users/domain'
 import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { cn } from '@/lib/utils'
 
-const INSIGHTS_DASHBOARD_URL = 'https://tagr.xavirincon.com/analytics/'
+const INSIGHTS_DASHBOARD_URL = 'https://tagr.xavirincon.com/insights/'
 
 /**
  * Asks an admin once, after installing or upgrading, whether to send usage statistics.

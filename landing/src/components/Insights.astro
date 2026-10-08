@@ -7,7 +7,7 @@ interface Props {
 
 const { locale } = Astro.props;
 const d = t(locale);
-const a = d.analytics;
+const a = d.insights;
 
 // Overridable for local work against `wrangler dev` (PUBLIC_INSIGHTS_API=http://localhost:8787).
 const api = import.meta.env.PUBLIC_INSIGHTS_API ?? LINKS.insightsApi;
@@ -18,7 +18,7 @@ const charts = ['instances', 'versions', 'platforms', 'librarySizes', 'features'
 ---
 
 <div
-  id="analytics"
+  id="insights"
   class="container-page py-14 md:py-20"
   data-api={api}
   data-locale={locale}
@@ -93,8 +93,8 @@ const charts = ['instances', 'versions', 'platforms', 'librarySizes', 'features'
 </div>
 
 <script>
-  import { initAnalyticsDashboard } from '../lib/analytics-dashboard';
+  import { initInsightsDashboard } from '../lib/insights-dashboard';
 
-  const root = document.getElementById('analytics');
-  if (root) initAnalyticsDashboard(root);
+  const root = document.getElementById('insights');
+  if (root) initInsightsDashboard(root);
 </script>

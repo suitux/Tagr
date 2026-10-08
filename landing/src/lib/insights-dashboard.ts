@@ -15,7 +15,7 @@ import type { en } from '../i18n/en';
 
 Chart.register(LineController, LineElement, PointElement, LinearScale, CategoryScale, Filler, Tooltip, Legend);
 
-type Labels = (typeof en)['analytics'];
+type Labels = (typeof en)['insights'];
 type Range = '30d' | '90d' | '1y' | 'all';
 type ChartId = 'instances' | 'versions' | 'platforms' | 'librarySizes' | 'features' | 'activity' | 'formats';
 
@@ -34,6 +34,7 @@ interface DailySummary {
 interface SummaryResponse {
   range: Range;
   granularity: 'day' | 'week';
+  /** When the live point was computed (ISO timestamp) */
   updatedAt: string | null;
   totalInstances: number;
   history: { day: string; summary: DailySummary }[];
@@ -189,7 +190,7 @@ function buildSpecs(history: SummaryResponse['history'], labels: Labels): Record
   };
 }
 
-export function initAnalyticsDashboard(root: HTMLElement): void {
+export function initInsightsDashboard(root: HTMLElement): void {
   const api = root.dataset.api!.replace(/\/$/, '');
   const locale = root.dataset.locale ?? 'en';
   const labels = JSON.parse(root.dataset.labels!) as Labels;
@@ -421,7 +422,12 @@ export function initAnalyticsDashboard(root: HTMLElement): void {
         return;
       }
 
-      status.textContent = data.updatedAt ? labels.updated.replace('{date}', formatDate(data.updatedAt, true)) : '';
+      status.textContent = data.updatedAt
+        ? labels.updated.replace(
+            '{date}',
+            new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(data.updatedAt)),
+          )
+        : '';
 
       lastSpecs = buildSpecs(data.history, labels);
       lastDates = data.history.map((point) => point.day);
@@ -433,7 +439,7 @@ export function initAnalyticsDashboard(root: HTMLElement): void {
       }
       for (const details of tables) renderTable(details);
     } catch (error) {
-      console.error('Could not load Tagr usage statistics:', error);
+      console.error('Could not load Tagr Insights:', error);
       status.textContent = labels.error;
     } finally {
       content.style.opacity = '';

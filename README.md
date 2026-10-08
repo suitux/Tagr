@@ -247,7 +247,7 @@ pnpm dev                 # Development mode
 | `MUSIC_FOLDERS` | No | Comma-separated list of paths to music directories. Defaults to `/music` if not set. |
 | `PUID` | No | User ID for the container process. Defaults to `1000`. (Docker only) |
 | `PGID` | No | Group ID for the container process. Defaults to `1000`. (Docker only) |
-| `TAGR_INSIGHTS` | No | Set to `false` to stop sending [anonymous usage statistics](#anonymous-usage-statistics). `DO_NOT_TRACK=1` does the same. |
+| `TAGR_INSIGHTS` | No | Set to `false` to stop sending [Insights](#insights). `DO_NOT_TRACK=1` does the same. |
 
 ---
 
@@ -279,11 +279,11 @@ and play counts inside Tagr are recorded regardless of whether scrobbling is con
 
 ---
 
-## Anonymous usage statistics
+## Insights
 
-Once a day, Tagr sends a small anonymous report to `https://tagr-analytics.xavirincon.com/collect` so we can tell
+Insights are Tagr's anonymous usage statistics. Once a day, Tagr sends a small anonymous report to `https://tagr-insights.xavirincon.com/collect` so we can tell
 how many instances exist and which features are worth working on. The aggregated results are public at
-<https://tagr.xavirincon.com/analytics/>.
+<https://tagr.xavirincon.com/insights/>.
 
 The report contains only counts and flags:
 
@@ -298,11 +298,11 @@ It never includes file names, paths, tags, user names, tokens or your IP address
 
 **Nothing is sent until an admin has seen the notice.** After installing or upgrading, admins get a popup
 explaining what is sent, with **Keep enabled** and **Disable** buttons. Until one of them is clicked (or
-the setting is changed in **Settings → Usage statistics**, which also shows the exact JSON), no report leaves the
+the setting is changed in **Settings → Insights**, which also shows the exact JSON), no report leaves the
 server. After that, a report goes out 30 minutes after start-up and then every 24 hours. The container log also
 says at start-up whether statistics are on.
 
-To opt out, untick it in **Settings → Usage statistics**, or set `TAGR_INSIGHTS=false` (or `DO_NOT_TRACK=1`) to
+To opt out, untick it in **Settings → Insights**, or set `TAGR_INSIGHTS=false` (or `DO_NOT_TRACK=1`) to
 turn it off for good. The collector is open source: [suitux/tagr-insights](https://github.com/suitux/tagr-insights).
 
 ---
