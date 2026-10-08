@@ -557,6 +557,9 @@
     "noticeSent": "Tagr version, OS and architecture, number of songs and users, file formats, and how often features like tag editing, smart playlists or scrobbling are used.",
     "noticeNeverTitle": "What is never sent",
     "noticeNever": "File names, paths, tags, user names, tokens or your IP address.",
-    "noticeLater": "You can change this at any time in Settings → Usage statistics."
+    "noticeLater": "You can change this at any time in Settings → Usage statistics.",
+    "sendNow": "Send now",
+    "sentToast": "Report sent",
+    "sendFailedToast": "Could not send the report: {error}"
   }
 }

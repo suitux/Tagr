@@ -281,7 +281,7 @@ and play counts inside Tagr are recorded regardless of whether scrobbling is con
 
 ## Anonymous usage statistics
 
-Once a day, Tagr sends a small anonymous report to `https://analytics.tagr.xavirincon.com/collect` so we can tell
+Once a day, Tagr sends a small anonymous report to `https://tagr-analytics.xavirincon.com/collect` so we can tell
 how many instances exist and which features are worth working on. The aggregated results are public at
 <https://tagr.xavirincon.com/analytics/>.
 

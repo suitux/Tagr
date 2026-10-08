@@ -130,7 +130,7 @@ describe('insights.service', () => {
       const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204 })
       vi.stubGlobal('fetch', fetchMock)
 
-      await sendInsights()
+      await expect(sendInsights()).resolves.toEqual({ sent: true })
 
       expect(fetchMock).toHaveBeenCalledWith('http://localhost:8787/collect', expect.objectContaining({ method: 'POST' }))
       expect(mockSetAppProperty).toHaveBeenCalledWith('insightsLastSentAt', expect.any(String))
@@ -146,11 +146,19 @@ describe('insights.service', () => {
       expect(fetchMock).not.toHaveBeenCalled()
     })
 
+    it('reports a rejection by the server', async () => {
+      mockGetAppProperty.mockResolvedValue('id')
+      vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false, status: 400 }))
+
+      await expect(sendInsights()).resolves.toEqual({ sent: false, reason: 'failed', error: 'HTTP 400' })
+      expect(mockSetAppProperty).not.toHaveBeenCalledWith('insightsLastSentAt', expect.anything())
+    })
+
     it('swallows network errors', async () => {
       mockGetAppProperty.mockResolvedValue('id')
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
 
-      await expect(sendInsights()).resolves.toBeUndefined()
+      await expect(sendInsights()).resolves.toEqual({ sent: false, reason: 'failed', error: 'offline' })
       expect(mockSetAppProperty).not.toHaveBeenCalledWith('insightsLastSentAt', expect.anything())
     })
   })

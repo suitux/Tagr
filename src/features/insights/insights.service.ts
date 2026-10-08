@@ -10,7 +10,7 @@ import {
   INSIGHTS_NOTICE_SEEN_KEY,
   INSIGHTS_REQUEST_TIMEOUT_MS
 } from './consts'
-import type { InsightsData, InsightsNoticeState, InsightsStatus } from './domain'
+import type { InsightsData, InsightsNoticeState, InsightsSendResult, InsightsStatus } from './domain'
 import {
   countFeatureUsage,
   countRecentActivity,
@@ -122,9 +122,9 @@ export async function collectInsights(): Promise<InsightsData> {
  * Nothing leaves the server until an admin has seen the in-app notice, so an upgrade never
  * starts reporting behind anyone's back.
  */
-export async function sendInsights(): Promise<void> {
-  if (!(await isInsightsEnabled())) return
-  if (!(await isInsightsNoticeAcknowledged())) return
+export async function sendInsights(): Promise<InsightsSendResult> {
+  if (!(await isInsightsEnabled())) return { sent: false, reason: 'disabled' }
+  if (!(await isInsightsNoticeAcknowledged())) return { sent: false, reason: 'noticePending' }
 
   const endpoint = getInsightsEndpoint()
 
@@ -139,12 +139,17 @@ export async function sendInsights(): Promise<void> {
 
     if (!response.ok) {
       console.warn(`Insights report rejected by ${endpoint}: ${response.status}`)
-      return
+      return { sent: false, reason: 'failed', error: `HTTP ${response.status}` }
     }
 
     await setAppProperty(INSIGHTS_LAST_SENT_KEY, new Date().toISOString())
+    return { sent: true }
   } catch (error) {
-    console.warn(`Could not send insights report to ${endpoint}:`, error instanceof Error ? error.message : error)
+    // fetch only says "fetch failed"; the reason (DNS, TLS, refused…) is in `cause`
+    const cause = error instanceof Error ? (error.cause as { code?: string; message?: string } | undefined) : undefined
+    const message = cause?.code ?? cause?.message ?? (error instanceof Error ? error.message : String(error))
+    console.warn(`Could not send insights report to ${endpoint}:`, message)
+    return { sent: false, reason: 'failed', error: message }
   }
 }
 

@@ -57,3 +57,7 @@ export interface InsightsNoticeState {
   /** The admin still has to be told that reports are sent */
   pending: boolean
 }
+
+export type InsightsSendResult =
+  | { sent: true }
+  | { sent: false; reason: 'disabled' | 'noticePending' | 'failed'; error?: string }

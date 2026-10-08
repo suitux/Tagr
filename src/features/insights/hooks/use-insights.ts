@@ -43,3 +43,17 @@ export function useUpdateInsights() {
     }
   })
 }
+
+export function useSendInsightsNow() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async () => {
+      const { data } = await api.post<{ success: true; status: InsightsStatus }>('/insights/send')
+      return data.status
+    },
+    onSuccess: status => {
+      queryClient.setQueryData(INSIGHTS_QUERY_KEY, status)
+    }
+  })
+}

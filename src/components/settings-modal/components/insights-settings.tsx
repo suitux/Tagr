@@ -1,6 +1,6 @@
 'use client'
 
-import { Loader2Icon } from 'lucide-react'
+import { Loader2Icon, SendIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
@@ -8,7 +8,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
-import { useInsights, useUpdateInsights } from '@/features/insights/hooks/use-insights'
+import { useInsights, useSendInsightsNow, useUpdateInsights } from '@/features/insights/hooks/use-insights'
 import { formatDate, FULL_DATE_FORMAT } from '@/lib/date'
 
 const INSIGHTS_DASHBOARD_URL = 'https://tagr.xavirincon.com/analytics/'
@@ -17,11 +17,19 @@ export function InsightsSettings() {
   const t = useTranslations('insights')
   const { data: status, isLoading } = useInsights()
   const updateInsights = useUpdateInsights()
+  const sendNow = useSendInsightsNow()
 
   const handleToggle = (enabled: boolean) => {
     updateInsights.mutate(enabled, {
       onSuccess: () => toast.success(enabled ? t('enabledToast') : t('disabledToast')),
       onError: error => toast.error(error.message)
+    })
+  }
+
+  const handleSendNow = () => {
+    sendNow.mutate(undefined, {
+      onSuccess: () => toast.success(t('sentToast')),
+      onError: error => toast.error(t('sendFailedToast', { error: error.message }))
     })
   }
 
@@ -61,11 +69,21 @@ export function InsightsSettings() {
         </div>
       )}
 
-      <p className='text-xs text-muted-foreground'>
-        {status.lastSentAt
-          ? t('lastSent', { date: formatDate(status.lastSentAt, FULL_DATE_FORMAT) ?? '' })
-          : t('neverSent')}
-      </p>
+      <div className='flex flex-wrap items-center gap-2'>
+        <p className='text-xs text-muted-foreground'>
+          {status.lastSentAt
+            ? t('lastSent', { date: formatDate(status.lastSentAt, FULL_DATE_FORMAT) ?? '' })
+            : t('neverSent')}
+        </p>
+        <Button
+          size='sm'
+          variant='outline'
+          disabled={!status.enabled || !status.noticeAcknowledged || sendNow.isPending}
+          onClick={handleSendNow}>
+          {sendNow.isPending ? <Loader2Icon className='h-4 w-4 animate-spin' /> : <SendIcon className='h-4 w-4' />}
+          {t('sendNow')}
+        </Button>
+      </div>
 
       <p className='text-xs text-muted-foreground'>
         {t.rich('dashboard', {
