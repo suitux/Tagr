@@ -47,6 +47,13 @@ export interface InsightsStatus {
   forcedByEnv: boolean
   endpoint: string
   lastSentAt: string | null
+  /** False until an admin has answered the in-app notice; nothing is sent before that */
+  noticeAcknowledged: boolean
   /** Exactly what the next report would contain */
   preview: InsightsData
+}
+
+export interface InsightsNoticeState {
+  /** The admin still has to be told that reports are sent */
+  pending: boolean
 }

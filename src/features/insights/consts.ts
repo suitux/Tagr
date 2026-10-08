@@ -9,3 +9,5 @@ export const INSIGHTS_REQUEST_TIMEOUT_MS = 10 * 1000
 export const INSIGHTS_ID_KEY = 'insightsId'
 export const INSIGHTS_ENABLED_KEY = 'insightsEnabled'
 export const INSIGHTS_LAST_SENT_KEY = 'insightsLastSentAt'
+/** Set once an admin has answered the in-app notice. Nothing is sent before that. */
+export const INSIGHTS_NOTICE_SEEN_KEY = 'insightsNoticeSeenAt'

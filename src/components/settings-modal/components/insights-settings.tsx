@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import Link from 'next/link'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
+import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import { useInsights, useUpdateInsights } from '@/features/insights/hooks/use-insights'
@@ -50,6 +51,15 @@ export function InsightsSettings() {
       </div>
 
       {status.forcedByEnv && <p className='text-xs text-muted-foreground'>{t('forcedByEnv')}</p>}
+
+      {status.enabled && !status.forcedByEnv && !status.noticeAcknowledged && (
+        <div className='flex flex-wrap items-center gap-2'>
+          <p className='text-xs text-muted-foreground'>{t('pendingNotice')}</p>
+          <Button size='sm' variant='outline' disabled={updateInsights.isPending} onClick={() => handleToggle(true)}>
+            {t('noticeKeep')}
+          </Button>
+        </div>
+      )}
 
       <p className='text-xs text-muted-foreground'>
         {status.lastSentAt

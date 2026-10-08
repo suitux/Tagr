@@ -7,9 +7,10 @@ import {
   INSIGHTS_ENDPOINT,
   INSIGHTS_ID_KEY,
   INSIGHTS_LAST_SENT_KEY,
+  INSIGHTS_NOTICE_SEEN_KEY,
   INSIGHTS_REQUEST_TIMEOUT_MS
 } from './consts'
-import type { InsightsData, InsightsStatus } from './domain'
+import type { InsightsData, InsightsNoticeState, InsightsStatus } from './domain'
 import {
   countFeatureUsage,
   countRecentActivity,
@@ -40,8 +41,22 @@ export async function isInsightsEnabled(): Promise<boolean> {
   return (await getAppProperty(INSIGHTS_ENABLED_KEY)) !== 'false'
 }
 
+export async function isInsightsNoticeAcknowledged(): Promise<boolean> {
+  return (await getAppProperty(INSIGHTS_NOTICE_SEEN_KEY)) !== null
+}
+
+/** Answering the notice or touching the Settings toggle both count as the admin having been told. */
 export async function setInsightsEnabled(enabled: boolean): Promise<void> {
   await setAppProperty(INSIGHTS_ENABLED_KEY, String(enabled))
+  if (!(await isInsightsNoticeAcknowledged())) {
+    await setAppProperty(INSIGHTS_NOTICE_SEEN_KEY, new Date().toISOString())
+  }
+}
+
+/** An env opt-out needs no notice: the admin already decided. */
+export async function getInsightsNoticeState(): Promise<InsightsNoticeState> {
+  if (getEnvInsightsOverride() === false) return { pending: false }
+  return { pending: !(await isInsightsNoticeAcknowledged()) }
 }
 
 async function getOrCreateInsightsId(): Promise<string> {
@@ -102,9 +117,14 @@ export async function collectInsights(): Promise<InsightsData> {
   }
 }
 
-/** One attempt, no retries: a lost report only costs one day of one instance. */
+/**
+ * One attempt, no retries: a lost report only costs one day of one instance.
+ * Nothing leaves the server until an admin has seen the in-app notice, so an upgrade never
+ * starts reporting behind anyone's back.
+ */
 export async function sendInsights(): Promise<void> {
   if (!(await isInsightsEnabled())) return
+  if (!(await isInsightsNoticeAcknowledged())) return
 
   const endpoint = getInsightsEndpoint()
 
@@ -129,9 +149,10 @@ export async function sendInsights(): Promise<void> {
 }
 
 export async function getInsightsStatus(): Promise<InsightsStatus> {
-  const [enabled, lastSentAt, preview] = await Promise.all([
+  const [enabled, lastSentAt, noticeAcknowledged, preview] = await Promise.all([
     isInsightsEnabled(),
     getAppProperty(INSIGHTS_LAST_SENT_KEY),
+    isInsightsNoticeAcknowledged(),
     collectInsights()
   ])
 
@@ -140,6 +161,31 @@ export async function getInsightsStatus(): Promise<InsightsStatus> {
     forcedByEnv: getEnvInsightsOverride() !== null,
     endpoint: getInsightsEndpoint(),
     lastSentAt,
+    noticeAcknowledged,
     preview
+  }
+}
+
+/** One line in the container logs, for admins who read those rather than the UI. */
+export async function logInsightsStartupState(): Promise<void> {
+  try {
+    if (getEnvInsightsOverride() === false) {
+      console.info('Anonymous usage statistics are disabled by TAGR_INSIGHTS / DO_NOT_TRACK.')
+      return
+    }
+    if (!(await isInsightsEnabled())) {
+      console.info('Anonymous usage statistics are disabled in Settings.')
+      return
+    }
+    const base =
+      'Tagr sends anonymous usage statistics once a day (counts only, see the README). ' +
+      'Turn them off in Settings → Usage statistics or with TAGR_INSIGHTS=false.'
+    console.info(
+      (await isInsightsNoticeAcknowledged())
+        ? base
+        : `${base} Nothing is sent until an admin has seen the notice in the web UI.`
+    )
+  } catch (error) {
+    console.warn('Could not read the usage statistics setting:', error instanceof Error ? error.message : error)
   }
 }

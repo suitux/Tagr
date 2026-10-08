@@ -546,6 +546,17 @@
     "preview": "Show exactly what is sent",
     "previewHelp": "This JSON is sent to {endpoint}:",
     "enabledToast": "Usage statistics enabled",
-    "disabledToast": "Usage statistics disabled"
+    "disabledToast": "Usage statistics disabled",
+    "noticeTitle": "Help improve Tagr with anonymous usage statistics",
+    "noticeBody": "Tagr can send a small anonymous report once a day so we know how many people use it and which features are worth working on. Nothing has been sent yet, and nothing will be unless you keep it enabled.",
+    "noticeDetails": "Show the exact report",
+    "noticeKeep": "Keep enabled",
+    "noticeDisable": "Disable",
+    "pendingNotice": "Nothing has been sent yet: it starts once an admin confirms.",
+    "noticeSentTitle": "What is sent",
+    "noticeSent": "Tagr version, OS and architecture, number of songs and users, file formats, and how often features like tag editing, smart playlists or scrobbling are used.",
+    "noticeNeverTitle": "What is never sent",
+    "noticeNever": "File names, paths, tags, user names, tokens or your IP address.",
+    "noticeLater": "You can change this at any time in Settings → Usage statistics."
   }
 }

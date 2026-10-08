@@ -295,8 +295,12 @@ The report contains only counts and flags:
 - How many smart playlists, saved filters, active share links and scrobbling accounts exist
 
 It never includes file names, paths, tags, user names, tokens or your IP address (the server does not store it).
-The first report goes out 30 minutes after start-up, then every 24 hours. Admins can see the exact JSON under
-**Settings → Usage statistics**.
+
+**Nothing is sent until an admin has seen the notice.** After installing or upgrading, admins get a popup
+explaining what is sent, with **Keep enabled** and **Disable** buttons. Until one of them is clicked (or
+the setting is changed in **Settings → Usage statistics**, which also shows the exact JSON), no report leaves the
+server. After that, a report goes out 30 minutes after start-up and then every 24 hours. The container log also
+says at start-up whether statistics are on.
 
 To opt out, untick it in **Settings → Usage statistics**, or set `TAGR_INSIGHTS=false` (or `DO_NOT_TRACK=1`) to
 turn it off for good. The collector is open source: [suitux/tagr-insights](https://github.com/suitux/tagr-insights).

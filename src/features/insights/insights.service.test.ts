@@ -1,5 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { collectInsights, getEnvInsightsOverride, isInsightsEnabled, sendInsights } from './insights.service'
+import {
+  collectInsights,
+  getEnvInsightsOverride,
+  getInsightsNoticeState,
+  isInsightsEnabled,
+  sendInsights,
+  setInsightsEnabled
+} from './insights.service'
 
 const { mockGetAppProperty, mockSetAppProperty } = vi.hoisted(() => ({
   mockGetAppProperty: vi.fn(),
@@ -129,12 +136,57 @@ describe('insights.service', () => {
       expect(mockSetAppProperty).toHaveBeenCalledWith('insightsLastSentAt', expect.any(String))
     })
 
+    it('holds reports back until an admin has seen the notice', async () => {
+      mockGetAppProperty.mockImplementation(async (key: string) => (key === 'insightsNoticeSeenAt' ? null : 'id'))
+      const fetchMock = vi.fn()
+      vi.stubGlobal('fetch', fetchMock)
+
+      await sendInsights()
+
+      expect(fetchMock).not.toHaveBeenCalled()
+    })
+
     it('swallows network errors', async () => {
       mockGetAppProperty.mockResolvedValue('id')
       vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')))
 
       await expect(sendInsights()).resolves.toBeUndefined()
       expect(mockSetAppProperty).not.toHaveBeenCalledWith('insightsLastSentAt', expect.anything())
+    })
+  })
+
+  describe('notice', () => {
+    it('is pending until the admin answers', async () => {
+      mockGetAppProperty.mockResolvedValue(null)
+      expect(await getInsightsNoticeState()).toEqual({ pending: true })
+    })
+
+    it('is settled once answered', async () => {
+      mockGetAppProperty.mockResolvedValue('2026-10-08T00:00:00.000Z')
+      expect(await getInsightsNoticeState()).toEqual({ pending: false })
+    })
+
+    it('is not needed when an env var already opted out', async () => {
+      vi.stubEnv('TAGR_INSIGHTS', 'false')
+      mockGetAppProperty.mockResolvedValue(null)
+      expect(await getInsightsNoticeState()).toEqual({ pending: false })
+    })
+
+    it('records the answer together with the choice', async () => {
+      mockGetAppProperty.mockResolvedValue(null)
+
+      await setInsightsEnabled(false)
+
+      expect(mockSetAppProperty).toHaveBeenCalledWith('insightsEnabled', 'false')
+      expect(mockSetAppProperty).toHaveBeenCalledWith('insightsNoticeSeenAt', expect.any(String))
+    })
+
+    it('keeps the first answer date when toggled again', async () => {
+      mockGetAppProperty.mockResolvedValue('2026-10-08T00:00:00.000Z')
+
+      await setInsightsEnabled(true)
+
+      expect(mockSetAppProperty).not.toHaveBeenCalledWith('insightsNoticeSeenAt', expect.anything())
     })
   })
 })
