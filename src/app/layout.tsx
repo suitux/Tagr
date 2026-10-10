@@ -3,6 +3,7 @@ import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { SessionProvider } from 'next-auth/react'
 import { NextIntlClientProvider } from 'next-intl'
+import { getLocale } from 'next-intl/server'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { ServiceWorkerRegister } from '@/components/pwa/service-worker-register'
@@ -48,13 +49,15 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const locale = await getLocale()
+
   return (
-    <html lang='en' className='dark'>
+    <html lang={locale} className='dark'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`} cz-shortcut-listen='true'>
         <SessionProvider>
           <NuqsAdapter>

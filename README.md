@@ -127,6 +127,9 @@ Tagr is fully responsive and works on phones and tablets. The mobile UI adapts t
 - **Multi-user authentication** — password-protected access with roles (admin, tagger, listener)
 - **Resizable panels** — drag to resize the three-panel layout to your liking
 - **Dark theme** by default
+- **English and German UI** — the language follows the browser's `Accept-Language` setting and falls back to
+  English. Translations live in `messages/<locale>.json`; a new language needs its file plus an entry in
+  `src/i18n/locale.ts`
 - **Toast notifications** for operation feedback
 - **URL-based state** — bookmarkable views with folder, song, sort, and filter state preserved in the URL
 

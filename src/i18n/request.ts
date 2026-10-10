@@ -1,7 +1,9 @@
 import { getRequestConfig } from 'next-intl/server'
+import { headers } from 'next/headers'
+import { negotiateLocale } from './locale'
 
 export default getRequestConfig(async () => {
-  const locale = 'en'
+  const locale = negotiateLocale((await headers()).get('accept-language'))
 
   return {
     locale,

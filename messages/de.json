@@ -1,0 +1,536 @@
+{
+  "nav": {
+    "home": "Start",
+    "settings": "Einstellungen"
+  },
+  "navigation": {
+    "folders": "Ordner",
+    "library": "Bibliothek",
+    "songs": "Songs",
+    "details": "Details"
+  },
+  "common": {
+    "loading": "Wird geladen...",
+    "error": "Ein Fehler ist aufgetreten",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "duplicate": "Duplizieren",
+    "search": "Suchen",
+    "logout": "Abmelden",
+    "unknown": "Unbekannt",
+    "more": "Mehr",
+    "less": "Weniger"
+  },
+  "folders": {
+    "title": "Tagr",
+    "subtitle": "Verwaltung der Musikbibliothek",
+    "empty": "Keine Ordner konfiguriert",
+    "notFound": "Keine Ordner gefunden",
+    "searchPlaceholder": "Ordner durchsuchen...",
+    "totalFolders": "{count} Ordner",
+    "totalFiles": "{count, plural, =0 {Keine Dateien} one {# Datei} other {# Dateien}}",
+    "totalSubfolders": "{count, plural, =0 {Keine Unterordner} one {# Unterordner} other {# Unterordner}}",
+    "allFolders": "Alle Ordner",
+    "selectFolder": "Ordner oder Playlist auswählen",
+    "selectFolderDescription": "Wähle in der Seitenleiste einen Ordner oder eine intelligente Playlist, um die Musikdateien anzuzeigen",
+    "browseFolders": "Bibliothek anzeigen",
+    "loadingFolders": "Ordner werden geladen...",
+    "errorLoading": "Fehler beim Laden",
+    "errorLoadingDescription": "Die Ordner konnten nicht geladen werden",
+    "file": "{count, plural, one {Datei} other {Dateien}}",
+    "files": "{count} Dateien",
+    "subfolder": "{count, plural, one {Unterordner} other {Unterordner}}",
+    "subfolders": "{count} Unterordner",
+    "quickScan": "Schnellscan",
+    "quickScanDescription": "Scannt nur neue oder geänderte Dateien",
+    "quickScanConfirmTitle": "Schnellscan starten?",
+    "quickScanConfirmDescription": "Verarbeitet nur neue Dateien und Dateien, deren Änderungsdatum sich geändert hat. Ideal, wenn du neue Musik hinzugefügt oder Dateien ersetzt hast. Dateien, die mit einem anderen Programm bearbeitet wurden, ohne dass sich das Änderungsdatum geändert hat, werden nicht erkannt.",
+    "fullScan": "Vollständiger Scan",
+    "fullScanDescription": "Scannt alle Dateien erneut und aktualisiert die Metadaten",
+    "fullScanConfirmTitle": "Vollständigen Scan starten?",
+    "fullScanConfirmDescription": "Liest die Metadaten aller Dateien deiner Bibliothek neu ein und aktualisiert die Datenbank. Nutze das, wenn du Tags mit einem anderen Programm bearbeitet hast (z. B. MusicBrainz Picard, Mp3tag), wenn du vermutest, dass die Datenbank nicht mehr stimmt, oder nach einem Tagr-Update. Bei großen Bibliotheken kann das eine Weile dauern.",
+    "skipped": "übersprungen",
+    "rescan": "Bibliothek neu scannen",
+    "history": "Änderungsverlauf anzeigen",
+    "feedback": "Feedback senden",
+    "installApp": "App installieren",
+    "appInstalled": "App installiert",
+    "manageUsers": "Benutzer verwalten",
+    "scanning": "Bibliothek wird gescannt...",
+    "scanningProgress": "Bibliothek wird gescannt... ({current}/{total})",
+    "scanCompleted": "Scan abgeschlossen",
+    "scanFailed": "Scan fehlgeschlagen",
+    "filesScanned": "Dateien gescannt",
+    "added": "hinzugefügt",
+    "updated": "aktualisiert",
+    "deleted": "gelöscht",
+    "errors": "Fehler",
+    "viewDetails": "Details",
+    "unknownError": "Ein unbekannter Fehler ist aufgetreten"
+  },
+  "scanSummary": {
+    "title": "Scan-Zusammenfassung",
+    "totalFiles": "{count, plural, one {# Datei verarbeitet} other {# Dateien verarbeitet}}"
+  },
+  "summary": {
+    "added": "Hinzugefügt",
+    "updated": "Aktualisiert",
+    "cover": "Aktualisiert",
+    "deleted": "Gelöscht",
+    "skipped": "Übersprungen",
+    "errors": "Fehler",
+    "andMore": "…und {count, plural, one {# weitere} other {# weitere}}"
+  },
+  "files": {
+    "title": "Dateien",
+    "empty": "Keine Musikdateien gefunden",
+    "emptyDescription": "Dieser Ordner bzw. diese intelligente Playlist enthält keine Musikdateien. Scanne deine Bibliothek oder wähle eine andere Quelle.",
+    "syncNow": "Jetzt scannen",
+    "details": "Dateidetails",
+    "selectFile": "Wähle eine Datei aus, um ihre Details zu sehen",
+    "fileInfo": "Dateiinformationen",
+    "searchPlaceholder": "Songs nach Titel, Interpret, Album, Label, Kommentar oder Dateiname durchsuchen...",
+    "filterPlaceholder": "Filtern...",
+    "filterPlaceholderPressEnter": "Filtern (Enter)...",
+    "dateFilterPlaceholder": "Datum auswählen...",
+    "noFilterResults": "Keine Songs entsprechen den aktuellen Filtern",
+    "clearFilters": "Filter zurücksetzen",
+    "clearDateFilter": "Zurücksetzen",
+    "applyDateFilter": "Übernehmen",
+    "booleanFilterAll": "Alle",
+    "booleanFilterYes": "Ja",
+    "booleanFilterNo": "Nein",
+    "selectFilterAll": "Alle",
+    "selectFilterSelected": "{count} ausgewählt"
+  },
+  "musicInfo": {
+    "title": "Song-Info"
+  },
+  "trackInfo": {
+    "title": "Track-Info",
+    "of": "von"
+  },
+  "audioProperties": {
+    "title": "Audio-Eigenschaften"
+  },
+  "notes": {
+    "title": "Notizen"
+  },
+  "textareaEdit": {
+    "importFromFile": "Aus Datei importieren",
+    "importError": "Die Datei konnte nicht gelesen werden",
+    "saveHint": "⌘/Strg + Enter zum Speichern"
+  },
+  "customTags": {
+    "title": "Eigene Tags",
+    "addTag": "Tag hinzufügen",
+    "key": "Schlüssel",
+    "value": "Wert",
+    "empty": "Keine eigenen Tags",
+    "keyPlaceholder": "Tag-Name (z. B. MOOD)",
+    "valuePlaceholder": "Tag-Wert",
+    "deleteConfirm": "Diesen Tag entfernen?"
+  },
+  "playback": {
+    "volume": "Lautstärke",
+    "startTime": "Startzeit",
+    "stopTime": "Endzeit",
+    "gapless": "Lückenlos"
+  },
+  "fields": {
+    "title": "Titel",
+    "artist": "Interpret",
+    "sortArtist": "Interpret (Sortierung)",
+    "album": "Album",
+    "sortAlbum": "Album (Sortierung)",
+    "albumArtist": "Albuminterpret",
+    "sortAlbumArtist": "Albuminterpret (Sortierung)",
+    "year": "Jahr",
+    "genre": "Genre",
+    "style": "Stil",
+    "composer": "Komponist",
+    "conductor": "Dirigent",
+    "bpm": "BPM",
+    "grouping": "Gruppierung",
+    "publisher": "Label",
+    "catalogNumber": "Katalognummer",
+    "releaseType": "Veröffentlichungstyp",
+    "lyricist": "Texter",
+    "barcode": "Barcode",
+    "work": "Werk",
+    "originalReleaseDate": "Erstveröffentlichung",
+    "copyright": "Copyright",
+    "rating": "Bewertung",
+    "compilation": "Compilation",
+    "trackNumber": "Track",
+    "trackTotal": "Tracks gesamt",
+    "discNumber": "Disc",
+    "discTotal": "Discs gesamt",
+    "duration": "Dauer",
+    "comment": "Kommentar",
+    "lyrics": "Liedtext",
+    "codec": "Codec",
+    "bitrate": "Bitrate",
+    "sampleRate": "Abtastrate",
+    "channels": "Kanäle",
+    "bitsPerSample": "Bittiefe",
+    "encoder": "Encoder",
+    "bitDepthValue": "{value} Bit",
+    "extension": "Format",
+    "fileSize": "Größe",
+    "modifiedAt": "Geändert",
+    "createdAt": "Erstellt",
+    "picture": "Cover",
+    "fileName": "Dateiname",
+    "filePath": "Dateipfad",
+    "folderPath": "Ordnerpfad",
+    "dateAdded": "Hinzugefügt am",
+    "lastPlayed": "Zuletzt gespielt",
+    "listenedAt": "Gehört am",
+    "playCount": "Wiedergaben",
+    "lossless": "Verlustfrei"
+  },
+  "history": {
+    "title": "Änderungsverlauf",
+    "titleForSong": "Verlauf — {songTitle}",
+    "empty": "Noch keine Änderungen erfasst",
+    "unknownSong": "Unbekannt",
+    "revert": "Rückgängig machen",
+    "searchPlaceholder": "Nach Songtitel oder Interpret filtern...",
+    "viewHistory": "Änderungsverlauf anzeigen",
+    "rescanSong": "Songdatei neu einlesen",
+    "revertSelected": "{count, plural, one {# Änderung} other {# Änderungen}} rückgängig machen",
+    "clearSelection": "Auswahl aufheben",
+    "emptyValue": "—"
+  },
+  "columns": {
+    "toggleColumns": "Spalten",
+    "genericTags": "Allgemeine Tags",
+    "customTags": "Eigene Tags"
+  },
+  "previewCard": {
+    "play": "Abspielen",
+    "pause": "Pause",
+    "editCover": "Cover bearbeiten",
+    "downloadCover": "Cover herunterladen",
+    "lossless": "Verlustfrei"
+  },
+  "musicbrainzLookup": {
+    "title": "MusicBrainz — {songTitle}",
+    "tooltip": "Metadaten bei MusicBrainz nachschlagen",
+    "search": "Suchen",
+    "back": "Zurück",
+    "score": "Übereinstimmung: {score} %",
+    "noResults": "Keine Aufnahmen gefunden",
+    "noSearchFields": "Füge ein Feld für die Suche hinzu",
+    "loadMore": "Mehr laden",
+    "resultsCount": "{shown} von {total} Ergebnissen",
+    "field": "Feld",
+    "currentValue": "Aktuell",
+    "mbValue": "MusicBrainz",
+    "applySelected": "Auswahl übernehmen",
+    "noFields": "Diese Veröffentlichung liefert keine Metadatenfelder",
+    "coverArt": "Cover",
+    "currentCover": "Aktuell",
+    "mbCover": "MusicBrainz",
+    "noCover": "Kein Cover",
+    "replaceCover": "Cover ersetzen",
+    "mbid": "MBID",
+    "mbidPlaceholder": "MBID einer Aufnahme, Veröffentlichung oder eines Interpreten",
+    "matchMode": "Treffer",
+    "matchModeOption": {
+      "all": "Alle Felder",
+      "any": "Beliebiges Feld"
+    },
+    "searchFields": "Felder"
+  },
+  "musicbrainz": {
+    "fetchSuccess": "Cover von MusicBrainz aktualisiert",
+    "fetchError": "Das Cover konnte nicht geladen werden",
+    "unknownError": "Ein unbekannter Fehler ist aufgetreten",
+    "fetchMusicBrainz": "Cover von MusicBrainz holen",
+    "fetchMusicBrainzConfirmTitle": "Cover von MusicBrainz holen?",
+    "fetchMusicBrainzConfirmDescription": "Sucht bei MusicBrainz nach einem Albumcover und ersetzt das aktuelle Cover, falls eines gefunden wird. Das lässt sich im Verlauf rückgängig machen.",
+    "fetchMusicBrainzConfirmAction": "Cover holen"
+  },
+  "stats": {
+    "title": "Statistik"
+  },
+  "formats": {
+    "mp3": "MPEG Audio Layer 3",
+    "flac": "Free Lossless Audio Codec",
+    "wav": "Waveform Audio",
+    "m4a": "MPEG-4 Audio",
+    "m4b": "MPEG-4-Hörbuch",
+    "ogg": "Ogg Vorbis",
+    "aac": "Advanced Audio Coding",
+    "unknown": "Audiodatei"
+  },
+  "login": {
+    "title": "Anmelden",
+    "description": "Gib deine Zugangsdaten ein, um auf dein Konto zuzugreifen",
+    "username": "Benutzername",
+    "usernamePlaceholder": "Benutzername eingeben",
+    "password": "Passwort",
+    "passwordPlaceholder": "Passwort eingeben",
+    "submit": "Anmelden",
+    "submitting": "Anmeldung läuft...",
+    "invalidCredentials": "Benutzername oder Passwort ist falsch",
+    "genericError": "Ein Fehler ist aufgetreten. Bitte versuche es erneut."
+  },
+  "welcome": {
+    "title": "Willkommen bei Tagr",
+    "description": "Tagr muss deine Musikordner einmal scannen, um eine lokale Datenbank aufzubauen. Dadurch geht das Durchsuchen deiner Bibliothek schnell und flüssig. Dabei verlassen keine Daten deinen Rechner.",
+    "timing": "Das kann je nach Größe deiner Bibliothek einige Minuten dauern.",
+    "scanButton": "Bibliothek scannen",
+    "scanning": "Deine Bibliothek wird gescannt..."
+  },
+  "version": {
+    "updateAvailable": "Version {version} ist verfügbar",
+    "viewRelease": "Release ansehen",
+    "dismiss": "Schließen"
+  },
+  "savedFilters": {
+    "title": "Filter",
+    "save": "Speichern",
+    "saveCurrentFilters": "Aktuelle Filter speichern",
+    "filterName": "Filtername",
+    "noSavedFilters": "Keine gespeicherten Filter",
+    "deleteFilter": "Filter löschen",
+    "loadFilter": "Filter laden"
+  },
+  "share": {
+    "tooltip": "Song teilen",
+    "title": "Song teilen",
+    "description": "Erzeugt einen zeitlich begrenzten Link nur zum Anhören. Empfänger können den Song abspielen, aber keine Daten ändern oder löschen.",
+    "expiration": "Link läuft ab in",
+    "generate": "Link erzeugen",
+    "generating": "Wird erzeugt...",
+    "copyLink": "Link kopieren",
+    "copied": "Kopiert!",
+    "linkReady": "Link zum Teilen ist bereit",
+    "expiresAt": "Läuft ab: {date}",
+    "pageTitle": "Geteilter Song — {title}",
+    "expired": "Dieser Link ist abgelaufen",
+    "notFound": "Link nicht gefunden",
+    "errorDescription": "Der Link ist möglicherweise abgelaufen oder wurde entfernt.",
+    "sharedVia": "Geteilt über",
+    "of": "von",
+    "metadata": {
+      "fallbackTitle": "Tagr — Geteilter Song",
+      "untitled": "Ohne Titel",
+      "unknownArtist": "Unbekannter Interpret",
+      "title": "{title} — {artist} | Tagr",
+      "description": "Hör dir {title} von {artist} an",
+      "descriptionWithAlbum": "Hör dir {title} von {artist} aus {album} an",
+      "ogTitle": "{title} — {artist}"
+    }
+  },
+  "time": {
+    "fiveMinutes": "5 Minuten",
+    "fifteenMinutes": "15 Minuten",
+    "oneHour": "1 Stunde",
+    "sixHours": "6 Stunden",
+    "twentyFourHours": "24 Stunden",
+    "sevenDays": "7 Tage",
+    "thirtyDays": "30 Tage"
+  },
+  "starPrompt": {
+    "title": "Gefällt dir Tagr?",
+    "description": "Wenn dir Tagr nützt, gib dem Projekt doch einen Stern auf GitHub. Das hilft anderen, es zu finden! Keine Sorge, wir fragen nicht noch einmal.",
+    "starOnGithub": "Stern auf GitHub geben",
+    "maybeLater": "Nein danke"
+  },
+  "api": {
+    "folders": {
+      "noFoldersConfigured": "Keine Musikordner konfiguriert. Setze die Umgebungsvariable MUSIC_FOLDERS.",
+      "pathNotDirectory": "Der Pfad ist kein Verzeichnis",
+      "unknownError": "Unbekannter Fehler beim Lesen des Ordners"
+    }
+  },
+  "users": {
+    "title": "Benutzer verwalten",
+    "description": "Lege die Benutzer an, die auf Tagr zugreifen dürfen, und bearbeite oder entferne sie.",
+    "createUser": "Benutzer anlegen",
+    "editUser": "Benutzer bearbeiten",
+    "deleteUser": "Benutzer löschen",
+    "deleteConfirm": "Möchtest du den Benutzer \"{username}\" wirklich löschen?",
+    "username": "Benutzername",
+    "password": "Passwort",
+    "passwordHint": "Leer lassen, um das aktuelle Passwort zu behalten",
+    "role": "Rolle",
+    "roles": {
+      "admin": "Admin",
+      "tagger": "Tagger",
+      "listener": "Zuhörer"
+    },
+    "roleDescriptions": {
+      "tagger": "Darf durchsuchen, abspielen, Metadaten-Tags bearbeiten und die Bibliothek neu scannen",
+      "listener": "Darf Musik nur durchsuchen und abspielen"
+    },
+    "noUsers": "Noch keine Benutzer",
+    "noUsersDescription": "Lege deinen ersten Benutzer an, um loszulegen",
+    "userCreated": "Benutzer angelegt",
+    "userUpdated": "Benutzer aktualisiert",
+    "userDeleted": "Benutzer gelöscht",
+    "cancel": "Abbrechen",
+    "save": "Speichern"
+  },
+  "smartPlaylists": {
+    "title": "Intelligente Playlists",
+    "newPlaylist": "Neue intelligente Playlist",
+    "publicHeader": "Öffentliche intelligente Playlists",
+    "publicBadge": "Öffentlich",
+    "empty": "Noch keine intelligenten Playlists",
+    "confirmDelete": "Intelligente Playlist \"{name}\" löschen?",
+    "copy": "Kopie",
+    "viewing": {
+      "label": "Intelligente Playlist"
+    },
+    "create": {
+      "title": "Intelligente Playlist erstellen",
+      "description": "Lege Regeln fest, nach denen Songs automatisch aufgenommen werden, wenn ein Feld passt.",
+      "name": "Name",
+      "namePlaceholder": "Meine intelligente Playlist",
+      "isPublic": "Playlist für andere Benutzer sichtbar machen",
+      "matchLabel": "Treffer",
+      "matchAll": "Alle Regeln erfüllen (UND)",
+      "matchAny": "Eine Regel erfüllen (ODER)",
+      "rulesLabel": "Regeln",
+      "addRule": "Regel hinzufügen",
+      "standardFields": "Song-Felder",
+      "customFields": "Eigene Metadaten",
+      "valuePlaceholder": "Wert"
+    },
+    "edit": {
+      "title": "Intelligente Playlist bearbeiten"
+    },
+    "operators": {
+      "equals": "ist gleich",
+      "notEquals": "ist ungleich",
+      "contains": "enthält",
+      "notContains": "enthält nicht",
+      "startsWith": "beginnt mit",
+      "endsWith": "endet auf",
+      "isEmpty": "ist leer",
+      "isNotEmpty": "ist nicht leer",
+      "gt": "größer als",
+      "gte": "größer oder gleich",
+      "lt": "kleiner als",
+      "lte": "kleiner oder gleich",
+      "before": "vor",
+      "after": "nach",
+      "on": "am",
+      "isTrue": "ist wahr",
+      "isFalse": "ist falsch"
+    }
+  },
+  "bulkEdit": {
+    "selectAllButton": "Alle Songs auswählen",
+    "contextMenu": {
+      "selectSong": "Song auswählen",
+      "selectAllFolder": "Ganzen Ordner auswählen",
+      "selectAllPlaylist": "Ganze intelligente Playlist auswählen",
+      "selectAllRecent": "Alles zuletzt Gespielte auswählen",
+      "clearSelection": "Auswahl aufheben",
+      "setCover": "Cover für die Auswahl festlegen"
+    },
+    "actionBar": {
+      "selectedCount": "{count, plural, one {# Song ausgewählt} other {# Songs ausgewählt}}",
+      "wholeFolder": "(ganzer Ordner)",
+      "wholePlaylist": "(ganze Playlist)",
+      "edit": "Bearbeiten",
+      "setCover": "Cover festlegen",
+      "fetchCovers": "Cover von MusicBrainz holen",
+      "cancel": "Auswahl abbrechen"
+    },
+    "edit": {
+      "title": "Mehrfachbearbeitung",
+      "description": "Geänderte Felder werden auf alle ausgewählten Songs angewendet. Unveränderte Felder bleiben, wie sie sind.",
+      "variousPlaceholder": "(verschiedene)",
+      "partialSampleNote": "Zeigt gemeinsame Werte aus {loaded} geladenen von {total} Songs. Unveränderte Felder bleiben bei allen ausgewählten Songs, wie sie sind.",
+      "noFieldsTouched": "Ändere mindestens ein Feld, bevor du fortfährst.",
+      "next": "Weiter",
+      "sections": {
+        "music": "Musik",
+        "track": "Track",
+        "misc": "Sonstiges",
+        "custom": "Eigene Tags"
+      },
+      "fieldsMenu": "Felder",
+      "addCustomKey": "Eigenen Tag hinzufügen",
+      "customKeyPlaceholder": "Neuer Tag-Name (z. B. SOURCEMEDIA)"
+    },
+    "cover": {
+      "title": "Cover von MusicBrainz holen",
+      "description": "Für jeden ausgewählten Song wird die passende MusicBrainz-Veröffentlichung gesucht und deren Cover geschrieben. Dabei geht höchstens eine Anfrage pro Sekunde raus.",
+      "estimate": "Geschätzte Dauer: ~{duration} für {count, plural, one {# Song} other {# Songs}}.",
+      "warning": "Vorhandene Cover werden überschrieben, lassen sich aber bei Bedarf aus dem Verlauf wiederherstellen."
+    },
+    "setCover": {
+      "title": "Cover festlegen",
+      "description": "Wähle ein Bild aus, es wird als Cover {count, plural, one {des ausgewählten Songs} other {aller # ausgewählten Songs}} geschrieben.",
+      "dropHint": "Zieh ein Bild hierher oder nutze die Schaltfläche unten.",
+      "upload": "Bild hochladen",
+      "replaceFile": "Bild ersetzen",
+      "removeFile": "Bild entfernen",
+      "selectedAnnounce": "Ausgewähltes Bild: {name}",
+      "errorNotImage": "Diese Datei ist kein Bild.",
+      "errorTooLarge": "Das Bild ist zu groß. Die maximale Größe ist {size}.",
+      "applyNote": "Dieses Bild ersetzt das Cover von {count, plural, one {# Song} other {# Songs}}."
+    },
+    "progress": {
+      "label": "Verarbeitet {completed} / {total}"
+    },
+    "confirm": {
+      "affecting": "{count, plural, one {# Song betroffen} other {# Songs betroffen}}",
+      "applyToCount": "Auf {count, plural, one {# Song} other {# Songs}} anwenden",
+      "context": {
+        "explicit": "{count, plural, one {# Song ausgewählt} other {# Songs ausgewählt}}",
+        "folder": "Ordner {name}",
+        "playlist": "Intelligente Playlist {name}"
+      }
+    },
+    "result": {
+      "success": "{count, plural, one {# Song aktualisiert} other {# Songs aktualisiert}}",
+      "partial": "{ok} aktualisiert, {failed} fehlgeschlagen",
+      "allFailed": "Alle {count} Songs sind fehlgeschlagen",
+      "viewDetails": "Details"
+    }
+  },
+  "bulkSummary": {
+    "titleEdit": "Zusammenfassung der Mehrfachbearbeitung",
+    "titleCover": "Zusammenfassung des Cover-Abrufs",
+    "totalFiles": "{count, plural, one {# Song verarbeitet} other {# Songs verarbeitet}}",
+    "titleSetCover": "Zusammenfassung der Cover-Aktualisierung"
+  },
+  "settings": {
+    "title": "Einstellungen",
+    "sections": {
+      "users": "Benutzer",
+      "integrations": "Integrationen von Drittanbietern"
+    }
+  },
+  "scrobbling": {
+    "listenbrainz": "ListenBrainz",
+    "description": "Sende die Songs, die du in Tagr abspielst, an dein ListenBrainz-Profil.",
+    "enable": "Gespielte Songs scrobbeln",
+    "token": "Benutzer-Token",
+    "tokenPlaceholder": "ListenBrainz-Token einfügen",
+    "tokenStored": "Ein Token ist bereits gespeichert — gib einen neuen ein, um ihn zu ersetzen",
+    "tokenHelp": "Kopiere ihn aus deinen <link>ListenBrainz-Einstellungen</link>.",
+    "apiRoot": "API-Root (optional)",
+    "save": "Prüfen und speichern",
+    "saved": "Scrobbling-Einstellungen gespeichert",
+    "connectedAs": "Verbunden als {username}",
+    "disconnect": "Trennen",
+    "disconnected": "ListenBrainz getrennt",
+    "pending": "{count} Wiedergaben warten auf den Versand"
+  },
+  "listens": {
+    "title": "Zuletzt gespielt",
+    "empty": "Noch nichts abgespielt"
+  }
+}
