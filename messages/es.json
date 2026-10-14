@@ -446,6 +446,7 @@
       "edit": "Editar",
       "setCover": "Establecer portada",
       "fetchCovers": "Obtener portadas de MusicBrainz",
+      "musicbrainz": "Buscar en MusicBrainz",
       "cancel": "Cancelar selección"
     },
     "edit": {
@@ -506,7 +507,48 @@
     "titleEdit": "Resumen de la edición múltiple",
     "titleCover": "Resumen de la obtención de portadas",
     "totalFiles": "{count, plural, one {# canción procesada} other {# canciones procesadas}}",
-    "titleSetCover": "Resumen de la actualización de portadas"
+    "titleSetCover": "Resumen de la actualización de portadas",
+    "titleMusicbrainz": "Resumen de la búsqueda en MusicBrainz"
+  },
+  "bulkMusicbrainz": {
+    "title": "Búsqueda en MusicBrainz",
+    "description": "Busca un álbum en MusicBrainz y escribe en cada canción seleccionada las etiquetas de su pista",
+    "searchHint": "{count, plural, one {# canción seleccionada.} other {# canciones seleccionadas.}} Busca el lanzamiento al que pertenecen; en el siguiente paso se asignan a sus pistas.",
+    "search": "Buscar",
+    "searchFailed": "La búsqueda en MusicBrainz ha fallado. Inténtalo de nuevo en un momento.",
+    "noReleases": "No se han encontrado lanzamientos",
+    "resultsCount": "Mostrando {shown} de {total} lanzamientos",
+    "trackCount": "{count, plural, one {# pista} other {# pistas}}",
+    "score": "Puntuación: {score}%",
+    "loadMore": "Cargar más",
+    "noTracks": "No se han podido cargar las pistas de este lanzamiento.",
+    "back": "Atrás",
+    "matchSummary": "{matched} de {total} canciones asignadas a una pista de «{release}». Revisa las asignaciones y elige una pista donde haga falta.",
+    "fieldsToWrite": "Campos que se escribirán",
+    "replaceCover": "Reemplazar también la portada por la portada frontal de este lanzamiento",
+    "noCover": "Este lanzamiento no tiene portada",
+    "song": "Canción",
+    "track": "Pista del lanzamiento",
+    "changes": "Cambios",
+    "noTrack": "Ninguna pista",
+    "noChanges": "Ya está actualizada",
+    "continue": "{count, plural, one {Continuar con # canción} other {Continuar con # canciones}}",
+    "matchReason": {
+      "number": "Disco/pista",
+      "title": "Título",
+      "duration": "Duración",
+      "manual": "Manual",
+      "unmatched": "Sin asignar"
+    },
+    "tooManySongs": "Selecciona como máximo {limit} canciones: la búsqueda las asigna a un único lanzamiento.",
+    "summary": {
+      "description": "Cada canción recibe las etiquetas de su pista asignada. Solo se escriben los campos que cambian.",
+      "release": "Lanzamiento",
+      "fields": "Campos",
+      "cover": "Portada",
+      "yes": "Reemplazar",
+      "no": "Mantener"
+    }
   },
   "settings": {
     "title": "Ajustes",

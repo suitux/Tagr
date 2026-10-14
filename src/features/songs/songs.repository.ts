@@ -43,6 +43,34 @@ export function findSongFilePath(id: number): Promise<{ filePath: string } | nul
   return prisma.song.findUnique({ where: { id }, select: { filePath: true } })
 }
 
+/** What the bulk MusicBrainz lookup matches songs to tracks on, plus the fields it may overwrite. */
+export function findSongsForMusicBrainzMatch(ids: number[]) {
+  return prisma.song.findMany({
+    where: { id: { in: ids } },
+    select: {
+      id: true,
+      fileName: true,
+      folderPath: true,
+      duration: true,
+      title: true,
+      artist: true,
+      album: true,
+      albumArtist: true,
+      year: true,
+      trackNumber: true,
+      trackTotal: true,
+      discNumber: true,
+      discTotal: true,
+      publisher: true,
+      catalogNumber: true,
+      releaseType: true,
+      barcode: true,
+      originalReleaseDate: true,
+      genre: true
+    }
+  })
+}
+
 export function findSongForPeaks(
   id: number
 ): Promise<{ filePath: string; duration: number | null; peaks: string | null } | null> {

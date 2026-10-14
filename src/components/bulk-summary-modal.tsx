@@ -7,7 +7,8 @@ import { type BulkSummaryKind, useHomeStore } from '@/stores/home-store'
 const KIND_CONFIG = {
   edit: { titleKey: 'titleEdit', updatedVariant: 'updated' },
   cover: { titleKey: 'titleCover', updatedVariant: 'cover' },
-  'set-cover': { titleKey: 'titleSetCover', updatedVariant: 'cover' }
+  'set-cover': { titleKey: 'titleSetCover', updatedVariant: 'cover' },
+  musicbrainz: { titleKey: 'titleMusicbrainz', updatedVariant: 'updated' }
 } as const satisfies Record<BulkSummaryKind, { titleKey: string; updatedVariant: SummarySection['variant'] }>
 
 export function BulkSummaryModal() {

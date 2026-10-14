@@ -7,6 +7,9 @@ import {
   type MusicBrainzReleaseDetail,
   type MusicBrainzMappedMetadata,
   type MusicBrainzRecording,
+  type MusicBrainzReleaseSearchParams,
+  type MusicBrainzReleaseSearchResponse,
+  type MusicBrainzReleaseTrack,
   type MusicBrainzSearchParams,
   DEFAULT_MUSICBRAINZ_MATCH_MODE,
   MUSICBRAINZ_SEARCH_PAGE_SIZE
@@ -80,6 +83,28 @@ export async function searchRecordings({
   return musicBrainzApi.searchRecordings<MusicBrainzRecordingSearchResponse>(query, limit, offset)
 }
 
+export function buildReleaseQuery({ album, artist }: MusicBrainzReleaseSearchParams): string {
+  const parts: string[] = []
+
+  if (album?.trim()) parts.push(`release:${JSON.stringify(album.trim())}`)
+  if (artist?.trim()) parts.push(`artist:${JSON.stringify(artist.trim())}`)
+
+  return parts.join(' AND ')
+}
+
+interface SearchReleasesParams extends MusicBrainzReleaseSearchParams {
+  limit?: number
+  offset?: number
+}
+
+export async function searchReleases({
+  limit = MUSICBRAINZ_SEARCH_PAGE_SIZE,
+  offset = 0,
+  ...params
+}: SearchReleasesParams): Promise<MusicBrainzReleaseSearchResponse> {
+  return musicBrainzApi.searchReleases<MusicBrainzReleaseSearchResponse>(buildReleaseQuery(params), limit, offset)
+}
+
 export async function fetchReleaseDetails(releaseId: string): Promise<MusicBrainzReleaseDetail> {
   return musicBrainzApi.getRelease<MusicBrainzReleaseDetail>(
     releaseId,
@@ -148,6 +173,44 @@ export function mapToSongMetadata(
   }
 
   return result
+}
+
+/**
+ * Every track of a release with the tags it would write. The track's own position wins over the
+ * recording lookup in mapToSongMetadata, so a recording that appears twice on a release keeps
+ * both of its positions. The track credit is used for the artist, which matters on compilations.
+ */
+export function mapReleaseTracks(release: MusicBrainzReleaseDetail): MusicBrainzReleaseTrack[] {
+  const tracks: MusicBrainzReleaseTrack[] = []
+
+  for (const medium of release.media ?? []) {
+    for (const track of medium.tracks ?? []) {
+      const recording: MusicBrainzRecording = {
+        id: track.recording.id,
+        title: track.title || track.recording.title || '',
+        score: 0,
+        'artist-credit': track['artist-credit'] ?? track.recording['artist-credit']
+      }
+      const mapped = mapToSongMetadata(recording, release, recording.id)
+
+      tracks.push({
+        id: track.id ?? `${medium.position}-${track.position}`,
+        recordingId: recording.id,
+        disc: medium.position,
+        position: track.position,
+        title: recording.title,
+        length: track.length ?? track.recording.length ?? null,
+        mapped: {
+          ...mapped,
+          trackNumber: track.position,
+          trackTotal: medium['track-count'],
+          discNumber: medium.position
+        }
+      })
+    }
+  }
+
+  return tracks
 }
 
 export async function fetchCoverArt(releaseId: string): Promise<MusicBrainzCoverArtResult | null> {

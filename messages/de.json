@@ -446,6 +446,7 @@
       "edit": "Bearbeiten",
       "setCover": "Cover festlegen",
       "fetchCovers": "Cover von MusicBrainz holen",
+      "musicbrainz": "Bei MusicBrainz nachschlagen",
       "cancel": "Auswahl abbrechen"
     },
     "edit": {
@@ -506,7 +507,48 @@
     "titleEdit": "Zusammenfassung der Mehrfachbearbeitung",
     "titleCover": "Zusammenfassung des Cover-Abrufs",
     "totalFiles": "{count, plural, one {# Song verarbeitet} other {# Songs verarbeitet}}",
-    "titleSetCover": "Zusammenfassung der Cover-Aktualisierung"
+    "titleSetCover": "Zusammenfassung der Cover-Aktualisierung",
+    "titleMusicbrainz": "Zusammenfassung der MusicBrainz-Abfrage"
+  },
+  "bulkMusicbrainz": {
+    "title": "MusicBrainz-Abfrage",
+    "description": "Ein Album bei MusicBrainz nachschlagen und jedem ausgewählten Song die Tags seines Tracks schreiben",
+    "searchHint": "{count, plural, one {# Song ausgewählt.} other {# Songs ausgewählt.}} Suche das Release, zu dem sie gehören; im nächsten Schritt werden sie seinen Tracks zugeordnet.",
+    "search": "Suchen",
+    "searchFailed": "Die Suche bei MusicBrainz ist fehlgeschlagen. Versuche es gleich noch einmal.",
+    "noReleases": "Keine Releases gefunden",
+    "resultsCount": "{shown} von {total} Releases",
+    "trackCount": "{count, plural, one {# Track} other {# Tracks}}",
+    "score": "Übereinstimmung: {score} %",
+    "loadMore": "Mehr laden",
+    "noTracks": "Die Tracks dieses Releases konnten nicht geladen werden.",
+    "back": "Zurück",
+    "matchSummary": "{matched} von {total} Songs einem Track von „{release}“ zugeordnet. Prüfe die Zuordnung und wähle bei Bedarf einen Track aus.",
+    "fieldsToWrite": "Zu schreibende Felder",
+    "replaceCover": "Auch das Cover durch das Frontcover dieses Releases ersetzen",
+    "noCover": "Dieses Release hat kein Cover",
+    "song": "Song",
+    "track": "Track im Release",
+    "changes": "Änderungen",
+    "noTrack": "Kein Track",
+    "noChanges": "Bereits aktuell",
+    "continue": "{count, plural, one {Weiter mit # Song} other {Weiter mit # Songs}}",
+    "matchReason": {
+      "number": "Disc/Track",
+      "title": "Titel",
+      "duration": "Länge",
+      "manual": "Von Hand",
+      "unmatched": "Keine Zuordnung"
+    },
+    "tooManySongs": "Wähle höchstens {limit} Songs aus - die Abfrage ordnet sie einem einzigen Release zu.",
+    "summary": {
+      "description": "Jeder Song bekommt die Tags seines zugeordneten Tracks. Geschrieben werden nur Felder, die sich ändern.",
+      "release": "Release",
+      "fields": "Felder",
+      "cover": "Cover",
+      "yes": "Ersetzen",
+      "no": "Beibehalten"
+    }
   },
   "settings": {
     "title": "Einstellungen",

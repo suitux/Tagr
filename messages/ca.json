@@ -446,6 +446,7 @@
       "edit": "Edita",
       "setCover": "Estableix la portada",
       "fetchCovers": "Obtén portades de MusicBrainz",
+      "musicbrainz": "Cerca a MusicBrainz",
       "cancel": "Cancel·la la selecció"
     },
     "edit": {
@@ -506,7 +507,48 @@
     "titleEdit": "Resum de l’edició múltiple",
     "titleCover": "Resum de l’obtenció de portades",
     "totalFiles": "{count, plural, one {# cançó processada} other {# cançons processades}}",
-    "titleSetCover": "Resum de l’actualització de portades"
+    "titleSetCover": "Resum de l’actualització de portades",
+    "titleMusicbrainz": "Resum de la cerca a MusicBrainz"
+  },
+  "bulkMusicbrainz": {
+    "title": "Cerca a MusicBrainz",
+    "description": "Cerca un àlbum a MusicBrainz i escriu a cada cançó seleccionada les etiquetes de la seva pista",
+    "searchHint": "{count, plural, one {# cançó seleccionada.} other {# cançons seleccionades.}} Cerca el llançament al qual pertanyen; al pas següent s’assignen a les seves pistes.",
+    "search": "Cerca",
+    "searchFailed": "La cerca a MusicBrainz ha fallat. Torna-ho a provar d’aquí a un moment.",
+    "noReleases": "No s’ha trobat cap llançament",
+    "resultsCount": "Es mostren {shown} de {total} llançaments",
+    "trackCount": "{count, plural, one {# pista} other {# pistes}}",
+    "score": "Puntuació: {score}%",
+    "loadMore": "Carrega’n més",
+    "noTracks": "No s’han pogut carregar les pistes d’aquest llançament.",
+    "back": "Enrere",
+    "matchSummary": "{matched} de {total} cançons assignades a una pista de «{release}». Revisa les assignacions i tria una pista on calgui.",
+    "fieldsToWrite": "Camps que s’escriuran",
+    "replaceCover": "Substitueix també la portada per la portada frontal d’aquest llançament",
+    "noCover": "Aquest llançament no té portada",
+    "song": "Cançó",
+    "track": "Pista del llançament",
+    "changes": "Canvis",
+    "noTrack": "Cap pista",
+    "noChanges": "Ja està actualitzada",
+    "continue": "{count, plural, one {Continua amb # cançó} other {Continua amb # cançons}}",
+    "matchReason": {
+      "number": "Disc/pista",
+      "title": "Títol",
+      "duration": "Durada",
+      "manual": "Manual",
+      "unmatched": "Sense assignar"
+    },
+    "tooManySongs": "Selecciona com a màxim {limit} cançons: la cerca les assigna a un sol llançament.",
+    "summary": {
+      "description": "Cada cançó rep les etiquetes de la pista assignada. Només s’escriuen els camps que canvien.",
+      "release": "Llançament",
+      "fields": "Camps",
+      "cover": "Portada",
+      "yes": "Substitueix",
+      "no": "Conserva"
+    }
   },
   "settings": {
     "title": "Configuració",

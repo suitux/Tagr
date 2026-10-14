@@ -9,7 +9,7 @@ export interface ScanSummaryResult {
   errors: Array<{ path: string; error: string }>
 }
 
-export type BulkSummaryKind = 'edit' | 'cover' | 'set-cover'
+export type BulkSummaryKind = 'edit' | 'cover' | 'set-cover' | 'musicbrainz'
 
 export interface BulkSummaryResult {
   kind: BulkSummaryKind

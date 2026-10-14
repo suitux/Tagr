@@ -446,6 +446,7 @@
       "edit": "Modifier",
       "setCover": "Définir la pochette",
       "fetchCovers": "Récupérer les pochettes sur MusicBrainz",
+      "musicbrainz": "Rechercher sur MusicBrainz",
       "cancel": "Annuler la sélection"
     },
     "edit": {
@@ -506,7 +507,48 @@
     "titleEdit": "Résumé de la modification groupée",
     "titleCover": "Résumé de la récupération des pochettes",
     "totalFiles": "{count, plural, one {# morceau traité} other {# morceaux traités}}",
-    "titleSetCover": "Résumé de la mise à jour des pochettes"
+    "titleSetCover": "Résumé de la mise à jour des pochettes",
+    "titleMusicbrainz": "Résumé de la recherche MusicBrainz"
+  },
+  "bulkMusicbrainz": {
+    "title": "Recherche MusicBrainz",
+    "description": "Rechercher un album sur MusicBrainz et écrire dans chaque morceau sélectionné les tags de sa piste",
+    "searchHint": "{count, plural, one {# morceau sélectionné.} other {# morceaux sélectionnés.}} Recherchez la parution à laquelle ils appartiennent ; l’étape suivante les associe à ses pistes.",
+    "search": "Rechercher",
+    "searchFailed": "La recherche sur MusicBrainz a échoué. Réessayez dans un instant.",
+    "noReleases": "Aucune parution trouvée",
+    "resultsCount": "{shown} parutions affichées sur {total}",
+    "trackCount": "{count, plural, one {# piste} other {# pistes}}",
+    "score": "Score : {score} %",
+    "loadMore": "Charger plus",
+    "noTracks": "Impossible de charger les pistes de cette parution.",
+    "back": "Retour",
+    "matchSummary": "{matched} morceaux sur {total} associés à une piste de « {release} ». Vérifiez les associations et choisissez une piste si nécessaire.",
+    "fieldsToWrite": "Champs à écrire",
+    "replaceCover": "Remplacer aussi la pochette par la pochette avant de cette parution",
+    "noCover": "Cette parution n’a pas de pochette",
+    "song": "Morceau",
+    "track": "Piste de la parution",
+    "changes": "Modifications",
+    "noTrack": "Aucune piste",
+    "noChanges": "Déjà à jour",
+    "continue": "{count, plural, one {Continuer avec # morceau} other {Continuer avec # morceaux}}",
+    "matchReason": {
+      "number": "Disque/piste",
+      "title": "Titre",
+      "duration": "Durée",
+      "manual": "Manuel",
+      "unmatched": "Non associé"
+    },
+    "tooManySongs": "Sélectionnez au plus {limit} morceaux : la recherche les associe à une seule parution.",
+    "summary": {
+      "description": "Chaque morceau reçoit les tags de la piste associée. Seuls les champs qui changent sont écrits.",
+      "release": "Parution",
+      "fields": "Champs",
+      "cover": "Pochette",
+      "yes": "Remplacer",
+      "no": "Conserver"
+    }
   },
   "settings": {
     "title": "Paramètres",

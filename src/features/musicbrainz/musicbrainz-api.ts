@@ -52,8 +52,8 @@ async function fetchImage(url: string): Promise<{ buffer: Buffer; contentType: s
 }
 
 export const musicBrainzApi = {
-  searchReleases: <T>(query: string, limit: number) =>
-    musicBrainzFetch<T>('/release/', { params: { query, limit: String(limit) } }),
+  searchReleases: <T>(query: string, limit: number, offset = 0) =>
+    musicBrainzFetch<T>('/release/', { params: { query, limit: String(limit), offset: String(offset) } }),
   searchRecordings: <T>(query: string, limit: number, offset: number) =>
     musicBrainzFetch<T>('/recording/', { params: { query, limit: String(limit), offset: String(offset) } }),
   getRelease: <T>(releaseId: string, inc: string) => musicBrainzFetch<T>(`/release/${releaseId}`, { params: { inc } }),

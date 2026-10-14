@@ -6,8 +6,13 @@ import { toast } from 'sonner'
 import { BulkConfirmModal } from '@/components/bulk-confirm-modal/bulk-confirm-modal'
 import { BulkEditModal } from '@/components/bulk-edit-modal/bulk-edit-modal'
 import { isEmptyBulkPatch, type BulkPatch } from '@/components/bulk-edit-modal/build-patch'
+import {
+  BulkMusicBrainzModal,
+  type BulkMusicBrainzSubmission
+} from '@/components/bulk-musicbrainz-modal/bulk-musicbrainz-modal'
 import { SCAN_FILE_LIST_LIMIT } from '@/features/metadata/domain'
 import { useBulkFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-bulk-fetch-musicbrainz-cover'
+import { useBulkApplyMusicBrainz } from '@/features/musicbrainz/hooks/use-bulk-musicbrainz'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
 import { type Song } from '@/features/songs/domain'
@@ -19,6 +24,7 @@ import { BulkActionBarPill } from './bulk-action-bar-pill'
 import { BulkCoverPickerModal } from './bulk-cover-picker-modal'
 import { CoverSummary } from './cover-summary'
 import { buildContextLabel, filterLoadedBySelection } from './helpers'
+import { MusicBrainzSummary } from './musicbrainz-summary'
 import { PatchSummary } from './patch-summary'
 import { SetCoverSummary } from './set-cover-summary'
 
@@ -30,6 +36,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const tBulk = useTranslations('bulkEdit')
   const tFolders = useTranslations('folders')
   const tListens = useTranslations('listens')
+  const tMusicBrainz = useTranslations('bulkMusicbrainz')
 
   const selection = useSelectionState()
   const count = useSelectionCount()
@@ -40,14 +47,17 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const setCoverPickerOpen = useHomeStore(s => s.setBulkCoverPickerOpen)
 
   const [editOpen, setEditOpen] = useState(false)
-  const [confirmKind, setConfirmKind] = useState<'edit' | 'cover' | 'set-cover' | null>(null)
+  const [musicBrainzOpen, setMusicBrainzOpen] = useState(false)
+  const [confirmKind, setConfirmKind] = useState<'edit' | 'cover' | 'set-cover' | 'musicbrainz' | null>(null)
   const [pendingPatch, setPendingPatch] = useState<BulkPatch | null>(null)
   const [pendingCover, setPendingCover] = useState<File | null>(null)
+  const [pendingMusicBrainz, setPendingMusicBrainz] = useState<BulkMusicBrainzSubmission | null>(null)
   const [progress, setProgress] = useState<{ completed: number; total: number } | null>(null)
 
   const updateMutation = useBulkUpdateSongs()
   const coverMutation = useBulkFetchMusicBrainzCover()
   const setCoverMutation = useBulkUpdateSongPicture()
+  const musicBrainzMutation = useBulkApplyMusicBrainz()
 
   const playlists = useSmartPlaylists().data
   const playlistName = useMemo(() => {
@@ -56,6 +66,12 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     const all = [...(playlists?.private ?? []), ...(playlists?.public ?? [])]
     return all.find(p => p.id === (selection.context as { playlistId: number }).playlistId)?.name ?? null
   }, [selection, playlists])
+
+  // The lookup dialog loads the selected songs itself, so it gets the target only while it is open.
+  const musicBrainzTarget = useMemo(
+    () => (musicBrainzOpen && selection ? buildBulkTargetFromSelection(selection) : null),
+    [musicBrainzOpen, selection]
+  )
 
   if (!selection) return null
 
@@ -82,12 +98,20 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     setConfirmKind('set-cover')
   }
 
+  const handleMusicBrainzSubmit = (submission: BulkMusicBrainzSubmission) => {
+    setPendingMusicBrainz(submission)
+    setMusicBrainzOpen(false)
+    setConfirmKind('musicbrainz')
+  }
+
   const closeAll = () => {
     setEditOpen(false)
+    setMusicBrainzOpen(false)
     setCoverPickerOpen(false)
     setConfirmKind(null)
     setPendingPatch(null)
     setPendingCover(null)
+    setPendingMusicBrainz(null)
     setProgress(null)
   }
 
@@ -180,6 +204,26 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     }
   }
 
+  const runMusicBrainz = async (
+    target: ReturnType<typeof buildBulkTargetFromSelection>,
+    submission: BulkMusicBrainzSubmission
+  ) => {
+    if (!target) return
+    try {
+      const result = await musicBrainzMutation.mutateAsync({
+        target,
+        items: submission.items,
+        coverReleaseId: submission.coverReleaseId,
+        onProgress: handleProgress
+      })
+      reportResults('musicbrainz', result.results)
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : 'MusicBrainz lookup failed')
+    } finally {
+      closeAll()
+    }
+  }
+
   const handleConfirm = () => {
     const target = buildBulkTargetFromSelection(selection)
     if (!target) return
@@ -189,10 +233,13 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
       void runBulkCover(target)
     } else if (confirmKind === 'set-cover' && pendingCover) {
       void runSetCover(target, pendingCover)
+    } else if (confirmKind === 'musicbrainz' && pendingMusicBrainz) {
+      void runMusicBrainz(target, pendingMusicBrainz)
     }
   }
 
-  const busy = updateMutation.isPending || coverMutation.isPending || setCoverMutation.isPending
+  const busy =
+    updateMutation.isPending || coverMutation.isPending || setCoverMutation.isPending || musicBrainzMutation.isPending
 
   const confirmTitle =
     confirmKind === 'edit'
@@ -201,7 +248,9 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
         ? tBulk('cover.title')
         : confirmKind === 'set-cover'
           ? tBulk('setCover.title')
-          : ''
+          : confirmKind === 'musicbrainz'
+            ? tMusicBrainz('title')
+            : ''
 
   const confirmChanges =
     confirmKind === 'edit' && pendingPatch ? (
@@ -210,6 +259,8 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
       <CoverSummary count={count} />
     ) : confirmKind === 'set-cover' && pendingCover ? (
       <SetCoverSummary file={pendingCover} count={count} />
+    ) : confirmKind === 'musicbrainz' && pendingMusicBrainz ? (
+      <MusicBrainzSummary submission={pendingMusicBrainz} />
     ) : null
 
   const confirmWarning =
@@ -224,6 +275,14 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
         onEdit={() => setEditOpen(true)}
         onSetCover={() => setCoverPickerOpen(true)}
         onFetchCovers={() => setConfirmKind('cover')}
+        onMusicBrainz={() => setMusicBrainzOpen(true)}
+      />
+
+      <BulkMusicBrainzModal
+        open={musicBrainzOpen}
+        onOpenChange={setMusicBrainzOpen}
+        target={musicBrainzTarget}
+        onSubmit={handleMusicBrainzSubmit}
       />
 
       <BulkEditModal
@@ -248,11 +307,13 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
             setConfirmKind(null)
             setPendingPatch(null)
             setPendingCover(null)
+            setPendingMusicBrainz(null)
           }
         }}
         onConfirm={handleConfirm}
         title={confirmTitle}
-        affectedCount={count}
+        // The lookup writes only the songs it matched, which can be fewer than were selected.
+        affectedCount={confirmKind === 'musicbrainz' && pendingMusicBrainz ? pendingMusicBrainz.items.length : count}
         contextLabel={contextLabel}
         changes={confirmChanges}
         warning={confirmWarning}

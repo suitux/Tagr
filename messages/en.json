@@ -446,6 +446,7 @@
       "edit": "Edit",
       "setCover": "Set cover",
       "fetchCovers": "Get covers from MusicBrainz",
+      "musicbrainz": "Look up on MusicBrainz",
       "cancel": "Cancel selection"
     },
     "edit": {
@@ -506,7 +507,48 @@
     "titleEdit": "Bulk edit summary",
     "titleCover": "Cover fetch summary",
     "totalFiles": "{count, plural, one {# song processed} other {# songs processed}}",
-    "titleSetCover": "Cover update summary"
+    "titleSetCover": "Cover update summary",
+    "titleMusicbrainz": "MusicBrainz lookup summary"
+  },
+  "bulkMusicbrainz": {
+    "title": "MusicBrainz lookup",
+    "description": "Look up an album on MusicBrainz and write each selected song its track's tags",
+    "searchHint": "{count, plural, one {# song selected.} other {# songs selected.}} Search the release they belong to; the next step matches them to its tracks.",
+    "search": "Search",
+    "searchFailed": "The MusicBrainz search failed. Try again in a moment.",
+    "noReleases": "No releases found",
+    "resultsCount": "Showing {shown} of {total} releases",
+    "trackCount": "{count, plural, one {# track} other {# tracks}}",
+    "score": "Score: {score}%",
+    "loadMore": "Load more",
+    "noTracks": "Could not load the tracks of this release.",
+    "back": "Back",
+    "matchSummary": "{matched} of {total} songs matched to a track of \"{release}\". Check the matches and pick a track where needed.",
+    "fieldsToWrite": "Fields to write",
+    "replaceCover": "Also replace the cover art with this release's front cover",
+    "noCover": "This release has no cover art",
+    "song": "Song",
+    "track": "Track on the release",
+    "changes": "Changes",
+    "noTrack": "No track",
+    "noChanges": "Already up to date",
+    "continue": "{count, plural, one {Continue with # song} other {Continue with # songs}}",
+    "matchReason": {
+      "number": "Disc/track",
+      "title": "Title",
+      "duration": "Length",
+      "manual": "Manual",
+      "unmatched": "No match"
+    },
+    "tooManySongs": "Select at most {limit} songs - the lookup matches them against a single release.",
+    "summary": {
+      "description": "Each song gets the tags of its matched track. Only fields that change are written.",
+      "release": "Release",
+      "fields": "Fields",
+      "cover": "Cover art",
+      "yes": "Replace",
+      "no": "Keep"
+    }
   },
   "settings": {
     "title": "Settings",

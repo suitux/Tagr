@@ -89,14 +89,22 @@ export interface MusicBrainzSearchParams {
 export const MUSICBRAINZ_SEARCH_PAGE_SIZE = 25
 export const MUSICBRAINZ_SEARCH_MAX_LIMIT = 100
 
+export interface MusicBrainzReleaseTrackDetail {
+  id?: string
+  position: number
+  number?: string
+  title: string
+  /** Milliseconds; null when MusicBrainz does not know it. */
+  length?: number | null
+  'artist-credit'?: MusicBrainzArtistCredit[]
+  recording: { id: string; title?: string; length?: number | null; 'artist-credit'?: MusicBrainzArtistCredit[] }
+}
+
 export interface MusicBrainzReleaseMedia {
   position: number
+  format?: string
   'track-count': number
-  tracks?: Array<{
-    position: number
-    title: string
-    recording: { id: string }
-  }>
+  tracks?: MusicBrainzReleaseTrackDetail[]
 }
 
 export interface MusicBrainzReleaseDetail {
@@ -135,6 +143,48 @@ export interface MusicBrainzMappedMetadata {
   originalReleaseDate?: string
   genre?: string
 }
+
+/** A release as the release search returns it - enough to tell editions apart. */
+export interface MusicBrainzReleaseSearchResult {
+  id: string
+  title: string
+  score: number
+  date?: string
+  country?: string
+  barcode?: string
+  'track-count'?: number
+  'artist-credit'?: MusicBrainzArtistCredit[]
+  'label-info'?: Array<{ 'catalog-number'?: string; label?: { name: string } }>
+  media?: Array<{ format?: string; 'track-count'?: number }>
+  'release-group'?: { 'primary-type'?: string; 'secondary-types'?: string[] }
+}
+
+export interface MusicBrainzReleaseSearchResponse {
+  releases: MusicBrainzReleaseSearchResult[]
+  count: number
+  offset: number
+}
+
+/** Album-level release search used by the bulk lookup. */
+export interface MusicBrainzReleaseSearchParams {
+  album?: string
+  artist?: string
+}
+
+/** One track of a release together with the tags it would write. */
+export interface MusicBrainzReleaseTrack {
+  id: string
+  recordingId: string
+  disc: number
+  position: number
+  title: string
+  /** Milliseconds; null when MusicBrainz does not know it. */
+  length: number | null
+  mapped: MusicBrainzMappedMetadata
+}
+
+/** The most songs one bulk lookup works on - it matches against a single release. */
+export const BULK_MUSICBRAINZ_LIMIT = 500
 
 export const MUSIC_BRAINZ_FIELDS: (keyof MusicBrainzMappedMetadata)[] = [
   'title',

@@ -4,6 +4,7 @@ import { ImageIcon, ImageUpIcon, PencilIcon, XIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useBreakpoint } from '@/hooks/use-breakpoint'
+import MusicBrainzIcon from '@/icons/musicbrainz.svg'
 import { cn } from '@/lib/utils'
 import { usePlayerStore } from '@/stores/player-store'
 
@@ -14,6 +15,7 @@ interface BulkActionBarPillProps {
   onEdit: () => void
   onSetCover: () => void
   onFetchCovers: () => void
+  onMusicBrainz: () => void
 }
 
 export function BulkActionBarPill({
@@ -22,7 +24,8 @@ export function BulkActionBarPill({
   onCancel,
   onEdit,
   onSetCover,
-  onFetchCovers
+  onFetchCovers,
+  onMusicBrainz
 }: BulkActionBarPillProps) {
   const tBulk = useTranslations('bulkEdit')
   const breakpoint = useBreakpoint()
@@ -71,6 +74,15 @@ export function BulkActionBarPill({
           aria-label={tBulk('actionBar.fetchCovers')}>
           <ImageIcon />
           <span className='hidden sm:inline'>{tBulk('actionBar.fetchCovers')}</span>
+        </Button>
+        <Button
+          variant='secondary'
+          size='sm'
+          onClick={onMusicBrainz}
+          disabled={count === 0 || busy}
+          aria-label={tBulk('actionBar.musicbrainz')}>
+          <MusicBrainzIcon />
+          <span className='hidden sm:inline'>{tBulk('actionBar.musicbrainz')}</span>
         </Button>
       </div>
     </div>
