@@ -191,7 +191,8 @@
     "lastPlayed": "Dernière écoute",
     "listenedAt": "Écouté le",
     "playCount": "Nombre d’écoutes",
-    "lossless": "Sans perte"
+    "lossless": "Sans perte",
+    "purgeIn": "Supprimé dans"
   },
   "history": {
     "title": "Historique des modifications",
@@ -437,7 +438,8 @@
       "selectAllPlaylist": "Sélectionner toute la playlist intelligente",
       "selectAllRecent": "Sélectionner tout ce qui a été écouté récemment",
       "clearSelection": "Effacer la sélection",
-      "setCover": "Définir la pochette de la sélection"
+      "setCover": "Définir la pochette de la sélection",
+      "selectAllTrash": "Sélectionner toute la corbeille"
     },
     "actionBar": {
       "selectedCount": "{count, plural, one {# morceau sélectionné} other {# morceaux sélectionnés}}",
@@ -558,7 +560,8 @@
       "songList": "Liste des morceaux",
       "detailPanel": "Panneau du morceau",
       "insights": "Insights",
-      "language": "Langue"
+      "language": "Langue",
+      "trash": "Corbeille"
     }
   },
   "detailPanelSettings": {
@@ -628,5 +631,54 @@
     "sendNow": "Envoyer maintenant",
     "sentToast": "Rapport envoyé",
     "sendFailedToast": "Impossible d’envoyer le rapport : {error}"
+  },
+  "trash": {
+    "title": "Corbeille",
+    "empty": "La corbeille est vide",
+    "emptyDescription": "Les morceaux supprimés restent ici un moment avant d’être définitivement effacés.",
+    "daysLeft": "{count, plural, =0 {Aujourd’hui} one {# jour} other {# jours}}",
+    "progress": {
+      "running": "En cours…",
+      "count": "{completed} / {total}"
+    },
+    "actions": {
+      "trash": "Supprimer",
+      "restore": "Restaurer",
+      "delete": "Supprimer définitivement",
+      "empty": "Vider la corbeille"
+    },
+    "confirm": {
+      "trash": {
+        "title": "Supprimer {count, plural, one {# morceau} other {# morceaux}} ?",
+        "description": "Les fichiers sont déplacés dans la corbeille et définitivement supprimés après {days, plural, one {# jour} other {# jours}}. D’ici là, vous pouvez les restaurer."
+      },
+      "restore": {
+        "title": "Restaurer {count, plural, one {# morceau} other {# morceaux}} ?",
+        "description": "Les fichiers retournent dans le dossier d’où ils ont été supprimés."
+      },
+      "delete": {
+        "title": "Supprimer définitivement {count, plural, one {# morceau} other {# morceaux}} ?",
+        "description": "Les fichiers sont effacés du disque. Cette action est irréversible."
+      },
+      "empty": {
+        "title": "Vider la corbeille ?",
+        "description": "{count, plural, one {Le morceau} other {Les # morceaux}} de la corbeille {count, plural, one {est effacé} other {sont effacés}} du disque. Cette action est irréversible."
+      }
+    },
+    "result": {
+      "trash": "{count, plural, one {# morceau déplacé} other {# morceaux déplacés}} dans la corbeille",
+      "restore": "{count, plural, one {# morceau restauré} other {# morceaux restaurés}}",
+      "delete": "{count, plural, one {# morceau supprimé} other {# morceaux supprimés}} définitivement",
+      "empty": "Corbeille vidée ({count, plural, one {# morceau} other {# morceaux}})",
+      "partial": "{ok} effectués, {failed} en échec : {error}"
+    },
+    "settings": {
+      "title": "Corbeille",
+      "description": "Les morceaux supprimés sont déplacés dans un dossier __tagr_trash__ à l’intérieur de chaque dossier de musique.",
+      "retentionLabel": "Supprimer définitivement après",
+      "retentionOption": "{count, plural, one {# jour} other {# jours}}",
+      "retentionHelp": "Les morceaux expirés sont purgés la prochaine fois qu’un morceau est supprimé.",
+      "savedToast": "Réglage de la corbeille enregistré"
+    }
   }
 }

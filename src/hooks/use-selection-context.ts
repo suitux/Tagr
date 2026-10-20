@@ -22,6 +22,7 @@ export function useSelectionContext(): SelectionContext | null {
     }
 
     if (selectedView === 'recent') return { type: 'recent-listens', ...scope }
+    if (selectedView === 'trash') return { type: 'trash', ...scope }
     if (selectedPlaylistId !== null) return { type: 'smart-playlist', playlistId: selectedPlaylistId, ...scope }
     if (selectedFolderId) return { type: 'folder', folderPath: selectedFolderId, ...scope }
 

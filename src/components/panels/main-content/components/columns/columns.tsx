@@ -12,6 +12,7 @@ import { joinMultiValue, stripKeyPrefix } from '@/features/songs/metadata-helper
 import type { SongMetadata } from '@/generated/prisma/client'
 import type { Column, ColumnDef } from '@tanstack/react-table'
 import { formatDate, formatDuration, formatFileSize } from '../../utils'
+import { PurgeCountdownCell } from './components/purge-countdown-cell'
 import { SortableHeader } from './components/sortable-header'
 
 const textCell = (value: string | null | undefined) => (
@@ -38,11 +39,18 @@ interface UseSongColumnsOptions {
   totalSongs?: number | null
   /** Recently-played only: prepends the play date, which lives on the listen and not on the song. */
   includeListenedAt?: boolean
+  /** Trash only: prepends how long until each song is purged. */
+  includePurgeCountdown?: boolean
 }
 
 export function useSongColumns(metadataKeys: string[] = [], options: UseSongColumnsOptions = {}): ColumnDef<Song>[] {
   const t = useTranslations('fields')
-  const { selectionActive = false, totalSongs = null, includeListenedAt = false } = options
+  const {
+    selectionActive = false,
+    totalSongs = null,
+    includeListenedAt = false,
+    includePurgeCountdown = false
+  } = options
 
   const metadataColumns: ColumnDef<Song>[] = useMemo(
     () =>
@@ -82,6 +90,15 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
     enableHiding: false
   }
 
+  const purgeCountdownColumn: ColumnDef<Song> = {
+    id: 'purgeCountdown',
+    header: () => <span>{t('purgeIn')}</span>,
+    cell: ({ row }) => <PurgeCountdownCell deletedAt={row.original.deletedAt} />,
+    size: 110,
+    enableHiding: false,
+    enableSorting: false
+  }
+
   return [
     ...(selectionActive ? [selectColumn] : []),
     ...(includeListenedAt ? [listenedAtColumn] : []),
@@ -93,6 +110,7 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
       cell: ({ row }) => numericCell(row.original.trackNumber),
       size: 80
     },
+    ...(includePurgeCountdown ? [purgeCountdownColumn] : []),
     // --- Name (always visible, not hideable) ---
     {
       id: 'title',

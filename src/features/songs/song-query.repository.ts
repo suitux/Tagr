@@ -23,8 +23,43 @@ import { prisma } from '@/infrastructure/prisma/dbClient'
 
 export const PAGE_SIZE = 50
 
+/** Songs in the trash only show up in the trash view. */
+const LIVE_SONGS_WHERE = { deletedAt: null }
+const TRASHED_SONGS_WHERE = { deletedAt: { not: null } }
+
+function buildSearchWhere(search?: string) {
+  if (!search) return {}
+  return {
+    OR: [
+      { title: { contains: search } },
+      { artist: { contains: search } },
+      { publisher: { contains: search } },
+      { album: { contains: search } },
+      { fileName: { contains: search } },
+      { comment: { contains: search } }
+    ]
+  }
+}
+
+function buildFolderWhere(
+  folderPath: string | null,
+  search?: string,
+  filters?: SongColumnFilters,
+  scope: Record<string, unknown> = LIVE_SONGS_WHERE
+): Record<string, unknown> {
+  const columnFilterConditions = buildColumnFiltersWhere(filters)
+
+  return {
+    ...scope,
+    ...(folderPath && { folderPath }),
+    ...buildSearchWhere(search),
+    ...(columnFilterConditions.length > 0 && { AND: columnFilterConditions })
+  }
+}
+
 export async function getDistinctValues(field: SongScalarField): Promise<string[]> {
   const rows = (await prisma.song.findMany({
+    where: LIVE_SONGS_WHERE,
     distinct: [field],
     select: { [field]: true }
   })) as Record<string, unknown>[]
@@ -91,6 +126,7 @@ function hasMetadataFilters(filters?: SongColumnFilters): boolean {
 
 export async function getDistinctMetadataKeys(): Promise<string[]> {
   const rows = await prisma.songMetadata.findMany({
+    where: { song: LIVE_SONGS_WHERE },
     distinct: ['key'],
     select: { key: true }
   })
@@ -186,36 +222,16 @@ export function buildColumnFiltersWhere(filters?: SongColumnFilters): Record<str
   return conditions
 }
 
-export async function getSongsByFolder(
-  folderPath: string | null,
-  search?: string,
-  sortField?: ColumnField,
-  sort?: SongSortDirection,
-  skip?: number,
-  take?: number,
-  filters?: SongColumnFilters,
-  metadataKeys?: string[]
+/** One page of songs matching `where`, in the requested order (metadata columns sort in SQL). */
+async function findSongsPage(
+  where: Record<string, unknown>,
+  sortField: ColumnField | undefined,
+  sort: SongSortDirection | undefined,
+  skip: number | undefined,
+  take: number | undefined,
+  includeMetadata: boolean
 ): Promise<Song[]> {
   const sortColumn = songSortField(sortField)
-  const columnFilterConditions = buildColumnFiltersWhere(filters)
-  const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
-
-  const where = {
-    ...(folderPath && { folderPath }),
-    ...(search && {
-      OR: [
-        { title: { contains: search } },
-        { artist: { contains: search } },
-        { publisher: { contains: search } },
-        { album: { contains: search } },
-        { fileName: { contains: search } },
-        { comment: { contains: search } }
-      ]
-    }),
-    ...(columnFilterConditions.length > 0 && {
-      AND: columnFilterConditions
-    })
-  }
 
   if (sortColumn && isMetadataColumnId(sortColumn)) {
     const metaKey = getMetadataKeyFromColumnId(sortColumn)
@@ -244,31 +260,55 @@ export async function getSongsByFolder(
   })
 }
 
+export async function getSongsByFolder(
+  folderPath: string | null,
+  search?: string,
+  sortField?: ColumnField,
+  sort?: SongSortDirection,
+  skip?: number,
+  take?: number,
+  filters?: SongColumnFilters,
+  metadataKeys?: string[]
+): Promise<Song[]> {
+  const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
+
+  return findSongsPage(buildFolderWhere(folderPath, search, filters), sortField, sort, skip, take, includeMetadata)
+}
+
 export async function countSongsByFolder(
   folderPath: string | null,
   search?: string,
   filters?: SongColumnFilters
 ): Promise<number> {
-  const columnFilterConditions = buildColumnFiltersWhere(filters)
+  return prisma.song.count({ where: buildFolderWhere(folderPath, search, filters) })
+}
 
-  return prisma.song.count({
-    where: {
-      ...(folderPath && { folderPath }),
-      ...(search && {
-        OR: [
-          { title: { contains: search } },
-          { artist: { contains: search } },
-          { publisher: { contains: search } },
-          { album: { contains: search } },
-          { fileName: { contains: search } },
-          { comment: { contains: search } }
-        ]
-      }),
-      ...(columnFilterConditions.length > 0 && {
-        AND: columnFilterConditions
-      })
-    }
+export async function getTrashedSongs(
+  search?: string,
+  sortField?: ColumnField,
+  sort?: SongSortDirection,
+  skip?: number,
+  take?: number,
+  filters?: SongColumnFilters,
+  metadataKeys?: string[]
+): Promise<Song[]> {
+  const includeMetadata = (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters)
+  const where = buildFolderWhere(null, search, filters, TRASHED_SONGS_WHERE)
+
+  return findSongsPage(where, sortField, sort, skip, take, includeMetadata)
+}
+
+export async function countTrashedSongs(search?: string, filters?: SongColumnFilters): Promise<number> {
+  return prisma.song.count({ where: buildFolderWhere(null, search, filters, TRASHED_SONGS_WHERE) })
+}
+
+export async function getTrashedSongIds(search?: string, filters?: SongColumnFilters, limit?: number): Promise<number[]> {
+  const rows = await prisma.song.findMany({
+    where: buildFolderWhere(null, search, filters, TRASHED_SONGS_WHERE),
+    select: { id: true },
+    ...(limit && { take: limit })
   })
+  return rows.map(r => r.id)
 }
 
 interface GetAdjacentSongsParams {
@@ -295,25 +335,14 @@ export async function getAdjacentSongs({
   const sortColumn = songSortField(sortField)
   const columnFilterConditions = buildColumnFiltersWhere(filters)
 
-  const conditions: Record<string, unknown>[] = []
+  const conditions: Record<string, unknown>[] = [LIVE_SONGS_WHERE]
 
   if (folderPath) conditions.push({ folderPath })
-  if (search) {
-    conditions.push({
-      OR: [
-        { title: { contains: search } },
-        { artist: { contains: search } },
-        { publisher: { contains: search } },
-        { album: { contains: search } },
-        { fileName: { contains: search } },
-        { comment: { contains: search } }
-      ]
-    })
-  }
+  if (search) conditions.push(buildSearchWhere(search))
   if (columnFilterConditions.length > 0) conditions.push(...columnFilterConditions)
   if (extraWhere) conditions.push(extraWhere)
 
-  const where = conditions.length > 0 ? { AND: conditions } : {}
+  const where = { AND: conditions }
 
   let orderedIds: { id: number }[]
 
@@ -362,23 +391,11 @@ function buildPlaylistWhereClause(
 ): Record<string, unknown> {
   const playlistCondition = buildSmartPlaylistWhere(rules)
   const columnFilterConditions = buildColumnFiltersWhere(filters)
-  const andConditions: Record<string, unknown>[] = []
+  const andConditions: Record<string, unknown>[] = [LIVE_SONGS_WHERE]
   if (playlistCondition) andConditions.push(playlistCondition)
   for (const c of columnFilterConditions) andConditions.push(c)
 
-  return {
-    ...(search && {
-      OR: [
-        { title: { contains: search } },
-        { artist: { contains: search } },
-        { publisher: { contains: search } },
-        { album: { contains: search } },
-        { fileName: { contains: search } },
-        { comment: { contains: search } }
-      ]
-    }),
-    ...(andConditions.length > 0 && { AND: andConditions })
-  }
+  return { ...buildSearchWhere(search), AND: andConditions }
 }
 
 export async function getSongsByPlaylist(
@@ -391,36 +408,11 @@ export async function getSongsByPlaylist(
   filters?: SongColumnFilters,
   metadataKeys?: string[]
 ): Promise<Song[]> {
-  const sortColumn = songSortField(sortField)
   const where = buildPlaylistWhereClause(rules, search, filters)
   const includeMetadata =
     (metadataKeys && metadataKeys.length > 0) || hasMetadataFilters(filters) || rulesUseMetadata(rules)
 
-  if (sortColumn && isMetadataColumnId(sortColumn)) {
-    const metaKey = getMetadataKeyFromColumnId(sortColumn)
-    const songIds = await getMetadataSortedSongIds(where, metaKey, sort ?? 'asc', skip, take)
-    if (songIds.length === 0) return []
-
-    const songs = await prisma.song.findMany({
-      where: { id: { in: songIds } },
-      ...(includeMetadata && { include: { metadata: true } })
-    })
-
-    const idOrder = new Map(songIds.map((id, i) => [id, i]))
-    songs.sort((a, b) => (idOrder.get(a.id) ?? 0) - (idOrder.get(b.id) ?? 0))
-    return songs
-  }
-
-  const defaultOrder = [{ title: 'asc' as const }]
-  const orderBy = sortColumn && sort ? [{ [sortColumn]: sort }] : defaultOrder
-
-  return prisma.song.findMany({
-    where,
-    ...(includeMetadata && { include: { metadata: true } }),
-    orderBy,
-    skip,
-    take
-  })
+  return findSongsPage(where, sortField, sort, skip, take, includeMetadata)
 }
 
 export async function countSongsByPlaylist(
@@ -438,23 +430,7 @@ export async function getSongIdsByFolder(
   filters?: SongColumnFilters,
   limit?: number
 ): Promise<number[]> {
-  const columnFilterConditions = buildColumnFiltersWhere(filters)
-  const where = {
-    ...(folderPath && { folderPath }),
-    ...(search && {
-      OR: [
-        { title: { contains: search } },
-        { artist: { contains: search } },
-        { publisher: { contains: search } },
-        { album: { contains: search } },
-        { fileName: { contains: search } },
-        { comment: { contains: search } }
-      ]
-    }),
-    ...(columnFilterConditions.length > 0 && {
-      AND: columnFilterConditions
-    })
-  }
+  const where = buildFolderWhere(folderPath, search, filters)
 
   const rows = await prisma.song.findMany({
     where,

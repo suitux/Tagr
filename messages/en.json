@@ -191,7 +191,8 @@
     "lastPlayed": "Last Played",
     "listenedAt": "Listened At",
     "playCount": "Play Count",
-    "lossless": "Lossless"
+    "lossless": "Lossless",
+    "purgeIn": "Deleted in"
   },
   "history": {
     "title": "Change History",
@@ -437,7 +438,8 @@
       "selectAllPlaylist": "Select entire smart playlist",
       "selectAllRecent": "Select everything recently played",
       "clearSelection": "Clear selection",
-      "setCover": "Set cover art for selection"
+      "setCover": "Set cover art for selection",
+      "selectAllTrash": "Select the whole trash"
     },
     "actionBar": {
       "selectedCount": "{count, plural, one {# song selected} other {# songs selected}}",
@@ -558,7 +560,8 @@
       "songList": "Song list",
       "detailPanel": "Song panel",
       "insights": "Insights",
-      "language": "Language"
+      "language": "Language",
+      "trash": "Trash"
     }
   },
   "detailPanelSettings": {
@@ -628,5 +631,54 @@
     "sendNow": "Send now",
     "sentToast": "Report sent",
     "sendFailedToast": "Could not send the report: {error}"
+  },
+  "trash": {
+    "title": "Trash",
+    "empty": "The trash is empty",
+    "emptyDescription": "Deleted songs stay here for a while before they are removed for good.",
+    "daysLeft": "{count, plural, =0 {Today} one {# day} other {# days}}",
+    "progress": {
+      "running": "Working…",
+      "count": "{completed} / {total}"
+    },
+    "actions": {
+      "trash": "Delete",
+      "restore": "Restore",
+      "delete": "Delete permanently",
+      "empty": "Empty trash"
+    },
+    "confirm": {
+      "trash": {
+        "title": "Delete {count, plural, one {# song} other {# songs}}?",
+        "description": "The files are moved to the trash and deleted for good after {days, plural, one {# day} other {# days}}. Until then you can restore them."
+      },
+      "restore": {
+        "title": "Restore {count, plural, one {# song} other {# songs}}?",
+        "description": "The files are moved back to the folder they were deleted from."
+      },
+      "delete": {
+        "title": "Delete {count, plural, one {# song} other {# songs}} permanently?",
+        "description": "The files are removed from disk. This cannot be undone."
+      },
+      "empty": {
+        "title": "Empty the trash?",
+        "description": "All {count, plural, one {# song} other {# songs}} in the trash are removed from disk. This cannot be undone."
+      }
+    },
+    "result": {
+      "trash": "{count, plural, one {# song moved} other {# songs moved}} to the trash",
+      "restore": "{count, plural, one {# song restored} other {# songs restored}}",
+      "delete": "{count, plural, one {# song deleted} other {# songs deleted}} permanently",
+      "empty": "Trash emptied ({count, plural, one {# song} other {# songs}})",
+      "partial": "{ok} done, {failed} failed: {error}"
+    },
+    "settings": {
+      "title": "Trash",
+      "description": "Deleted songs are moved to a __tagr_trash__ folder inside each music folder.",
+      "retentionLabel": "Delete permanently after",
+      "retentionOption": "{count, plural, one {# day} other {# days}}",
+      "retentionHelp": "Expired songs are purged the next time a song is deleted.",
+      "savedToast": "Trash setting saved"
+    }
   }
 }

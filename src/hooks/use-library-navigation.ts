@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
-import { buildFolderHref, buildPlaylistHref, RECENT_LISTENS_ROUTE } from '@/lib/library-routes'
+import { buildFolderHref, buildPlaylistHref, RECENT_LISTENS_ROUTE, TRASH_ROUTE } from '@/lib/library-routes'
 
 export function useLibraryNavigation() {
   const router = useRouter()
@@ -24,5 +24,9 @@ export function useLibraryNavigation() {
     router.push(RECENT_LISTENS_ROUTE)
   }
 
-  return { navigateToFolder, navigateToPlaylist, navigateToRecentListens }
+  const navigateToTrash = () => {
+    router.push(TRASH_ROUTE)
+  }
+
+  return { navigateToFolder, navigateToPlaylist, navigateToRecentListens, navigateToTrash }
 }

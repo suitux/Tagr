@@ -29,5 +29,7 @@ function buildTargetContext(context: SelectionContext): BulkTargetContext {
       return { type: 'smart-playlist', playlistId: context.playlistId }
     case 'recent-listens':
       return { type: 'recent-listens' }
+    case 'trash':
+      return { type: 'trash' }
   }
 }

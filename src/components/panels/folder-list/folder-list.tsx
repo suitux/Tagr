@@ -7,6 +7,7 @@ import { SidebarPlayer } from '@/components/sidebar-player/sidebar-player'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
 import { useFolders } from '@/features/folders/hooks/use-folders'
+import { useCanManageTrash } from '@/features/trash/hooks/use-can-manage-trash'
 import type { MainView } from '@/hooks/use-selected-view'
 import { AllFoldersListItem } from './components/all-folders-list-item'
 import { FolderListEmptyState } from './components/folder-list-empty-state'
@@ -18,6 +19,7 @@ import { FolderListSearch } from './components/folder-list-search'
 import { ListItemGroup } from './components/list-item-group'
 import { RecentListensListItem } from './components/recent-listens-list-item'
 import { SmartPlaylistsSection } from './components/smart-playlists/smart-playlists-section'
+import { TrashListItem } from './components/trash-list-item'
 
 interface FolderListProps {
   onFolderSelect?: (folderId: string | null) => void
@@ -26,6 +28,7 @@ interface FolderListProps {
   selectedPlaylistId?: number | null
   selectedView?: MainView | null
   onRecentListensSelect?: () => void
+  onTrashSelect?: () => void
 }
 
 export function FolderList({
@@ -34,9 +37,11 @@ export function FolderList({
   onPlaylistSelect,
   selectedPlaylistId,
   selectedView,
-  onRecentListensSelect
+  onRecentListensSelect,
+  onTrashSelect
 }: FolderListProps) {
   const t = useTranslations('navigation')
+  const canManageTrash = useCanManageTrash()
   const [search, setSearch] = useState('')
   const [isExpanded, setIsExpanded] = useState(true)
 
@@ -97,6 +102,10 @@ export function FolderList({
 
           {!hasSearch && onRecentListensSelect && (
             <RecentListensListItem isSelected={selectedView === 'recent'} onSelect={onRecentListensSelect} />
+          )}
+
+          {!hasSearch && canManageTrash && onTrashSelect && (
+            <TrashListItem isSelected={selectedView === 'trash'} onSelect={onTrashSelect} />
           )}
         </div>
       </ScrollArea>

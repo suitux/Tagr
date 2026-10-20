@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto'
 import { existsSync } from 'fs'
+import { getAppProperty, setAppProperty } from '@/features/config/app-properties.repository'
 import { getMusicFolders } from '@/features/songs/song-file-helpers'
 import { SEVEN_DAYS_MS } from '@/lib/date'
 import {
@@ -11,13 +12,7 @@ import {
   INSIGHTS_REQUEST_TIMEOUT_MS
 } from './consts'
 import type { InsightsData, InsightsNoticeState, InsightsSendResult, InsightsStatus } from './domain'
-import {
-  countFeatureUsage,
-  countRecentActivity,
-  countSongsByExtension,
-  getAppProperty,
-  setAppProperty
-} from './insights.repository'
+import { countFeatureUsage, countRecentActivity, countSongsByExtension } from './insights.repository'
 
 export function getInsightsEndpoint(): string {
   return process.env.TAGR_INSIGHTS_ENDPOINT || INSIGHTS_ENDPOINT

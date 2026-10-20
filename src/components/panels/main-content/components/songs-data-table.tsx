@@ -37,6 +37,9 @@ export interface SongsDataTableProps {
   isFetchingNextPage: boolean
   showSavedFiltersDropdown?: boolean
   includeListenedAt?: boolean
+  includePurgeCountdown?: boolean
+  /** Shown instead of the "scan your library" card when there is nothing to list. */
+  EmptyState?: React.ComponentType
   getRowId?: (song: Song) => string
   selectedRowId?: string | null
   onRowSelect?: (song: Song) => void
@@ -52,6 +55,8 @@ export function SongsDataTable({
   isFetchingNextPage,
   showSavedFiltersDropdown = true,
   includeListenedAt = false,
+  includePurgeCountdown = false,
+  EmptyState = MainContentEmptyFilesState,
   getRowId = (song: Song) => String(song.id),
   selectedRowId,
   onRowSelect
@@ -76,7 +81,12 @@ export function SongsDataTable({
   const clearSelection = useBulkSelectionStore(s => s.clear)
   useKeyPress('Escape', clearSelection, { enabled: selectionActive })
 
-  const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs, includeListenedAt })
+  const columns = useSongColumns(metadataKeys, {
+    selectionActive,
+    totalSongs,
+    includeListenedAt,
+    includePurgeCountdown
+  })
   const { data: columnVisibility } = useColumnVisibility({ columns })
 
   const SongRowWrapper = useCallback(
@@ -123,7 +133,7 @@ export function SongsDataTable({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   if (songs.length === 0 && !isLoadingSongs && !isAnyFilterActive) {
-    return <MainContentEmptyFilesState />
+    return <EmptyState />
   }
 
   return (

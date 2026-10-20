@@ -1,6 +1,6 @@
 'use client'
 
-import { FolderIcon, HistoryIcon, SparklesIcon } from 'lucide-react'
+import { FolderIcon, HistoryIcon, SparklesIcon, Trash2Icon } from 'lucide-react'
 import type { ReactNode } from 'react'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
@@ -9,8 +9,10 @@ import { useMobileNavStore } from '@/stores/mobile-nav-store'
 interface SongTableHeaderProps {
   title?: string | null
   mobileTitle?: string | null
-  variant?: 'folder' | 'smart-playlist' | 'recent'
+  variant?: 'folder' | 'smart-playlist' | 'recent' | 'trash'
   badges?: ReactNode
+  /** Buttons for the whole view; unlike `badges`, also shown on mobile. */
+  actions?: ReactNode
   searchValue: string
   onSearchChange: (value: string) => void
   searchPlaceholder: string
@@ -22,6 +24,7 @@ export function SongsTableHeader({
   mobileTitle = '—',
   variant = 'folder',
   badges,
+  actions,
   searchValue,
   onSearchChange,
   searchPlaceholder,
@@ -39,6 +42,8 @@ export function SongsTableHeader({
 
               {variant === 'recent' && <HistoryIcon className='w-5 h-5' />}
 
+              {variant === 'trash' && <Trash2Icon className='w-5 h-5' />}
+
               {variant === 'folder' && <FolderIcon className='w-5 h-5' />}
             </div>
 
@@ -46,12 +51,18 @@ export function SongsTableHeader({
               <h1 className='text-xl md:text-2xl font-bold text-foreground mt-1 truncate'>{title}</h1>
             </div>
           </div>
-          {badges && <div className='flex items-center gap-2 flex-shrink-0'>{badges}</div>}
+          {(badges || actions) && (
+            <div className='flex items-center gap-2 flex-shrink-0'>
+              {badges}
+              {actions}
+            </div>
+          )}
         </div>
 
         <div className='md:hidden flex items-center gap-2 mb-3 min-w-0'>
           {variant === 'smart-playlist' && <SparklesIcon className='w-5 h-5 text-primary flex-shrink-0' />}
           {variant === 'recent' && <HistoryIcon className='w-5 h-5 text-primary flex-shrink-0' />}
+          {variant === 'trash' && <Trash2Icon className='w-5 h-5 text-primary flex-shrink-0' />}
           {variant === 'folder' && (
             <button
               type='button'
@@ -61,6 +72,7 @@ export function SongsTableHeader({
             </button>
           )}
           <span className='text-sm font-semibold truncate'>{mobileTitle ?? title}</span>
+          {actions && <div className='ml-auto flex items-center gap-2 flex-shrink-0'>{actions}</div>}
         </div>
 
         <div className='relative md:mt-4'>

@@ -40,3 +40,6 @@ export function buildPlaylistHref(playlistId: number): string {
 
 /** The recent-listens view replaces the listing, so it is a route of its own. */
 export const RECENT_LISTENS_ROUTE = '/listens'
+
+/** Songs moved to `__tagr_trash__`, waiting to be restored or purged. */
+export const TRASH_ROUTE = '/trash'

@@ -13,9 +13,12 @@ const { mockGetAppProperty, mockSetAppProperty } = vi.hoisted(() => ({
   mockSetAppProperty: vi.fn()
 }))
 
-vi.mock('./insights.repository', () => ({
+vi.mock('@/features/config/app-properties.repository', () => ({
   getAppProperty: (...args: unknown[]) => mockGetAppProperty(...args),
-  setAppProperty: (...args: unknown[]) => mockSetAppProperty(...args),
+  setAppProperty: (...args: unknown[]) => mockSetAppProperty(...args)
+}))
+
+vi.mock('./insights.repository', () => ({
   countSongsByExtension: async () => ({ flac: 10, mp3: 5 }),
   countRecentActivity: async () => ({ metadataEdits: 7, editedSongs: 3, listens: 20, listeners: 2 }),
   countFeatureUsage: async () => ({

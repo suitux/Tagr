@@ -14,6 +14,7 @@ interface ContextLabelOptions {
   playlistName: string | null
   allFoldersLabel: string
   recentListensLabel: string
+  trashLabel: string
 }
 
 export function buildContextLabel(selection: NonNullable<SelectionState>, opts: ContextLabelOptions): string {
@@ -23,6 +24,7 @@ export function buildContextLabel(selection: NonNullable<SelectionState>, opts: 
     return selection.context.folderPath
   }
   if (selection.context.type === 'recent-listens') return opts.recentListensLabel
+  if (selection.context.type === 'trash') return opts.trashLabel
 
   return opts.playlistName ?? `#${selection.context.playlistId}`
 }

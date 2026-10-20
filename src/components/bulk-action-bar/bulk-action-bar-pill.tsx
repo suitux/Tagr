@@ -1,6 +1,6 @@
 'use client'
 
-import { ImageIcon, ImageUpIcon, PencilIcon, XIcon } from 'lucide-react'
+import { ArchiveRestoreIcon, ImageIcon, ImageUpIcon, PencilIcon, Trash2Icon, XIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/button'
 import { useBreakpoint } from '@/hooks/use-breakpoint'
@@ -16,6 +16,11 @@ interface BulkActionBarPillProps {
   onSetCover: () => void
   onFetchCovers: () => void
   onMusicBrainz: () => void
+  /** `library`: offer moving to the trash; `trash`: restore / delete for good instead of editing; `null`: neither. */
+  trashMode: 'library' | 'trash' | null
+  onMoveToTrash: () => void
+  onRestore: () => void
+  onDeletePermanently: () => void
 }
 
 export function BulkActionBarPill({
@@ -25,9 +30,15 @@ export function BulkActionBarPill({
   onEdit,
   onSetCover,
   onFetchCovers,
-  onMusicBrainz
+  onMusicBrainz,
+  trashMode,
+  onMoveToTrash,
+  onRestore,
+  onDeletePermanently
 }: BulkActionBarPillProps) {
   const tBulk = useTranslations('bulkEdit')
+  const tTrash = useTranslations('trash')
+  const disabled = count === 0 || busy
   const breakpoint = useBreakpoint()
   const hasPlayer = usePlayerStore(s => s.currentSong) !== null
   const isMobile = breakpoint !== 'desktop'
@@ -53,37 +64,68 @@ export function BulkActionBarPill({
           </span>
         </div>
         <span className='hidden h-5 w-px bg-border sm:block' />
-        <Button size='sm' onClick={onEdit} disabled={count === 0 || busy} aria-label={tBulk('actionBar.edit')}>
-          <PencilIcon />
-          <span className='hidden sm:inline'>{tBulk('actionBar.edit')}</span>
-        </Button>
-        <Button
-          variant='secondary'
-          size='sm'
-          onClick={onSetCover}
-          disabled={count === 0 || busy}
-          aria-label={tBulk('actionBar.setCover')}>
-          <ImageUpIcon />
-          <span className='hidden sm:inline'>{tBulk('actionBar.setCover')}</span>
-        </Button>
-        <Button
-          variant='secondary'
-          size='sm'
-          onClick={onFetchCovers}
-          disabled={count === 0 || busy}
-          aria-label={tBulk('actionBar.fetchCovers')}>
-          <ImageIcon />
-          <span className='hidden sm:inline'>{tBulk('actionBar.fetchCovers')}</span>
-        </Button>
-        <Button
-          variant='secondary'
-          size='sm'
-          onClick={onMusicBrainz}
-          disabled={count === 0 || busy}
-          aria-label={tBulk('actionBar.musicbrainz')}>
-          <MusicBrainzIcon />
-          <span className='hidden sm:inline'>{tBulk('actionBar.musicbrainz')}</span>
-        </Button>
+        {trashMode === 'trash' ? (
+          <>
+            <Button size='sm' onClick={onRestore} disabled={disabled} aria-label={tTrash('actions.restore')}>
+              <ArchiveRestoreIcon />
+              <span className='hidden sm:inline'>{tTrash('actions.restore')}</span>
+            </Button>
+            <Button
+              variant='destructive'
+              size='sm'
+              onClick={onDeletePermanently}
+              disabled={disabled}
+              aria-label={tTrash('actions.delete')}>
+              <Trash2Icon />
+              <span className='hidden sm:inline'>{tTrash('actions.delete')}</span>
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button size='sm' onClick={onEdit} disabled={disabled} aria-label={tBulk('actionBar.edit')}>
+              <PencilIcon />
+              <span className='hidden sm:inline'>{tBulk('actionBar.edit')}</span>
+            </Button>
+            <Button
+              variant='secondary'
+              size='sm'
+              onClick={onSetCover}
+              disabled={disabled}
+              aria-label={tBulk('actionBar.setCover')}>
+              <ImageUpIcon />
+              <span className='hidden sm:inline'>{tBulk('actionBar.setCover')}</span>
+            </Button>
+            <Button
+              variant='secondary'
+              size='sm'
+              onClick={onFetchCovers}
+              disabled={disabled}
+              aria-label={tBulk('actionBar.fetchCovers')}>
+              <ImageIcon />
+              <span className='hidden sm:inline'>{tBulk('actionBar.fetchCovers')}</span>
+            </Button>
+            <Button
+              variant='secondary'
+              size='sm'
+              onClick={onMusicBrainz}
+              disabled={disabled}
+              aria-label={tBulk('actionBar.musicbrainz')}>
+              <MusicBrainzIcon />
+              <span className='hidden sm:inline'>{tBulk('actionBar.musicbrainz')}</span>
+            </Button>
+            {trashMode === 'library' && (
+              <Button
+                variant='destructive'
+                size='icon-sm'
+                onClick={onMoveToTrash}
+                disabled={disabled}
+                aria-label={tTrash('actions.trash')}
+                title={tTrash('actions.trash')}>
+                <Trash2Icon />
+              </Button>
+            )}
+          </>
+        )}
       </div>
     </div>
   )

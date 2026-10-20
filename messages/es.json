@@ -191,7 +191,8 @@
     "lastPlayed": "Última reproducción",
     "listenedAt": "Escuchada el",
     "playCount": "Reproducciones",
-    "lossless": "Sin pérdida"
+    "lossless": "Sin pérdida",
+    "purgeIn": "Se borra en"
   },
   "history": {
     "title": "Historial de cambios",
@@ -437,7 +438,8 @@
       "selectAllPlaylist": "Seleccionar toda la lista inteligente",
       "selectAllRecent": "Seleccionar todo lo reproducido recientemente",
       "clearSelection": "Borrar selección",
-      "setCover": "Establecer portada para la selección"
+      "setCover": "Establecer portada para la selección",
+      "selectAllTrash": "Seleccionar toda la papelera"
     },
     "actionBar": {
       "selectedCount": "{count, plural, one {# canción seleccionada} other {# canciones seleccionadas}}",
@@ -558,7 +560,8 @@
       "songList": "Lista de canciones",
       "detailPanel": "Panel de canción",
       "insights": "Insights",
-      "language": "Idioma"
+      "language": "Idioma",
+      "trash": "Papelera"
     }
   },
   "detailPanelSettings": {
@@ -628,5 +631,54 @@
     "sendNow": "Enviar ahora",
     "sentToast": "Informe enviado",
     "sendFailedToast": "No se ha podido enviar el informe: {error}"
+  },
+  "trash": {
+    "title": "Papelera",
+    "empty": "La papelera está vacía",
+    "emptyDescription": "Las canciones eliminadas se quedan aquí un tiempo antes de borrarse definitivamente.",
+    "daysLeft": "{count, plural, =0 {Hoy} one {# día} other {# días}}",
+    "progress": {
+      "running": "Procesando…",
+      "count": "{completed} / {total}"
+    },
+    "actions": {
+      "trash": "Eliminar",
+      "restore": "Restaurar",
+      "delete": "Eliminar definitivamente",
+      "empty": "Vaciar papelera"
+    },
+    "confirm": {
+      "trash": {
+        "title": "¿Eliminar {count, plural, one {# canción} other {# canciones}}?",
+        "description": "Los archivos se moverán a la papelera y se borrarán definitivamente en {days, plural, one {# día} other {# días}}. Hasta entonces podrás restaurarlos."
+      },
+      "restore": {
+        "title": "¿Restaurar {count, plural, one {# canción} other {# canciones}}?",
+        "description": "Los archivos volverán a la carpeta de la que se eliminaron."
+      },
+      "delete": {
+        "title": "¿Eliminar definitivamente {count, plural, one {# canción} other {# canciones}}?",
+        "description": "Los archivos se borrarán del disco. Esta acción no se puede deshacer."
+      },
+      "empty": {
+        "title": "¿Vaciar la papelera?",
+        "description": "Se borrarán del disco {count, plural, one {la canción} other {las # canciones}} de la papelera. Esta acción no se puede deshacer."
+      }
+    },
+    "result": {
+      "trash": "{count, plural, one {# canción movida} other {# canciones movidas}} a la papelera",
+      "restore": "{count, plural, one {# canción restaurada} other {# canciones restauradas}}",
+      "delete": "{count, plural, one {# canción eliminada} other {# canciones eliminadas}} definitivamente",
+      "empty": "Papelera vaciada ({count, plural, one {# canción} other {# canciones}})",
+      "partial": "{ok} hechas, {failed} con error: {error}"
+    },
+    "settings": {
+      "title": "Papelera",
+      "description": "Las canciones eliminadas se mueven a una carpeta __tagr_trash__ dentro de cada carpeta de música.",
+      "retentionLabel": "Eliminar definitivamente tras",
+      "retentionOption": "{count, plural, one {# día} other {# días}}",
+      "retentionHelp": "Las canciones caducadas se purgan la próxima vez que se elimina una canción.",
+      "savedToast": "Ajuste de la papelera guardado"
+    }
   }
 }

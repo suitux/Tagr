@@ -191,7 +191,8 @@
     "lastPlayed": "Última reproducció",
     "listenedAt": "Escoltada el",
     "playCount": "Reproduccions",
-    "lossless": "Sense pèrdua"
+    "lossless": "Sense pèrdua",
+    "purgeIn": "S’esborra en"
   },
   "history": {
     "title": "Historial de canvis",
@@ -437,7 +438,8 @@
       "selectAllPlaylist": "Selecciona tota la llista intel·ligent",
       "selectAllRecent": "Selecciona tot el que s’ha reproduït recentment",
       "clearSelection": "Esborra la selecció",
-      "setCover": "Estableix la portada per a la selecció"
+      "setCover": "Estableix la portada per a la selecció",
+      "selectAllTrash": "Seleccionar tota la paperera"
     },
     "actionBar": {
       "selectedCount": "{count, plural, one {# cançó seleccionada} other {# cançons seleccionades}}",
@@ -558,7 +560,8 @@
       "songList": "Llista de cançons",
       "detailPanel": "Panell de la cançó",
       "insights": "Insights",
-      "language": "Idioma"
+      "language": "Idioma",
+      "trash": "Paperera"
     }
   },
   "detailPanelSettings": {
@@ -628,5 +631,54 @@
     "sendNow": "Envia ara",
     "sentToast": "Informe enviat",
     "sendFailedToast": "No s’ha pogut enviar l’informe: {error}"
+  },
+  "trash": {
+    "title": "Paperera",
+    "empty": "La paperera és buida",
+    "emptyDescription": "Les cançons eliminades es queden aquí un temps abans d’esborrar-se definitivament.",
+    "daysLeft": "{count, plural, =0 {Avui} one {# dia} other {# dies}}",
+    "progress": {
+      "running": "Processant…",
+      "count": "{completed} / {total}"
+    },
+    "actions": {
+      "trash": "Eliminar",
+      "restore": "Restaurar",
+      "delete": "Eliminar definitivament",
+      "empty": "Buidar la paperera"
+    },
+    "confirm": {
+      "trash": {
+        "title": "Vols eliminar {count, plural, one {# cançó} other {# cançons}}?",
+        "description": "Els fitxers es mouran a la paperera i s’esborraran definitivament d’aquí a {days, plural, one {# dia} other {# dies}}. Fins aleshores els podràs restaurar."
+      },
+      "restore": {
+        "title": "Vols restaurar {count, plural, one {# cançó} other {# cançons}}?",
+        "description": "Els fitxers tornaran a la carpeta d’on es van eliminar."
+      },
+      "delete": {
+        "title": "Vols eliminar definitivament {count, plural, one {# cançó} other {# cançons}}?",
+        "description": "Els fitxers s’esborraran del disc. Aquesta acció no es pot desfer."
+      },
+      "empty": {
+        "title": "Vols buidar la paperera?",
+        "description": "S’esborraran del disc {count, plural, one {la cançó} other {les # cançons}} de la paperera. Aquesta acció no es pot desfer."
+      }
+    },
+    "result": {
+      "trash": "{count, plural, one {# cançó moguda} other {# cançons mogudes}} a la paperera",
+      "restore": "{count, plural, one {# cançó restaurada} other {# cançons restaurades}}",
+      "delete": "{count, plural, one {# cançó eliminada} other {# cançons eliminades}} definitivament",
+      "empty": "Paperera buidada ({count, plural, one {# cançó} other {# cançons}})",
+      "partial": "{ok} fetes, {failed} amb error: {error}"
+    },
+    "settings": {
+      "title": "Paperera",
+      "description": "Les cançons eliminades es mouen a una carpeta __tagr_trash__ dins de cada carpeta de música.",
+      "retentionLabel": "Eliminar definitivament després de",
+      "retentionOption": "{count, plural, one {# dia} other {# dies}}",
+      "retentionHelp": "Les cançons caducades es purguen la propera vegada que s’elimina una cançó.",
+      "savedToast": "Configuració de la paperera desada"
+    }
   }
 }

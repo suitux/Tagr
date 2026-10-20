@@ -5,9 +5,10 @@ import { prisma } from '@/infrastructure/prisma/dbClient'
 /** Song scalar fields without the nested relation inputs. */
 export type SongScalarFields = Omit<SongCreateInput, 'metadata' | 'pictures'>
 
-/** Matches a folder and all of its descendant folders. */
+/** Matches the songs of a folder and all of its descendant folders, leaving trashed songs out. */
 function folderTreeWhere(folderPath: string) {
   return {
+    deletedAt: null,
     OR: [{ folderPath }, { folderPath: { startsWith: folderPath + '/' } }]
   }
 }
@@ -20,7 +21,7 @@ function nestedRelations(metadata?: MetadataInput[], pictures?: PictureInput[]) 
 }
 
 export function countSongs(): Promise<number> {
-  return prisma.song.count()
+  return prisma.song.count({ where: { deletedAt: null } })
 }
 
 export function findSongById(id: number): Promise<Song | null> {

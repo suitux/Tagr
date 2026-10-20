@@ -191,7 +191,8 @@
     "lastPlayed": "Zuletzt gespielt",
     "listenedAt": "Gehört am",
     "playCount": "Wiedergaben",
-    "lossless": "Verlustfrei"
+    "lossless": "Verlustfrei",
+    "purgeIn": "Gelöscht in"
   },
   "history": {
     "title": "Änderungsverlauf",
@@ -437,7 +438,8 @@
       "selectAllPlaylist": "Ganze intelligente Playlist auswählen",
       "selectAllRecent": "Alles zuletzt Gespielte auswählen",
       "clearSelection": "Auswahl aufheben",
-      "setCover": "Cover für die Auswahl festlegen"
+      "setCover": "Cover für die Auswahl festlegen",
+      "selectAllTrash": "Ganzen Papierkorb auswählen"
     },
     "actionBar": {
       "selectedCount": "{count, plural, one {# Song ausgewählt} other {# Songs ausgewählt}}",
@@ -558,7 +560,8 @@
       "songList": "Songliste",
       "detailPanel": "Song-Panel",
       "insights": "Insights",
-      "language": "Sprache"
+      "language": "Sprache",
+      "trash": "Papierkorb"
     }
   },
   "detailPanelSettings": {
@@ -628,5 +631,54 @@
     "sendNow": "Jetzt senden",
     "sentToast": "Bericht gesendet",
     "sendFailedToast": "Bericht konnte nicht gesendet werden: {error}"
+  },
+  "trash": {
+    "title": "Papierkorb",
+    "empty": "Der Papierkorb ist leer",
+    "emptyDescription": "Gelöschte Songs bleiben hier eine Weile, bevor sie endgültig entfernt werden.",
+    "daysLeft": "{count, plural, =0 {Heute} one {# Tag} other {# Tage}}",
+    "progress": {
+      "running": "Wird ausgeführt…",
+      "count": "{completed} / {total}"
+    },
+    "actions": {
+      "trash": "Löschen",
+      "restore": "Wiederherstellen",
+      "delete": "Endgültig löschen",
+      "empty": "Papierkorb leeren"
+    },
+    "confirm": {
+      "trash": {
+        "title": "{count, plural, one {# Song} other {# Songs}} löschen?",
+        "description": "Die Dateien werden in den Papierkorb verschoben und nach {days, plural, one {# Tag} other {# Tagen}} endgültig gelöscht. Bis dahin kannst du sie wiederherstellen."
+      },
+      "restore": {
+        "title": "{count, plural, one {# Song} other {# Songs}} wiederherstellen?",
+        "description": "Die Dateien werden in den Ordner zurückverschoben, aus dem sie gelöscht wurden."
+      },
+      "delete": {
+        "title": "{count, plural, one {# Song} other {# Songs}} endgültig löschen?",
+        "description": "Die Dateien werden von der Festplatte entfernt. Das kann nicht rückgängig gemacht werden."
+      },
+      "empty": {
+        "title": "Papierkorb leeren?",
+        "description": "{count, plural, one {Der Song} other {Alle # Songs}} im Papierkorb werden von der Festplatte entfernt. Das kann nicht rückgängig gemacht werden."
+      }
+    },
+    "result": {
+      "trash": "{count, plural, one {# Song} other {# Songs}} in den Papierkorb verschoben",
+      "restore": "{count, plural, one {# Song} other {# Songs}} wiederhergestellt",
+      "delete": "{count, plural, one {# Song} other {# Songs}} endgültig gelöscht",
+      "empty": "Papierkorb geleert ({count, plural, one {# Song} other {# Songs}})",
+      "partial": "{ok} erledigt, {failed} fehlgeschlagen: {error}"
+    },
+    "settings": {
+      "title": "Papierkorb",
+      "description": "Gelöschte Songs werden in einen Ordner __tagr_trash__ innerhalb jedes Musikordners verschoben.",
+      "retentionLabel": "Endgültig löschen nach",
+      "retentionOption": "{count, plural, one {# Tag} other {# Tagen}}",
+      "retentionHelp": "Abgelaufene Songs werden beim nächsten Löschen eines Songs entfernt.",
+      "savedToast": "Papierkorb-Einstellung gespeichert"
+    }
   }
 }
