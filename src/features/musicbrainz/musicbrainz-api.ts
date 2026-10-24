@@ -1,4 +1,21 @@
+import { Agent } from 'undici'
 import { MUSICBRAINZ_API, COVERART_API, USER_AGENT } from './domain'
+
+/**
+ * Happy Eyeballs (RFC 8305) for every outbound MusicBrainz / Cover Art Archive request.
+ *
+ * Node's fetch (undici) otherwise commits to the first DNS answer — frequently the AAAA
+ * record — and never falls back to IPv4. On a host without a working IPv6 route (e.g. an
+ * IPv4-only docker bridge) each request then black-holes until it times out and surfaces as
+ * a generic 502. Racing the A and AAAA addresses and keeping whichever connects first fixes
+ * IPv4-only *and* IPv6-only deployments without hard-coding an address family. See #43.
+ */
+const dispatcher = new Agent({ connect: { autoSelectFamily: true } })
+
+function mbFetch(input: string | URL, init?: RequestInit): Promise<Response> {
+  // `dispatcher` is a valid Node fetch (undici) option but absent from the DOM typings.
+  return fetch(input, { ...init, dispatcher } as RequestInit)
+}
 
 interface MusicBrainzRequestOptions {
   params?: Record<string, string>
@@ -13,7 +30,7 @@ async function musicBrainzFetch<T>(path: string, options?: MusicBrainzRequestOpt
     }
   }
 
-  const response = await fetch(url, {
+  const response = await mbFetch(url, {
     headers: { 'User-Agent': USER_AGENT }
   })
 
@@ -25,7 +42,7 @@ async function musicBrainzFetch<T>(path: string, options?: MusicBrainzRequestOpt
 }
 
 async function coverArtFetch<T>(path: string): Promise<T> {
-  const response = await fetch(`${COVERART_API}${path}`, {
+  const response = await mbFetch(`${COVERART_API}${path}`, {
     headers: { 'User-Agent': USER_AGENT }
   })
 
@@ -37,7 +54,7 @@ async function coverArtFetch<T>(path: string): Promise<T> {
 }
 
 async function fetchImage(url: string): Promise<{ buffer: Buffer; contentType: string }> {
-  const response = await fetch(url, {
+  const response = await mbFetch(url, {
     headers: { 'User-Agent': USER_AGENT }
   })
 

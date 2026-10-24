@@ -7,6 +7,7 @@ import {
   type MusicBrainzMatchMode
 } from '@/features/musicbrainz/domain'
 import { searchRecordings } from '@/features/musicbrainz/musicbrainz.service'
+import { describeError } from '@/lib/api/errors'
 import { getSearchParam } from '@/lib/api/search-params'
 
 export async function GET(request: NextRequest) {
@@ -46,7 +47,11 @@ export async function GET(request: NextRequest) {
       count: data.count ?? data.recordings.length,
       offset: data.offset ?? offset
     })
-  } catch {
-    return NextResponse.json({ success: false, error: 'MusicBrainz search failed' }, { status: 502 })
+  } catch (error) {
+    console.error('MusicBrainz search failed:', error)
+    return NextResponse.json(
+      { success: false, error: 'MusicBrainz search failed', cause: describeError(error) },
+      { status: 502 }
+    )
   }
 }

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import type { MusicBrainzRecording } from '@/features/musicbrainz/domain'
 import { fetchReleaseDetails, mapToSongMetadata } from '@/features/musicbrainz/musicbrainz.service'
+import { describeError } from '@/lib/api/errors'
 import { getSearchParam } from '@/lib/api/search-params'
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -34,7 +35,11 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const mapped = mapToSongMetadata(recording, release, recordingId)
 
     return NextResponse.json({ success: true, release, mapped })
-  } catch {
-    return NextResponse.json({ success: false, error: 'Failed to fetch release details' }, { status: 502 })
+  } catch (error) {
+    console.error('Failed to fetch release details:', error)
+    return NextResponse.json(
+      { success: false, error: 'Failed to fetch release details', cause: describeError(error) },
+      { status: 502 }
+    )
   }
 }
