@@ -4,10 +4,12 @@ import { mapToSongMetadata } from './musicbrainz.service'
 
 const recording = { id: 'rec', title: 'Song' } as MusicBrainzRecording
 
-const releaseWithGroup = (releaseGroup: MusicBrainzReleaseDetail['release-group']): MusicBrainzReleaseDetail => ({
+const releaseWithGroup = (
+  releaseGroup?: Partial<NonNullable<MusicBrainzReleaseDetail['release-group']>>
+): MusicBrainzReleaseDetail => ({
   id: 'rel',
   title: 'Album',
-  'release-group': releaseGroup
+  'release-group': releaseGroup ? { id: 'rg', title: 'Album', ...releaseGroup } : undefined
 })
 
 describe('mapToSongMetadata releaseType', () => {

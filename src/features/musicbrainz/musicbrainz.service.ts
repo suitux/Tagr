@@ -1,9 +1,6 @@
 import { joinMultiValue } from 'audiotagr/tags'
 import {
-  type MusicBrainzSearchResponse,
-  type MusicBrainzCoverArtResponse,
   type MusicBrainzCoverArtResult,
-  type MusicBrainzRecordingSearchResponse,
   type MusicBrainzReleaseDetail,
   type MusicBrainzMappedMetadata,
   type MusicBrainzRecording,
@@ -11,6 +8,7 @@ import {
   type MusicBrainzReleaseSearchResponse,
   type MusicBrainzReleaseTrack,
   type MusicBrainzSearchParams,
+  type MusicBrainzRecordingSearchResponse,
   DEFAULT_MUSICBRAINZ_MATCH_MODE,
   MUSICBRAINZ_SEARCH_PAGE_SIZE
 } from './domain'
@@ -20,7 +18,7 @@ export async function searchReleaseId(artist: string, album: string): Promise<st
   const query = `release:${JSON.stringify(album)} AND artist:${JSON.stringify(artist)}`
 
   try {
-    const data = await musicBrainzApi.searchReleases<MusicBrainzSearchResponse>(query, 5)
+    const data = await musicBrainzApi.searchReleases(query, 5)
     if (!data.releases?.length) return null
     return data.releases[0].id
   } catch {
@@ -80,7 +78,7 @@ export async function searchRecordings({
 }: SearchRecordingsParams): Promise<MusicBrainzRecordingSearchResponse> {
   const query = buildRecordingQuery(params)
 
-  return musicBrainzApi.searchRecordings<MusicBrainzRecordingSearchResponse>(query, limit, offset)
+  return musicBrainzApi.searchRecordings(query, limit, offset)
 }
 
 export function buildReleaseQuery({ album, artist }: MusicBrainzReleaseSearchParams): string {
@@ -102,14 +100,11 @@ export async function searchReleases({
   offset = 0,
   ...params
 }: SearchReleasesParams): Promise<MusicBrainzReleaseSearchResponse> {
-  return musicBrainzApi.searchReleases<MusicBrainzReleaseSearchResponse>(buildReleaseQuery(params), limit, offset)
+  return musicBrainzApi.searchReleases(buildReleaseQuery(params), limit, offset)
 }
 
 export async function fetchReleaseDetails(releaseId: string): Promise<MusicBrainzReleaseDetail> {
-  return musicBrainzApi.getRelease<MusicBrainzReleaseDetail>(
-    releaseId,
-    'recordings+artist-credits+labels+release-groups'
-  )
+  return musicBrainzApi.getRelease(releaseId)
 }
 
 function formatArtistCredit(credits?: Array<{ name: string; joinphrase?: string }>): string | undefined {
@@ -137,7 +132,7 @@ export function mapToSongMetadata(
   // Find the track position for this recording in the release
   if (release.media) {
     for (const medium of release.media) {
-      const track = medium.tracks?.find(t => t.recording.id === recordingId)
+      const track = medium.tracks?.find(t => t.recording?.id === recordingId)
       if (track) {
         result.trackNumber = track.position
         result.trackTotal = medium['track-count']
@@ -185,21 +180,24 @@ export function mapReleaseTracks(release: MusicBrainzReleaseDetail): MusicBrainz
 
   for (const medium of release.media ?? []) {
     for (const track of medium.tracks ?? []) {
+      const trackRecording = track.recording
+      if (!trackRecording) continue
+
       const recording: MusicBrainzRecording = {
-        id: track.recording.id,
-        title: track.title || track.recording.title || '',
+        id: trackRecording.id,
+        title: track.title || trackRecording.title || '',
         score: 0,
-        'artist-credit': track['artist-credit'] ?? track.recording['artist-credit']
+        'artist-credit': track['artist-credit'] ?? trackRecording['artist-credit']
       }
-      const mapped = mapToSongMetadata(recording, release, recording.id)
+      const mapped = mapToSongMetadata(recording, release, trackRecording.id)
 
       tracks.push({
-        id: track.id ?? `${medium.position}-${track.position}`,
-        recordingId: recording.id,
-        disc: medium.position,
-        position: track.position,
+        id: track.id,
+        recordingId: trackRecording.id,
+        disc: medium.position ?? 1,
+        position: track.position ?? 0,
         title: recording.title,
-        length: track.length ?? track.recording.length ?? null,
+        length: track.length ?? trackRecording.length ?? null,
         mapped: {
           ...mapped,
           trackNumber: track.position,
@@ -215,7 +213,7 @@ export function mapReleaseTracks(release: MusicBrainzReleaseDetail): MusicBrainz
 
 export async function fetchCoverArt(releaseId: string): Promise<MusicBrainzCoverArtResult | null> {
   try {
-    const data = await musicBrainzApi.getCoverArt<MusicBrainzCoverArtResponse>(releaseId)
+    const data = await musicBrainzApi.getCoverArt(releaseId)
     const front = data.images?.find(img => img.front)
     if (!front) return null
 

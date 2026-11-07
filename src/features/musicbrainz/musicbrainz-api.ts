@@ -1,40 +1,23 @@
-import { MUSICBRAINZ_API, COVERART_API, USER_AGENT } from './domain'
+import { CoverArtArchiveApi, MusicBrainzApi } from 'musicbrainz-api'
 
-interface MusicBrainzRequestOptions {
-  params?: Record<string, string>
-}
+const APP_NAME = 'Tagr'
+const APP_CONTACT_INFO = 'https://github.com/suitux/tagr'
+const APP_VERSION = process.env.APP_VERSION ?? '0.0.0'
 
-async function musicBrainzFetch<T>(path: string, options?: MusicBrainzRequestOptions): Promise<T> {
-  const url = new URL(`${MUSICBRAINZ_API}${path}`)
-  url.searchParams.set('fmt', 'json')
-  if (options?.params) {
-    for (const [key, value] of Object.entries(options.params)) {
-      url.searchParams.set(key, value)
-    }
-  }
+/** Tagr's own identification, also used for the image bytes the Cover Art Archive points at. */
+const USER_AGENT = `${APP_NAME}/${APP_VERSION} (${APP_CONTACT_INFO})`
 
-  const response = await fetch(url, {
-    headers: { 'User-Agent': USER_AGENT }
-  })
+/**
+ * Module-level singletons: the MusicBrainz client keeps the rate limiter in memory, so every
+ * request has to go through the same instance instead of a new one per route call.
+ */
+const musicBrainz = new MusicBrainzApi({
+  appName: APP_NAME,
+  appVersion: APP_VERSION,
+  appContactInfo: APP_CONTACT_INFO
+})
 
-  if (!response.ok) {
-    throw new Error(`MusicBrainz request failed: ${response.status} ${response.statusText}`)
-  }
-
-  return (await response.json()) as T
-}
-
-async function coverArtFetch<T>(path: string): Promise<T> {
-  const response = await fetch(`${COVERART_API}${path}`, {
-    headers: { 'User-Agent': USER_AGENT }
-  })
-
-  if (!response.ok) {
-    throw new Error(`CoverArt request failed: ${response.status} ${response.statusText}`)
-  }
-
-  return (await response.json()) as T
-}
+const coverArtArchive = new CoverArtArchiveApi()
 
 async function fetchImage(url: string): Promise<{ buffer: Buffer; contentType: string }> {
   const response = await fetch(url, {
@@ -52,11 +35,11 @@ async function fetchImage(url: string): Promise<{ buffer: Buffer; contentType: s
 }
 
 export const musicBrainzApi = {
-  searchReleases: <T>(query: string, limit: number, offset = 0) =>
-    musicBrainzFetch<T>('/release/', { params: { query, limit: String(limit), offset: String(offset) } }),
-  searchRecordings: <T>(query: string, limit: number, offset: number) =>
-    musicBrainzFetch<T>('/recording/', { params: { query, limit: String(limit), offset: String(offset) } }),
-  getRelease: <T>(releaseId: string, inc: string) => musicBrainzFetch<T>(`/release/${releaseId}`, { params: { inc } }),
-  getCoverArt: <T>(releaseId: string) => coverArtFetch<T>(`/release/${releaseId}`),
+  searchReleases: (query: string, limit: number, offset = 0) => musicBrainz.search('release', { query, limit, offset }),
+  searchRecordings: (query: string, limit: number, offset: number) =>
+    musicBrainz.search('recording', { query, limit, offset }),
+  getRelease: (releaseId: string) =>
+    musicBrainz.lookup('release', releaseId, ['recordings', 'artist-credits', 'labels', 'release-groups']),
+  getCoverArt: (releaseId: string) => coverArtArchive.getReleaseCovers(releaseId),
   fetchImage
 }

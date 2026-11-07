@@ -1,69 +1,27 @@
-export const MUSICBRAINZ_API = 'https://musicbrainz.org/ws/2'
+import type {
+  IArtistCredit,
+  IRecordingList,
+  IRecordingMatch,
+  IRelease,
+  IReleaseList,
+  IReleaseMatch
+} from 'musicbrainz-api'
+
 export const COVERART_API = 'https://coverartarchive.org'
-export const USER_AGENT = `Tagr/${process.env.APP_VERSION} (https://github.com/suitux/tagr)`
 
-export interface MusicBrainzRelease {
-  id: string
-  title: string
-  score: number
-}
-
-export interface MusicBrainzSearchResponse {
-  releases: MusicBrainzRelease[]
-}
-
-export interface MusicBrainzCoverArtImage {
-  front: boolean
-  image: string
-  thumbnails: {
-    small?: string
-    large?: string
-    250?: string
-    500?: string
-    1200?: string
-  }
-}
-
-export interface MusicBrainzCoverArtResponse {
-  images: MusicBrainzCoverArtImage[]
-}
-
+/** Response and entity types come from `musicbrainz-api`, which keeps them in sync with the web service. */
 export interface MusicBrainzCoverArtResult {
   buffer: Buffer
   contentType: string
 }
 
-export interface MusicBrainzArtistCredit {
-  name: string
-  joinphrase?: string
-}
+export type MusicBrainzArtistCredit = IArtistCredit
 
-export interface MusicBrainzRecordingRelease {
-  id: string
-  title: string
-  date?: string
-  country?: string
-  'artist-credit'?: MusicBrainzArtistCredit[]
-  'release-group'?: {
-    'primary-type'?: string
-    'first-release-date'?: string
-  }
-}
+export type MusicBrainzRecordingRelease = IRelease
 
-export interface MusicBrainzRecording {
-  id: string
-  title: string
-  score: number
-  'artist-credit'?: MusicBrainzArtistCredit[]
-  releases?: MusicBrainzRecordingRelease[]
-  tags?: Array<{ name: string; count: number }>
-}
+export type MusicBrainzRecording = IRecordingMatch
 
-export interface MusicBrainzRecordingSearchResponse {
-  recordings: MusicBrainzRecording[]
-  count: number
-  offset: number
-}
+export type MusicBrainzRecordingSearchResponse = IRecordingList
 
 export type MusicBrainzMatchMode = 'all' | 'any'
 
@@ -89,42 +47,7 @@ export interface MusicBrainzSearchParams {
 export const MUSICBRAINZ_SEARCH_PAGE_SIZE = 25
 export const MUSICBRAINZ_SEARCH_MAX_LIMIT = 100
 
-export interface MusicBrainzReleaseTrackDetail {
-  id?: string
-  position: number
-  number?: string
-  title: string
-  /** Milliseconds; null when MusicBrainz does not know it. */
-  length?: number | null
-  'artist-credit'?: MusicBrainzArtistCredit[]
-  recording: { id: string; title?: string; length?: number | null; 'artist-credit'?: MusicBrainzArtistCredit[] }
-}
-
-export interface MusicBrainzReleaseMedia {
-  position: number
-  format?: string
-  'track-count': number
-  tracks?: MusicBrainzReleaseTrackDetail[]
-}
-
-export interface MusicBrainzReleaseDetail {
-  id: string
-  title: string
-  date?: string
-  country?: string
-  barcode?: string
-  'artist-credit'?: MusicBrainzArtistCredit[]
-  'label-info'?: Array<{
-    'catalog-number'?: string
-    label?: { name: string }
-  }>
-  media?: MusicBrainzReleaseMedia[]
-  'release-group'?: {
-    'primary-type'?: string
-    'secondary-types'?: string[]
-    'first-release-date'?: string
-  }
-}
+export type MusicBrainzReleaseDetail = IRelease
 
 export interface MusicBrainzMappedMetadata {
   title?: string
@@ -145,25 +68,9 @@ export interface MusicBrainzMappedMetadata {
 }
 
 /** A release as the release search returns it - enough to tell editions apart. */
-export interface MusicBrainzReleaseSearchResult {
-  id: string
-  title: string
-  score: number
-  date?: string
-  country?: string
-  barcode?: string
-  'track-count'?: number
-  'artist-credit'?: MusicBrainzArtistCredit[]
-  'label-info'?: Array<{ 'catalog-number'?: string; label?: { name: string } }>
-  media?: Array<{ format?: string; 'track-count'?: number }>
-  'release-group'?: { 'primary-type'?: string; 'secondary-types'?: string[] }
-}
+export type MusicBrainzReleaseSearchResult = IReleaseMatch
 
-export interface MusicBrainzReleaseSearchResponse {
-  releases: MusicBrainzReleaseSearchResult[]
-  count: number
-  offset: number
-}
+export type MusicBrainzReleaseSearchResponse = IReleaseList
 
 /** Album-level release search used by the bulk lookup. */
 export interface MusicBrainzReleaseSearchParams {
