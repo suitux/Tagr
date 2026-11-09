@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
 
     if (release.media) {
       for (const medium of release.media) {
-        const track = medium.tracks?.find(t => t.recording.id === recordingId)
+        const track = medium.tracks?.find(t => t.recording?.id === recordingId)
         if (track) {
           recording.title = track.title
           break
