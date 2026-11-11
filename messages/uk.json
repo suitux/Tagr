@@ -1,0 +1,623 @@
+{
+  "nav": {
+    "home": "Головна",
+    "settings": "Налаштування"
+  },
+  "navigation": {
+    "folders": "Папки",
+    "library": "Медіатека",
+    "songs": "Пісні",
+    "details": "Деталі"
+  },
+  "common": {
+    "loading": "Завантаження…",
+    "error": "Сталася помилка",
+    "save": "Зберегти",
+    "cancel": "Скасувати",
+    "delete": "Видалити",
+    "edit": "Редагувати",
+    "duplicate": "Дублювати",
+    "search": "Пошук",
+    "logout": "Вийти",
+    "unknown": "Невідомо",
+    "more": "Більше",
+    "less": "Менше"
+  },
+  "folders": {
+    "title": "Tagr",
+    "subtitle": "Керування медіатекою",
+    "empty": "Папки не налаштовано",
+    "notFound": "Папок не знайдено",
+    "searchPlaceholder": "Пошук папок…",
+    "totalFolders": "Папок: {count}",
+    "totalFiles": "{count, plural, =0 {Немає файлів} one {# файл} few {# файли} many {# файлів} other {# файлів}}",
+    "totalSubfolders": "{count, plural, =0 {Немає підпапок} one {# підпапка} few {# підпапки} many {# підпапок} other {# підпапок}}",
+    "allFolders": "Усі папки",
+    "selectFolder": "Виберіть папку або плейлист",
+    "selectFolderDescription": "Виберіть папку або розумний плейлист на бічній панелі, щоб переглянути музичні файли",
+    "browseFolders": "Переглянути медіатеку",
+    "loadingFolders": "Завантаження папок…",
+    "errorLoading": "Помилка завантаження",
+    "errorLoadingDescription": "Не вдалося завантажити папки",
+    "file": "{count, plural, one {файл} few {файли} many {файлів} other {файлів}}",
+    "files": "Файлів: {count}",
+    "subfolder": "{count, plural, one {підпапка} few {підпапки} many {підпапок} other {підпапок}}",
+    "subfolders": "Підпапок: {count}",
+    "quickScan": "Швидке сканування",
+    "quickScanDescription": "Сканує лише нові або змінені файли",
+    "quickScanConfirmTitle": "Виконати швидке сканування?",
+    "quickScanConfirmDescription": "Обробляє лише нові файли та файли, у яких змінилася дата модифікації. Ідеально підходить, коли ви додали нову музику або замінили файли. Файли, відредаговані у зовнішніх програмах без зміни дати модифікації, не буде виявлено.",
+    "fullScan": "Повне сканування",
+    "fullScanDescription": "Повторно сканує всі файли та оновлює метадані",
+    "fullScanConfirmTitle": "Виконати повне сканування?",
+    "fullScanConfirmDescription": "Повторно зчитує метадані з кожного файлу у вашій медіатеці та оновлює базу даних. Використовуйте цей режим, якщо ви редагували теги у зовнішній програмі (наприклад, MusicBrainz Picard або Mp3tag), підозрюєте розсинхронізацію бази даних або щойно оновили Tagr. Для великих медіатек це може зайняти деякий час.",
+    "skipped": "пропущено",
+    "rescan": "Пересканувати медіатеку",
+    "history": "Переглянути історію змін",
+    "feedback": "Надіслати відгук",
+    "installApp": "Встановити застосунок",
+    "appInstalled": "Застосунок встановлено",
+    "manageUsers": "Керування користувачами",
+    "scanning": "Сканування медіатеки…",
+    "scanningProgress": "Сканування медіатеки… ({current}/{total})",
+    "scanCompleted": "Сканування завершено",
+    "scanFailed": "Помилка сканування",
+    "filesScanned": "файлів проскановано",
+    "added": "додано",
+    "updated": "оновлено",
+    "deleted": "видалено",
+    "errors": "помилок",
+    "viewDetails": "Деталі",
+    "unknownError": "Сталася невідома помилка"
+  },
+  "scanSummary": {
+    "title": "Підсумок сканування",
+    "totalFiles": "{count, plural, one {Оброблено # файл} few {Оброблено # файли} many {Оброблено # файлів} other {Оброблено # файлів}}"
+  },
+  "summary": {
+    "added": "Додано",
+    "updated": "Оновлено",
+    "cover": "Оновлено",
+    "deleted": "Видалено",
+    "skipped": "Пропущено",
+    "errors": "Помилки",
+    "andMore": "…і ще {count, plural, one {#} few {#} many {#} other {#}}"
+  },
+  "files": {
+    "title": "Файли",
+    "empty": "Музичних файлів не знайдено",
+    "emptyDescription": "У цій папці чи розумному плейлисті немає музичних файлів. Спробуйте просканувати медіатеку або вибрати інше джерело.",
+    "syncNow": "Сканувати зараз",
+    "details": "Відомості про файл",
+    "selectFile": "Виберіть файл, щоб переглянути відомості про нього",
+    "fileInfo": "Інформація про файл",
+    "searchPlaceholder": "Пошук пісень за назвою, виконавцем, альбомом, видавцем, коментарем або ім’ям файлу…",
+    "filterPlaceholder": "Фільтр…",
+    "filterPlaceholderPressEnter": "Натисніть Enter, щоб додати фільтр…",
+    "dateFilterPlaceholder": "Виберіть дату…",
+    "noFilterResults": "Жодна пісня не відповідає поточним фільтрам",
+    "clearFilters": "Очистити фільтри",
+    "clearDateFilter": "Очистити",
+    "applyDateFilter": "Застосувати",
+    "booleanFilterAll": "Усі",
+    "booleanFilterYes": "Так",
+    "booleanFilterNo": "Ні",
+    "selectFilterAll": "Усі",
+    "selectFilterSelected": "Вибрано: {count}"
+  },
+  "musicInfo": {
+    "title": "Інформація про пісню"
+  },
+  "trackInfo": {
+    "title": "Інформація про трек",
+    "of": "з"
+  },
+  "audioProperties": {
+    "title": "Властивості аудіо"
+  },
+  "notes": {
+    "title": "Нотатки"
+  },
+  "textareaEdit": {
+    "importFromFile": "Імпортувати з файлу",
+    "importError": "Не вдалося прочитати цей файл",
+    "saveHint": "⌘/Ctrl + Enter, щоб зберегти"
+  },
+  "customTags": {
+    "title": "Власні теги",
+    "addTag": "Додати тег",
+    "allHidden": "Усі власні теги цієї пісні приховано",
+    "key": "Ключ",
+    "value": "Значення",
+    "empty": "Немає власних тегів",
+    "keyPlaceholder": "Назва тегу (напр. MOOD)",
+    "valuePlaceholder": "Значення тегу",
+    "deleteConfirm": "Видалити цей тег?"
+  },
+  "playback": {
+    "volume": "Гучність",
+    "startTime": "Час початку",
+    "stopTime": "Час завершення",
+    "gapless": "Без пауз"
+  },
+  "fields": {
+    "title": "Назва",
+    "artist": "Виконавець",
+    "sortArtist": "Виконавець для сортування",
+    "album": "Альбом",
+    "sortAlbum": "Альбом для сортування",
+    "albumArtist": "Виконавець альбому",
+    "sortAlbumArtist": "Виконавець альбому для сортування",
+    "year": "Рік",
+    "genre": "Жанр",
+    "style": "Стиль",
+    "composer": "Композитор",
+    "conductor": "Диригент",
+    "bpm": "BPM",
+    "grouping": "Групування",
+    "publisher": "Видавець",
+    "catalogNumber": "Каталожний номер",
+    "releaseType": "Тип релізу",
+    "lyricist": "Автор тексту",
+    "barcode": "Штрихкод",
+    "work": "Твір",
+    "originalReleaseDate": "Дата першого релізу",
+    "copyright": "Авторське право",
+    "rating": "Оцінка",
+    "compilation": "Збірка",
+    "trackNumber": "Трек",
+    "trackTotal": "Усього треків",
+    "discNumber": "Диск",
+    "discTotal": "Усього дисків",
+    "duration": "Тривалість",
+    "comment": "Коментар",
+    "lyrics": "Текст пісні",
+    "codec": "Кодек",
+    "bitrate": "Бітрейт",
+    "sampleRate": "Частота дискретизації",
+    "channels": "Канали",
+    "bitsPerSample": "Бітова глибина",
+    "encoder": "Кодувальник",
+    "bitDepthValue": "{value} біт",
+    "extension": "Формат",
+    "fileSize": "Розмір",
+    "modifiedAt": "Змінено",
+    "createdAt": "Створено",
+    "picture": "Обкладинка",
+    "fileName": "Ім’я файлу",
+    "filePath": "Шлях до файлу",
+    "folderPath": "Шлях до папки",
+    "dateAdded": "Дата додавання",
+    "lastPlayed": "Останнє відтворення",
+    "listenedAt": "Прослухано",
+    "playCount": "Кількість відтворень",
+    "lossless": "Без втрат"
+  },
+  "history": {
+    "title": "Історія змін",
+    "titleForSong": "Історія — {songTitle}",
+    "empty": "Змін ще не зафіксовано",
+    "unknownSong": "Невідома пісня",
+    "revert": "Скасувати",
+    "searchPlaceholder": "Фільтрувати за назвою пісні або виконавцем…",
+    "viewHistory": "Переглянути історію змін",
+    "rescanSong": "Пересканувати файл пісні",
+    "revertSelected": "Скасувати {count, plural, one {# зміну} few {# зміни} many {# змін} other {# змін}}",
+    "clearSelection": "Зняти виділення",
+    "emptyValue": "—"
+  },
+  "columns": {
+    "toggleColumns": "Стовпці",
+    "genericTags": "Стандартні теги",
+    "customTags": "Власні теги"
+  },
+  "previewCard": {
+    "play": "Відтворити",
+    "pause": "Пауза",
+    "editCover": "Змінити обкладинку",
+    "downloadCover": "Завантажити обкладинку",
+    "lossless": "Без втрат"
+  },
+  "musicbrainzLookup": {
+    "title": "MusicBrainz — {songTitle}",
+    "tooltip": "Знайти метадані в MusicBrainz",
+    "search": "Пошук",
+    "back": "Назад",
+    "score": "Збіг: {score}%",
+    "noResults": "Записів не знайдено",
+    "noSearchFields": "Додайте поле для пошуку",
+    "loadMore": "Завантажити ще",
+    "resultsCount": "Показано {shown} із {total} результатів",
+    "field": "Поле",
+    "currentValue": "Поточне",
+    "mbValue": "MusicBrainz",
+    "applySelected": "Застосувати вибрані",
+    "noFields": "У цьому релізі немає доступних полів метаданих",
+    "coverArt": "Обкладинка",
+    "currentCover": "Поточна",
+    "mbCover": "MusicBrainz",
+    "noCover": "Немає обкладинки",
+    "replaceCover": "Замінити обкладинку",
+    "mbid": "MBID",
+    "mbidPlaceholder": "MBID запису, релізу або виконавця",
+    "matchMode": "Збіг",
+    "matchModeOption": {
+      "all": "Усі поля",
+      "any": "Будь-яке поле"
+    },
+    "searchFields": "Поля"
+  },
+  "musicbrainz": {
+    "fetchSuccess": "Обкладинку оновлено з MusicBrainz",
+    "fetchError": "Не вдалося отримати обкладинку",
+    "unknownError": "Сталася невідома помилка",
+    "fetchMusicBrainz": "Отримати обкладинку з MusicBrainz",
+    "fetchMusicBrainzConfirmTitle": "Отримати обкладинку з MusicBrainz?",
+    "fetchMusicBrainzConfirmDescription": "Буде виконано пошук обкладинки альбому в MusicBrainz, і якщо її буде знайдено, вона замінить поточне зображення. Цю дію можна скасувати в історії змін.",
+    "fetchMusicBrainzConfirmAction": "Отримати обкладинку"
+  },
+  "stats": {
+    "title": "Статистика"
+  },
+  "formats": {
+    "mp3": "MPEG Audio Layer 3",
+    "flac": "Free Lossless Audio Codec",
+    "wav": "Waveform Audio",
+    "m4a": "MPEG-4 Audio",
+    "m4b": "Аудіокнига MPEG-4",
+    "ogg": "Ogg Vorbis",
+    "aac": "Advanced Audio Coding",
+    "unknown": "Аудіофайл"
+  },
+  "login": {
+    "title": "Вхід",
+    "description": "Введіть облікові дані для доступу до свого облікового запису",
+    "username": "Ім’я користувача",
+    "usernamePlaceholder": "Введіть ім’я користувача",
+    "password": "Пароль",
+    "passwordPlaceholder": "Введіть пароль",
+    "submit": "Увійти",
+    "submitting": "Вхід…",
+    "invalidCredentials": "Неправильне ім’я користувача або пароль",
+    "genericError": "Сталася помилка. Спробуйте ще раз."
+  },
+  "welcome": {
+    "title": "Ласкаво просимо до Tagr",
+    "description": "Tagr має просканувати ваші музичні папки, щоб створити локальну базу даних. Завдяки цьому перегляд і пошук у медіатеці працюють швидко та плавно. Ваша музика та її теги ніколи не залишають ваш пристрій.",
+    "timing": "Цей процес може тривати кілька хвилин залежно від розміру вашої медіатеки.",
+    "scanButton": "Сканувати медіатеку",
+    "scanning": "Сканування вашої медіатеки…",
+    "insightsNotice": "Tagr може раз на день надсилати анонімну статистику використання (Insights): лише кількісні показники, жодних імен файлів, шляхів чи імен користувачів. Нічого не надсилається без вашої згоди, і ви завжди можете вимкнути це в Налаштуваннях."
+  },
+  "version": {
+    "updateAvailable": "Доступна версія {version}",
+    "viewRelease": "Переглянути реліз",
+    "dismiss": "Закрити"
+  },
+  "savedFilters": {
+    "title": "Фільтри",
+    "save": "Зберегти",
+    "saveCurrentFilters": "Зберегти поточні фільтри",
+    "filterName": "Назва фільтра",
+    "noSavedFilters": "Немає збережених фільтрів",
+    "deleteFilter": "Видалити фільтр",
+    "loadFilter": "Завантажити фільтр"
+  },
+  "share": {
+    "tooltip": "Поділитися піснею",
+    "title": "Поділитися піснею",
+    "description": "Створіть тимчасове посилання лише для прослуховування. Отримувачі зможуть відтворити пісню, але не зможуть змінювати чи видаляти жодні дані.",
+    "expiration": "Термін дії посилання",
+    "generate": "Створити посилання",
+    "generating": "Створення…",
+    "copyLink": "Копіювати посилання",
+    "copied": "Скопійовано!",
+    "linkReady": "Посилання для поширення готове",
+    "expiresAt": "Діє до {date}",
+    "pageTitle": "Спільна пісня — {title}",
+    "expired": "Термін дії цього посилання минув",
+    "notFound": "Посилання не знайдено",
+    "errorDescription": "Можливо, термін дії цього посилання минув або його було видалено.",
+    "sharedVia": "Поширено через",
+    "of": "з",
+    "metadata": {
+      "fallbackTitle": "Tagr — Спільна пісня",
+      "untitled": "Без назви",
+      "unknownArtist": "Невідомий виконавець",
+      "title": "{title} — {artist} | Tagr",
+      "description": "Слухати {title} у виконанні {artist}",
+      "descriptionWithAlbum": "Слухати {title} у виконанні {artist} з альбому {album}",
+      "ogTitle": "{title} — {artist}"
+    }
+  },
+  "time": {
+    "fiveMinutes": "5 хвилин",
+    "fifteenMinutes": "15 хвилин",
+    "oneHour": "1 година",
+    "sixHours": "6 годин",
+    "twentyFourHours": "24 години",
+    "sevenDays": "7 днів",
+    "thirtyDays": "30 днів"
+  },
+  "starPrompt": {
+    "title": "Подобається Tagr?",
+    "description": "Якщо Tagr став вам у пригоді, підтримайте проєкт зірочкою на GitHub — це допоможе іншим дізнатися про нього! Не хвилюйтеся, ми більше про це не нагадуватимемо.",
+    "starOnGithub": "Поставити зірочку на GitHub",
+    "maybeLater": "Ні, дякую"
+  },
+  "api": {
+    "folders": {
+      "noFoldersConfigured": "Музичні папки не налаштовано. Задайте змінну середовища MUSIC_FOLDERS.",
+      "pathNotDirectory": "Вказаний шлях не є каталогом",
+      "unknownError": "Невідома помилка під час читання папки"
+    }
+  },
+  "users": {
+    "title": "Керування користувачами",
+    "description": "Створюйте, редагуйте та видаляйте користувачів, які мають доступ до Tagr.",
+    "createUser": "Створити користувача",
+    "editUser": "Редагувати користувача",
+    "deleteUser": "Видалити користувача",
+    "deleteConfirm": "Ви впевнені, що хочете видалити користувача «{username}»?",
+    "username": "Ім’я користувача",
+    "password": "Пароль",
+    "passwordHint": "Залиште порожнім, щоб зберегти поточний",
+    "role": "Роль",
+    "roles": {
+      "admin": "Адміністратор",
+      "tagger": "Редактор тегів",
+      "listener": "Слухач"
+    },
+    "roleDescriptions": {
+      "tagger": "Може переглядати, відтворювати музику, редагувати теги метаданих і перескановувати медіатеку",
+      "listener": "Може лише переглядати та відтворювати музику"
+    },
+    "noUsers": "Користувачів ще немає",
+    "noUsersDescription": "Створіть першого користувача, щоб розпочати",
+    "userCreated": "Користувача створено",
+    "userUpdated": "Користувача оновлено",
+    "userDeleted": "Користувача видалено",
+    "cancel": "Скасувати",
+    "save": "Зберегти"
+  },
+  "smartPlaylists": {
+    "title": "Розумні плейлисти",
+    "newPlaylist": "Новий розумний плейлист",
+    "publicHeader": "Публічні розумні плейлисти",
+    "publicBadge": "Публічний",
+    "empty": "Розумних плейлистів ще немає",
+    "confirmDelete": "Видалити розумний плейлист «{name}»?",
+    "copy": "копія",
+    "viewing": {
+      "label": "Розумний плейлист"
+    },
+    "create": {
+      "title": "Створити розумний плейлист",
+      "description": "Задайте правила для автоматичного додавання пісень за будь-яким полем.",
+      "name": "Назва",
+      "namePlaceholder": "Мій розумний плейлист",
+      "isPublic": "Зробити цей плейлист видимим для інших користувачів",
+      "matchLabel": "Умова відбору",
+      "matchAll": "Відповідає всім правилам (І)",
+      "matchAny": "Відповідає будь-якому правилу (АБО)",
+      "rulesLabel": "Правила",
+      "addRule": "Додати правило",
+      "standardFields": "Поля пісні",
+      "customFields": "Власні метадані",
+      "valuePlaceholder": "Значення"
+    },
+    "edit": {
+      "title": "Редагувати розумний плейлист"
+    },
+    "operators": {
+      "equals": "дорівнює",
+      "notEquals": "не дорівнює",
+      "contains": "містить",
+      "notContains": "не містить",
+      "startsWith": "починається з",
+      "endsWith": "закінчується на",
+      "isEmpty": "порожнє",
+      "isNotEmpty": "не порожнє",
+      "gt": "більше ніж",
+      "gte": "більше або дорівнює",
+      "lt": "менше ніж",
+      "lte": "менше або дорівнює",
+      "before": "до",
+      "after": "після",
+      "on": "у дату",
+      "isTrue": "істинне",
+      "isFalse": "хибне"
+    }
+  },
+  "bulkEdit": {
+    "selectAllButton": "Вибрати всі пісні",
+    "contextMenu": {
+      "selectSong": "Вибрати пісню",
+      "selectAllFolder": "Вибрати всю папку",
+      "selectAllPlaylist": "Вибрати весь розумний плейлист",
+      "selectAllRecent": "Вибрати все нещодавно відтворене",
+      "clearSelection": "Очистити вибір",
+      "setCover": "Встановити обкладинку для вибраного"
+    },
+    "actionBar": {
+      "selectedCount": "{count, plural, one {Вибрано # пісню} few {Вибрано # пісні} many {Вибрано # пісень} other {Вибрано # пісень}}",
+      "wholeFolder": "(уся папка)",
+      "wholePlaylist": "(увесь плейлист)",
+      "edit": "Редагувати",
+      "setCover": "Встановити обкладинку",
+      "fetchCovers": "Отримати обкладинки з MusicBrainz",
+      "musicbrainz": "Знайти в MusicBrainz",
+      "cancel": "Скасувати вибір"
+    },
+    "edit": {
+      "title": "Масове редагування",
+      "description": "Змінені поля буде застосовано до кожної вибраної пісні. Незмінені поля залишаться без змін.",
+      "variousPlaceholder": "(різні значення)",
+      "partialSampleNote": "Показано спільні значення для {loaded} завантажених пісень із {total}. Незмінені поля залишаться без змін у кожній вибраній пісні.",
+      "noFieldsTouched": "Відредагуйте принаймні одне поле, перш ніж продовжити.",
+      "next": "Продовжити",
+      "sections": {
+        "music": "Музика",
+        "track": "Трек",
+        "misc": "Інше",
+        "custom": "Власні теги"
+      },
+      "fieldsMenu": "Поля",
+      "addCustomKey": "Додати власний тег",
+      "customKeyPlaceholder": "Назва нового тегу (напр. SOURCEMEDIA)"
+    },
+    "cover": {
+      "title": "Отримати обкладинки з MusicBrainz",
+      "description": "Для кожної вибраної пісні виконується пошук відповідного релізу в MusicBrainz і записується обкладинка. Частоту запитів обмежено одним запитом на секунду.",
+      "estimate": "Орієнтовний час: ~{duration} для {count, plural, one {# пісні} few {# пісень} many {# пісень} other {# пісень}}.",
+      "warning": "Наявні обкладинки буде перезаписано, але за потреби їх можна відновити з історії змін."
+    },
+    "setCover": {
+      "title": "Встановити обкладинку",
+      "description": "Виберіть одне зображення — воно стане обкладинкою для {count, plural, one {вибраної пісні} few {всіх # вибраних пісень} many {всіх # вибраних пісень} other {всіх # вибраних пісень}}.",
+      "dropHint": "Перетягніть зображення сюди або скористайтеся кнопкою нижче.",
+      "upload": "Завантажити зображення",
+      "replaceFile": "Замінити зображення",
+      "removeFile": "Видалити зображення",
+      "selectedAnnounce": "Вибране зображення: {name}",
+      "errorNotImage": "Цей файл не є зображенням.",
+      "errorTooLarge": "Зображення занадто велике. Максимальний розмір — {size}.",
+      "applyNote": "Це зображення замінить обкладинку для {count, plural, one {# пісні} few {# пісень} many {# пісень} other {# пісень}}."
+    },
+    "progress": {
+      "label": "Обробка {completed} / {total}"
+    },
+    "confirm": {
+      "affecting": "{count, plural, one {Торкнеться # пісні} few {Торкнеться # пісень} many {Торкнеться # пісень} other {Торкнеться # пісень}}",
+      "applyToCount": "Застосувати до {count, plural, one {# пісні} few {# пісень} many {# пісень} other {# пісень}}",
+      "context": {
+        "explicit": "{count, plural, one {Вибрано # пісню} few {Вибрано # пісні} many {Вибрано # пісень} other {Вибрано # пісень}}",
+        "folder": "Папка {name}",
+        "playlist": "Розумний плейлист {name}"
+      }
+    },
+    "result": {
+      "success": "{count, plural, one {Оновлено # пісню} few {Оновлено # пісні} many {Оновлено # пісень} other {Оновлено # пісень}}",
+      "partial": "Оновлено: {ok}, з помилкою: {failed}",
+      "allFailed": "Помилка для всіх пісень ({count})",
+      "viewDetails": "Деталі"
+    }
+  },
+  "bulkSummary": {
+    "titleEdit": "Підсумок масового редагування",
+    "titleCover": "Підсумок отримання обкладинок",
+    "totalFiles": "{count, plural, one {Оброблено # пісню} few {Оброблено # пісні} many {Оброблено # пісень} other {Оброблено # пісень}}",
+    "titleSetCover": "Підсумок оновлення обкладинок",
+    "titleMusicbrainz": "Підсумок пошуку в MusicBrainz"
+  },
+  "bulkMusicbrainz": {
+    "title": "Пошук у MusicBrainz",
+    "description": "Знайдіть альбом у MusicBrainz і запишіть у кожну вибрану пісню теги відповідного треку",
+    "searchHint": "{count, plural, one {Вибрано # пісню.} few {Вибрано # пісні.} many {Вибрано # пісень.} other {Вибрано # пісень.}} Знайдіть реліз, до якого вони належать — на наступному кроці їх буде зіставлено з його треками.",
+    "search": "Пошук",
+    "searchFailed": "Не вдалося виконати пошук у MusicBrainz. Спробуйте ще раз за мить.",
+    "noReleases": "Релізів не знайдено",
+    "resultsCount": "Показано {shown} із {total} релізів",
+    "trackCount": "{count, plural, one {# трек} few {# треки} many {# треків} other {# треків}}",
+    "score": "Збіг: {score}%",
+    "loadMore": "Завантажити ще",
+    "noTracks": "Не вдалося завантажити треки цього релізу.",
+    "back": "Назад",
+    "matchSummary": "Зіставлено {matched} із {total} пісень із треками релізу «{release}». Перевірте збіги та за потреби виберіть трек вручну.",
+    "fieldsToWrite": "Поля для запису",
+    "replaceCover": "Також замінити обкладинку на передню обкладинку цього релізу",
+    "noCover": "Цей реліз не має обкладинки",
+    "song": "Пісня",
+    "track": "Трек у релізі",
+    "changes": "Зміни",
+    "noTrack": "Без треку",
+    "noChanges": "Уже актуально",
+    "continue": "{count, plural, one {Продовжити з # піснею} few {Продовжити з # піснями} many {Продовжити з # піснями} other {Продовжити з # піснями}}",
+    "matchReason": {
+      "number": "Диск/трек",
+      "title": "Назва",
+      "duration": "Тривалість",
+      "manual": "Вручну",
+      "unmatched": "Без збігу"
+    },
+    "tooManySongs": "Виберіть щонайбільше {limit} пісень — пошук зіставляє їх з одним релізом.",
+    "summary": {
+      "description": "Кожна пісня отримає теги зіставленого з нею треку. Записуються лише змінені поля.",
+      "release": "Реліз",
+      "fields": "Поля",
+      "cover": "Обкладинка",
+      "yes": "Замінити",
+      "no": "Залишити"
+    }
+  },
+  "settings": {
+    "title": "Налаштування",
+    "sections": {
+      "users": "Користувачі",
+      "integrations": "Сторонні інтеграції",
+      "detailPanel": "Панель пісні",
+      "insights": "Insights",
+      "language": "Мова"
+    }
+  },
+  "detailPanelSettings": {
+    "title": "Поля панелі пісні",
+    "description": "Виберіть, які поля відображатимуться на панелі пісні. Приховані поля зберігають свої значення, але не показуються у списку.",
+    "showAll": "Показати всі",
+    "noCustomTags": "У вашій медіатеці ще немає власних тегів",
+    "tooltip": "Вибрати видимі поля"
+  },
+  "languageSettings": {
+    "title": "Мова",
+    "description": "Виберіть мову інтерфейсу Tagr. Варіант «Автоматично» використовує мову вашого браузера.",
+    "label": "Мова інтерфейсу",
+    "automatic": "Автоматично"
+  },
+  "scrobbling": {
+    "listenbrainz": "ListenBrainz",
+    "description": "Надсилайте пісні, які ви слухаєте в Tagr, до свого профілю ListenBrainz.",
+    "enable": "Скроблити те, що я слухаю",
+    "token": "Токен користувача",
+    "tokenPlaceholder": "Вставте свій токен ListenBrainz",
+    "tokenStored": "Токен уже збережено — введіть новий, щоб замінити його",
+    "tokenHelp": "Скопіюйте його в <link>налаштуваннях ListenBrainz</link>.",
+    "apiRoot": "Базова URL-адреса API (необов’язково)",
+    "save": "Перевірити й зберегти",
+    "saved": "Налаштування скроблінгу збережено",
+    "connectedAs": "Підключено як {username}",
+    "disconnect": "Відключити",
+    "disconnected": "ListenBrainz відключено",
+    "pending": "Прослуховувань у черзі на надсилання: {count}"
+  },
+  "listens": {
+    "title": "Нещодавно відтворені",
+    "empty": "Ще нічого не відтворювалося"
+  },
+  "insights": {
+    "title": "Insights",
+    "description": "Insights — це анонімна статистика використання Tagr. Раз на день Tagr надсилає невеликий звіт (версія, розмір медіатеки, використовувані функції), щоб ми знали, скільки людей користуються застосунком і що варто покращити. Звіт ніколи не містить імен файлів, шляхів, тегів чи імен користувачів.",
+    "enable": "Надсилати Insights (анонімну статистику використання)",
+    "forcedByEnv": "Вимкнено змінною середовища TAGR_INSIGHTS.",
+    "lastSent": "Останній звіт надіслано {date}.",
+    "neverSent": "Жодного звіту ще не надсилалося.",
+    "dashboard": "Зведені результати є публічними: <link>переглянути панель статистики</link>.",
+    "preview": "Показати, що саме надсилається",
+    "previewHelp": "Цей JSON надсилається на адресу {endpoint}:",
+    "enabledToast": "Insights увімкнено",
+    "disabledToast": "Insights вимкнено",
+    "noticeTitle": "Допоможіть покращити Tagr за допомогою Insights",
+    "noticeBody": "Insights — це анонімна статистика використання: раз на день Tagr може надсилати невеликий звіт, щоб ми розуміли, скільки людей користуються застосунком і над якими функціями варто працювати. Поки що нічого не надсилалося і не надсилатиметься, якщо ви не залишите цю функцію ввімкненою.",
+    "noticeDetails": "Показати точний вміст звіту",
+    "noticeKeep": "Залишити ввімкненим",
+    "noticeDisable": "Вимкнути",
+    "pendingNotice": "Поки що нічого не надсилалося: надсилання розпочнеться після підтвердження адміністратором.",
+    "noticeSentTitle": "Що надсилається",
+    "noticeSent": "Версія Tagr, операційна система та архітектура, кількість пісень і користувачів, формати файлів, а також частота використання функцій, як-от редагування тегів, розумних плейлистів чи скроблінгу.",
+    "noticeNeverTitle": "Що ніколи не надсилається",
+    "noticeNever": "Імена файлів, шляхи, теги, імена користувачів, токени чи ваша IP-адреса.",
+    "noticeLater": "Ви можете будь-коли змінити це в розділі Налаштування → Insights.",
+    "sendNow": "Надіслати зараз",
+    "sentToast": "Звіт надіслано",
+    "sendFailedToast": "Не вдалося надіслати звіт: {error}"
+  }
+}
