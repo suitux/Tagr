@@ -19,6 +19,7 @@ export function useSongPeaks(songId: number | undefined) {
     queryKey: ['song-peaks', songId],
     queryFn: () => fetchPeaks(songId!),
     enabled: songId !== undefined,
+    retry: 1,
     staleTime: Infinity,
     gcTime: 1000 * 60 * 30
   })
