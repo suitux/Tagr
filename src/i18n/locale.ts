@@ -1,4 +1,4 @@
-export const locales = ['en', 'es', 'ca', 'fr', 'de', 'uk'] as const
+export const locales = ['en', 'es', 'ca', 'fr', 'de', 'uk', 'ru', 'be'] as const
 
 export type Locale = (typeof locales)[number]
 
@@ -11,7 +11,9 @@ export const localeNames: Record<Locale, string> = {
   ca: 'Català',
   fr: 'Français',
   de: 'Deutsch',
-  uk: 'Українська'
+  uk: 'Українська',
+  ru: 'Русский',
+  be: 'Беларуская'
 }
 
 /** Stored under the `locale` config key when the user lets the browser decide. */
