@@ -116,6 +116,8 @@ interface PlayerState {
   toggleShuffle: () => void
   toggleRepeat: () => void
   setVolume: (volume: number) => void
+  /** Songs that left the library (moved to the trash): drops them from the queue, skipping ahead if one is playing. */
+  removeSongs: (songIds: ReadonlySet<number>) => void
 }
 
 export const usePlayerStore = create<PlayerState>((set, get) => ({
@@ -272,5 +274,46 @@ export const usePlayerStore = create<PlayerState>((set, get) => ({
     saveVolume(next)
     const a = getAudio()
     if (a) a.volume = next
+  },
+
+  removeSongs: songIds => {
+    const state = get()
+    const kept = (song: Song | null) => (song && !songIds.has(song.id) ? song : null)
+
+    const history = state._shuffleHistory.filter(song => !songIds.has(song.id))
+    // Where the playhead lands in the trimmed history: the last surviving entry up to the old position.
+    const historyIndex =
+      state._shuffleHistory.slice(0, state._shuffleHistoryIndex + 1).filter(song => !songIds.has(song.id)).length - 1
+
+    set({
+      _previousSong: kept(state._previousSong),
+      _nextSong: kept(state._nextSong),
+      _shuffleHistory: history,
+      _shuffleHistoryIndex: historyIndex
+    })
+
+    if (!state.currentSong || !songIds.has(state.currentSong.id)) return
+
+    const upcomingInHistory = state.shuffle ? history[historyIndex + 1] : undefined
+    if (upcomingInHistory) {
+      set({ _shuffleHistoryIndex: historyIndex + 1 })
+      state._playDirect(upcomingInHistory, { fromHistory: true })
+      return
+    }
+
+    const next = kept(state._nextSong)
+    if (next) {
+      state._playDirect(next)
+      return
+    }
+
+    // Nothing left to play: stop rather than keep streaming a file that is no longer in the library.
+    const a = getAudio()
+    if (a) {
+      a.pause()
+      a.removeAttribute('src')
+      a.load()
+    }
+    set({ currentSong: null, isPlaying: false, isBuffering: false, hasStartedPlaying: false, currentTime: 0 })
   }
 }))

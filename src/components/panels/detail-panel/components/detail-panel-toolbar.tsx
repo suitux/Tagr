@@ -10,9 +10,6 @@ import {
   EyeDashedIcon,
   XIcon
 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
-import type { UserRole } from '@/features/users/domain'
-import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { HistoryModal } from '@/components/history-modal/history-modal'
@@ -26,6 +23,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip'
 import type { Song } from '@/features/songs/domain'
+import { useCanEditSong, useIsSongReadOnly } from '@/features/songs/hooks/use-can-edit-song'
 import { useRescanSong } from '@/features/songs/hooks/use-rescan-song'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
@@ -45,12 +43,13 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
   const tShare = useTranslations('share')
   const tPreviewCard = useTranslations('previewCard')
   const tDetailPanelSettings = useTranslations('detailPanelSettings')
-  const { data: session } = useSession()
   const { setSelectedSongId } = useSelectedSong()
   const { mutate: rescanSong, isPending: isRescanning } = useRescanSong()
   const [historyOpen, setHistoryOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const canEdit = hasMinimumRole(session?.user?.role as UserRole, 'tagger')
+  const canEdit = useCanEditSong()
+  // A trashed song has nothing to share: its link would not resolve.
+  const canShare = !useIsSongReadOnly()
 
   return (
     <>
@@ -64,14 +63,16 @@ export function DetailPanelToolbar({ song, displayTitle, onShare, onMusicBrainzL
 
         {/* Desktop buttons */}
         <div className='hidden md:flex gap-1'>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button variant='ghost' size='icon' className='h-7 w-7' onClick={onShare}>
-                <Share2Icon className='h-4 w-4' />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>{tShare('tooltip')}</TooltipContent>
-          </Tooltip>
+          {canShare && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant='ghost' size='icon' className='h-7 w-7' onClick={onShare}>
+                  <Share2Icon className='h-4 w-4' />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>{tShare('tooltip')}</TooltipContent>
+            </Tooltip>
+          )}
           <Tooltip>
             <TooltipTrigger asChild>
               <Button variant='ghost' size='icon' className='h-7 w-7' onClick={() => setSettingsOpen(true)}>

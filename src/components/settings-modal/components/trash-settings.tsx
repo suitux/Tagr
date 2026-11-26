@@ -5,21 +5,38 @@ import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { isTrashRetentionDays, TRASH_RETENTION_OPTIONS } from '@/features/trash/domain'
+import { useAlertDialog } from '@/contexts/alert-dialog-context'
+import { isTrashRetentionDays, TRASH_RETENTION_OPTIONS, type TrashRetentionDays } from '@/features/trash/domain'
 import { useTrashSettings, useUpdateTrashSettings } from '@/features/trash/hooks/use-trash-settings'
+import { fetchExpiredCount } from '@/features/trash/hooks/use-trash-summary'
 
 export function TrashSettings() {
   const t = useTranslations('trash.settings')
+  const tCommon = useTranslations('common')
+  const { confirm } = useAlertDialog()
   const { data: settings, isLoading } = useTrashSettings()
   const { mutate, isPending } = useUpdateTrashSettings()
 
-  const handleChange = (value: string) => {
-    const retentionDays = Number(value)
-    if (!isTrashRetentionDays(retentionDays)) return
-
+  const save = (retentionDays: TrashRetentionDays) => {
     mutate(retentionDays, {
       onSuccess: () => toast.success(t('savedToast')),
       onError: error => toast.error(error.message)
+    })
+  }
+
+  const handleChange = async (value: string) => {
+    const retentionDays = Number(value)
+    if (!isTrashRetentionDays(retentionDays) || !settings) return
+
+    // A shorter retention reaches back to what is already in the trash: say how much goes right now.
+    const expired = retentionDays < settings.retentionDays ? await fetchExpiredCount(retentionDays).catch(() => 0) : 0
+    if (expired === 0) return save(retentionDays)
+
+    confirm({
+      title: t('confirmTitle', { days: retentionDays }),
+      description: t('confirmDescription', { count: expired, days: retentionDays }),
+      cancel: { label: tCommon('cancel') },
+      action: { label: t('confirmAction'), variant: 'destructive', onClick: () => save(retentionDays) }
     })
   }
 
@@ -40,7 +57,11 @@ export function TrashSettings() {
 
       <div className='flex flex-col gap-2'>
         <Label htmlFor='trash-retention-select'>{t('retentionLabel')}</Label>
-        <Select value={String(settings.retentionDays)} onValueChange={handleChange} disabled={isPending}>
+        <Select
+          value={String(settings.retentionDays)}
+          onValueChange={value => void handleChange(value)}
+          disabled={isPending}
+        >
           <SelectTrigger id='trash-retention-select' className='w-56'>
             <SelectValue />
           </SelectTrigger>

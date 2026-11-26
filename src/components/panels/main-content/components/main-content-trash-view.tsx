@@ -1,13 +1,16 @@
 'use client'
 
-import { MusicIcon, Trash2Icon } from 'lucide-react'
+import { HardDriveIcon, MusicIcon, Trash2Icon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { useSortOrder } from '@/features/songs/hooks/use-sort-order'
+import { useCanPurgeTrash } from '@/features/trash/hooks/use-can-manage-trash'
 import { useTrashActions } from '@/features/trash/hooks/use-trash-actions'
 import { useTrashSongs } from '@/features/trash/hooks/use-trash-songs'
+import { useTrashSummary } from '@/features/trash/hooks/use-trash-summary'
+import { formatFileSize } from '@/lib/formatters'
 import { useHomeStore } from '@/stores/home-store'
 import { useActiveCustomMetadataKeys } from './columns/hooks/use-active-custom-metadata-keys'
 import { SongsDataTable } from './songs-data-table'
@@ -53,6 +56,9 @@ export function MainContentTrashView() {
   })
 
   const { emptyTrash } = useTrashActions()
+  const canPurgeTrash = useCanPurgeTrash()
+  // The whole trash, whatever is being searched or filtered: that is what takes up the disk.
+  const { data: summary } = useTrashSummary()
 
   return (
     <div className='flex flex-col h-full'>
@@ -61,22 +67,32 @@ export function MainContentTrashView() {
         mobileTitle={t('title')}
         variant='trash'
         badges={
-          <Badge variant='secondary' className='gap-1.5'>
-            <MusicIcon className='w-3.5 h-3.5' />
-            {tFolders('files', { count: totalSongs ?? 0 })}
-          </Badge>
+          <>
+            <Badge variant='secondary' className='gap-1.5'>
+              <MusicIcon className='w-3.5 h-3.5' />
+              {tFolders('files', { count: totalSongs ?? 0 })}
+            </Badge>
+            {summary && summary.count > 0 && (
+              <Badge variant='secondary' className='gap-1.5'>
+                <HardDriveIcon className='w-3.5 h-3.5' />
+                {formatFileSize(summary.totalSize)}
+              </Badge>
+            )}
+          </>
         }
         actions={
           // Emptying ignores search and filters, so it is offered only while the whole trash is listed.
-          <Button
-            variant='destructive'
-            size='sm'
-            onClick={() => emptyTrash(totalSongs ?? 0)}
-            disabled={!totalSongs || !!search || !!activeFilters}
-          >
-            <Trash2Icon />
-            {t('actions.empty')}
-          </Button>
+          canPurgeTrash && (
+            <Button
+              variant='destructive'
+              size='sm'
+              onClick={() => emptyTrash(totalSongs ?? 0)}
+              disabled={!totalSongs || !!search || !!activeFilters}
+            >
+              <Trash2Icon />
+              {t('actions.empty')}
+            </Button>
+          )
         }
         searchKey='trash'
         searchValue={search}

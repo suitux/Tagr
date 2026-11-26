@@ -302,7 +302,11 @@ export async function countTrashedSongs(search?: string, filters?: SongColumnFil
   return prisma.song.count({ where: buildFolderWhere(null, search, filters, TRASHED_SONGS_WHERE) })
 }
 
-export async function getTrashedSongIds(search?: string, filters?: SongColumnFilters, limit?: number): Promise<number[]> {
+export async function getTrashedSongIds(
+  search?: string,
+  filters?: SongColumnFilters,
+  limit?: number
+): Promise<number[]> {
   const rows = await prisma.song.findMany({
     where: buildFolderWhere(null, search, filters, TRASHED_SONGS_WHERE),
     select: { id: true },

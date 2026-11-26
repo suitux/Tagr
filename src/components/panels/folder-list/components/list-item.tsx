@@ -20,6 +20,8 @@ interface ListItemProps {
   subfolderCount?: number
   depth?: number
   className?: string
+  /** Shown at the end of the row, e.g. a count. */
+  trailing?: ReactNode
 }
 
 export function ListItem({
@@ -34,7 +36,8 @@ export function ListItem({
   fileCount,
   subfolderCount,
   depth = 0,
-  className
+  className,
+  trailing
 }: ListItemProps) {
   const t = useTranslations('folders')
 
@@ -99,6 +102,8 @@ export function ListItem({
           </div>
         )}
       </div>
+
+      {trailing}
 
       {isSelected && <div className='w-1.5 h-8 bg-primary rounded-full' />}
     </Button>

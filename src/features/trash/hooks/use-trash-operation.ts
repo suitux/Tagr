@@ -5,6 +5,7 @@ import type { BulkTarget } from '@/features/songs/bulk-target'
 import { useSelectedSong } from '@/hooks/use-selected-song'
 import { collectNdjsonBulkResponse, type NdjsonBulkProgress } from '@/lib/ndjson-stream'
 import { useBulkSelectionStore } from '@/stores/bulk-selection-store'
+import { usePlayerStore } from '@/stores/player-store'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { TrashOperationResult } from '../domain'
 import { TRASH_QUERY_KEY } from './use-trash-songs'
@@ -39,7 +40,14 @@ async function runTrashOperation({ operation, target, onProgress }: TrashOperati
 }
 
 /** Songs change place on disk, so every listing that could show them is refetched. */
-const AFFECTED_QUERY_KEYS = [['songs'], ['smart-playlists'], ['folders'], RECENT_LISTENS_QUERY_KEY, TRASH_QUERY_KEY]
+const AFFECTED_QUERY_KEYS = [
+  ['songs'],
+  ['song'],
+  ['smart-playlists'],
+  ['folders'],
+  RECENT_LISTENS_QUERY_KEY,
+  TRASH_QUERY_KEY
+]
 
 export function useTrashOperation() {
   const queryClient = useQueryClient()
@@ -48,7 +56,12 @@ export function useTrashOperation() {
 
   return useMutation({
     mutationFn: runTrashOperation,
-    onSuccess: data => {
+    onSuccess: (data, { operation }) => {
+      const affected = new Set(data.results.filter(result => result.ok).map(result => result.songId))
+
+      // Before the listings refetch: the player still knows which song came next.
+      if (operation === 'trash') usePlayerStore.getState().removeSongs(affected)
+
       for (const queryKey of AFFECTED_QUERY_KEYS) {
         void queryClient.invalidateQueries({ queryKey })
       }
@@ -56,7 +69,7 @@ export function useTrashOperation() {
       clearSelection()
 
       // The song just left the view it was opened from (or does not exist any more).
-      if (selectedSongId !== null && data.results.some(result => result.ok && result.songId === selectedSongId)) {
+      if (selectedSongId !== null && affected.has(selectedSongId)) {
         void setSelectedSongId(null)
       }
     }

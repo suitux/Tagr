@@ -15,7 +15,7 @@ import { useBulkFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-b
 import { useBulkApplyMusicBrainz } from '@/features/musicbrainz/hooks/use-bulk-musicbrainz'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
-import { useCanManageTrash } from '@/features/trash/hooks/use-can-manage-trash'
+import { useCanManageTrash, useCanPurgeTrash } from '@/features/trash/hooks/use-can-manage-trash'
 import { useTrashActions } from '@/features/trash/hooks/use-trash-actions'
 import { type Song } from '@/features/songs/domain'
 import { useBulkUpdateSongPicture } from '@/features/songs/hooks/use-bulk-update-song-picture'
@@ -65,6 +65,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
 
   const { selectedView } = useSelectedView()
   const canManageTrash = useCanManageTrash()
+  const canPurgeTrash = useCanPurgeTrash()
   const trashActions = useTrashActions()
 
   const playlists = useSmartPlaylists().data
@@ -93,7 +94,10 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
 
   const runTrashAction = (action: 'moveToTrash' | 'restore' | 'deletePermanently') => {
     const target = buildBulkTargetFromSelection(selection)
-    if (target) trashActions[action](target, count)
+    if (!target) return
+
+    if (action === 'deletePermanently') trashActions.deletePermanently(target, count)
+    else trashActions[action](target)
   }
 
   const handleEditSubmit = (patch: BulkPatch) => {
@@ -291,6 +295,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
         onFetchCovers={() => setConfirmKind('cover')}
         onMusicBrainz={() => setMusicBrainzOpen(true)}
         trashMode={!canManageTrash ? null : selectedView === 'trash' ? 'trash' : 'library'}
+        canDeletePermanently={canPurgeTrash}
         onMoveToTrash={() => runTrashAction('moveToTrash')}
         onRestore={() => runTrashAction('restore')}
         onDeletePermanently={() => runTrashAction('deletePermanently')}

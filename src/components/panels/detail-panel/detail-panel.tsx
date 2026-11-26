@@ -7,6 +7,7 @@ import DetailPanelLoadingState from '@/components/panels/detail-panel/components
 import { DetailPanelFetchingOverlay } from '@/components/panels/detail-panel/components/detail-panel-fetching-overlay'
 import { ShareDialog } from '@/components/share-dialog/share-dialog'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { ReadOnlySongProvider } from '@/features/songs/hooks/use-can-edit-song'
 import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
 import { useSong } from '@/features/songs/hooks/use-song'
 import { getSongPictureUrl } from '@/features/songs/song-file-helpers'
@@ -20,6 +21,7 @@ import { DetailPanelPreviewCard } from './components/detail-panel-preview-card'
 import { DetailPanelStatsSection } from './components/detail-panel-stats-section'
 import { DetailPanelToolbar } from './components/detail-panel-toolbar'
 import { DetailPanelTrackInfoSection } from './components/detail-panel-track-info-section'
+import { DetailPanelTrashBanner } from './components/detail-panel-trash-banner'
 import { getExtensionColor, getExtensionKey } from './utils'
 
 interface DetailPanelProps {
@@ -51,40 +53,44 @@ export function DetailPanel({ songId }: DetailPanelProps) {
   const extColor = getExtensionColor(song.extension)
   const extName = tFormats(extKey)
   const displayTitle = song.title || song.fileName
+  const isTrashed = song.deletedAt != null
 
   return (
-    <div className='relative flex flex-col h-full overflow-hidden'>
-      {isFetching && <DetailPanelFetchingOverlay />}
-      <DetailPanelToolbar
-        song={song}
-        displayTitle={displayTitle}
-        onShare={() => setShareOpen(true)}
-        onMusicBrainzLookup={() => setMusicBrainzLookupOpen(true)}
-        onDownloadCover={downloadCover}
-        onEditCover={() => fileInputRef.current?.click()}
-      />
-      <ScrollArea className='flex-1 min-h-0'>
-        <div className='px-4 pb-4 space-y-6'>
-          <DetailPanelPreviewCard
-            song={song}
-            title={displayTitle}
-            pictureUrl={pictureUrl}
-            extColor={extColor}
-            onShare={() => setShareOpen(true)}
-            onMusicBrainzLookup={() => setMusicBrainzLookupOpen(true)}
-            fileInputRef={fileInputRef}
-          />
-          <DetailPanelMusicInfoSection song={song} />
-          <DetailPanelNotesSection song={song} />
-          <DetailPanelCustomMetadataSection songId={song.id} metadata={song.metadata ?? []} />
-          <DetailPanelTrackInfoSection song={song} />
-          <DetailPanelAudioPropertiesSection song={song} extName={extName} />
-          <DetailPanelStatsSection song={song} />
-          <DetailPanelFileDetailsSection song={song} />
-        </div>
-      </ScrollArea>
-      <ShareDialog open={shareOpen} onOpenChange={setShareOpen} songId={song.id} songTitle={displayTitle} />
-      <MusicBrainzLookupModal open={musicBrainzLookupOpen} onOpenChange={setMusicBrainzLookupOpen} song={song} />
-    </div>
+    <ReadOnlySongProvider value={isTrashed}>
+      <div className='relative flex flex-col h-full overflow-hidden'>
+        {isFetching && <DetailPanelFetchingOverlay />}
+        <DetailPanelToolbar
+          song={song}
+          displayTitle={displayTitle}
+          onShare={() => setShareOpen(true)}
+          onMusicBrainzLookup={() => setMusicBrainzLookupOpen(true)}
+          onDownloadCover={downloadCover}
+          onEditCover={() => fileInputRef.current?.click()}
+        />
+        <ScrollArea className='flex-1 min-h-0'>
+          <div className='px-4 pb-4 space-y-6'>
+            {isTrashed && <DetailPanelTrashBanner song={song} />}
+            <DetailPanelPreviewCard
+              song={song}
+              title={displayTitle}
+              pictureUrl={pictureUrl}
+              extColor={extColor}
+              onShare={() => setShareOpen(true)}
+              onMusicBrainzLookup={() => setMusicBrainzLookupOpen(true)}
+              fileInputRef={fileInputRef}
+            />
+            <DetailPanelMusicInfoSection song={song} />
+            <DetailPanelNotesSection song={song} />
+            <DetailPanelCustomMetadataSection songId={song.id} metadata={song.metadata ?? []} />
+            <DetailPanelTrackInfoSection song={song} />
+            <DetailPanelAudioPropertiesSection song={song} extName={extName} />
+            <DetailPanelStatsSection song={song} />
+            <DetailPanelFileDetailsSection song={song} />
+          </div>
+        </ScrollArea>
+        <ShareDialog open={shareOpen} onOpenChange={setShareOpen} songId={song.id} songTitle={displayTitle} />
+        <MusicBrainzLookupModal open={musicBrainzLookupOpen} onOpenChange={setMusicBrainzLookupOpen} song={song} />
+      </div>
+    </ReadOnlySongProvider>
   )
 }

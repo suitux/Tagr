@@ -192,7 +192,8 @@
     "listenedAt": "Gehört am",
     "playCount": "Wiedergaben",
     "lossless": "Verlustfrei",
-    "purgeIn": "Gelöscht in"
+    "purgeIn": "Gelöscht in",
+    "originalFolder": "Ursprünglicher Ordner"
   },
   "history": {
     "title": "Änderungsverlauf",
@@ -637,6 +638,8 @@
     "empty": "Der Papierkorb ist leer",
     "emptyDescription": "Gelöschte Songs bleiben hier eine Weile, bevor sie endgültig entfernt werden.",
     "daysLeft": "{count, plural, =0 {Heute} one {# Tag} other {# Tage}}",
+    "inTrash": "Im Papierkorb",
+    "readOnlyNotice": "Dieser Song liegt im Papierkorb. Stelle ihn wieder her, um ihn abzuspielen oder zu bearbeiten.",
     "progress": {
       "running": "Wird ausgeführt…",
       "count": "{completed} / {total}"
@@ -645,17 +648,10 @@
       "trash": "Löschen",
       "restore": "Wiederherstellen",
       "delete": "Endgültig löschen",
-      "empty": "Papierkorb leeren"
+      "empty": "Papierkorb leeren",
+      "undo": "Rückgängig"
     },
     "confirm": {
-      "trash": {
-        "title": "{count, plural, one {# Song} other {# Songs}} löschen?",
-        "description": "Die Dateien werden in den Papierkorb verschoben und nach {days, plural, one {# Tag} other {# Tagen}} endgültig gelöscht. Bis dahin kannst du sie wiederherstellen."
-      },
-      "restore": {
-        "title": "{count, plural, one {# Song} other {# Songs}} wiederherstellen?",
-        "description": "Die Dateien werden in den Ordner zurückverschoben, aus dem sie gelöscht wurden."
-      },
       "delete": {
         "title": "{count, plural, one {# Song} other {# Songs}} endgültig löschen?",
         "description": "Die Dateien werden von der Festplatte entfernt. Das kann nicht rückgängig gemacht werden."
@@ -670,15 +666,29 @@
       "restore": "{count, plural, one {# Song} other {# Songs}} wiederhergestellt",
       "delete": "{count, plural, one {# Song} other {# Songs}} endgültig gelöscht",
       "empty": "Papierkorb geleert ({count, plural, one {# Song} other {# Songs}})",
-      "partial": "{ok} erledigt, {failed} fehlgeschlagen: {error}"
+      "partial": "{ok} erledigt, {failed} fehlgeschlagen",
+      "moreFailures": "… und {count} weitere"
+    },
+    "errors": {
+      "notFound": "der Song existiert nicht mehr",
+      "alreadyTrashed": "bereits im Papierkorb",
+      "notTrashed": "nicht im Papierkorb",
+      "outsideLibrary": "die Datei liegt außerhalb der Musikordner",
+      "conflict": "am ursprünglichen Ort liegt bereits eine andere Datei",
+      "readOnly": "der Musikordner ist schreibgeschützt oder Tagr darf nicht darin schreiben",
+      "missingFile": "die Datei ist nicht mehr auf dem Datenträger",
+      "unknown": "unerwarteter Fehler"
     },
     "settings": {
       "title": "Papierkorb",
       "description": "Gelöschte Songs werden in einen Ordner __tagr_trash__ innerhalb jedes Musikordners verschoben.",
       "retentionLabel": "Endgültig löschen nach",
       "retentionOption": "{count, plural, one {# Tag} other {# Tagen}}",
-      "retentionHelp": "Abgelaufene Songs werden beim nächsten Löschen eines Songs entfernt.",
-      "savedToast": "Papierkorb-Einstellung gespeichert"
+      "retentionHelp": "Abgelaufene Songs werden einmal täglich automatisch entfernt. Ein kürzerer Zeitraum gilt auch für das, was bereits im Papierkorb liegt.",
+      "savedToast": "Papierkorb-Einstellung gespeichert",
+      "confirmTitle": "Gelöschte Songs {days, plural, one {# Tag} other {# Tage}} aufbewahren?",
+      "confirmDescription": "{count, plural, one {# Song liegt} other {# Songs liegen}} schon länger im Papierkorb und {count, plural, one {wird} other {werden}} sofort endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
+      "confirmAction": "Speichern und löschen"
     }
   }
 }

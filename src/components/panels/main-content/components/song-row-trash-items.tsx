@@ -4,6 +4,7 @@ import { ArchiveRestoreIcon, Trash2Icon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { ContextMenuItem } from '@/components/ui/context-menu'
 import { type Song } from '@/features/songs/domain'
+import { useCanPurgeTrash } from '@/features/trash/hooks/use-can-manage-trash'
 import { useTrashActions } from '@/features/trash/hooks/use-trash-actions'
 
 interface SongRowTrashItemsProps {
@@ -15,11 +16,12 @@ interface SongRowTrashItemsProps {
 export function SongRowTrashItems({ song, inTrash }: SongRowTrashItemsProps) {
   const t = useTranslations('trash')
   const { moveToTrash, restore, deletePermanently } = useTrashActions()
+  const canPurgeTrash = useCanPurgeTrash()
   const target = { mode: 'ids' as const, songIds: [song.id] }
 
   if (!inTrash) {
     return (
-      <ContextMenuItem variant='destructive' onSelect={() => moveToTrash(target, 1)}>
+      <ContextMenuItem variant='destructive' onSelect={() => moveToTrash(target)}>
         <Trash2Icon />
         {t('actions.trash')}
       </ContextMenuItem>
@@ -28,14 +30,16 @@ export function SongRowTrashItems({ song, inTrash }: SongRowTrashItemsProps) {
 
   return (
     <>
-      <ContextMenuItem onSelect={() => restore(target, 1)}>
+      <ContextMenuItem onSelect={() => restore(target)}>
         <ArchiveRestoreIcon />
         {t('actions.restore')}
       </ContextMenuItem>
-      <ContextMenuItem variant='destructive' onSelect={() => deletePermanently(target, 1)}>
-        <Trash2Icon />
-        {t('actions.delete')}
-      </ContextMenuItem>
+      {canPurgeTrash && (
+        <ContextMenuItem variant='destructive' onSelect={() => deletePermanently(target, 1)}>
+          <Trash2Icon />
+          {t('actions.delete')}
+        </ContextMenuItem>
+      )}
     </>
   )
 }

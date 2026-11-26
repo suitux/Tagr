@@ -3,6 +3,7 @@
 import { api } from '@/lib/axios'
 import { queryOptions, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import type { TrashRetentionDays, TrashSettings } from '../domain'
+import { TRASH_QUERY_KEY } from './use-trash-songs'
 
 export const trashSettingsQueryOptions = queryOptions({
   queryKey: ['trash-settings'],
@@ -24,6 +25,10 @@ export function useUpdateTrashSettings() {
       const { data } = await api.put<{ success: true; settings: TrashSettings }>('/trash/settings', { retentionDays })
       return data.settings
     },
-    onSuccess: settings => queryClient.setQueryData(trashSettingsQueryOptions.queryKey, settings)
+    onSuccess: settings => {
+      queryClient.setQueryData(trashSettingsQueryOptions.queryKey, settings)
+      // A shorter retention purges on the spot
+      void queryClient.invalidateQueries({ queryKey: TRASH_QUERY_KEY })
+    }
   })
 }

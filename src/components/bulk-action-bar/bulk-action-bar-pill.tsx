@@ -18,6 +18,8 @@ interface BulkActionBarPillProps {
   onMusicBrainz: () => void
   /** `library`: offer moving to the trash; `trash`: restore / delete for good instead of editing; `null`: neither. */
   trashMode: 'library' | 'trash' | null
+  /** Removing files for good is reserved to admins. */
+  canDeletePermanently: boolean
   onMoveToTrash: () => void
   onRestore: () => void
   onDeletePermanently: () => void
@@ -32,6 +34,7 @@ export function BulkActionBarPill({
   onFetchCovers,
   onMusicBrainz,
   trashMode,
+  canDeletePermanently,
   onMoveToTrash,
   onRestore,
   onDeletePermanently
@@ -70,15 +73,17 @@ export function BulkActionBarPill({
               <ArchiveRestoreIcon />
               <span className='hidden sm:inline'>{tTrash('actions.restore')}</span>
             </Button>
-            <Button
-              variant='destructive'
-              size='sm'
-              onClick={onDeletePermanently}
-              disabled={disabled}
-              aria-label={tTrash('actions.delete')}>
-              <Trash2Icon />
-              <span className='hidden sm:inline'>{tTrash('actions.delete')}</span>
-            </Button>
+            {canDeletePermanently && (
+              <Button
+                variant='destructive'
+                size='sm'
+                onClick={onDeletePermanently}
+                disabled={disabled}
+                aria-label={tTrash('actions.delete')}>
+                <Trash2Icon />
+                <span className='hidden sm:inline'>{tTrash('actions.delete')}</span>
+              </Button>
+            )}
           </>
         ) : (
           <>

@@ -2,13 +2,11 @@
 
 import { PencilIcon, TrashIcon } from 'lucide-react'
 import { HTMLInputTypeAttribute, useState } from 'react'
-import { useSession } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { SongMetadataUpdate } from '@/features/metadata/domain'
+import { useCanEditSong } from '@/features/songs/hooks/use-can-edit-song'
 import { useUpdateSong } from '@/features/songs/hooks/use-update-song'
-import type { UserRole } from '@/features/users/domain'
-import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { cn } from '@/lib/utils'
 import { DatePickerEdit } from './components/date-picker-edit'
 import { ExpandableText } from './components/expandable-text'
@@ -50,8 +48,7 @@ export function DetailPanelRow(props: DetailPanelRowProps) {
   const { icon, label, value = '', isAPath, songId, fieldName, type = 'text', fileImportAccept } = props
   const isExtraMetadata = 'isExtraMetadata' in props && props.isExtraMetadata
 
-  const { data: session } = useSession()
-  const isTaggerOrAbove = hasMinimumRole(session?.user?.role as UserRole, 'tagger')
+  const isTaggerOrAbove = useCanEditSong()
   const [isEditing, setIsEditing] = useState(false)
   const { mutate: updateSong, isPending } = useUpdateSong()
 

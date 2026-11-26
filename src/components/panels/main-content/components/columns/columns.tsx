@@ -39,7 +39,7 @@ interface UseSongColumnsOptions {
   totalSongs?: number | null
   /** Recently-played only: prepends the play date, which lives on the listen and not on the song. */
   includeListenedAt?: boolean
-  /** Trash only: prepends how long until each song is purged. */
+  /** Trash only: adds how long until each song is purged and the folder it was deleted from. */
   includePurgeCountdown?: boolean
 }
 
@@ -99,6 +99,19 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
     enableSorting: false
   }
 
+  // Where a restore would put the song back; its `folderPath` now points inside `__tagr_trash__`.
+  const originalFolderColumn: ColumnDef<Song> = {
+    id: 'originalFolder',
+    header: () => <span>{t('originalFolder')}</span>,
+    cell: ({ row }) => {
+      const original = row.original.originalFilePath
+      return textCell(original ? original.slice(0, original.lastIndexOf('/')) : null)
+    },
+    size: 280,
+    enableHiding: false,
+    enableSorting: false
+  }
+
   return [
     ...(selectionActive ? [selectColumn] : []),
     ...(includeListenedAt ? [listenedAtColumn] : []),
@@ -119,6 +132,7 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
       cell: ({ row }) => <NameCell song={row.original} />,
       enableHiding: false
     },
+    ...(includePurgeCountdown ? [originalFolderColumn] : []),
     // --- Music Info ---
     {
       id: 'artist',
