@@ -652,6 +652,10 @@
       "undo": "Annuler"
     },
     "confirm": {
+      "trash": {
+        "title": "Supprimer {count, plural, one {# morceau} other {# morceaux}} ?",
+        "description": "Les fichiers sont déplacés dans la corbeille et définitivement supprimés après {days, plural, one {# jour} other {# jours}}. D’ici là, vous pouvez les restaurer."
+      },
       "delete": {
         "title": "Supprimer définitivement {count, plural, one {# morceau} other {# morceaux}} ?",
         "description": "Les fichiers sont effacés du disque. Cette action est irréversible."

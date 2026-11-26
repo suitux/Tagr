@@ -652,6 +652,10 @@
       "undo": "Rückgängig"
     },
     "confirm": {
+      "trash": {
+        "title": "{count, plural, one {# Song} other {# Songs}} löschen?",
+        "description": "Die Dateien werden in den Papierkorb verschoben und nach {days, plural, one {# Tag} other {# Tagen}} endgültig gelöscht. Bis dahin kannst du sie wiederherstellen."
+      },
       "delete": {
         "title": "{count, plural, one {# Song} other {# Songs}} endgültig löschen?",
         "description": "Die Dateien werden von der Festplatte entfernt. Das kann nicht rückgängig gemacht werden."

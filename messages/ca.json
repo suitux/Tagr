@@ -652,6 +652,10 @@
       "undo": "Desfés"
     },
     "confirm": {
+      "trash": {
+        "title": "Vols eliminar {count, plural, one {# cançó} other {# cançons}}?",
+        "description": "Els fitxers es mouran a la paperera i s’esborraran definitivament d’aquí a {days, plural, one {# dia} other {# dies}}. Fins aleshores els podràs restaurar."
+      },
       "delete": {
         "title": "Vols eliminar definitivament {count, plural, one {# cançó} other {# cançons}}?",
         "description": "Els fitxers s’esborraran del disc. Aquesta acció no es pot desfer."

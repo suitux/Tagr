@@ -652,6 +652,10 @@
       "undo": "Deshacer"
     },
     "confirm": {
+      "trash": {
+        "title": "¿Eliminar {count, plural, one {# canción} other {# canciones}}?",
+        "description": "Los archivos se moverán a la papelera y se borrarán definitivamente en {days, plural, one {# día} other {# días}}. Hasta entonces podrás restaurarlos."
+      },
       "delete": {
         "title": "¿Eliminar definitivamente {count, plural, one {# canción} other {# canciones}}?",
         "description": "Los archivos se borrarán del disco. Esta acción no se puede deshacer."

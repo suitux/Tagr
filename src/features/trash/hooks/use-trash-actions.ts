@@ -4,8 +4,10 @@ import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import type { BulkTarget } from '@/features/songs/bulk-target'
-import type { TrashOperationResult } from '../domain'
+import { useQueryClient } from '@tanstack/react-query'
+import { DEFAULT_TRASH_RETENTION_DAYS, type TrashOperationResult } from '../domain'
 import { type TrashOperation, useTrashOperation } from './use-trash-operation'
+import { trashSettingsQueryOptions } from './use-trash-settings'
 
 /** "Empty the trash" is a `delete` without a target. */
 type TrashAction = TrashOperation | 'empty'
@@ -25,8 +27,8 @@ const LISTED_FAILURES = 5
 type Failure = Extract<TrashOperationResult, { ok: false }>
 
 /**
- * Runs and reports a trash operation. Moving to the trash and restoring are reversible, so they run
- * straight away (the former with an "Undo"); only what removes files for good asks first. Uses
+ * Runs and reports a trash operation. Moving to the trash and restoring are reversible, so they can run
+ * straight away (the former with an "Undo"); what removes files for good always asks first. Uses
  * `mutateAsync` so the outcome is still reported when the component that started it unmounts — the
  * songs it showed usually leave the listing.
  */
@@ -34,6 +36,7 @@ export function useTrashActions() {
   const t = useTranslations('trash')
   const tCommon = useTranslations('common')
   const { confirm } = useAlertDialog()
+  const queryClient = useQueryClient()
   const { mutateAsync } = useTrashOperation()
 
   const describeFailures = (failures: Failure[]) => {
@@ -100,8 +103,23 @@ export function useTrashActions() {
     })
   }
 
+  /** The dialog says how long the songs stay recoverable, so it needs the retention setting. */
+  const confirmMoveToTrash = async (target: BulkTarget, count: number) => {
+    const settings = await queryClient.ensureQueryData(trashSettingsQueryOptions).catch(() => null)
+    const days = settings?.retentionDays ?? DEFAULT_TRASH_RETENTION_DAYS
+
+    confirm({
+      title: t('confirm.trash.title', { count }),
+      description: t('confirm.trash.description', { count, days }),
+      cancel: { label: tCommon('cancel') },
+      action: { label: t('actions.trash'), variant: 'destructive', onClick: () => void run('trash', target) }
+    })
+  }
+
   return {
     moveToTrash: (target: BulkTarget) => void run('trash', target),
+    /** For entry points where a slip is easy, like a context menu item next to harmless ones. */
+    confirmMoveToTrash: (target: BulkTarget, count: number) => void confirmMoveToTrash(target, count),
     restore: (target: BulkTarget) => void run('restore', target),
     deletePermanently: (target: BulkTarget, count: number) => confirmAndRun('delete', count, target),
     emptyTrash: (count: number) => confirmAndRun('empty', count)

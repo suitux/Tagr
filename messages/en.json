@@ -652,6 +652,10 @@
       "undo": "Undo"
     },
     "confirm": {
+      "trash": {
+        "title": "Delete {count, plural, one {# song} other {# songs}}?",
+        "description": "The files are moved to the trash and deleted for good after {days, plural, one {# day} other {# days}}. Until then you can restore them."
+      },
       "delete": {
         "title": "Delete {count, plural, one {# song} other {# songs}} permanently?",
         "description": "The files are removed from disk. This cannot be undone."

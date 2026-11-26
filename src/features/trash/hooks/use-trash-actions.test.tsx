@@ -15,6 +15,11 @@ vi.mock('@/contexts/alert-dialog-context', () => ({
   useAlertDialog: () => ({ confirm: mockConfirm })
 }))
 
+vi.mock('@tanstack/react-query', async importOriginal => ({
+  ...(await importOriginal<typeof import('@tanstack/react-query')>()),
+  useQueryClient: () => ({ ensureQueryData: async () => ({ retentionDays: 10 }) })
+}))
+
 vi.mock('./use-trash-operation', () => ({
   useTrashOperation: () => ({ mutateAsync: mockMutateAsync })
 }))
@@ -47,11 +52,29 @@ describe('useTrashActions', () => {
 
     await waitFor(() => expect(mockToast.success).toHaveBeenCalled())
     expect(mockConfirm).not.toHaveBeenCalled()
-    expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ operation: 'trash', target: target([1, 2]) }))
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ operation: 'trash', target: target([1, 2]) })
+    )
 
     const options = mockToast.success.mock.calls[0][1]
     expect(options.action.label).toBe('trash.actions.undo')
     expect(options.duration).toBe(8000)
+  })
+
+  it('asks first when started from the context menu, then behaves the same', async () => {
+    resolveWith([ok(1)])
+    const { result } = renderHook(() => useTrashActions())
+
+    result.current.confirmMoveToTrash(target([1]), 1)
+
+    await waitFor(() => expect(mockConfirm).toHaveBeenCalledTimes(1))
+    expect(mockMutateAsync).not.toHaveBeenCalled()
+
+    mockConfirm.mock.calls[0][0].action.onClick()
+
+    await waitFor(() => expect(mockToast.success).toHaveBeenCalled())
+    expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ operation: 'trash', target: target([1]) }))
+    expect(mockToast.success.mock.calls[0][1].action.label).toBe('trash.actions.undo')
   })
 
   it('undo restores exactly the songs that were moved', async () => {
