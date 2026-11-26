@@ -5,6 +5,7 @@ import type { BulkEditableField } from '@/features/songs/song-fields'
 
 export type ConfigKey =
   | 'columnVisibility'
+  | 'columnSizing'
   | 'dismissedVersion'
   | 'starPromptDismissed'
   | 'sortOrder'
@@ -62,6 +63,11 @@ export function toDefaultSortOrder(value: unknown): DefaultSortOrderState {
   if (typeof sortField !== 'string' || !sortField) return DEFAULT_SORT_PREFERENCE
   return { sortField, sort: sort === 'desc' ? 'desc' : 'asc' }
 }
+
+/** Width in pixels of each column the user resized, by column id; the rest keep their default size. */
+export type ColumnSizingState = Record<string, number>
+
+export const DEFAULT_COLUMN_SIZING: ColumnSizingState = {}
 
 export type ColumnVisibilityState = {
   [key in ColumnField]: boolean
