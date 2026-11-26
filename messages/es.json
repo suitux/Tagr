@@ -555,6 +555,7 @@
     "sections": {
       "users": "Usuarios",
       "integrations": "Integraciones de terceros",
+      "songList": "Lista de canciones",
       "detailPanel": "Panel de canción",
       "insights": "Insights",
       "language": "Idioma"
@@ -566,6 +567,14 @@
     "showAll": "Mostrar todos",
     "noCustomTags": "Todavía no hay etiquetas personalizadas en tu biblioteca",
     "tooltip": "Elegir campos visibles"
+  },
+  "songListSettings": {
+    "title": "Orden por defecto",
+    "description": "Cómo se ordena la lista de canciones cuando no hay ninguna columna ordenada. Al hacer clic en la cabecera de una columna se sigue ordenando por ella; al quitar ese orden se vuelve a este.",
+    "fieldLabel": "Ordenar por",
+    "directionLabel": "Orden",
+    "ascending": "Ascendente",
+    "descending": "Descendente"
   },
   "languageSettings": {
     "title": "Idioma",

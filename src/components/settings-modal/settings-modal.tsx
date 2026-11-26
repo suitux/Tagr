@@ -3,6 +3,7 @@
 import {
   ChartNoAxesColumnIcon,
   LanguagesIcon,
+  ListMusicIcon,
   PanelRightIcon,
   PlugIcon,
   SettingsIcon,
@@ -23,6 +24,7 @@ import { DetailPanelSettings } from './components/detail-panel-settings'
 import { InsightsSettings } from './components/insights-settings'
 import { LanguageSettings } from './components/language-settings'
 import { ListenBrainzSettings } from './components/listenbrainz-settings'
+import { SongListSettings } from './components/song-list-settings'
 import { UsersSettings } from './components/users-settings/users-settings'
 
 interface SettingsSectionDefinition {
@@ -42,6 +44,7 @@ const SETTINGS_SECTIONS = [
     minimumRole: 'listener',
     Content: ListenBrainzSettings
   },
+  { id: 'songList', labelKey: 'songList', icon: ListMusicIcon, minimumRole: 'listener', Content: SongListSettings },
   {
     id: 'detailPanel',
     labelKey: 'detailPanel',

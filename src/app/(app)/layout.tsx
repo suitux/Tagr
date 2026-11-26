@@ -5,6 +5,7 @@ import {
   type ConfigKey,
   DEFAULT_DETAIL_PANEL_FIELDS,
   DEFAULT_SORT_ORDER,
+  DEFAULT_SORT_PREFERENCE,
   DEFAULT_VISIBLE_COLUMNS
 } from '@/features/config/domain'
 import { getConfigQueryKey } from '@/features/config/hooks/use-config'
@@ -29,6 +30,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   await Promise.all([
     prefetchConfig(queryClient, session, 'columnVisibility', DEFAULT_VISIBLE_COLUMNS),
     prefetchConfig(queryClient, session, 'sortOrder', DEFAULT_SORT_ORDER),
+    prefetchConfig(queryClient, session, 'defaultSortOrder', DEFAULT_SORT_PREFERENCE),
     prefetchConfig(queryClient, session, 'detailPanelFields', DEFAULT_DETAIL_PANEL_FIELDS),
     prefetchConfig(queryClient, session, 'locale', AUTOMATIC_LOCALE)
   ])

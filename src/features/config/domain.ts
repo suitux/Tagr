@@ -8,6 +8,7 @@ export type ConfigKey =
   | 'dismissedVersion'
   | 'starPromptDismissed'
   | 'sortOrder'
+  | 'defaultSortOrder'
   | 'musicbrainzSearchFields'
   | 'bulkEditFields'
   | 'detailPanelFields'
@@ -47,6 +48,21 @@ export type SortOrderState = {
 
 export const DEFAULT_SORT_ORDER: SortOrderState = {}
 
+/**
+ * The order the list falls back to while no column is sorted (`sortOrder` is empty). It is a user
+ * setting, unlike `sortOrder`, which only remembers the column header that was clicked last.
+ */
+export type DefaultSortOrderState = Required<SortOrderState>
+
+export const DEFAULT_SORT_PREFERENCE: DefaultSortOrderState = { sortField: 'title', sort: 'asc' }
+
+/** Reads a stored `defaultSortOrder`, falling back to {@link DEFAULT_SORT_PREFERENCE} on anything malformed. */
+export function toDefaultSortOrder(value: unknown): DefaultSortOrderState {
+  const { sortField, sort } = (value ?? {}) as SortOrderState
+  if (typeof sortField !== 'string' || !sortField) return DEFAULT_SORT_PREFERENCE
+  return { sortField, sort: sort === 'desc' ? 'desc' : 'asc' }
+}
+
 export type ColumnVisibilityState = {
   [key in ColumnField]: boolean
 }
@@ -64,7 +80,7 @@ export const DEFAULT_VISIBLE_COLUMNS: ColumnVisibilityState = {
   modifiedAt: false,
   sortArtist: false,
   sortAlbum: false,
-  trackNumber: false,
+  trackNumber: true,
   trackTotal: false,
   discNumber: false,
   discTotal: false,

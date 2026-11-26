@@ -555,6 +555,7 @@
     "sections": {
       "users": "Usuaris",
       "integrations": "Integracions de tercers",
+      "songList": "Llista de cançons",
       "detailPanel": "Panell de la cançó",
       "insights": "Insights",
       "language": "Idioma"
@@ -566,6 +567,14 @@
     "showAll": "Mostra-ho tot",
     "noCustomTags": "Encara no hi ha etiquetes personalitzades a la teva biblioteca",
     "tooltip": "Tria els camps visibles"
+  },
+  "songListSettings": {
+    "title": "Ordre per defecte",
+    "description": "Com s’ordena la llista de cançons quan no hi ha cap columna ordenada. En fer clic a la capçalera d’una columna se segueix ordenant per aquesta; en treure aquest ordre es torna a aquest.",
+    "fieldLabel": "Ordena per",
+    "directionLabel": "Ordre",
+    "ascending": "Ascendent",
+    "descending": "Descendent"
   },
   "languageSettings": {
     "title": "Idioma",

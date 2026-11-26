@@ -555,6 +555,7 @@
     "sections": {
       "users": "Benutzer",
       "integrations": "Integrationen von Drittanbietern",
+      "songList": "Songliste",
       "detailPanel": "Song-Panel",
       "insights": "Insights",
       "language": "Sprache"
@@ -566,6 +567,14 @@
     "showAll": "Alle anzeigen",
     "noCustomTags": "Noch keine eigenen Tags in deiner Bibliothek",
     "tooltip": "Sichtbare Felder wählen"
+  },
+  "songListSettings": {
+    "title": "Standardsortierung",
+    "description": "Wie die Songliste sortiert wird, solange keine Spalte sortiert ist. Ein Klick auf einen Spaltenkopf sortiert weiterhin nach dieser Spalte; wird diese Sortierung aufgehoben, gilt wieder diese Reihenfolge.",
+    "fieldLabel": "Sortieren nach",
+    "directionLabel": "Reihenfolge",
+    "ascending": "Aufsteigend",
+    "descending": "Absteigend"
   },
   "languageSettings": {
     "title": "Sprache",

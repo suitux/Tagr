@@ -85,6 +85,14 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
   return [
     ...(selectionActive ? [selectColumn] : []),
     ...(includeListenedAt ? [listenedAtColumn] : []),
+    // --- Track number: leads the row, like an album track listing ---
+    {
+      id: 'trackNumber',
+      accessorKey: 'trackNumber',
+      header: ({ column }) => <SortableHeader column={column} label={t('trackNumber')} justify={'end'} />,
+      cell: ({ row }) => numericCell(row.original.trackNumber),
+      size: 80
+    },
     // --- Name (always visible, not hideable) ---
     {
       id: 'title',
@@ -121,13 +129,6 @@ export function useSongColumns(metadataKeys: string[] = [], options: UseSongColu
       header: ({ column }) => <SortableHeader column={column} label={t('sortAlbum')} />,
       cell: ({ row }) => textCell(row.original.sortAlbum),
       size: 180
-    },
-    {
-      id: 'trackNumber',
-      accessorKey: 'trackNumber',
-      header: ({ column }) => <SortableHeader column={column} label={t('trackNumber')} justify={'end'} />,
-      cell: ({ row }) => numericCell(row.original.trackNumber),
-      size: 80
     },
     {
       id: 'trackTotal',

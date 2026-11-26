@@ -5,6 +5,7 @@ import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
 import { RECENTLY_LISTENED_ONLY_FIELDS, type ColumnField, type SongSortDirection } from '@/features/songs/domain'
 import { useListenSortStore } from '@/stores/listen-sort-store'
+import { useDefaultSortOrder } from './use-default-sort-order'
 
 interface UseSortOrderOptions {
   /**
@@ -20,6 +21,9 @@ interface UseSortOrderOptions {
  * way column visibility is handled — the react-query cache is the state, no
  * separate store needed. The exception is sorting by a listen-only column, which
  * stays in memory (see `useListenSortStore`).
+ *
+ * While no column is sorted, the list uses the user's `defaultSortOrder` setting. Recently-played
+ * is the exception: unsorted, it keeps its own order (most recent play first).
  */
 export function useSortOrder({ allowListenFields = false }: UseSortOrderOptions = {}) {
   const { data } = useConfig<SortOrderState>({
@@ -36,7 +40,11 @@ export function useSortOrder({ allowListenFields = false }: UseSortOrderOptions 
   const setListenSorting = useListenSortStore(s => s.setSorting)
   const clearListenSorting = useListenSortStore(s => s.clearSorting)
 
-  const sorting = (allowListenFields && listenSorting) || data || DEFAULT_SORT_ORDER
+  const { defaultSorting } = useDefaultSortOrder()
+
+  const savedSorting = data?.sortField ? data : null
+  const sorting =
+    (allowListenFields && listenSorting) || savedSorting || (allowListenFields ? DEFAULT_SORT_ORDER : defaultSorting)
 
   const setSorting = useCallback(
     (sortField: ColumnField, sort: SongSortDirection) => {

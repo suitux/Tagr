@@ -555,6 +555,7 @@
     "sections": {
       "users": "Users",
       "integrations": "Third party integrations",
+      "songList": "Song list",
       "detailPanel": "Song panel",
       "insights": "Insights",
       "language": "Language"
@@ -566,6 +567,14 @@
     "showAll": "Show all",
     "noCustomTags": "No custom tags in your library yet",
     "tooltip": "Choose visible fields"
+  },
+  "songListSettings": {
+    "title": "Default sorting",
+    "description": "How the song list is ordered while no column is sorted. Clicking a column header still sorts by that column; clearing that sort returns to this order.",
+    "fieldLabel": "Sort by",
+    "directionLabel": "Order",
+    "ascending": "Ascending",
+    "descending": "Descending"
   },
   "languageSettings": {
     "title": "Language",

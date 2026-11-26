@@ -555,6 +555,7 @@
     "sections": {
       "users": "Utilisateurs",
       "integrations": "Intégrations tierces",
+      "songList": "Liste des morceaux",
       "detailPanel": "Panneau du morceau",
       "insights": "Insights",
       "language": "Langue"
@@ -566,6 +567,14 @@
     "showAll": "Tout afficher",
     "noCustomTags": "Aucun tag personnalisé dans votre bibliothèque pour l’instant",
     "tooltip": "Choisir les champs visibles"
+  },
+  "songListSettings": {
+    "title": "Tri par défaut",
+    "description": "Ordre de la liste des morceaux tant qu’aucune colonne n’est triée. Un clic sur un en-tête de colonne trie toujours selon cette colonne ; en retirant ce tri, on revient à cet ordre.",
+    "fieldLabel": "Trier par",
+    "directionLabel": "Ordre",
+    "ascending": "Croissant",
+    "descending": "Décroissant"
   },
   "languageSettings": {
     "title": "Langue",
