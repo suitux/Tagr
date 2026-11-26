@@ -61,11 +61,11 @@ describe('useTrashActions', () => {
     expect(options.duration).toBe(8000)
   })
 
-  it('asks first when started from the context menu, then behaves the same', async () => {
+  it('asks first when deleting a selection, then behaves the same', async () => {
     resolveWith([ok(1)])
     const { result } = renderHook(() => useTrashActions())
 
-    result.current.confirmMoveToTrash(target([1]), 1)
+    result.current.confirmMoveToTrash(target([1, 2]), 2)
 
     await waitFor(() => expect(mockConfirm).toHaveBeenCalledTimes(1))
     expect(mockMutateAsync).not.toHaveBeenCalled()
@@ -73,7 +73,9 @@ describe('useTrashActions', () => {
     mockConfirm.mock.calls[0][0].action.onClick()
 
     await waitFor(() => expect(mockToast.success).toHaveBeenCalled())
-    expect(mockMutateAsync).toHaveBeenCalledWith(expect.objectContaining({ operation: 'trash', target: target([1]) }))
+    expect(mockMutateAsync).toHaveBeenCalledWith(
+      expect.objectContaining({ operation: 'trash', target: target([1, 2]) })
+    )
     expect(mockToast.success.mock.calls[0][1].action.label).toBe('trash.actions.undo')
   })
 

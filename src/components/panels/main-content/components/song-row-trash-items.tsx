@@ -15,13 +15,13 @@ interface SongRowTrashItemsProps {
 /** Mounted only while the menu is open, so the trash hooks don't run once per table row. */
 export function SongRowTrashItems({ song, inTrash }: SongRowTrashItemsProps) {
   const t = useTranslations('trash')
-  const { confirmMoveToTrash, restore, deletePermanently } = useTrashActions()
+  const { moveToTrash, restore, deletePermanently } = useTrashActions()
   const canPurgeTrash = useCanPurgeTrash()
   const target = { mode: 'ids' as const, songIds: [song.id] }
 
   if (!inTrash) {
     return (
-      <ContextMenuItem variant='destructive' onSelect={() => confirmMoveToTrash(target, 1)}>
+      <ContextMenuItem variant='destructive' onSelect={() => moveToTrash(target)}>
         <Trash2Icon />
         {t('actions.trash')}
       </ContextMenuItem>

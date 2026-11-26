@@ -118,7 +118,7 @@ export function useTrashActions() {
 
   return {
     moveToTrash: (target: BulkTarget) => void run('trash', target),
-    /** For entry points where a slip is easy, like a context menu item next to harmless ones. */
+    /** For a whole selection, where one click can send thousands of songs to the trash. */
     confirmMoveToTrash: (target: BulkTarget, count: number) => void confirmMoveToTrash(target, count),
     restore: (target: BulkTarget) => void run('restore', target),
     deletePermanently: (target: BulkTarget, count: number) => confirmAndRun('delete', count, target),

@@ -96,8 +96,10 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
     const target = buildBulkTargetFromSelection(selection)
     if (!target) return
 
-    if (action === 'deletePermanently') trashActions.deletePermanently(target, count)
-    else trashActions[action](target)
+    // A selection can hold thousands of songs, so deleting it asks first; one song from its row menu does not.
+    if (action === 'moveToTrash') trashActions.confirmMoveToTrash(target, count)
+    else if (action === 'deletePermanently') trashActions.deletePermanently(target, count)
+    else trashActions.restore(target)
   }
 
   const handleEditSubmit = (patch: BulkPatch) => {
