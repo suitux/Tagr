@@ -98,7 +98,8 @@ export async function collectInsights(): Promise<InsightsData> {
     usage7d: {
       metadataEdits: activity.metadataEdits,
       editedSongs: activity.editedSongs,
-      listens: activity.listens
+      listens: activity.listens,
+      deletedSongs: activity.deletedSongs
     },
     features: {
       smartPlaylists: usage.smartPlaylists,

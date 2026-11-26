@@ -31,6 +31,8 @@ export interface InsightsData {
     metadataEdits: number
     editedSongs: number
     listens: number
+    /** Songs sent to the trash, whether or not they were restored afterwards */
+    deletedSongs: number
   }
   features: {
     smartPlaylists: number

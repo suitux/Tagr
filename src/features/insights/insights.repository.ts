@@ -12,7 +12,7 @@ export async function countSongsByExtension(): Promise<Record<string, number>> {
 }
 
 export async function countRecentActivity(since: Date) {
-  const [metadataEdits, editedSongs, listens, listeners] = await Promise.all([
+  const [metadataEdits, editedSongs, listens, listeners, deletedSongs] = await Promise.all([
     prisma.songChangeHistory.count({ where: { changedAt: { gte: since } } }),
     prisma.songChangeHistory.findMany({
       where: { changedAt: { gte: since } },
@@ -24,14 +24,17 @@ export async function countRecentActivity(since: Date) {
       where: { listenedAt: { gte: since } },
       distinct: ['userId'],
       select: { userId: true }
-    })
+    }),
+    // Its own table: a purged song leaves no `Song` row behind to count
+    prisma.songDeletion.count({ where: { deletedAt: { gte: since } } })
   ])
 
   return {
     metadataEdits,
     editedSongs: editedSongs.length,
     listens,
-    listeners: listeners.length
+    listeners: listeners.length,
+    deletedSongs
   }
 }
 
