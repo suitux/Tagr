@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { ReadOnlySongProvider } from '@/features/songs/hooks/use-can-edit-song'
 import { DetailPanelRow } from './detail-panel-row'
 
 const { mockSession } = vi.hoisted(() => ({
@@ -126,5 +127,36 @@ describe('DetailPanelRow - role-based editing', () => {
       const editableArea = screen.getByText('Title').parentElement!.querySelector('.cursor-pointer')
       expect(editableArea).not.toBeInTheDocument()
     })
+  })
+})
+
+describe('DetailPanelRow - read-only song (in the trash)', () => {
+  function renderReadOnlyRow(role: string, props: Record<string, unknown> = {}) {
+    mockSession.data = { user: { role } }
+    return render(
+      <ReadOnlySongProvider value={true}>
+        <DetailPanelRow icon={icon} label='Title' value='Test Song' fieldName='title' songId={1} {...props} />
+      </ReadOnlySongProvider>
+    )
+  }
+
+  it.each(['tagger', 'admin'])('%s gets no edit button', role => {
+    const { container } = renderReadOnlyRow(role)
+    expect(container.querySelector('.lucide-pencil')).not.toBeInTheDocument()
+  })
+
+  it('an empty value is not click-to-edit', async () => {
+    const user = userEvent.setup()
+    const { container } = renderReadOnlyRow('admin', { value: '' })
+
+    await user.click(container.querySelector('.flex.items-start.gap-2')!)
+
+    expect(screen.queryByRole('textbox')).not.toBeInTheDocument()
+    expect(mockUpdateSong).not.toHaveBeenCalled()
+  })
+
+  it('a custom tag cannot be removed', () => {
+    const { container } = renderReadOnlyRow('admin', { fieldName: 'MOOD', isExtraMetadata: true })
+    expect(container.querySelector('.lucide-trash')).not.toBeInTheDocument()
   })
 })
