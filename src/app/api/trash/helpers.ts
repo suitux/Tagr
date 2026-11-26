@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server'
 import { BulkResolveError, resolveBulkTargetIds } from '@/features/metadata/bulk-resolver.service'
 import { type BulkTarget } from '@/features/songs/bulk-target'
-import type { Song } from '@/features/songs/domain'
-import type { TrashOperationResult } from '@/features/trash/domain'
+import { TrashError, type TrashOperationResult } from '@/features/trash/domain'
 import { ndjsonStreamResponse, type NdjsonEvent } from '@/lib/ndjson-stream'
 
 interface TrashOperationOptions {
@@ -16,7 +15,7 @@ interface TrashOperationOptions {
 /** Resolves the body's bulk target and streams one NDJSON result per song, like `/api/songs/bulk`. */
 export async function streamTrashOperation(
   request: Request,
-  operation: (songId: number) => Promise<Song>,
+  operation: (songId: number) => Promise<unknown>,
   { userId, fallbackIds, after }: TrashOperationOptions = {}
 ): Promise<Response> {
   let body: { target?: BulkTarget } = {}
@@ -30,7 +29,7 @@ export async function streamTrashOperation(
   let songIds: number[]
   try {
     if (body?.target) {
-      songIds = await resolveBulkTargetIds(body.target, { userId })
+      songIds = await resolveBulkTargetIds(body.target, { userId, unlimited: true })
     } else if (fallbackIds) {
       songIds = await fallbackIds()
     } else {
@@ -50,10 +49,15 @@ export async function streamTrashOperation(
       const songId = songIds[i]
       let result: TrashOperationResult
       try {
-        result = { songId, ok: true, song: await operation(songId) }
+        await operation(songId)
+        result = { songId, ok: true }
       } catch (e) {
-        console.error(`Trash operation failed for song ${songId}:`, e)
-        result = { songId, ok: false, error: e instanceof Error ? e.message : 'Unknown error' }
+        if (e instanceof TrashError) {
+          result = { songId, ok: false, code: e.code, error: e.message, fileName: e.fileName }
+        } else {
+          console.error(`Trash operation failed for song ${songId}:`, e)
+          result = { songId, ok: false, code: 'unknown', error: e instanceof Error ? e.message : 'Unknown error' }
+        }
       }
 
       yield { type: 'result', index: i, result }

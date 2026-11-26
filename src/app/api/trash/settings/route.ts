@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { isTrashRetentionDays } from '@/features/trash/domain'
-import { getTrashRetentionDays, setTrashRetentionDays } from '@/features/trash/trash.service'
+import { getTrashRetentionDays, runTrashMaintenance, setTrashRetentionDays } from '@/features/trash/trash.service'
 import { requireRole } from '@/lib/api/auth-guard'
 
 export async function GET() {
@@ -30,6 +30,8 @@ export async function PUT(request: Request) {
     }
 
     await setTrashRetentionDays(body.retentionDays)
+    // A shorter retention applies to what is already in the trash, and right away.
+    await runTrashMaintenance()
 
     return NextResponse.json({ success: true, settings: { retentionDays: body.retentionDays } })
   } catch (error) {

@@ -6,7 +6,7 @@ import {
   deleteSongPermanently,
   getAllTrashedSongIds,
   moveSongToTrash,
-  purgeExpiredTrash
+  runTrashMaintenance
 } from '@/features/trash/trash.service'
 import { requireRole } from '@/lib/api/auth-guard'
 import { getSearchParam } from '@/lib/api/search-params'
@@ -44,6 +44,10 @@ export async function GET(request: Request): Promise<NextResponse<TrashResponse>
   const activeFilters = hasFilters ? filters : undefined
 
   try {
+    // Opening the trash is one of the moments it tidies itself, so the first page never lists a song
+    // that already expired or whose file is gone.
+    if (offset === 0) await runTrashMaintenance()
+
     const [files, totalFiles] = await Promise.all([
       getTrashedSongs(search, sortField, sort, offset, limit, activeFilters, metadataKeys),
       countTrashedSongs(search, activeFilters)
@@ -66,13 +70,13 @@ export async function POST(request: Request): Promise<Response> {
 
   return streamTrashOperation(request, moveSongToTrash, {
     userId: guard.session.user?.id,
-    after: purgeExpiredTrash
+    after: runTrashMaintenance
   })
 }
 
-/** Deletes the target trashed songs for good; without a target, empties the whole trash. */
+/** Deletes the target trashed songs for good; without a target, empties the whole trash. Admin only: it cannot be undone. */
 export async function DELETE(request: Request): Promise<Response> {
-  const guard = await requireRole('tagger')
+  const guard = await requireRole('admin')
   if (!guard.authorized) return guard.response
 
   return streamTrashOperation(request, deleteSongPermanently, {

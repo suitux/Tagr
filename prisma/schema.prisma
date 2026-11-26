@@ -259,3 +259,13 @@ model AppProperty {
 
   @@map("app_properties")
 }
+
+/// One row per song sent to the trash, kept for the anonymous usage report. Deliberately not linked
+/// to `Song`: it must outlive both the purge and a restore, and carries nothing about the song.
+model SongDeletion {
+  id        Int      @id @default(autoincrement())
+  deletedAt DateTime @default(now()) @map("deleted_at")
+
+  @@index([deletedAt])
+  @@map("song_deletions")
+}

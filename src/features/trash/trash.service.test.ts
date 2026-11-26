@@ -4,6 +4,16 @@ import os from 'os'
 import path from 'path'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Song } from '@/generated/prisma/client'
+import {
+  countSongsExpiredUnder,
+  deleteSongPermanently,
+  moveSongToTrash,
+  purgeExpiredTrash,
+  removeOrphanedTrashRows,
+  restoreSongFromTrash,
+  runTrashMaintenance,
+  setTrashRetentionDays
+} from './trash.service'
 
 const { songs, appProperties } = vi.hoisted(() => ({
   songs: new Map<number, Record<string, unknown>>(),
@@ -18,7 +28,7 @@ vi.mock('@/features/songs/song-file-helpers', async importOriginal => ({
 }))
 
 vi.mock('@/features/songs/songs.repository', () => ({
-  findSongById: async (id: number) => songs.get(id) ?? null,
+  findSongByIdIncludingTrashed: async (id: number) => songs.get(id) ?? null,
   deleteSongById: async (id: number) => void songs.delete(id)
 }))
 
@@ -45,16 +55,14 @@ vi.mock('./trash.repository', () => ({
   findTrashedSongIdsDeletedBefore: async (before: Date) =>
     [...songs.values()]
       .filter(song => song.deletedAt && (song.deletedAt as Date) < before)
-      .map(song => song.id as number)
+      .map(song => song.id as number),
+  countTrashedSongsDeletedBefore: async (before: Date) =>
+    [...songs.values()].filter(song => song.deletedAt && (song.deletedAt as Date) < before).length,
+  findTrashedSongFiles: async () =>
+    [...songs.values()].filter(song => song.deletedAt).map(song => ({ id: song.id, filePath: song.filePath })),
+  getTrashTotals: async () => ({ count: 0, totalSize: 0 }),
+  deleteSongDeletionsBefore: async () => 0
 }))
-
-import {
-  deleteSongPermanently,
-  moveSongToTrash,
-  purgeExpiredTrash,
-  restoreSongFromTrash,
-  setTrashRetentionDays
-} from './trash.service'
 
 async function addSong(id: number, relativePath: string) {
   const filePath = path.join(musicRoot, relativePath)
@@ -158,5 +166,73 @@ describe('trash.service', () => {
     expect(await purgeExpiredTrash()).toBe(1)
     expect(songs.has(1)).toBe(false)
     expect((songs.get(2) as Song | undefined)?.deletedAt).toBeInstanceOf(Date)
+  })
+
+  it('reports a restore conflict with a code the client can translate', async () => {
+    const original = await addSong(1, 'a.mp3')
+    await moveSongToTrash(1)
+    await fs.writeFile(original, 'newcomer')
+
+    await expect(restoreSongFromTrash(1)).rejects.toMatchObject({ code: 'conflict', fileName: 'a.mp3' })
+    expect(await fs.readFile(original, 'utf8')).toBe('newcomer')
+    expect((songs.get(1) as Song | undefined)?.deletedAt).toBeInstanceOf(Date)
+  })
+
+  it('reports a file that is gone from disk instead of trashing its row', async () => {
+    const original = await addSong(1, 'a.mp3')
+    await fs.rm(original)
+
+    await expect(moveSongToTrash(1)).rejects.toMatchObject({ code: 'missingFile' })
+    expect(songs.get(1)!.deletedAt).toBeNull()
+  })
+
+  it('counts what a shorter retention would purge right away', async () => {
+    await addSong(1, 'old.mp3')
+    await addSong(2, 'recent.mp3')
+    await moveSongToTrash(1)
+    await moveSongToTrash(2)
+    songs.set(1, { ...songs.get(1), deletedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000) })
+
+    expect(await countSongsExpiredUnder(5)).toBe(1)
+    expect(await countSongsExpiredUnder(10)).toBe(0)
+  })
+
+  it('drops the rows of trashed songs whose file was removed by hand', async () => {
+    await addSong(1, 'gone.mp3')
+    await addSong(2, 'kept.mp3')
+    await addSong(3, 'library.mp3')
+    await moveSongToTrash(1)
+    await moveSongToTrash(2)
+    await fs.rm(songs.get(1)!.filePath as string)
+
+    expect(await removeOrphanedTrashRows()).toBe(1)
+    expect(songs.has(1)).toBe(false)
+    expect(songs.has(2)).toBe(true)
+  })
+
+  it('keeps every trashed row while the music folder is unavailable', async () => {
+    await addSong(1, 'a.mp3')
+    await moveSongToTrash(1)
+    // What an unmounted volume looks like: the mount point is there, and empty.
+    await fs.rm(musicRoot, { recursive: true, force: true })
+    await fs.mkdir(musicRoot)
+
+    expect(await removeOrphanedTrashRows()).toBe(0)
+    expect(songs.has(1)).toBe(true)
+  })
+
+  it('purges expired songs and orphans in one maintenance run', async () => {
+    await addSong(1, 'old.mp3')
+    await addSong(2, 'gone.mp3')
+    await addSong(3, 'kept.mp3')
+    await moveSongToTrash(1)
+    await moveSongToTrash(2)
+    await moveSongToTrash(3)
+    songs.set(1, { ...songs.get(1), deletedAt: new Date(Date.now() - 31 * 24 * 60 * 60 * 1000) })
+    await fs.rm(songs.get(2)!.filePath as string)
+
+    await runTrashMaintenance()
+
+    expect([...songs.keys()]).toEqual([3])
   })
 })

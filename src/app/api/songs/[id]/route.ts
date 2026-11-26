@@ -5,7 +5,7 @@ import { SongMetadataUpdate } from '@/features/metadata/domain'
 import { rescanSongFileAndSaveIntoDb } from '@/features/metadata/metadata-scan.service'
 import { writeMetadataToFile } from '@/features/metadata/metadata-write.service'
 import { SongWithMetadata } from '@/features/songs/domain'
-import { findSongWithMetadata } from '@/features/songs/songs.repository'
+import { findSongWithMetadata, findSongWithMetadataIncludingTrashed } from '@/features/songs/songs.repository'
 
 interface RouteParams {
   params: Promise<{
@@ -46,7 +46,7 @@ export async function GET(request: Request, { params }: RouteParams): Promise<Ne
   }
 
   try {
-    const song = await findSongWithMetadata(songId)
+    const song = await findSongWithMetadataIncludingTrashed(songId)
 
     if (!song) {
       return NextResponse.json({ success: false, error: 'Song not found' }, { status: 404 })
