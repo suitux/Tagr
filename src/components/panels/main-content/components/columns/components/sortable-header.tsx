@@ -16,6 +16,9 @@ import { DurationFilterInput } from './duration-filter-input'
 import { SelectFilterInput } from './select-filter-input'
 import { TagFilterInput } from './tag-filter-input'
 
+/** At this width or below there is no room to type in a filter, so the column only keeps its sort button. */
+export const FILTER_MIN_COLUMN_WIDTH = 55
+
 interface SortableHeaderProps<TData> {
   column: Column<TData>
   label: string
@@ -37,6 +40,7 @@ export function SortableHeader<TData>({
   const isDurationField = DURATION_SONG_FIELDS.has(field)
   const isBooleanField = BOOLEAN_SONG_FIELDS.has(field)
   const isSelectField = SELECT_SONG_FIELDS.has(field)
+  const hasRoomForFilter = column.getSize() > FILTER_MIN_COLUMN_WIDTH
 
   return (
     <div className='flex flex-col gap-1 py-1'>
@@ -58,6 +62,7 @@ export function SortableHeader<TData>({
         )}
       </Button>
       {enableColumnFilter &&
+        hasRoomForFilter &&
         (isDateField ? (
           <DateFilterInput field={field as SongSortField} />
         ) : isDurationField ? (
