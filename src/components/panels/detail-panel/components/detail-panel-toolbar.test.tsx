@@ -1,9 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { Song } from '@/features/songs/domain'
+import { ReadOnlySongProvider } from '@/features/songs/hooks/use-can-edit-song'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { ReadOnlySongProvider } from '@/features/songs/hooks/use-can-edit-song'
 import { DetailPanelToolbar } from './detail-panel-toolbar'
 
 const { mockSession } = vi.hoisted(() => ({

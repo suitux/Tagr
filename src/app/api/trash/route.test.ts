@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { NextResponse } from 'next/server'
 import { TrashError } from '@/features/trash/domain'
+import { DELETE, GET, POST } from './route'
 
 const { mockRequireRole, mockMoveSongToTrash, mockDeleteSongPermanently, mockRunTrashMaintenance, mockResolve } =
   vi.hoisted(() => ({
@@ -32,8 +33,6 @@ vi.mock('@/features/songs/song-query.repository', () => ({
   getTrashedSongs: async () => [{ id: 1 }],
   countTrashedSongs: async () => 1
 }))
-
-import { DELETE, GET, POST } from './route'
 
 function allowEveryRole() {
   mockRequireRole.mockResolvedValue({ authorized: true, session: { user: { id: '3' } } })

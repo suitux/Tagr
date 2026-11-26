@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { GET } from './route'
 
 const { mockRequireRole, mockCountExpired } = vi.hoisted(() => ({
   mockRequireRole: vi.fn(),
@@ -13,8 +14,6 @@ vi.mock('@/features/trash/trash.service', () => ({
   getTrashSummary: async () => ({ count: 3, totalSize: 900 }),
   countSongsExpiredUnder: (...args: unknown[]) => mockCountExpired(...args)
 }))
-
-import { GET } from './route'
 
 beforeEach(() => {
   vi.clearAllMocks()
