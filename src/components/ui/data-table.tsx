@@ -1,12 +1,13 @@
 'use client'
 
-import { ComponentType, ReactNode, useCallback, useRef, useState } from 'react'
+import { ComponentType, ReactNode, useCallback, useEffect, useRef, useState } from 'react'
 import { type TableComponents, TableVirtuoso, type TableVirtuosoHandle } from 'react-virtuoso'
 import { Table, TableBody, TableCell, TableHead, TableRow } from '@/components/ui/table'
 import { cn } from '@/lib/utils'
 import {
   type ColumnDef,
   ColumnResizeMode,
+  type ColumnSizingState,
   flexRender,
   getCoreRowModel,
   type OnChangeFn,
@@ -26,6 +27,10 @@ interface DataTableProps<TData, TValue> {
   onSortingChange?: OnChangeFn<SortingState>
   columnVisibility?: VisibilityState | null
   onColumnVisibilityChange?: OnChangeFn<VisibilityState>
+  /** Widths to start from, by column id. Read once: while mounted the table owns the widths. */
+  initialColumnSizing?: ColumnSizingState
+  /** Called with every width once a resize ends (not on each pixel dragged), so it can be stored. */
+  onColumnSizingCommit?: (sizing: ColumnSizingState) => void
   onScrollEnd?: () => void
   EmptyStateComponent?: () => ReactNode
   RowWrapper?: ComponentType<{ row: TData; children: ReactNode }>
@@ -48,12 +53,15 @@ export function DataTable<TData, TValue>({
   onSortingChange,
   columnVisibility,
   onColumnVisibilityChange,
+  initialColumnSizing,
+  onColumnSizingCommit,
   onScrollEnd,
   EmptyStateComponent,
   RowWrapper
 }: DataTableProps<TData, TValue>) {
   const virtuosoRef = useRef<TableVirtuosoHandle>(null)
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
+  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>(initialColumnSizing ?? {})
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
@@ -68,13 +76,23 @@ export function DataTable<TData, TValue>({
     },
     getRowId,
     onColumnVisibilityChange,
+    onColumnSizingChange: setColumnSizing,
     state: {
+      columnSizing,
       sorting: sorting ?? [],
       columnVisibility: columnVisibility ?? {}
     }
   })
 
   const { rows } = table.getRowModel()
+
+  // `onChange` resizing updates the widths on every pixel dragged; only the final ones are reported.
+  const isResizing = !!table.getState().columnSizingInfo.isResizingColumn
+  const wasResizing = useRef(false)
+  useEffect(() => {
+    if (wasResizing.current && !isResizing) onColumnSizingCommit?.(columnSizing)
+    wasResizing.current = isResizing
+  }, [isResizing, columnSizing, onColumnSizingCommit])
 
   const fixedHeaderContent = useCallback(
     () =>

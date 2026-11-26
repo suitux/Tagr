@@ -481,7 +481,7 @@ export const en = {
       platforms: { title: 'Operating system and architecture', caption: 'Share of installations.' },
       librarySizes: { title: 'Library size', caption: 'Share of installations by number of songs.' },
       features: { title: 'Feature adoption', caption: 'Share of installations using each feature.' },
-      activity: { title: 'Activity', caption: 'Tag edits and plays in the previous 7 days, summed over every installation.' },
+      activity: { title: 'Activity', caption: 'Tag edits, plays and deleted songs in the previous 7 days, summed over every installation.' },
       formats: { title: 'File formats', caption: 'Share of all songs managed by Tagr.' },
     },
     features: {
@@ -491,8 +491,9 @@ export const en = {
       multiUser: 'Several users',
       scrobbling: 'Scrobbling',
       sharedLinks: 'Shared links',
+      trash: 'Trash',
     },
-    activity: { metadataEdits7d: 'Tag edits', listens7d: 'Plays' },
+    activity: { metadataEdits7d: 'Tag edits', listens7d: 'Plays', deletedSongs7d: 'Deleted songs' },
   },
 
   notFound: {

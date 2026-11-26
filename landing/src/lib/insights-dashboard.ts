@@ -28,7 +28,8 @@ interface DailySummary {
   librarySizes: Record<string, number>;
   fileExtensions: Record<string, number>;
   features: Record<string, number>;
-  totals: { songs: number; users: number; metadataEdits7d: number; listens7d: number };
+  /** `deletedSongs7d` is missing from days summarized before the trash existed. */
+  totals: { songs: number; users: number; metadataEdits7d: number; listens7d: number; deletedSongs7d?: number };
 }
 
 interface SummaryResponse {
@@ -54,7 +55,8 @@ interface ChartSpec {
 
 // Dark categorical palette, validated against the card surface (#171717): every adjacent pair
 // clears CVD ΔE 8 and normal-vision ΔE 15, every slot clears 3:1. Assigned in this fixed order.
-const CATEGORICAL = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300'];
+// The seventh (trash) was appended later and has not been through that validation yet.
+const CATEGORICAL = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#8a63d2'];
 // "Other" is not an entity, so it gets a neutral gray instead of a seventh hue.
 const OTHER = '#6e6e6e';
 // Library sizes are ordered buckets: one hue, dark → light (validated with --ordinal).
@@ -66,7 +68,7 @@ const MUTED = '#a1a1a1';
 const FOREGROUND = '#fafafa';
 
 const LIBRARY_BINS = ['0', '1-1k', '1k-10k', '10k-50k', '50k-100k', '100k+'];
-const FEATURE_KEYS = ['metadataEditing', 'smartPlaylists', 'savedFilters', 'multiUser', 'scrobbling', 'sharedLinks'] as const;
+const FEATURE_KEYS = ['metadataEditing', 'smartPlaylists', 'savedFilters', 'multiUser', 'scrobbling', 'sharedLinks', 'trash'] as const;
 const TOP_N = 5;
 
 /** Vertical hairline at the hovered X, so the reader aims at a date rather than a 2px line. */
@@ -177,9 +179,9 @@ function buildSpecs(history: SummaryResponse['history'], labels: Labels): Record
     },
     activity: {
       kind: 'line',
-      series: (['metadataEdits7d', 'listens7d'] as const).map((key, index) => ({
+      series: (['metadataEdits7d', 'listens7d', 'deletedSongs7d'] as const).map((key, index) => ({
         label: labels.activity[key],
-        values: summaries.map((summary) => summary.totals[key]),
+        values: summaries.map((summary) => summary.totals[key] ?? 0),
         color: CATEGORICAL[index],
       })),
     },

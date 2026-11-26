@@ -13,11 +13,14 @@ const { mockGetAppProperty, mockSetAppProperty } = vi.hoisted(() => ({
   mockSetAppProperty: vi.fn()
 }))
 
-vi.mock('./insights.repository', () => ({
+vi.mock('@/features/config/app-properties.repository', () => ({
   getAppProperty: (...args: unknown[]) => mockGetAppProperty(...args),
-  setAppProperty: (...args: unknown[]) => mockSetAppProperty(...args),
+  setAppProperty: (...args: unknown[]) => mockSetAppProperty(...args)
+}))
+
+vi.mock('./insights.repository', () => ({
   countSongsByExtension: async () => ({ flac: 10, mp3: 5 }),
-  countRecentActivity: async () => ({ metadataEdits: 7, editedSongs: 3, listens: 20, listeners: 2 }),
+  countRecentActivity: async () => ({ metadataEdits: 7, editedSongs: 3, listens: 20, listeners: 2, deletedSongs: 4 }),
   countFeatureUsage: async () => ({
     songs: 15,
     users: 1,
@@ -105,7 +108,7 @@ describe('insights.service', () => {
         schema: 1,
         library: { songs: 15, musicFolders: 2, fileExtensions: { flac: 10, mp3: 5 } },
         users: { total: 2, listeners7d: 2 },
-        usage7d: { metadataEdits: 7, editedSongs: 3, listens: 20 },
+        usage7d: { metadataEdits: 7, editedSongs: 3, listens: 20, deletedSongs: 4 },
         features: { smartPlaylists: 2, savedFilters: 0, sharedLinks: 1, scrobbleAccounts: { listenbrainz: 1 } }
       })
     })

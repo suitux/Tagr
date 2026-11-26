@@ -483,7 +483,7 @@ export const es: Dict = {
       platforms: { title: 'Sistema operativo y arquitectura', caption: 'Porcentaje de instalaciones.' },
       librarySizes: { title: 'Tamaño de la biblioteca', caption: 'Porcentaje de instalaciones según su número de canciones.' },
       features: { title: 'Adopción de funciones', caption: 'Porcentaje de instalaciones que usan cada función.' },
-      activity: { title: 'Actividad', caption: 'Ediciones de etiquetas y reproducciones de los 7 días anteriores, sumando todas las instalaciones.' },
+      activity: { title: 'Actividad', caption: 'Ediciones de etiquetas, reproducciones y canciones eliminadas de los 7 días anteriores, sumando todas las instalaciones.' },
       formats: { title: 'Formatos de archivo', caption: 'Porcentaje de todas las canciones que gestiona Tagr.' },
     },
     features: {
@@ -493,8 +493,9 @@ export const es: Dict = {
       multiUser: 'Varios usuarios',
       scrobbling: 'Scrobbling',
       sharedLinks: 'Enlaces compartidos',
+      trash: 'Papelera',
     },
-    activity: { metadataEdits7d: 'Ediciones', listens7d: 'Reproducciones' },
+    activity: { metadataEdits7d: 'Ediciones', listens7d: 'Reproducciones', deletedSongs7d: 'Canciones eliminadas' },
   },
 
   notFound: {

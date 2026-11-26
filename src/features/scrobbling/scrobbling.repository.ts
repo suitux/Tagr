@@ -122,9 +122,10 @@ export async function listListenedSongIds(
   filters?: SongColumnFilters,
   limit?: number
 ): Promise<number[]> {
+  // The history still lists songs that sit in the trash, but bulk actions must not reach them.
   const groups = await prisma.listen.groupBy({
     by: ['songId'],
-    where: buildListensWhere(userId, search, filters),
+    where: { AND: [buildListensWhere(userId, search, filters), { song: { deletedAt: null } }] },
     _max: { listenedAt: true },
     orderBy: { _max: { listenedAt: 'desc' } },
     ...(limit !== undefined && { take: limit })

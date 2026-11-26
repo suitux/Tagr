@@ -8,6 +8,7 @@ export type BulkTarget =
         | { type: 'folder'; folderPath: string }
         | { type: 'smart-playlist'; playlistId: number }
         | { type: 'recent-listens' }
+        | { type: 'trash' }
       search?: string
       filters?: SongColumnFilters
       exclusions?: number[]

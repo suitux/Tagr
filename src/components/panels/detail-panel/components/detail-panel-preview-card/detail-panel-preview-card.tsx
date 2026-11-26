@@ -2,7 +2,6 @@
 
 import { ImageDownIcon, ImageUpIcon, LoaderCircleIcon, MusicIcon, PauseIcon, PlayIcon, Share2Icon } from 'lucide-react'
 import { toast } from 'sonner'
-import { useSession } from 'next-auth/react'
 import { useTranslations } from 'next-intl'
 import LosslessBadge from '@/components/lossless-badge'
 import { Badge } from '@/components/ui/badge'
@@ -11,11 +10,10 @@ import { Image } from '@/components/ui/image'
 import { useAlertDialog } from '@/contexts/alert-dialog-context'
 import { useFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-fetch-musicbrainz-cover'
 import type { Song } from '@/features/songs/domain'
+import { useCanEditSong, useIsSongReadOnly } from '@/features/songs/hooks/use-can-edit-song'
 import { useDownloadCover } from '@/features/songs/hooks/use-download-cover'
 import { useSortOrder } from '@/features/songs/hooks/use-sort-order'
 import { useUpdateSongPicture } from '@/features/songs/hooks/use-update-song-picture'
-import type { UserRole } from '@/features/users/domain'
-import { hasMinimumRole } from '@/features/users/lib/hasMinimumRole'
 import { useSelectedFolder } from '@/hooks/use-selected-folder'
 import { useSelectedPlaylist } from '@/hooks/use-selected-playlist'
 import MusicBrainzIcon from '@/icons/musicbrainz.svg'
@@ -43,8 +41,9 @@ export function DetailPanelPreviewCard({
   onMusicBrainzLookup,
   fileInputRef
 }: DetailPanelPreviewCardProps) {
-  const { data: session } = useSession()
-  const canEdit = hasMinimumRole(session?.user?.role as UserRole, 'tagger')
+  const canEdit = useCanEditSong()
+  // In the trash: the file is out of the library, so it can be neither played nor shared.
+  const canPlay = !useIsSongReadOnly()
   const { mutate: updatePicture, isPending } = useUpdateSongPicture()
   const { mutate: fetchMbCover, isPending: isFetchingCover } = useFetchMusicBrainzCover({
     onSuccess: () => {
@@ -148,12 +147,14 @@ export function DetailPanelPreviewCard({
               {!isUploading && (
                 <div className='absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors rounded-2xl hidden md:flex items-center justify-center gap-3'>
                   <div className='grid grid-cols-2 gap-4'>
-                    <PreviewCardActionButton
-                      tooltip={isCurrent && isPlaying ? t('pause') : t('play')}
-                      icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
-                      onClick={handlePlayPause}
-                      fillIcon
-                    />
+                    {canPlay && (
+                      <PreviewCardActionButton
+                        tooltip={isCurrent && isPlaying ? t('pause') : t('play')}
+                        icon={isCurrent && isPlaying ? PauseIcon : PlayIcon}
+                        onClick={handlePlayPause}
+                        fillIcon
+                      />
+                    )}
                     {canEdit && (
                       <PreviewCardActionButton tooltip={t('editCover')} icon={ImageUpIcon} onClick={handleImageEdit} />
                     )}
@@ -178,7 +179,7 @@ export function DetailPanelPreviewCard({
 
             <input ref={fileInputRef} type='file' accept='image/*' className='hidden' onChange={handleFileChange} />
 
-            {!isUploading && (
+            {!isUploading && canPlay && (
               <div className='flex lg:hidden items-center justify-center gap-4 mt-4'>
                 <PreviewCardMobileActionButton icon={Share2Icon} onClick={onShare} />
                 <PreviewCardMobileActionButton

@@ -80,12 +80,29 @@ Tagr lets you browse, edit, and manage audio file tags from any browser — desk
   <img src="docs/columns.png" alt="Customizable columns" height="350" />
 </p>
 
+### Trash
+
+- **Delete songs** from the row menu or the bulk action bar. Nothing is removed right away: the file moves to a
+  `__tagr_trash__` folder at the root of its music folder, keeping its relative path, and a toast offers **Undo**
+- **Trash view** (below *Recently played*) — search, filter and sort deleted songs like any other list, see where each
+  came from and how many days it has left, then **restore** it or delete it for good
+- **Emptied automatically** — songs are deleted permanently after 30 days; an admin can shorten that to 1, 5, 10 or
+  15 days in **Settings → Trash**. Expired songs are removed once a day
+- Restoring puts the file back exactly where it was (recreating the folder if needed) and never overwrites: if another
+  file has taken its place, the song stays in the trash and you are told
+- Songs in the trash keep their play counts and history, but cannot be played, edited or shared until restored
+- Only whole songs can be deleted, not folders. Moving to the trash and restoring need the **Tagger** role; deleting
+  permanently and emptying the trash are **admin only**
+
+> The trash needs write access to your music folders. If they are mounted read-only (`:ro` in Docker), deleting fails
+> with a "read-only" error and nothing is changed.
+
 ### Users and Roles
 
 - **Multiple users** — the admin account comes from `AUTH_USER` / `AUTH_PASSWORD`; every other user is created from
   the app itself, in **Settings → Users**
-- **Roles** — a **Tagger** can browse, play, edit metadata and rescan the library; a **Listener** can only browse and
-  play. The UI hides what a role cannot do, and the API enforces it on every request
+- **Roles** — a **Tagger** can browse, play, edit metadata, rescan the library and move songs to the trash; a
+  **Listener** can only browse and play. The UI hides what a role cannot do, and the API enforces it on every request
 - Create, rename, change the role of, or delete users at any time. Passwords are stored bcrypt-hashed
 - **Per-user data** — listen history, play counts and the ListenBrainz connection all belong to the user who made them
 
@@ -263,6 +280,7 @@ pnpm dev                 # Development mode
 Some folders are never shown in the folder tree nor scanned, at any depth:
 
 - Every hidden folder (name starting with `.`: `.Trash`, `.AppleDouble`, `.@__thumb`, …)
+- Tagr's own trash folder, `__tagr_trash__` (see [Trash](#trash))
 - NAS and OS system folders: `@eaDir` (Synology thumbnails), `#recycle` (Synology), `@Recycle` (QNAP), `#snapshot`, `@Recently-Snapshot`, `$RECYCLE.BIN`, `System Volume Information`, `lost+found`
 
 Add your own with `EXCLUDE_FOLDERS`, a comma-separated list. Each entry is a plain folder name, a glob or a regular expression, and is matched case-insensitively against the **whole folder name** (not the full path):
@@ -332,7 +350,7 @@ The report contains only counts and flags:
 - Tagr version, OS, CPU architecture, Node version and whether it runs in a container
 - Number of songs, music folders and songs per file format
 - Number of users, and how many played something in the last 7 days
-- Tag edits, edited songs and plays in the last 7 days
+- Tag edits, edited songs, plays and songs moved to the trash in the last 7 days
 - How many smart playlists, saved filters, active share links and scrobbling accounts exist
 
 It never includes file names, paths, tags, user names, tokens or your IP address (the server does not store it).
@@ -353,7 +371,7 @@ turn it off for good. The collector is open source: [suitux/tagr-insights](https
 | Container Path | Purpose |
 |----------------|---------|
 | `/data` | SQLite database. Persist with a named volume to avoid data loss. |
-| `/music/*` | Mount points for your music libraries. |
+| `/music/*` | Mount points for your music libraries. Must be writable to edit tags or use the [trash](#trash). |
 
 ---
 

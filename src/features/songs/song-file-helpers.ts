@@ -13,6 +13,9 @@ export function getMusicFolders(): string[] {
     .filter(folder => folder.length > 0)
 }
 
+/** Per-root folder songs are moved to when deleted; see `features/trash`. */
+export const TRASH_FOLDER_NAME = '__tagr_trash__'
+
 /** Folders never shown nor scanned: hidden folders plus NAS/OS system folders, matched by name. */
 export const DEFAULT_EXCLUDED_FOLDERS: RegExp[] = [
   /^\./, // hidden folders (.Trash, .AppleDouble, .@__thumb, …)
@@ -23,7 +26,8 @@ export const DEFAULT_EXCLUDED_FOLDERS: RegExp[] = [
   /^@Recently-Snapshot$/i,
   /^\$RECYCLE\.BIN$/i,
   /^System Volume Information$/i,
-  /^lost\+found$/
+  /^lost\+found$/,
+  new RegExp(`^${TRASH_FOLDER_NAME}$`)
 ]
 
 let excludedFolderPatterns: RegExp[] | undefined

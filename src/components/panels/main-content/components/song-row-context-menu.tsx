@@ -6,6 +6,7 @@ import {
   HistoryIcon,
   ImageUpIcon,
   ListChecksIcon,
+  Trash2Icon,
   XIcon,
   type LucideIcon
 } from 'lucide-react'
@@ -19,6 +20,7 @@ import {
   ContextMenuTrigger
 } from '@/components/ui/context-menu'
 import { type Song } from '@/features/songs/domain'
+import { useCanManageTrash } from '@/features/trash/hooks/use-can-manage-trash'
 import { useSelectionContext } from '@/hooks/use-selection-context'
 import {
   type SelectionContext,
@@ -27,11 +29,13 @@ import {
   useSelectionCount
 } from '@/stores/bulk-selection-store'
 import { useHomeStore } from '@/stores/home-store'
+import { SongRowTrashItems } from './song-row-trash-items'
 
 const SELECT_ALL_ACTIONS = {
   folder: { icon: FolderCheckIcon, labelKey: 'contextMenu.selectAllFolder' },
   'smart-playlist': { icon: ListChecksIcon, labelKey: 'contextMenu.selectAllPlaylist' },
-  'recent-listens': { icon: HistoryIcon, labelKey: 'contextMenu.selectAllRecent' }
+  'recent-listens': { icon: HistoryIcon, labelKey: 'contextMenu.selectAllRecent' },
+  trash: { icon: Trash2Icon, labelKey: 'contextMenu.selectAllTrash' }
 } as const satisfies Record<SelectionContext['type'], { icon: LucideIcon; labelKey: string }>
 
 interface SongRowContextMenuProps {
@@ -51,6 +55,7 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
   const isActive = useIsSelectionActive()
   const selectionCount = useSelectionCount()
   const setCoverPickerOpen = useHomeStore(s => s.setBulkCoverPickerOpen)
+  const canManageTrash = useCanManageTrash()
 
   const handleSelectAll = () => {
     if (!context || totalSongs === null || totalSongs === 0) return
@@ -74,7 +79,7 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
         {isActive && (
           <>
             <ContextMenuSeparator />
-            {selectionCount > 1 && (
+            {selectionCount > 1 && context?.type !== 'trash' && (
               <ContextMenuItem onSelect={() => setCoverPickerOpen(true)}>
                 <ImageUpIcon />
                 {tBulk('contextMenu.setCover')}
@@ -84,6 +89,12 @@ export function SongRowContextMenu({ row, children, totalSongs }: SongRowContext
               <XIcon />
               {tBulk('contextMenu.clearSelection')}
             </ContextMenuItem>
+          </>
+        )}
+        {canManageTrash && (
+          <>
+            <ContextMenuSeparator />
+            <SongRowTrashItems song={row} inTrash={context?.type === 'trash'} />
           </>
         )}
       </ContextMenuContent>

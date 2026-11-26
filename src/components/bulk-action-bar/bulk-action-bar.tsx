@@ -15,9 +15,12 @@ import { useBulkFetchMusicBrainzCover } from '@/features/musicbrainz/hooks/use-b
 import { useBulkApplyMusicBrainz } from '@/features/musicbrainz/hooks/use-bulk-musicbrainz'
 import { useSmartPlaylists } from '@/features/smart-playlists/hooks/use-smart-playlists'
 import { buildBulkTargetFromSelection } from '@/features/songs/bulk-target-helpers'
+import { useCanManageTrash, useCanPurgeTrash } from '@/features/trash/hooks/use-can-manage-trash'
+import { useTrashActions } from '@/features/trash/hooks/use-trash-actions'
 import { type Song } from '@/features/songs/domain'
 import { useBulkUpdateSongPicture } from '@/features/songs/hooks/use-bulk-update-song-picture'
 import { useBulkUpdateSongs } from '@/features/songs/hooks/use-bulk-update-songs'
+import { useSelectedView } from '@/hooks/use-selected-view'
 import { useBulkSelectionStore, useSelectionCount, useSelectionState } from '@/stores/bulk-selection-store'
 import { type BulkSummaryKind, useHomeStore } from '@/stores/home-store'
 import { BulkActionBarPill } from './bulk-action-bar-pill'
@@ -37,6 +40,7 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const tFolders = useTranslations('folders')
   const tListens = useTranslations('listens')
   const tMusicBrainz = useTranslations('bulkMusicbrainz')
+  const tTrash = useTranslations('trash')
 
   const selection = useSelectionState()
   const count = useSelectionCount()
@@ -59,6 +63,11 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const setCoverMutation = useBulkUpdateSongPicture()
   const musicBrainzMutation = useBulkApplyMusicBrainz()
 
+  const { selectedView } = useSelectedView()
+  const canManageTrash = useCanManageTrash()
+  const canPurgeTrash = useCanPurgeTrash()
+  const trashActions = useTrashActions()
+
   const playlists = useSmartPlaylists().data
   const playlistName = useMemo(() => {
     if (selection?.mode !== 'all-in-context') return null
@@ -79,8 +88,19 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
   const contextLabel = buildContextLabel(selection, {
     playlistName,
     allFoldersLabel: tFolders('allFolders'),
-    recentListensLabel: tListens('title')
+    recentListensLabel: tListens('title'),
+    trashLabel: tTrash('title')
   })
+
+  const runTrashAction = (action: 'moveToTrash' | 'restore' | 'deletePermanently') => {
+    const target = buildBulkTargetFromSelection(selection)
+    if (!target) return
+
+    // A selection can hold thousands of songs, so deleting it asks first; one song from its row menu does not.
+    if (action === 'moveToTrash') trashActions.confirmMoveToTrash(target, count)
+    else if (action === 'deletePermanently') trashActions.deletePermanently(target, count)
+    else trashActions.restore(target)
+  }
 
   const handleEditSubmit = (patch: BulkPatch) => {
     // Nothing touched means nothing to send — the route rejects an empty payload.
@@ -276,6 +296,11 @@ export function BulkActionBar({ loadedSongs }: BulkActionBarProps) {
         onSetCover={() => setCoverPickerOpen(true)}
         onFetchCovers={() => setConfirmKind('cover')}
         onMusicBrainz={() => setMusicBrainzOpen(true)}
+        trashMode={!canManageTrash ? null : selectedView === 'trash' ? 'trash' : 'library'}
+        canDeletePermanently={canPurgeTrash}
+        onMoveToTrash={() => runTrashAction('moveToTrash')}
+        onRestore={() => runTrashAction('restore')}
+        onDeletePermanently={() => runTrashAction('deletePermanently')}
       />
 
       <BulkMusicBrainzModal

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import type { Song } from '@/features/songs/domain'
+import { ReadOnlySongProvider } from '@/features/songs/hooks/use-can-edit-song'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { DetailPanelToolbar } from './detail-panel-toolbar'
@@ -158,5 +159,33 @@ describe('DetailPanelToolbar - role-based actions', () => {
 
       expect(screen.getByTestId('settings-modal')).toHaveTextContent('detailPanel')
     })
+  })
+})
+
+describe('DetailPanelToolbar - read-only song (in the trash)', () => {
+  function renderReadOnlyToolbar(role: string) {
+    mockSession.data = { user: { role } }
+    return render(
+      <TooltipProvider>
+        <ReadOnlySongProvider value={true}>
+          <DetailPanelToolbar {...defaultProps} />
+        </ReadOnlySongProvider>
+      </TooltipProvider>
+    )
+  }
+
+  it('an admin gets none of the editing or sharing buttons', () => {
+    const { container } = renderReadOnlyToolbar('admin')
+    const desktop = container.querySelector('.hidden.md\\:flex')!
+
+    expect(desktop.querySelector('.lucide-refresh-cw')).not.toBeInTheDocument()
+    expect(desktop.querySelector('.lucide-history')).not.toBeInTheDocument()
+    expect(desktop.querySelector('.lucide-share-2')).not.toBeInTheDocument()
+    expect(desktop.querySelector('[data-testid="musicbrainz-icon"]')).not.toBeInTheDocument()
+  })
+
+  it('the song can still be closed', () => {
+    const { container } = renderReadOnlyToolbar('admin')
+    expect(container.querySelector('.lucide-x')).toBeInTheDocument()
   })
 })

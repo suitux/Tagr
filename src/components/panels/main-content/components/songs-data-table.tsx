@@ -7,6 +7,8 @@ import { BulkActionBar } from '@/components/bulk-action-bar/bulk-action-bar'
 import useColumnVisibility from '@/components/panels/main-content/components/columns/hooks/use-column-visibility'
 import { Button } from '@/components/ui/button'
 import { DataTable } from '@/components/ui/data-table'
+import { type ColumnSizingState, DEFAULT_COLUMN_SIZING } from '@/features/config/domain'
+import { useConfig } from '@/features/config/hooks/use-config'
 import { useUpdateConfig } from '@/features/config/hooks/use-update-config'
 import { genericJsonObjectParser } from '@/features/config/parsers'
 import { type ColumnField, Song } from '@/features/songs/domain'
@@ -37,6 +39,9 @@ export interface SongsDataTableProps {
   isFetchingNextPage: boolean
   showSavedFiltersDropdown?: boolean
   includeListenedAt?: boolean
+  includePurgeCountdown?: boolean
+  /** Shown instead of the "scan your library" card when there is nothing to list. */
+  EmptyState?: React.ComponentType
   getRowId?: (song: Song) => string
   selectedRowId?: string | null
   onRowSelect?: (song: Song) => void
@@ -52,6 +57,8 @@ export function SongsDataTable({
   isFetchingNextPage,
   showSavedFiltersDropdown = true,
   includeListenedAt = false,
+  includePurgeCountdown = false,
+  EmptyState = MainContentEmptyFilesState,
   getRowId = (song: Song) => String(song.id),
   selectedRowId,
   onRowSelect
@@ -76,7 +83,12 @@ export function SongsDataTable({
   const clearSelection = useBulkSelectionStore(s => s.clear)
   useKeyPress('Escape', clearSelection, { enabled: selectionActive })
 
-  const columns = useSongColumns(metadataKeys, { selectionActive, totalSongs, includeListenedAt })
+  const columns = useSongColumns(metadataKeys, {
+    selectionActive,
+    totalSongs,
+    includeListenedAt,
+    includePurgeCountdown
+  })
   const { data: columnVisibility } = useColumnVisibility({ columns })
 
   const SongRowWrapper = useCallback(
@@ -97,6 +109,18 @@ export function SongsDataTable({
   const setColumnVisibility = (value: VisibilityState) => {
     updateConfig({ key: 'columnVisibility', value: JSON.stringify(value) })
   }
+
+  // Column widths are a per-user setting shared by every song list (folders, playlists, history, trash).
+  const { data: columnSizing, isPending: isColumnSizingPending } = useConfig({
+    key: 'columnSizing',
+    parser: v => genericJsonObjectParser<ColumnSizingState>(v),
+    defaultData: DEFAULT_COLUMN_SIZING
+  })
+
+  const saveColumnSizing = useCallback(
+    (value: ColumnSizingState) => updateConfig({ key: 'columnSizing', value: JSON.stringify(value) }),
+    [updateConfig]
+  )
 
   const tableSorting: SortingState = useMemo(
     () => (sorting.sortField ? [{ id: sorting.sortField, desc: sorting.sort === 'desc' }] : []),
@@ -123,7 +147,7 @@ export function SongsDataTable({
   }, [hasNextPage, isFetchingNextPage, fetchNextPage])
 
   if (songs.length === 0 && !isLoadingSongs && !isAnyFilterActive) {
-    return <MainContentEmptyFilesState />
+    return <EmptyState />
   }
 
   return (
@@ -153,6 +177,10 @@ export function SongsDataTable({
       </div>
 
       <DataTable
+        // The table reads its starting widths once, so it mounts only when the stored ones are known.
+        key={isColumnSizingPending ? 'sizing-pending' : 'sizing-ready'}
+        initialColumnSizing={columnSizing ?? undefined}
+        onColumnSizingCommit={saveColumnSizing}
         columns={columns}
         data={songs}
         getRowId={getRowId}

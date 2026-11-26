@@ -23,7 +23,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { selectedPlaylistId } = useSelectedPlaylist()
   const { selectedSongId } = useSelectedSong()
   const { selectedView } = useSelectedView()
-  const { navigateToFolder, navigateToPlaylist, navigateToRecentListens } = useLibraryNavigation()
+  const { navigateToFolder, navigateToPlaylist, navigateToRecentListens, navigateToTrash } = useLibraryNavigation()
   const setFolderSheetOpen = useMobileNavStore(s => s.setFolderSheetOpen)
   const clearBulkSelect = useBulkSelectionStore(s => s.clear)
 
@@ -35,6 +35,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const handleFolderSelect = (folderId: string | null) => navigateToFolder(folderId)
   const handlePlaylistSelect = (playlistId: number | null) => navigateToPlaylist(playlistId)
   const handleRecentListensSelect = () => navigateToRecentListens()
+  const handleTrashSelect = () => navigateToTrash()
 
   return (
     <>
@@ -51,6 +52,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             onPlaylistSelect={handlePlaylistSelect}
             selectedView={selectedView}
             onRecentListensSelect={handleRecentListensSelect}
+            onTrashSelect={handleTrashSelect}
           />
         }
         main={children}

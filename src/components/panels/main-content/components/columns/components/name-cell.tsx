@@ -1,4 +1,5 @@
-import { AudioLines, MusicIcon, Pause, Play } from 'lucide-react'
+import { AudioLines, MusicIcon, Pause, Play, Trash2Icon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { getExtensionVariant } from '@/components/panels/main-content/utils'
 import { Badge } from '@/components/ui/badge'
 import { Image } from '@/components/ui/image'
@@ -25,6 +26,9 @@ const NameCell = function NameCell({ song }: { song: Song }) {
   const isPlaying = usePlayerStore(s => s.isPlaying)
   const play = usePlayerStore(s => s.play)
   const isCurrent = currentSong?.id === song.id
+  // In the trash (also when listed by the play history): the file is out of the library, so no playback.
+  const isTrashed = song.deletedAt != null
+  const tTrash = useTranslations('trash')
 
   const handlePlay = (e: React.MouseEvent) => {
     e.stopPropagation()
@@ -49,22 +53,24 @@ const NameCell = function NameCell({ song }: { song: Song }) {
             unoptimized
             fallbackComponent={<MusicIcon className='w-5 h-5 text-muted-foreground' />}
           />
-          {isCurrent && isPlaying ? (
+          {isTrashed ? null : isCurrent && isPlaying ? (
             <div
               className='absolute inset-0 bg-black/50 flex group-hover:hidden items-center justify-center rounded-lg'
               onClick={handlePlay}>
               <AudioLines className='w-5 h-5 text-white animate-pulse' />
             </div>
           ) : null}
-          <div
-            className='absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center cursor-pointer rounded-lg'
-            onClick={handlePlay}>
-            {isCurrent && isPlaying ? (
-              <Pause className='w-5 h-5 text-white fill-white' />
-            ) : (
-              <Play className='w-5 h-5 text-white fill-white' />
-            )}
-          </div>
+          {!isTrashed && (
+            <div
+              className='absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center cursor-pointer rounded-lg'
+              onClick={handlePlay}>
+              {isCurrent && isPlaying ? (
+                <Pause className='w-5 h-5 text-white fill-white' />
+              ) : (
+                <Play className='w-5 h-5 text-white fill-white' />
+              )}
+            </div>
+          )}
         </div>
       </div>
       <div className='min-w-0 flex-1'>
@@ -75,6 +81,12 @@ const NameCell = function NameCell({ song }: { song: Song }) {
           <Badge variant={getExtensionVariant(song.extension)} className='text-[10px] h-4'>
             {song.extension.toUpperCase()}
           </Badge>
+          {isTrashed && (
+            <Badge variant='outline' className='text-[10px] h-4 gap-1'>
+              <Trash2Icon />
+              {tTrash('inTrash')}
+            </Badge>
+          )}
           {song.artist && <span className='text-xs text-muted-foreground truncate'>{song.artist}</span>}
         </div>
       </div>

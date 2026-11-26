@@ -191,7 +191,9 @@
     "lastPlayed": "Last Played",
     "listenedAt": "Listened At",
     "playCount": "Play Count",
-    "lossless": "Lossless"
+    "lossless": "Lossless",
+    "purgeIn": "Deleted in",
+    "originalFolder": "Original folder"
   },
   "history": {
     "title": "Change History",
@@ -437,7 +439,8 @@
       "selectAllPlaylist": "Select entire smart playlist",
       "selectAllRecent": "Select everything recently played",
       "clearSelection": "Clear selection",
-      "setCover": "Set cover art for selection"
+      "setCover": "Set cover art for selection",
+      "selectAllTrash": "Select the whole trash"
     },
     "actionBar": {
       "selectedCount": "{count, plural, one {# song selected} other {# songs selected}}",
@@ -558,7 +561,8 @@
       "songList": "Song list",
       "detailPanel": "Song panel",
       "insights": "Insights",
-      "language": "Language"
+      "language": "Language",
+      "trash": "Trash"
     }
   },
   "detailPanelSettings": {
@@ -628,5 +632,67 @@
     "sendNow": "Send now",
     "sentToast": "Report sent",
     "sendFailedToast": "Could not send the report: {error}"
+  },
+  "trash": {
+    "title": "Trash",
+    "empty": "The trash is empty",
+    "emptyDescription": "Deleted songs stay here for a while before they are removed for good.",
+    "daysLeft": "{count, plural, =0 {Today} one {# day} other {# days}}",
+    "inTrash": "In trash",
+    "readOnlyNotice": "This song is in the trash. Restore it to play or edit it.",
+    "progress": {
+      "running": "Working…",
+      "count": "{completed} / {total}"
+    },
+    "actions": {
+      "trash": "Delete",
+      "restore": "Restore",
+      "delete": "Delete permanently",
+      "empty": "Empty trash",
+      "undo": "Undo"
+    },
+    "confirm": {
+      "trash": {
+        "title": "Delete {count, plural, one {# song} other {# songs}}?",
+        "description": "The files are moved to the trash and deleted for good after {days, plural, one {# day} other {# days}}. Until then you can restore them."
+      },
+      "delete": {
+        "title": "Delete {count, plural, one {# song} other {# songs}} permanently?",
+        "description": "The files are removed from disk. This cannot be undone."
+      },
+      "empty": {
+        "title": "Empty the trash?",
+        "description": "All {count, plural, one {# song} other {# songs}} in the trash are removed from disk. This cannot be undone."
+      }
+    },
+    "result": {
+      "trash": "{count, plural, one {# song moved} other {# songs moved}} to the trash",
+      "restore": "{count, plural, one {# song restored} other {# songs restored}}",
+      "delete": "{count, plural, one {# song deleted} other {# songs deleted}} permanently",
+      "empty": "Trash emptied ({count, plural, one {# song} other {# songs}})",
+      "partial": "{ok} done, {failed} failed",
+      "moreFailures": "…and {count} more"
+    },
+    "errors": {
+      "notFound": "the song no longer exists",
+      "alreadyTrashed": "already in the trash",
+      "notTrashed": "not in the trash",
+      "outsideLibrary": "the file is outside the music folders",
+      "conflict": "another file already exists at the original location",
+      "readOnly": "the music folder is read-only or Tagr may not write to it",
+      "missingFile": "the file is no longer on disk",
+      "unknown": "unexpected error"
+    },
+    "settings": {
+      "title": "Trash",
+      "description": "Deleted songs are moved to a __tagr_trash__ folder inside each music folder.",
+      "retentionLabel": "Delete permanently after",
+      "retentionOption": "{count, plural, one {# day} other {# days}}",
+      "retentionHelp": "Expired songs are removed automatically once a day. A shorter period also applies to what is already in the trash.",
+      "savedToast": "Trash setting saved",
+      "confirmTitle": "Keep deleted songs for {days, plural, one {# day} other {# days}}?",
+      "confirmDescription": "{count, plural, one {# song has} other {# songs have}} been in the trash for longer than that and will be deleted permanently right away. This cannot be undone.",
+      "confirmAction": "Save and delete"
+    }
   }
 }

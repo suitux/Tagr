@@ -5,9 +5,10 @@ import { prisma } from '@/infrastructure/prisma/dbClient'
 /** Song scalar fields without the nested relation inputs. */
 export type SongScalarFields = Omit<SongCreateInput, 'metadata' | 'pictures'>
 
-/** Matches a folder and all of its descendant folders. */
+/** Matches the songs of a folder and all of its descendant folders, leaving trashed songs out. */
 function folderTreeWhere(folderPath: string) {
   return {
+    deletedAt: null,
     OR: [{ folderPath }, { folderPath: { startsWith: folderPath + '/' } }]
   }
 }
@@ -20,10 +21,19 @@ function nestedRelations(metadata?: MetadataInput[], pictures?: PictureInput[]) 
 }
 
 export function countSongs(): Promise<number> {
-  return prisma.song.count()
+  return prisma.song.count({ where: { deletedAt: null } })
 }
 
+/**
+ * Single-song lookups skip the trash: a trashed song can't be played, edited, rescanned or shared, so
+ * to every caller but the trash itself it is simply "not found".
+ */
 export function findSongById(id: number): Promise<Song | null> {
+  return prisma.song.findFirst({ where: { id, deletedAt: null } })
+}
+
+/** For the trash, which is the one place that acts on trashed songs. */
+export function findSongByIdIncludingTrashed(id: number): Promise<Song | null> {
   return prisma.song.findUnique({ where: { id } })
 }
 
@@ -32,6 +42,11 @@ export function findSongByFilePath(filePath: string): Promise<Song | null> {
 }
 
 export function findSongWithMetadata(id: number) {
+  return prisma.song.findFirst({ where: { id, deletedAt: null }, include: { metadata: true } })
+}
+
+/** Read-only view of a song wherever it is, for the detail panel opened from the trash. */
+export function findSongWithMetadataIncludingTrashed(id: number) {
   return prisma.song.findUnique({ where: { id }, include: { metadata: true } })
 }
 
@@ -40,13 +55,13 @@ export function findFirstSongPicture(songId: number): Promise<SongPicture | null
 }
 
 export function findSongFilePath(id: number): Promise<{ filePath: string } | null> {
-  return prisma.song.findUnique({ where: { id }, select: { filePath: true } })
+  return prisma.song.findFirst({ where: { id, deletedAt: null }, select: { filePath: true } })
 }
 
 /** What the bulk MusicBrainz lookup matches songs to tracks on, plus the fields it may overwrite. */
 export function findSongsForMusicBrainzMatch(ids: number[]) {
   return prisma.song.findMany({
-    where: { id: { in: ids } },
+    where: { id: { in: ids }, deletedAt: null },
     select: {
       id: true,
       fileName: true,
@@ -74,8 +89,8 @@ export function findSongsForMusicBrainzMatch(ids: number[]) {
 export function findSongForPeaks(
   id: number
 ): Promise<{ filePath: string; duration: number | null; peaks: string | null } | null> {
-  return prisma.song.findUnique({
-    where: { id },
+  return prisma.song.findFirst({
+    where: { id, deletedAt: null },
     select: { filePath: true, duration: true, peaks: true }
   })
 }

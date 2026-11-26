@@ -3,7 +3,7 @@ import { parseSmartListRules } from '@/features/smart-playlists/helpers'
 import { findSmartPlaylistById } from '@/features/smart-playlists/smart-playlists.repository'
 import { BULK_RESOLVE_LIMIT, type BulkTarget } from '@/features/songs/bulk-target'
 import { ALL_SONGS_FOLDER_ID } from '@/features/songs/domain'
-import { getSongIdsByFolder, getSongIdsByPlaylist } from '@/features/songs/song-query.repository'
+import { getSongIdsByFolder, getSongIdsByPlaylist, getTrashedSongIds } from '@/features/songs/song-query.repository'
 
 export class BulkResolveError extends Error {
   constructor(
@@ -17,14 +17,22 @@ export class BulkResolveError extends Error {
 interface ResolveOptions {
   /** When provided, the playlist's userId/isPublic will be checked against this user. */
   userId?: string
+  /**
+   * Skips `BULK_RESOLVE_LIMIT`. For operations that only move or remove a file per song (the trash),
+   * where the cap would just force the user to work through a big selection in batches.
+   */
+  unlimited?: boolean
 }
 
 export async function resolveBulkTargetIds(target: BulkTarget, options?: ResolveOptions): Promise<number[]> {
+  const cap = options?.unlimited ? Infinity : BULK_RESOLVE_LIMIT
+  const take = options?.unlimited ? undefined : BULK_RESOLVE_LIMIT + 1
+
   if (target.mode === 'ids') {
     if (!Array.isArray(target.songIds) || target.songIds.some(id => typeof id !== 'number' || !Number.isFinite(id))) {
       throw new BulkResolveError('Invalid songIds', 400)
     }
-    if (target.songIds.length > BULK_RESOLVE_LIMIT) {
+    if (target.songIds.length > cap) {
       throw new BulkResolveError(`Too many songs (limit: ${BULK_RESOLVE_LIMIT})`, 400)
     }
     return [...new Set(target.songIds)]
@@ -39,7 +47,7 @@ export async function resolveBulkTargetIds(target: BulkTarget, options?: Resolve
 
   if (target.context.type === 'folder') {
     const folderPath = target.context.folderPath === ALL_SONGS_FOLDER_ID ? null : target.context.folderPath
-    ids = await getSongIdsByFolder(folderPath, target.search, target.filters, BULK_RESOLVE_LIMIT + 1)
+    ids = await getSongIdsByFolder(folderPath, target.search, target.filters, take)
   } else if (target.context.type === 'smart-playlist') {
     const playlist = await findSmartPlaylistById(target.context.playlistId)
     if (!playlist) throw new BulkResolveError('Playlist not found', 404)
@@ -49,15 +57,17 @@ export async function resolveBulkTargetIds(target: BulkTarget, options?: Resolve
     }
 
     const rules = parseSmartListRules(playlist.rules)
-    ids = await getSongIdsByPlaylist(rules, target.search, target.filters, BULK_RESOLVE_LIMIT + 1)
+    ids = await getSongIdsByPlaylist(rules, target.search, target.filters, take)
   } else if (target.context.type === 'recent-listens') {
     if (!options?.userId) throw new BulkResolveError('Unauthorized', 401)
-    ids = await listListenedSongIds(options.userId, target.search, target.filters, BULK_RESOLVE_LIMIT + 1)
+    ids = await listListenedSongIds(options.userId, target.search, target.filters, take)
+  } else if (target.context.type === 'trash') {
+    ids = await getTrashedSongIds(target.search, target.filters, take)
   } else {
     throw new BulkResolveError('Invalid context', 400)
   }
 
-  if (ids.length > BULK_RESOLVE_LIMIT) {
+  if (ids.length > cap) {
     throw new BulkResolveError(`Too many songs in selection (limit: ${BULK_RESOLVE_LIMIT})`, 400)
   }
 

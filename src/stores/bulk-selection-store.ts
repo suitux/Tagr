@@ -8,6 +8,7 @@ export type SelectionContext =
   | { type: 'folder'; folderPath: string; search?: string; filters?: SongColumnFilters }
   | { type: 'smart-playlist'; playlistId: number; search?: string; filters?: SongColumnFilters }
   | { type: 'recent-listens'; search?: string; filters?: SongColumnFilters }
+  | { type: 'trash'; search?: string; filters?: SongColumnFilters }
 
 export type SelectionState =
   | { mode: 'explicit'; ids: Set<number> }
