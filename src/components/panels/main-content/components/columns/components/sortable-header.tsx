@@ -42,23 +42,39 @@ export function SortableHeader<TData>({
   const isSelectField = SELECT_SONG_FIELDS.has(field)
   const hasRoomForFilter = column.getSize() > FILTER_MIN_COLUMN_WIDTH
 
+  // Too narrow for a filter: the freed row lets the title drop below the sort icon instead of fighting it for width.
+  const stacked = enableColumnFilter && !hasRoomForFilter
+
+  const sortIcon =
+    sorted === 'asc' ? (
+      <ArrowUp className={cn('h-4 w-4', !stacked && 'ml-2')} />
+    ) : sorted === 'desc' ? (
+      <ArrowDown className={cn('h-4 w-4', !stacked && 'ml-2')} />
+    ) : (
+      <ArrowUpDown className={cn('h-4 w-4 text-muted-foreground/50', !stacked && 'ml-2')} />
+    )
+
   return (
     <div className='flex flex-col gap-1 py-1'>
       <Button
         variant='ghost'
         className={cn('w-full cursor-pointer', className, {
-          'justify-start': justify === 'start',
-          'justify-center': justify === 'center',
-          'justify-end': justify === 'end'
+          'justify-start': !stacked && justify === 'start',
+          'justify-center': !stacked && justify === 'center',
+          'justify-end': !stacked && justify === 'end',
+          'h-auto flex-col gap-1 px-0 py-1': stacked
         })}
         onClick={() => column.toggleSorting(sorted === 'asc')}>
-        {label}
-        {sorted === 'asc' ? (
-          <ArrowUp className='ml-2 h-4 w-4' />
-        ) : sorted === 'desc' ? (
-          <ArrowDown className='ml-2 h-4 w-4' />
+        {stacked ? (
+          <>
+            {sortIcon}
+            <span className='max-w-full truncate'>{label}</span>
+          </>
         ) : (
-          <ArrowUpDown className='ml-2 h-4 w-4 text-muted-foreground/50' />
+          <>
+            {label}
+            {sortIcon}
+          </>
         )}
       </Button>
       {enableColumnFilter &&

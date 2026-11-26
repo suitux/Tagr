@@ -31,4 +31,24 @@ describe('SortableHeader filter', () => {
 
     expect(screen.queryByTestId('column-filter')).not.toBeInTheDocument()
   })
+
+  it('puts the title below the sort icon once the filter is hidden', () => {
+    renderHeader(FILTER_MIN_COLUMN_WIDTH)
+
+    const button = screen.getByRole('button', { name: 'Artist' })
+    const [icon, title] = [...button.children]
+
+    expect(button).toHaveClass('flex-col')
+    expect(icon.tagName.toLowerCase()).toBe('svg')
+    expect(title).toHaveTextContent('Artist')
+  })
+
+  it('keeps the title beside the icon while the filter is shown', () => {
+    renderHeader(FILTER_MIN_COLUMN_WIDTH + 1)
+
+    const button = screen.getByRole('button', { name: 'Artist' })
+
+    expect(button).not.toHaveClass('flex-col')
+    expect(button.lastElementChild?.tagName.toLowerCase()).toBe('svg')
+  })
 })
